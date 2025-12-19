@@ -38,5 +38,6 @@ export interface UserSubscription {
 
   // Taahhüt Bilgileri (Faz 1'in yıldızı)
   hasContract: boolean;
-  contractEndDate?: string; // "2025-01-20"
+  contractEndDate?: string; // "2025-01-20",
+  notificationId?: string; // YENİ EKLENEN SATIR (Opsiyonel)
 }
