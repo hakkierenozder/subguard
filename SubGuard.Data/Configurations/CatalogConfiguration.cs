@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SabGuard.Data.Configurations
 {
-    public class ServiceConfiguration : IEntityTypeConfiguration<Catalog>
+    public class CatalogConfiguration : IEntityTypeConfiguration<Catalog>
     {
         public void Configure(EntityTypeBuilder<Catalog> builder)
         {
@@ -21,8 +21,8 @@ namespace SabGuard.Data.Configurations
 
             // İlişki Tanımı (Bir Service'in çok Plan'ı olur)
             builder.HasMany(x => x.Plans)
-                   .WithOne(x => x.Service)
-                   .HasForeignKey(x => x.ServiceId)
+                   .WithOne(x => x.Catalog)
+                   .HasForeignKey(x => x.CatalogId)
                    .OnDelete(DeleteBehavior.Restrict); // Servis silinirse planları silme, hata ver (Güvenlik)
 
             // Tablo Adı

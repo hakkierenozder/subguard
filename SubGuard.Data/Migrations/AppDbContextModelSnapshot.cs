@@ -29,15 +29,11 @@ namespace SubGuard.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("CancellationUrl")
-                        .HasColumnType("text");
-
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("ColorCode")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedDate")
@@ -71,7 +67,7 @@ namespace SubGuard.Data.Migrations
                             Id = 1,
                             Category = "Streaming",
                             ColorCode = "#E50914",
-                            CreatedDate = new DateTime(2025, 12, 19, 14, 53, 10, 528, DateTimeKind.Utc).AddTicks(2505),
+                            CreatedDate = new DateTime(2025, 12, 19, 15, 31, 58, 468, DateTimeKind.Utc).AddTicks(2253),
                             IsDeleted = false,
                             Name = "Netflix",
                             RequiresContract = false
@@ -81,7 +77,7 @@ namespace SubGuard.Data.Migrations
                             Id = 2,
                             Category = "GSM",
                             ColorCode = "#FFC900",
-                            CreatedDate = new DateTime(2025, 12, 19, 14, 53, 10, 528, DateTimeKind.Utc).AddTicks(2508),
+                            CreatedDate = new DateTime(2025, 12, 19, 15, 31, 58, 468, DateTimeKind.Utc).AddTicks(2255),
                             IsDeleted = false,
                             Name = "Turkcell",
                             RequiresContract = true
@@ -91,7 +87,7 @@ namespace SubGuard.Data.Migrations
                             Id = 3,
                             Category = "Music",
                             ColorCode = "#1DB954",
-                            CreatedDate = new DateTime(2025, 12, 19, 14, 53, 10, 528, DateTimeKind.Utc).AddTicks(2509),
+                            CreatedDate = new DateTime(2025, 12, 19, 15, 31, 58, 468, DateTimeKind.Utc).AddTicks(2257),
                             IsDeleted = false,
                             Name = "Spotify",
                             RequiresContract = false
@@ -109,6 +105,9 @@ namespace SubGuard.Data.Migrations
                     b.Property<int>("BillingCycleDays")
                         .HasColumnType("integer");
 
+                    b.Property<int>("CatalogId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -124,30 +123,117 @@ namespace SubGuard.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("numeric");
-
-                    b.Property<int>("ServiceId")
-                        .HasColumnType("integer");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ServiceId");
+                    b.HasIndex("CatalogId");
 
-                    b.ToTable("Plans");
+                    b.ToTable("Plans", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            BillingCycleDays = 30,
+                            CatalogId = 1,
+                            CreatedDate = new DateTime(2025, 12, 19, 15, 31, 58, 468, DateTimeKind.Utc).AddTicks(5114),
+                            Currency = "TRY",
+                            IsDeleted = false,
+                            Name = "Temel",
+                            Price = 119.99m
+                        },
+                        new
+                        {
+                            Id = 2,
+                            BillingCycleDays = 30,
+                            CatalogId = 1,
+                            CreatedDate = new DateTime(2025, 12, 19, 15, 31, 58, 468, DateTimeKind.Utc).AddTicks(5116),
+                            Currency = "TRY",
+                            IsDeleted = false,
+                            Name = "Standart",
+                            Price = 176.99m
+                        },
+                        new
+                        {
+                            Id = 3,
+                            BillingCycleDays = 30,
+                            CatalogId = 1,
+                            CreatedDate = new DateTime(2025, 12, 19, 15, 31, 58, 468, DateTimeKind.Utc).AddTicks(5117),
+                            Currency = "TRY",
+                            IsDeleted = false,
+                            Name = "Özel",
+                            Price = 229.99m
+                        },
+                        new
+                        {
+                            Id = 4,
+                            BillingCycleDays = 30,
+                            CatalogId = 2,
+                            CreatedDate = new DateTime(2025, 12, 19, 15, 31, 58, 468, DateTimeKind.Utc).AddTicks(5118),
+                            Currency = "TRY",
+                            IsDeleted = false,
+                            Name = "Bireysel",
+                            Price = 59.99m
+                        },
+                        new
+                        {
+                            Id = 5,
+                            BillingCycleDays = 30,
+                            CatalogId = 2,
+                            CreatedDate = new DateTime(2025, 12, 19, 15, 31, 58, 468, DateTimeKind.Utc).AddTicks(5120),
+                            Currency = "TRY",
+                            IsDeleted = false,
+                            Name = "Duo",
+                            Price = 79.99m
+                        },
+                        new
+                        {
+                            Id = 6,
+                            BillingCycleDays = 30,
+                            CatalogId = 2,
+                            CreatedDate = new DateTime(2025, 12, 19, 15, 31, 58, 468, DateTimeKind.Utc).AddTicks(5121),
+                            Currency = "TRY",
+                            IsDeleted = false,
+                            Name = "Aile",
+                            Price = 99.99m
+                        },
+                        new
+                        {
+                            Id = 7,
+                            BillingCycleDays = 30,
+                            CatalogId = 3,
+                            CreatedDate = new DateTime(2025, 12, 19, 15, 31, 58, 468, DateTimeKind.Utc).AddTicks(5122),
+                            Currency = "TRY",
+                            IsDeleted = false,
+                            Name = "Platinum 20GB",
+                            Price = 350.00m
+                        },
+                        new
+                        {
+                            Id = 8,
+                            BillingCycleDays = 30,
+                            CatalogId = 3,
+                            CreatedDate = new DateTime(2025, 12, 19, 15, 31, 58, 468, DateTimeKind.Utc).AddTicks(5124),
+                            Currency = "TRY",
+                            IsDeleted = false,
+                            Name = "Gülümseten 10GB",
+                            Price = 220.00m
+                        });
                 });
 
             modelBuilder.Entity("SubGuard.Core.Entities.Plan", b =>
                 {
-                    b.HasOne("SubGuard.Core.Entities.Catalog", "Service")
+                    b.HasOne("SubGuard.Core.Entities.Catalog", "Catalog")
                         .WithMany("Plans")
-                        .HasForeignKey("ServiceId")
+                        .HasForeignKey("CatalogId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Service");
+                    b.Navigation("Catalog");
                 });
 
             modelBuilder.Entity("SubGuard.Core.Entities.Catalog", b =>
