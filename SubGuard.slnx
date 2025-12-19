@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="SubGuard.API/SubGuard.API.csproj" />
+  <Project Path="SubGuard.Core/SubGuard.Core.csproj" />
+  <Project Path="SubGuard.Data/SubGuard.Data.csproj" Id="d7cbdec8-74bf-418d-9598-c34eb1ba3ed5" />
+  <Project Path="SubGuard.Service/SubGuard.Service.csproj" />
+</Solution>

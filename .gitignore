@@ -1,0 +1,11 @@
+# Visual Studio
+.vs/
+.vscode/
+
+# Build Sonuçları (Gereksiz yer kaplar)
+bin/
+obj/
+
+# Kullanıcı Ayarları
+*.user
+*.suo
