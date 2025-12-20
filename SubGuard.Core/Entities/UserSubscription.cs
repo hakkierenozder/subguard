@@ -20,6 +20,9 @@ namespace SubGuard.Core.Entities
         // Özelleştirilmiş Veriler
         public string Name { get; set; } // Kullanıcı ismini değiştirebilir
         public decimal Price { get; set; }
+
+        public string? ColorCode { get; set; }
+
         public string Currency { get; set; }
         public int BillingDay { get; set; } // Fatura Günü (1-31)
         public string Category { get; set; }

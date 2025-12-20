@@ -12,6 +12,8 @@ namespace SubGuard.Core.DTOs
         public int BillingDay { get; set; }
         public string Category { get; set; }
 
+        public string? ColorCode { get; set; }
+
         public bool HasContract { get; set; }
         public DateTime? ContractEndDate { get; set; }
 

@@ -65,7 +65,7 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
     }
   }, [visible, selectedCatalogItem, subscriptionToEdit]);
 
-  const handleSave = async () => {
+const handleSave = async () => {
     if (!name || !price || !billingDay) {
       Alert.alert("Eksik Bilgi", "Lütfen isim, fiyat ve gün alanlarını doldurun.");
       return;
@@ -77,8 +77,12 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
       return;
     }
 
+    // Renk Kodu Mantığı: Katalogdan geliyorsa onu kullan, yoksa rastgele veya sabit gri
+    const defaultColor = '#333';
+    // Basit bir hash ile isme göre renk üretebilir veya sabit verebiliriz
+    const colorCode = selectedCatalogItem?.colorCode || defaultColor;
+
     const subData = {
-      // HATA DÜZELTİMİ: undefined kullanımı
       catalogId: selectedCatalogItem?.id || undefined, 
       name,
       price: parseFloat(price.replace(',', '.')),
@@ -87,14 +91,13 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
       category,
       hasContract,
       contractEndDate: hasContract ? contractDate.toISOString() : undefined,
-      colorCode: selectedCatalogItem?.colorCode || '#333'
+      colorCode: colorCode // <-- GÜNCELLENDİ
     };
 
     try {
         if (isEditing && subscriptionToEdit) {
           await updateSubscription(subscriptionToEdit.id, subData);
         } else {
-          // any cast ile tip hatasını geçici olarak aşıyoruz
           await addSubscription(subData as any);
         }
         onClose();

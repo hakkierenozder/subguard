@@ -17,9 +17,9 @@ namespace SubGuard.Data.Configurations
 
             // İlişki: Bir UserSubscription bir Catalog'a aittir.
             builder.HasOne(x => x.Catalog)
-                   .WithMany()
-                   .HasForeignKey(x => x.CatalogId)
-                   .OnDelete(DeleteBehavior.Restrict);
+                              .WithMany()
+                              .HasForeignKey(x => x.CatalogId)
+                              .IsRequired(false);
 
             builder.ToTable("UserSubscriptions");
         }

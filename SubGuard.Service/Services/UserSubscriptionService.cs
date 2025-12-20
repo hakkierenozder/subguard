@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore; // <-- BUNU MUTLAKA EKLE (Include ve ToListAsync için)
 using SubGuard.Core.DTOs;
 using SubGuard.Core.Entities;
 using SubGuard.Core.Repositories;
@@ -10,12 +11,19 @@ namespace SubGuard.Service.Services
     public class UserSubscriptionService : IUserSubscriptionService
     {
         private readonly IGenericRepository<UserSubscription> _repo;
+        private readonly IGenericRepository<Catalog> _catalogRepo; // <-- YENİ: Katalog Reposunu buraya ekledik
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public UserSubscriptionService(IGenericRepository<UserSubscription> repo, IUnitOfWork unitOfWork, IMapper mapper)
+        // Constructor'da catalogRepo'yu istiyoruz (Dependency Injection)
+        public UserSubscriptionService(
+            IGenericRepository<UserSubscription> repo,
+            IGenericRepository<Catalog> catalogRepo, // <-- EKLENDİ
+            IUnitOfWork unitOfWork,
+            IMapper mapper)
         {
             _repo = repo;
+            _catalogRepo = catalogRepo; // <-- ATANDI
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
@@ -23,6 +31,25 @@ namespace SubGuard.Service.Services
         public async Task<CustomResponseDto<UserSubscriptionDto>> AddSubscriptionAsync(UserSubscriptionDto dto)
         {
             var entity = _mapper.Map<UserSubscription>(dto);
+
+            // Renk ve Katalog kontrolü
+            if (string.IsNullOrEmpty(entity.ColorCode) && entity.CatalogId.HasValue)
+            {
+                // Artık _unitOfWork üzerinden değil, direkt _catalogRepo üzerinden çekiyoruz
+                var catalogItem = await _catalogRepo.GetByIdAsync(entity.CatalogId.Value);
+
+                if (catalogItem != null)
+                {
+                    entity.ColorCode = catalogItem.ColorCode;
+                }
+            }
+
+            // Varsayılan renk
+            if (string.IsNullOrEmpty(entity.ColorCode))
+            {
+                entity.ColorCode = "#333333";
+            }
+
             await _repo.AddAsync(entity);
             await _unitOfWork.CommitAsync();
 
@@ -32,13 +59,33 @@ namespace SubGuard.Service.Services
 
         public async Task<CustomResponseDto<List<UserSubscriptionDto>>> GetUserSubscriptionsAsync(string userId)
         {
-            // Where sorgusu
-            var list = _repo.Where(x => x.UserId == userId);
-            // Burada ToListAsync lazım olabilir ama IQueryable döndüğü için service katmanında materialization yapalım
-            // Not: GenericRepo IQueryable dönüyor.
+            // SENİN INTERFACE YAPINA UYGUN SORGULAMA:
+            // _repo.Where IQueryable döner, üzerine Include ve ToListAsync ekleyebiliriz.
+            var subscriptions = await _repo.Where(x => x.UserId == userId)
+                                           .Include(x => x.Catalog) // Catalog tablosunu birleştir
+                                           .ToListAsync();          // Veritabanına git ve çek
 
-            var dtoList = _mapper.Map<List<UserSubscriptionDto>>(list.ToList());
-            return CustomResponseDto<List<UserSubscriptionDto>>.Success(200, dtoList);
+            var subscriptionDtos = _mapper.Map<List<UserSubscriptionDto>>(subscriptions);
+
+            // --- RENK KURTARMA OPERASYONU ---
+            foreach (var dto in subscriptionDtos)
+            {
+                if (string.IsNullOrEmpty(dto.ColorCode))
+                {
+                    var entity = subscriptions.FirstOrDefault(x => x.Id == dto.Id);
+
+                    if (entity?.Catalog != null)
+                    {
+                        dto.ColorCode = entity.Catalog.ColorCode;
+                    }
+                    else
+                    {
+                        dto.ColorCode = "#333333";
+                    }
+                }
+            }
+
+            return CustomResponseDto<List<UserSubscriptionDto>>.Success(200, subscriptionDtos);
         }
 
         public async Task<CustomResponseDto<bool>> RemoveSubscriptionAsync(int id)
@@ -53,7 +100,6 @@ namespace SubGuard.Service.Services
 
         public async Task<CustomResponseDto<bool>> UpdateSubscriptionAsync(UserSubscriptionDto dto)
         {
-            // 1. Veritabanındaki orijinal kaydı bul
             var entity = await _repo.GetByIdAsync(dto.Id);
 
             if (entity == null)
@@ -61,12 +107,8 @@ namespace SubGuard.Service.Services
                 return CustomResponseDto<bool>.Fail(404, "Abonelik bulunamadı.");
             }
 
-            // 2. Gelen DTO'daki yeni verileri Entity'nin üzerine yaz (Map)
-            // AutoMapper bunu otomatik yapar ama manuel de yapabiliriz.
-            // _mapper.Map(source, destination) kullanımı:
             _mapper.Map(dto, entity);
 
-            // 3. Değişiklikleri kaydet
             _repo.Update(entity);
             await _unitOfWork.CommitAsync();
 
