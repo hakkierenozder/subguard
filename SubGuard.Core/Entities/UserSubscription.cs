@@ -13,7 +13,7 @@ namespace SubGuard.Core.Entities
         public string UserId { get; set; }
 
         // Hangi Servis? (İlişkili Veri)
-        public int CatalogId { get; set; }
+        public int? CatalogId { get; set; }
         [ForeignKey("CatalogId")]
         public Catalog Catalog { get; set; }
 
