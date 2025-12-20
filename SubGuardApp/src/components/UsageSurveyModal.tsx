@@ -1,57 +1,54 @@
 import React from 'react';
-import { Modal, View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { UserSubscription, UsageStatus } from '../types/index';
+import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { UserSubscription, UsageStatus } from '../types';
 import { Ionicons } from '@expo/vector-icons';
 
 interface Props {
   visible: boolean;
   subscription: UserSubscription | null;
-  onAnswer: (status: UsageStatus) => void;
   onClose: () => void;
+  onResponse: (status: UsageStatus) => void;
 }
 
-export default function UsageSurveyModal({ visible, subscription, onAnswer, onClose }: Props) {
+export default function UsageSurveyModal({ visible, subscription, onClose, onResponse }: Props) {
   if (!subscription) return null;
 
   return (
-    <Modal visible={visible} animationType="fade" transparent={true} onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType="fade">
       <View style={styles.overlay}>
-        <View style={[styles.card, { borderTopColor: subscription.colorCode || '#333' }]}>
+        <View style={styles.card}>
+          <View style={styles.iconContainer}>
+             <Ionicons name="analytics" size={40} color="#333" />
+          </View>
           
-          {/* Başlık ve Kapatma */}
-          <View style={styles.header}>
-            <Text style={styles.title}>Kullanım Kontrolü 🕵️‍♂️</Text>
-            <TouchableOpacity onPress={onClose}>
-                <Ionicons name="close" size={24} color="#999" />
-            </TouchableOpacity>
-          </View>
+          <Text style={styles.title}>Kullanım Kontrolü 🧐</Text>
+          <Text style={styles.subtitle}>
+            <Text style={{fontWeight:'bold'}}>{subscription.name}</Text> aboneliğini bu ay ne kadar kullandın?
+          </Text>
 
-          {/* Soru */}
-          <View style={styles.content}>
-            <Text style={styles.question}>
-              Bu ay <Text style={{fontWeight: 'bold', color: subscription.colorCode || '#333'}}>{subscription.name}</Text> servisini ne kadar kullandın?
-            </Text>
-            <Text style={styles.priceInfo}>({subscription.price} {subscription.currency} ödedin)</Text>
-          </View>
-
-          {/* Cevap Butonları */}
-          <View style={styles.actions}>
-            <TouchableOpacity style={[styles.btn, styles.btnActive]} onPress={() => onAnswer('active')}>
+          <View style={styles.optionsContainer}>
+            {/* active: Çok Kullandım */}
+            <TouchableOpacity style={[styles.optionBtn, {backgroundColor: '#2ecc71'}]} onPress={() => onResponse('active')}>
                 <Text style={styles.emoji}>🔥</Text>
-                <Text style={styles.btnText}>Çok / Aktif</Text>
+                <Text style={styles.btnText}>Çok Kullandım</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.btn, styles.btnLow]} onPress={() => onAnswer('low')}>
-                <Text style={styles.emoji}>👀</Text>
-                <Text style={styles.btnText}>Arada Bir</Text>
+            {/* low: Az/Eh İşte */}
+            <TouchableOpacity style={[styles.optionBtn, {backgroundColor: '#f1c40f'}]} onPress={() => onResponse('low')}>
+                <Text style={styles.emoji}>😐</Text>
+                <Text style={styles.btnText}>Eh İşte</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.btn, styles.btnNone]} onPress={() => onAnswer('none')}>
-                <Text style={styles.emoji}>👻</Text>
-                <Text style={styles.btnText}>Hiç Girmedim</Text>
+            {/* none: Hiç */}
+            <TouchableOpacity style={[styles.optionBtn, {backgroundColor: '#e74c3c'}]} onPress={() => onResponse('none')}>
+                <Text style={styles.emoji}>🕸️</Text>
+                <Text style={styles.btnText}>Hiç Kullanmadım</Text>
             </TouchableOpacity>
           </View>
 
+          <TouchableOpacity onPress={onClose} style={styles.skipBtn}>
+            <Text style={styles.skipText}>Şimdilik Geç</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </Modal>
@@ -59,18 +56,15 @@ export default function UsageSurveyModal({ visible, subscription, onAnswer, onCl
 }
 
 const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', padding: 20 },
-  card: { backgroundColor: 'white', borderRadius: 16, padding: 20, borderTopWidth: 8 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
-  title: { fontSize: 18, fontWeight: 'bold', color: '#333' },
-  content: { marginBottom: 20, alignItems: 'center' },
-  question: { fontSize: 18, textAlign: 'center', color: '#444', marginBottom: 5 },
-  priceInfo: { fontSize: 14, color: '#999' },
-  actions: { flexDirection: 'row', justifyContent: 'space-between' },
-  btn: { flex: 1, alignItems: 'center', padding: 10, borderRadius: 12, borderWidth: 1, borderColor: '#eee', marginHorizontal: 4 },
-  btnActive: { backgroundColor: '#e8f5e9', borderColor: '#c8e6c9' },
-  btnLow: { backgroundColor: '#fff8e1', borderColor: '#ffecb3' },
-  btnNone: { backgroundColor: '#ffebee', borderColor: '#ffcdd2' },
+  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', padding: 20 },
+  card: { backgroundColor: 'white', borderRadius: 20, padding: 25, width: '100%', alignItems: 'center', elevation: 5 },
+  iconContainer: { marginBottom: 15, backgroundColor: '#f0f0f0', padding: 15, borderRadius: 50 },
+  title: { fontSize: 22, fontWeight: 'bold', color: '#333', marginBottom: 10 },
+  subtitle: { fontSize: 16, color: '#666', textAlign: 'center', marginBottom: 25, lineHeight: 22 },
+  optionsContainer: { width: '100%', flexDirection: 'row', justifyContent: 'space-between' },
+  optionBtn: { flex: 1, padding: 15, borderRadius: 12, alignItems: 'center', marginHorizontal: 4 },
   emoji: { fontSize: 24, marginBottom: 5 },
-  btnText: { fontSize: 11, fontWeight: 'bold', color: '#555', textAlign: 'center' }
+  btnText: { color: 'white', fontWeight: 'bold', fontSize: 11, textAlign:'center' },
+  skipBtn: { marginTop: 20, padding: 10 },
+  skipText: { color: '#999', textDecorationLine: 'underline' }
 });

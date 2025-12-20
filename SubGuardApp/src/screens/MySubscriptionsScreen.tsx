@@ -104,7 +104,7 @@ export default function MySubscriptionsScreen() {
 
       <View style={styles.summaryRow}>
         <View style={styles.summaryCardSmall}>
-            <Text style={styles.summaryLabel}>Aylık Toplam</Text>
+            <Text style={styles.summaryLabel}>Aylık Payın</Text> {/* Label güncellendi */}
             <Text style={styles.summaryValue}>≈ {totalExpense.toFixed(0)} ₺</Text>
         </View>
         
@@ -148,6 +148,12 @@ export default function MySubscriptionsScreen() {
     const daysLeft = item.hasContract ? getDaysLeft(item.contractEndDate) : null;
     const isCritical = daysLeft !== null && daysLeft <= 90 && daysLeft > 0;
     const isExpired = daysLeft !== null && daysLeft <= 0;
+    
+    // --- HESAPLAMA MANTIĞI EKLENDİ ---
+    const partnerCount = (item.sharedWith?.length || 0);
+    const myShare = partnerCount > 0 
+      ? (item.price / (partnerCount + 1)).toFixed(2) 
+      : null;
 
     return (
       <TouchableOpacity
@@ -158,8 +164,11 @@ export default function MySubscriptionsScreen() {
           <View>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={styles.name}>{item.name}</Text>
-              {item.sharedWith && item.sharedWith.length > 0 && (
-                <Ionicons name="people" size={16} color="#999" style={{ marginLeft: 6 }} />
+              {partnerCount > 0 && (
+                <View style={{flexDirection:'row', alignItems:'center', marginLeft: 6, backgroundColor:'#eee', paddingHorizontal:6, paddingVertical:2, borderRadius:8}}>
+                    <Ionicons name="people" size={12} color="#666" style={{ marginRight: 4 }} />
+                    <Text style={{fontSize:10, color:'#666', fontWeight:'bold'}}>{partnerCount + 1}</Text>
+                </View>
               )}
             </View>
 
@@ -174,13 +183,29 @@ export default function MySubscriptionsScreen() {
                 )}
               </View>
             ) : (
-                <Text style={styles.price}>{item.price} {item.currency}</Text>
+              // --- UI GÜNCELLEMESİ (SOL TARAFA PAY EKLEME) ---
+              <View>
+                  <Text style={styles.price}>{item.price} {item.currency}</Text>
+                  {myShare && (
+                      <Text style={{fontSize: 11, color:'#2ecc71', fontWeight:'600', marginTop: 2}}>
+                          Payın: {myShare} {item.currency}
+                      </Text>
+                  )}
+              </View>
             )}
           </View>
 
           <View style={{ alignItems: 'flex-end', justifyContent: 'center' }}>
             {item.hasContract ? (
-              <Text style={[styles.price, { marginTop: 0, fontSize: 16 }]}>{item.price} {item.currency}</Text>
+              // --- UI GÜNCELLEMESİ (SAĞ TARAFA PAY EKLEME - SÖZLEŞMELİ İSE) ---
+              <View style={{alignItems:'flex-end'}}>
+                  <Text style={[styles.price, { marginTop: 0, fontSize: 16 }]}>{item.price} {item.currency}</Text>
+                  {myShare && (
+                      <Text style={{fontSize: 11, color:'#2ecc71', fontWeight:'600'}}>
+                          Payın: {myShare}
+                      </Text>
+                  )}
+              </View>
             ) : (
               <>
                 <Text style={styles.dateValue}>{item.billingDay}. Gün</Text>
@@ -188,7 +213,7 @@ export default function MySubscriptionsScreen() {
               </>
             )}
 
-            {item.sharedWith && item.sharedWith.length > 0 && (
+            {partnerCount > 0 && (
               <TouchableOpacity style={styles.whatsappButton} onPress={() => handleSendReminder(item)}>
                 <Ionicons name="logo-whatsapp" size={14} color="white" />
                 <Text style={{ color: 'white', fontSize: 10, fontWeight: 'bold', marginLeft: 2 }}>İste</Text>
@@ -210,7 +235,7 @@ export default function MySubscriptionsScreen() {
         data={filteredData}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: 80 }} // FAB altında kalmasın diye padding arttırdık
+        contentContainerStyle={{ paddingBottom: 80 }}
         ListHeaderComponent={renderHeader}
         ListEmptyComponent={
             <View style={styles.emptyContainer}>
@@ -226,7 +251,6 @@ export default function MySubscriptionsScreen() {
         }
       />
 
-      {/* YÜZEN EKLEME BUTONU (FAB) */}
       <TouchableOpacity 
         style={styles.fab} 
         onPress={() => {
@@ -254,32 +278,50 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f8f9fa' },
   headerContainer: { padding: 20, backgroundColor: '#fff', paddingBottom: 15, borderBottomWidth: 1, borderBottomColor: '#eee' },
   header: { fontSize: 28, fontWeight: 'bold', marginBottom: 15, color: '#333' },
+  
   summaryRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
-  summaryCardSmall: { flex: 1, backgroundColor: '#f8f9fa', padding: 12, borderRadius: 12, marginHorizontal: 4, borderWidth: 1, borderColor: '#eee' },
+  summaryCardSmall: { 
+      flex: 1, backgroundColor: '#f8f9fa', padding: 12, borderRadius: 12, marginHorizontal: 4, 
+      borderWidth: 1, borderColor: '#eee'
+  },
   summaryLabel: { fontSize: 11, color: '#999', marginBottom: 2, textTransform: 'uppercase', fontWeight: '600' },
   summaryValue: { fontSize: 20, fontWeight: 'bold', color: '#333' },
   nextPaymentName: { fontSize: 16, fontWeight: 'bold', color: '#333' },
   nextPaymentDate: { fontSize: 12, color: '#e74c3c', fontWeight: '600' },
+
   filterSection: {},
-  searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f1f3f5', paddingHorizontal: 12, paddingVertical: 10, borderRadius: 10, marginBottom: 12 },
+  searchBar: { 
+      flexDirection: 'row', alignItems: 'center', backgroundColor: '#f1f3f5', 
+      paddingHorizontal: 12, paddingVertical: 10, borderRadius: 10, marginBottom: 12 
+  },
   searchInput: { flex: 1, marginLeft: 8, fontSize: 15, color: '#333' },
   sortRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  sortChip: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 20, borderWidth: 1, borderColor: '#ddd' },
+  sortChip: { 
+      flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', 
+      paddingVertical: 6, paddingHorizontal: 10, borderRadius: 20, 
+      borderWidth: 1, borderColor: '#ddd' 
+  },
   activeSortChip: { backgroundColor: '#333', borderColor: '#333' },
   sortChipText: { fontSize: 11, color: '#666', fontWeight: '600' },
   activeSortChipText: { color: '#fff' },
-  card: { backgroundColor: 'white', borderRadius: 12, marginBottom: 12, marginHorizontal: 20, padding: 16, borderLeftWidth: 5, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 3, elevation: 2, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+
+  card: { 
+      backgroundColor: 'white', borderRadius: 12, marginBottom: 12, marginHorizontal: 20, padding: 16, 
+      borderLeftWidth: 5, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 3, elevation: 2, 
+      flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' 
+  },
   cardContent: { flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginRight: 10 },
   name: { fontSize: 16, fontWeight: '600', color: '#333' },
   price: { fontSize: 15, color: '#2ecc71', fontWeight: 'bold', marginTop: 2 },
   dateText: { fontSize: 10, color: '#999' },
   dateValue: { fontSize: 14, color: '#555', fontWeight: 'bold' },
   deleteButton: { padding: 8 },
+  
   whatsappButton: { flexDirection: 'row', backgroundColor: '#25D366', paddingVertical: 4, paddingHorizontal: 8, borderRadius: 12, alignItems: 'center', marginTop: 6 },
+  
   emptyContainer: { alignItems: 'center', marginTop: 50 },
   emptyText: { color: '#999', fontSize: 16 },
-  
-  // DÜZELTME BURADA:
+
   fab: {
     position: 'absolute',
     bottom: 20,
@@ -290,11 +332,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#333',
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 10, // Android için yükseltildi
+    elevation: 10,
     shadowColor: '#000',
     shadowOpacity: 0.3,
     shadowRadius: 5,
     shadowOffset: { width: 0, height: 4 },
-    zIndex: 9999, // iOS ve genel katman sırası için eklendi
+    zIndex: 9999,
   }
 });

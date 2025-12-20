@@ -1,129 +1,233 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Image, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView, RefreshControl, Image, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCatalogStore } from '../store/useCatalogStore';
-import { CatalogItem } from '../types';
-import AddSubscriptionModal from '../components/AddSubscriptionModal'; // Import Et
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
-import UsageSurveyModal from '../components/UsageSurveyModal';
-import { UserSubscription, UsageStatus } from '../types/index';
+import { CatalogItem, UserSubscription } from '../types';
+import AddSubscriptionModal from '../components/AddSubscriptionModal';
+import UsageSurveyModal from '../components/UsageSurveyModal'; // <-- Anketi ekledik
+import { getUserName } from '../utils/AuthManager';
+import { Ionicons } from '@expo/vector-icons';
+import { convertToTRY } from '../utils/CurrencyService';
 
 export default function HomeScreen() {
-  const { items, loading, error, fetchCatalogs } = useCatalogStore();
-  const { getPendingSurvey, logUsage } = useUserSubscriptionStore();
+  // Store'lar
+  const { catalogItems, fetchCatalog, loading: catalogLoading } = useCatalogStore();
+  const { 
+    subscriptions, 
+    fetchUserSubscriptions, 
+    getTotalExpense, 
+    getPendingSurvey,
+    logUsage 
+  } = useUserSubscriptionStore();
 
-  // Modal State'leri
-  const [modalVisible, setModalVisible] = useState(false);
+  // State'ler
+  const [userName, setUserName] = useState('');
   const [selectedItem, setSelectedItem] = useState<CatalogItem | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  
+  // Anket State'i
   const [surveySub, setSurveySub] = useState<UserSubscription | null>(null);
 
-useEffect(() => {
-    fetchCatalogs();
-    
-    // Sayfa açıldığında anket var mı kontrol et
-    // (Kullanıcıyı boğmamak için 1 saniye gecikmeli açılabilir)
-    const timer = setTimeout(() => {
-        const pending = getPendingSurvey();
-        if (pending) {
-            setSurveySub(pending);
-        }
-    }, 1500);
-    return () => clearTimeout(timer);
+  useEffect(() => {
+    loadData();
   }, []);
 
-  const handleSurveyAnswer = (status: UsageStatus) => {
-    if (surveySub) {
-        logUsage(surveySub.id, status);
-        setSurveySub(null); // Modalı kapat
-        
-        // İstersen ardışık sormak için tekrar kontrol ettirebilirsin:
-        // const next = getPendingSurvey();
-        // if(next) setSurveySub(next);
-    }
+  // Kullanıcı ve Veri Yükleme
+  const loadData = async () => {
+    const name = await getUserName();
+    setUserName(name);
+    
+    await Promise.all([
+        fetchCatalog(),
+        fetchUserSubscriptions()
+    ]);
+
+    // Anket Kontrolü (Veriler yüklendikten sonra)
+    checkSurvey(); 
   };
 
-  const handleCardPress = (item: CatalogItem) => {
-    setSelectedItem(item);
-    setModalVisible(true);
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadData();
+    setRefreshing(false);
   };
 
-  if (loading) return <View style={styles.center}><ActivityIndicator size="large" /></View>;
-  if (error) return <View style={styles.center}><Text>{error}</Text></View>;
+  const checkSurvey = () => {
+      const pending = getPendingSurvey();
+      if (pending) {
+          // Biraz gecikmeli açalım ki kullanıcı korkmasın
+          setTimeout(() => setSurveySub(pending), 1500);
+      }
+  };
 
-  const renderItem = ({ item }: { item: CatalogItem }) => (
-    <TouchableOpacity
-      style={[styles.card, { borderColor: item.colorCode || '#ddd' }]}
-      onPress={() => handleCardPress(item)} // Tıklama Olayı
-    >
-      {item.logoUrl ? (
-        <Image source={{ uri: item.logoUrl }} style={styles.logo} resizeMode="contain" />
-      ) : (
-        <View style={[styles.placeholderLogo, { backgroundColor: item.colorCode || '#999' }]}>
-          <Text style={styles.placeholderText}>{item.name.charAt(0)}</Text>
+  // Yaklaşan Ödemeler (En yakın 2)
+  const upcomingPayments = [...subscriptions]
+    .sort((a, b) => {
+        const today = new Date().getDate();
+        const dayA = a.billingDay < today ? a.billingDay + 30 : a.billingDay;
+        const dayB = b.billingDay < today ? b.billingDay + 30 : b.billingDay;
+        return dayA - dayB;
+    })
+    .slice(0, 2);
+
+  // --- RENDER ---
+
+  const renderUpcomingCard = (item: UserSubscription) => {
+      const today = new Date().getDate();
+      let daysLeft = item.billingDay - today;
+      if (daysLeft < 0) daysLeft += 30;
+      
+      return (
+        <View key={item.id} style={[styles.upcomingCard, { borderLeftColor: item.colorCode || '#333' }]}>
+            <View>
+                <Text style={styles.upName}>{item.name}</Text>
+                <Text style={styles.upPrice}>{item.price} {item.currency}</Text>
+            </View>
+            <View style={styles.upDayContainer}>
+                <Text style={styles.upDayVal}>{daysLeft}</Text>
+                <Text style={styles.upDayLabel}>gün kaldı</Text>
+            </View>
         </View>
-      )}
-      <Text style={styles.cardTitle}>{item.name}</Text>
-      <Text style={styles.cardCategory}>{item.category}</Text>
-      <Text style={styles.planCount}>{item.plans?.length || 0} Paket</Text>
+      );
+  };
+
+  const renderCatalogItem = ({ item }: { item: CatalogItem }) => (
+    <TouchableOpacity style={styles.catalogItem} onPress={() => setSelectedItem(item)}>
+      <View style={[styles.iconPlaceholder, { backgroundColor: item.colorCode || '#ddd' }]}>
+        <Text style={styles.iconText}>{item.name.charAt(0)}</Text>
+      </View>
+      <View style={styles.itemInfo}>
+        <Text style={styles.itemName}>{item.name}</Text>
+        <Text style={styles.itemCategory}>{item.category}</Text>
+      </View>
+      <Ionicons name="add-circle" size={28} color="#333" />
     </TouchableOpacity>
   );
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.header}>Abonelik Ekle</Text>
+      <StatusBar barStyle="dark-content" />
+      
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
+        {/* HEADER */}
+        <View style={styles.header}>
+            <View>
+                <Text style={styles.greeting}>Merhaba,</Text>
+                <Text style={styles.username}>{userName} 👋</Text>
+            </View>
+            <View style={styles.avatar}>
+                <Text style={styles.avatarText}>{userName?.charAt(0).toUpperCase()}</Text>
+            </View>
+        </View>
 
-      <FlatList
-        data={items}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderItem}
-        numColumns={2}
-        columnWrapperStyle={{ justifyContent: 'space-between' }}
+        {/* ÖZET PANOSU */}
+        <View style={styles.dashboard}>
+            <View style={styles.dashItem}>
+                <Text style={styles.dashLabel}>Aylık Toplam</Text>
+                <Text style={styles.dashValue}>{getTotalExpense().toFixed(0)} ₺</Text>
+            </View>
+            <View style={styles.dashDivider} />
+            <View style={styles.dashItem}>
+                <Text style={styles.dashLabel}>Aktif Abonelik</Text>
+                <Text style={styles.dashValue}>{subscriptions.length}</Text>
+            </View>
+        </View>
+
+        {/* YAKLAŞAN ÖDEMELER */}
+        {upcomingPayments.length > 0 && (
+            <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Yaklaşan Ödemeler</Text>
+                <View style={styles.upcomingRow}>
+                    {upcomingPayments.map(renderUpcomingCard)}
+                </View>
+            </View>
+        )}
+
+        {/* KEŞFET (KATALOG) */}
+        <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Yeni Abonelik Ekle</Text>
+            <FlatList
+                data={catalogItems}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={renderCatalogItem}
+                scrollEnabled={false} // Ana scroll ile çakışmasın
+                contentContainerStyle={styles.listContainer}
+            />
+        </View>
+
+      </ScrollView>
+
+      {/* MODALLAR */}
+      <AddSubscriptionModal
+        visible={!!selectedItem}
+        onClose={() => setSelectedItem(null)}
+        selectedCatalogItem={selectedItem}
       />
 
-      {/* ANKET MODALI */}
-      <UsageSurveyModal 
+      <UsageSurveyModal
         visible={!!surveySub}
         subscription={surveySub}
-        onAnswer={handleSurveyAnswer}
         onClose={() => setSurveySub(null)}
+        onResponse={(status) => {
+            if (surveySub) logUsage(surveySub.id, status);
+            setSurveySub(null);
+        }}
       />
 
-      {/* MODAL BİLEŞENİ */}
-      <AddSubscriptionModal
-        visible={modalVisible}
-        selectedCatalogItem={selectedItem}
-        onClose={() => setModalVisible(false)}
-      />
     </SafeAreaView>
   );
 }
 
-// ... styles aynı kalacak ...
 const styles = StyleSheet.create({
-  // ... eski stiller aynı ...
-  container: { flex: 1, backgroundColor: '#f5f5f5', padding: 16 },
-  header: { fontSize: 24, fontWeight: 'bold', marginBottom: 20, color: '#333' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  card: {
-    backgroundColor: 'white',
-    width: '48%',
-    aspectRatio: 1,
-    borderRadius: 12,
-    padding: 10,
-    marginBottom: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 }
+  container: { flex: 1, backgroundColor: '#f8f9fa' },
+  scrollContent: { padding: 20 },
+  
+  // Header
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 25 },
+  greeting: { fontSize: 16, color: '#666' },
+  username: { fontSize: 24, fontWeight: 'bold', color: '#333' },
+  avatar: { width: 45, height: 45, borderRadius: 25, backgroundColor: '#333', justifyContent: 'center', alignItems: 'center' },
+  avatarText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
+
+  // Dashboard
+  dashboard: { 
+      flexDirection: 'row', backgroundColor: '#fff', borderRadius: 16, padding: 20, marginBottom: 25,
+      shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 10, elevation: 3 
   },
-  logo: { width: 50, height: 50, marginBottom: 8 },
-  placeholderLogo: { width: 50, height: 50, borderRadius: 25, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
-  placeholderText: { color: 'white', fontSize: 20, fontWeight: 'bold' },
-  cardTitle: { fontSize: 16, fontWeight: 'bold', color: '#333' },
-  cardCategory: { fontSize: 12, color: '#666' },
-  planCount: { fontSize: 10, color: '#999', marginTop: 4 },
-  retryButton: { backgroundColor: '#333', padding: 10, borderRadius: 5 }
+  dashItem: { flex: 1, alignItems: 'center' },
+  dashLabel: { fontSize: 12, color: '#999', marginBottom: 5, textTransform: 'uppercase', fontWeight: '600' },
+  dashValue: { fontSize: 22, fontWeight: 'bold', color: '#333' },
+  dashDivider: { width: 1, backgroundColor: '#eee', marginHorizontal: 10 },
+
+  // Yaklaşanlar
+  section: { marginBottom: 25 },
+  sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#333', marginBottom: 15 },
+  upcomingRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  upcomingCard: { 
+      flex: 1, backgroundColor: '#fff', padding: 15, borderRadius: 12, marginRight: 10,
+      borderLeftWidth: 4, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 5, elevation: 2,
+      flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'
+  },
+  upName: { fontSize: 14, fontWeight: 'bold', color: '#333' },
+  upPrice: { fontSize: 12, color: '#666', marginTop: 2 },
+  upDayContainer: { alignItems: 'center' },
+  upDayVal: { fontSize: 16, fontWeight: 'bold', color: '#e74c3c' },
+  upDayLabel: { fontSize: 8, color: '#999' },
+
+  // Katalog Liste
+  listContainer: { paddingBottom: 10 },
+  catalogItem: { 
+      flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', 
+      padding: 12, borderRadius: 12, marginBottom: 10, 
+      borderWidth: 1, borderColor: '#f0f0f0' 
+  },
+  iconPlaceholder: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginRight: 15 },
+  iconText: { color: 'white', fontWeight: 'bold', fontSize: 18 },
+  itemInfo: { flex: 1 },
+  itemName: { fontSize: 16, fontWeight: '600', color: '#333' },
+  itemCategory: { fontSize: 12, color: '#999' }
 });

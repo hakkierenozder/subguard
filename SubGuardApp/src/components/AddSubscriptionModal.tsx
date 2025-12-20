@@ -18,16 +18,22 @@ type CurrencyType = 'TRY' | 'USD' | 'EUR';
 export default function AddSubscriptionModal({ visible, onClose, selectedCatalogItem, subscriptionToEdit }: Props) {
   const { addSubscription, updateSubscription } = useUserSubscriptionStore();
   
-  // State'ler
+  // Temel Bilgiler
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [category, setCategory] = useState('Other');
   const [currency, setCurrency] = useState<CurrencyType>('TRY');
   const [billingDay, setBillingDay] = useState('1');
   
+  // Sözleşme
   const [hasContract, setHasContract] = useState(false);
   const [contractDate, setContractDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
+
+  // --- YENİ: Ortak Kullanıcılar ---
+  const [sharedWith, setSharedWith] = useState<string[]>([]);
+  const [tempPerson, setTempPerson] = useState('');
+  const [showShareInput, setShowShareInput] = useState(false);
 
   const isEditing = !!subscriptionToEdit;
   const isCustom = !selectedCatalogItem && !isEditing;
@@ -35,7 +41,7 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
   useEffect(() => {
     if (visible) {
       if (subscriptionToEdit) {
-        // --- DÜZENLEME MODU ---
+        // Edit Modu
         setName(subscriptionToEdit.name);
         setPrice(subscriptionToEdit.price.toString());
         setCurrency((subscriptionToEdit.currency as CurrencyType) || 'TRY');
@@ -45,27 +51,47 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
         if (subscriptionToEdit.contractEndDate) {
           setContractDate(new Date(subscriptionToEdit.contractEndDate));
         }
+        // Ortakları yükle
+        setSharedWith(subscriptionToEdit.sharedWith || []);
+        setShowShareInput((subscriptionToEdit.sharedWith?.length || 0) > 0);
+
       } else if (selectedCatalogItem) {
-        // --- KATALOGDAN EKLEME MODU ---
+        // Katalog Modu
+        resetForm();
         setName(selectedCatalogItem.name);
-        // Katalog öğesinde fiyat bilgisi olmadığı için boş başlatıyoruz
-        setPrice(''); 
-        setCurrency('TRY'); 
         setCategory(selectedCatalogItem.category);
-        setHasContract(false);
       } else {
-        // --- ÖZEL EKLEME MODU ---
-        setName('');
-        setPrice('');
-        setCategory('Other');
-        setCurrency('TRY');
-        setBillingDay('1');
-        setHasContract(false);
+        // Özel Mod
+        resetForm();
       }
     }
   }, [visible, selectedCatalogItem, subscriptionToEdit]);
 
-const handleSave = async () => {
+  const resetForm = () => {
+      setName('');
+      setPrice('');
+      setCategory('Other');
+      setCurrency('TRY');
+      setBillingDay('1');
+      setHasContract(false);
+      setSharedWith([]);
+      setShowShareInput(false);
+  };
+
+  const handleAddPerson = () => {
+      if (tempPerson.trim().length > 0) {
+          setSharedWith([...sharedWith, tempPerson.trim()]);
+          setTempPerson('');
+      }
+  };
+
+  const handleRemovePerson = (index: number) => {
+      const newList = [...sharedWith];
+      newList.splice(index, 1);
+      setSharedWith(newList);
+  };
+
+  const handleSave = async () => {
     if (!name || !price || !billingDay) {
       Alert.alert("Eksik Bilgi", "Lütfen isim, fiyat ve gün alanlarını doldurun.");
       return;
@@ -77,11 +103,6 @@ const handleSave = async () => {
       return;
     }
 
-    // Renk Kodu Mantığı: Katalogdan geliyorsa onu kullan, yoksa rastgele veya sabit gri
-    const defaultColor = '#333';
-    // Basit bir hash ile isme göre renk üretebilir veya sabit verebiliriz
-    const colorCode = selectedCatalogItem?.colorCode || defaultColor;
-
     const subData = {
       catalogId: selectedCatalogItem?.id || undefined, 
       name,
@@ -91,14 +112,16 @@ const handleSave = async () => {
       category,
       hasContract,
       contractEndDate: hasContract ? contractDate.toISOString() : undefined,
-      colorCode: colorCode // <-- GÜNCELLENDİ
+      colorCode: selectedCatalogItem?.colorCode || '#333',
+      sharedWith: sharedWith // <-- Ortaklar listesini ekledik
     };
 
     try {
         if (isEditing && subscriptionToEdit) {
           await updateSubscription(subscriptionToEdit.id, subData);
         } else {
-          await addSubscription(subData as any);
+          // @ts-ignore
+          await addSubscription(subData);
         }
         onClose();
     } catch (error) {
@@ -106,6 +129,9 @@ const handleSave = async () => {
         Alert.alert("Hata", "Kaydedilirken bir sorun oluştu.");
     }
   };
+
+  // Kişi başı maliyet hesaplama (Görsel bilgi için)
+  const shareAmount = price ? (parseFloat(price) / (sharedWith.length + 1)).toFixed(2) : '0';
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
@@ -123,18 +149,12 @@ const handleSave = async () => {
 
           <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
             
+            {/* İSİM & KATEGORİ (Önceki kodlar aynı) */}
             <Text style={styles.label}>Abonelik İsmi</Text>
             {selectedCatalogItem && !isEditing ? (
-               <View style={styles.readOnlyInput}>
-                 <Text style={{color:'#555'}}>{name}</Text>
-               </View>
+               <View style={styles.readOnlyInput}><Text style={{color:'#555'}}>{name}</Text></View>
             ) : (
-               <TextInput 
-                 style={styles.input} 
-                 value={name} 
-                 onChangeText={setName} 
-                 placeholder="Örn: Ev Kirası"
-               />
+               <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Örn: Ev Kirası" />
             )}
 
             {isCustom && (
@@ -154,38 +174,63 @@ const handleSave = async () => {
                 </View>
             )}
 
-            <Text style={styles.label}>Fiyat</Text>
+            {/* FİYAT */}
+            <Text style={styles.label}>Fiyat (Toplam Tutar)</Text>
             <View style={styles.row}>
               <TextInput 
                 style={[styles.input, { flex: 2, marginRight: 10 }]} 
-                value={price} 
-                onChangeText={setPrice} 
-                keyboardType="numeric" 
-                placeholder="0.00"
+                value={price} onChangeText={setPrice} keyboardType="numeric" placeholder="0.00"
               />
               <View style={styles.currencyContainer}>
                 {(['TRY', 'USD', 'EUR'] as const).map((curr) => (
-                  <TouchableOpacity 
-                    key={curr} 
-                    style={[styles.currencyButton, currency === curr && styles.activeCurrency]}
-                    onPress={() => setCurrency(curr)}
-                  >
+                  <TouchableOpacity key={curr} style={[styles.currencyButton, currency === curr && styles.activeCurrency]} onPress={() => setCurrency(curr)}>
                     <Text style={[styles.currencyText, currency === curr && {color:'white'}]}>{curr}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
             </View>
 
+            {/* ÖDEME GÜNÜ */}
             <Text style={styles.label}>Her ayın kaçında ödeniyor?</Text>
-            <TextInput 
-              style={styles.input} 
-              value={billingDay} 
-              onChangeText={setBillingDay} 
-              keyboardType="numeric" 
-              placeholder="1-31"
-              maxLength={2}
-            />
+            <TextInput style={styles.input} value={billingDay} onChangeText={setBillingDay} keyboardType="numeric" placeholder="1-31" maxLength={2} />
 
+            {/* --- YENİ BÖLÜM: ORTAK KULLANIM --- */}
+            <View style={[styles.row, { justifyContent: 'space-between', marginTop: 15 }]}>
+              <Text style={styles.label}>Bu aboneliği paylaşıyor musun?</Text>
+              <Switch value={showShareInput} onValueChange={setShowShareInput} />
+            </View>
+
+            {showShareInput && (
+                <View style={styles.shareSection}>
+                    <Text style={styles.helperText}>Sen dahil {sharedWith.length + 1} kişi kullanıyorsunuz.</Text>
+                    <Text style={styles.helperText}>Senin Payın: <Text style={{fontWeight:'bold', color:'#2ecc71'}}>{shareAmount} {currency}</Text></Text>
+                    
+                    <View style={styles.addPersonRow}>
+                        <TextInput 
+                            style={[styles.input, {flex:1, marginBottom:0, height:45}]} 
+                            placeholder="Kişi adı (Örn: Ahmet)"
+                            value={tempPerson}
+                            onChangeText={setTempPerson}
+                        />
+                        <TouchableOpacity style={styles.addBtn} onPress={handleAddPerson}>
+                            <Ionicons name="add" size={24} color="white" />
+                        </TouchableOpacity>
+                    </View>
+
+                    <View style={styles.chipContainer}>
+                        {sharedWith.map((person, index) => (
+                            <View key={index} style={styles.personChip}>
+                                <Text style={styles.personName}>{person}</Text>
+                                <TouchableOpacity onPress={() => handleRemovePerson(index)}>
+                                    <Ionicons name="close-circle" size={18} color="#666" style={{marginLeft:5}} />
+                                </TouchableOpacity>
+                            </View>
+                        ))}
+                    </View>
+                </View>
+            )}
+
+            {/* SÖZLEŞME (Mevcut kod) */}
             <View style={[styles.row, { justifyContent: 'space-between', marginTop: 10 }]}>
               <Text style={styles.label}>Taahhüt / Sözleşme Var mı?</Text>
               <Switch value={hasContract} onValueChange={setHasContract} />
@@ -193,22 +238,12 @@ const handleSave = async () => {
 
             {hasContract && (
               <View>
-                <Text style={styles.label}>Sözleşme Bitiş Tarihi</Text>
                 <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
                   <Text>{contractDate.toLocaleDateString('tr-TR')}</Text>
                   <Ionicons name="calendar-outline" size={20} color="#333" />
                 </TouchableOpacity>
-                
                 {showDatePicker && (
-                  <DateTimePicker
-                    value={contractDate}
-                    mode="date"
-                    display="default"
-                    onChange={(event, date) => {
-                      setShowDatePicker(false);
-                      if (date) setContractDate(date);
-                    }}
-                  />
+                  <DateTimePicker value={contractDate} mode="date" display="default" onChange={(e, d) => { setShowDatePicker(false); if(d) setContractDate(d); }} />
                 )}
               </View>
             )}
@@ -216,9 +251,7 @@ const handleSave = async () => {
           </ScrollView>
 
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <Text style={styles.saveButtonText}>
-              {isEditing ? 'Güncelle' : 'Listeye Ekle'}
-            </Text>
+            <Text style={styles.saveButtonText}>{isEditing ? 'Güncelle' : 'Listeye Ekle'}</Text>
           </TouchableOpacity>
 
         </View>
@@ -229,7 +262,7 @@ const handleSave = async () => {
 
 const styles = StyleSheet.create({
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-  modalContainer: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, height: '85%' },
+  modalContainer: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, height: '90%' },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
   title: { fontSize: 22, fontWeight: 'bold', color: '#333' },
   content: { paddingBottom: 20 },
@@ -241,12 +274,21 @@ const styles = StyleSheet.create({
   currencyButton: { flex: 1, alignItems: 'center', paddingVertical: 10, borderRadius: 8 },
   activeCurrency: { backgroundColor: '#333' },
   currencyText: { fontWeight: 'bold', fontSize: 12, color: '#333' },
-  dateButton: { flexDirection: 'row', justifyContent: 'space-between', padding: 15, backgroundColor: '#f5f5f5', borderRadius: 12, alignItems: 'center' },
+  dateButton: { flexDirection: 'row', justifyContent: 'space-between', padding: 15, backgroundColor: '#f5f5f5', borderRadius: 12, alignItems: 'center', marginTop:5 },
   saveButton: { backgroundColor: '#333', padding: 18, borderRadius: 15, alignItems: 'center', marginTop: 10, marginBottom: 20 },
   saveButtonText: { color: 'white', fontSize: 18, fontWeight: 'bold' },
   catScroll: { flexDirection: 'row', marginBottom: 5 },
   catChip: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, backgroundColor: '#f0f0f0', marginRight: 8, borderWidth: 1, borderColor: '#e0e0e0' },
   activeCatChip: { backgroundColor: '#333', borderColor: '#333' },
   catText: { fontSize: 12, color: '#555' },
-  activeCatText: { color: '#fff' }
+  activeCatText: { color: '#fff' },
+  
+  // Yeni Stiller
+  shareSection: { backgroundColor: '#f9f9f9', padding: 15, borderRadius: 12, marginTop: 5 },
+  helperText: { fontSize: 12, color: '#666', marginBottom: 5 },
+  addPersonRow: { flexDirection: 'row', marginTop: 10 },
+  addBtn: { backgroundColor: '#333', width: 45, height: 45, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginLeft: 10 },
+  chipContainer: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 10 },
+  personChip: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#e0e0e0', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 20, marginRight: 8, marginBottom: 8 },
+  personName: { fontSize: 12, color: '#333', fontWeight: '600' }
 });

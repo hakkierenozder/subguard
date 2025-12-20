@@ -199,9 +199,19 @@ logUsage: (id, status) => {
     }) || null;
   },
 
-  getTotalExpense: () => {
+getTotalExpense: () => {
     const subs = get().subscriptions;
-    return subs.reduce((sum, sub) => sum + convertToTRY(sub.price, sub.currency), 0);
+    return subs.reduce((sum, sub) => {
+        // 1. Döviz çevirimi
+        const totalAmount = convertToTRY(sub.price, sub.currency);
+        
+        // 2. Paylaşım Kontrolü
+        // sharedWith dizisi varsa uzunluğunu al, yoksa 0. Kendisini (+1) ekle.
+        const partnerCount = (sub.sharedWith?.length || 0);
+        const myShare = totalAmount / (partnerCount + 1);
+
+        return sum + myShare;
+    }, 0);
   },
 
   getNextPayment: () => {
