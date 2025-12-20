@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SubGuard.Core.Entities;
 using System.Reflection;
 
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext<AppUser>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
@@ -10,7 +11,6 @@ public class AppDbContext : DbContext
 
     public DbSet<Catalog> Catalogs { get; set; }
     public DbSet<Plan> Plans { get; set; }
-
     public DbSet<UserSubscription> UserSubscriptions { get; set; }
 
     // Otomatik Tarih Atama Mekanizması (Interceptor Mantığı)
@@ -39,6 +39,8 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
         // Configurations klasöründeki tüm ayarları (ServiceConfiguration vb.) otomatik bul ve uygula.
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 

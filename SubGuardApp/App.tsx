@@ -31,6 +31,7 @@ return (
         {activeTab === 'catalog' && <HomeScreen />}
         {activeTab === 'wallet' && <MySubscriptionsScreen />}
         {activeTab === 'reports' && <ReportsScreen />}
+        {activeTab === 'settings' && <SettingsScreen />}
       </View>
 
       {/* ÖZEL TAB BAR */}
