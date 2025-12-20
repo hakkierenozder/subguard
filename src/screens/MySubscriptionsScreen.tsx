@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { UserSubscription } from '../types';
-import AddSubscriptionModal from '../components/AddSubscriptionModal'; // Import Et
+import AddSubscriptionModal from '../components/AddSubscriptionModal';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
-import { Linking } from 'react-native'; // Import et
+import { Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import ExpenseChart from '../components/ExpenseChart';
 
 export default function MySubscriptionsScreen() {
   const { subscriptions, removeSubscription, getTotalExpense, getNextPayment } = useUserSubscriptionStore();
@@ -37,7 +38,6 @@ export default function MySubscriptionsScreen() {
     const shareAmount = (item.price / (item.sharedWith.length + 1)).toFixed(2);
     const message = `Selam! 👋 ${item.name} aboneliği için bu ayki payına düşen miktar: ${shareAmount} ${item.currency}. Gönderebilirsen süper olur! 💸`;
 
-    // WhatsApp URL Şeması
     const url = `whatsapp://send?text=${encodeURIComponent(message)}`;
 
     Linking.openURL(url).catch(() => {
@@ -46,7 +46,6 @@ export default function MySubscriptionsScreen() {
   };
 
   const renderItem = ({ item }: { item: UserSubscription }) => {
-    // 1. Taahhüt Hesaplamaları
     const daysLeft = item.hasContract ? getDaysLeft(item.contractEndDate) : null;
     const isCritical = daysLeft !== null && daysLeft <= 90 && daysLeft > 0;
     const isExpired = daysLeft !== null && daysLeft <= 0;
@@ -57,18 +56,14 @@ export default function MySubscriptionsScreen() {
         onPress={() => setEditingSub(item)}
       >
         <View style={styles.cardContent}>
-          {/* --- SOL TARA --- */}
           <View>
-            {/* İSİM ve ORTAK İKONU SATIRI */}
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={styles.name}>{item.name}</Text>
-              {/* Eğer ortak varsa ikon göster */}
               {item.sharedWith && item.sharedWith.length > 0 && (
                 <Ionicons name="people" size={18} color="#999" style={{ marginLeft: 8 }} />
               )}
             </View>
 
-            {/* TAAHHÜT UYARISI (Varsa) */}
             {item.hasContract && daysLeft !== null && (
               <View style={{ marginTop: 5 }}>
                 {isExpired ? (
@@ -85,28 +80,21 @@ export default function MySubscriptionsScreen() {
               </View>
             )}
 
-            {/* Sözleşme yoksa fiyatı solda küçük göster (Eski mantık) */}
             {!item.hasContract && (
               <Text style={styles.price}>{item.price} {item.currency}</Text>
             )}
           </View>
 
-          {/* --- SAĞ TARAF --- */}
           <View style={{ alignItems: 'flex-end', justifyContent: 'center' }}>
-
-            {/* Duruma Göre Bilgi Gösterimi */}
             {item.hasContract ? (
-              // Sözleşmeliyse Fiyatı Büyük Göster
               <Text style={[styles.price, { marginTop: 0, fontSize: 18 }]}>{item.price} {item.currency}</Text>
             ) : (
-              // Sözleşme yoksa Tarihi Göster
               <>
                 <Text style={styles.dateText}>Sonraki Ödeme:</Text>
                 <Text style={styles.dateValue}>{item.billingDay}. Gün</Text>
               </>
             )}
 
-            {/* WHATSAPP BUTONU (Eğer ortak varsa ekle) */}
             {item.sharedWith && item.sharedWith.length > 0 && (
               <TouchableOpacity
                 style={styles.whatsappButton}
@@ -116,11 +104,9 @@ export default function MySubscriptionsScreen() {
                 <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>İste</Text>
               </TouchableOpacity>
             )}
-
           </View>
         </View>
 
-        {/* Sil Butonu */}
         <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item.id, item.name)}>
           <Text style={styles.deleteText}>Sil</Text>
         </TouchableOpacity>
@@ -128,55 +114,64 @@ export default function MySubscriptionsScreen() {
     );
   };
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Text style={styles.header}>Cüzdanım</Text>
+  // DÜZELTME: Header içeriğini bu fonksiyonun içine taşıdık
+  const renderHeader = () => (
+    <View style={styles.headerContainer}>
+      <Text style={styles.header}>Cüzdanım</Text>
 
-        {/* 1. KART: Toplam Tutar (Mevcut) */}
-        <View style={styles.summaryCard}>
-          <Text style={styles.summaryTitle}>Aylık Toplam (Tahmini)</Text>
-          <Text style={styles.summaryValue}>≈ {totalExpense.toFixed(2)} ₺</Text>
-        </View>
-
-        {/* 2. KART: Sıradaki Ödeme (YENİ) */}
-        {nextPayment && (
-          <View style={[styles.nextPaymentCard, { borderLeftColor: nextPayment.colorCode || '#333' }]}>
-            <View>
-              <Text style={styles.nextPaymentLabel}>Sıradaki Ödeme</Text>
-              <Text style={styles.nextPaymentName}>{nextPayment.name}</Text>
-            </View>
-            <View style={{ alignItems: 'flex-end' }}>
-              <Text style={styles.nextPaymentDate}>
-                {nextPayment.billingDay >= new Date().getDate() ? 'Bu Ay' : 'Gelecek Ay'}
-              </Text>
-              <Text style={styles.nextPaymentDay}>{nextPayment.billingDay}. Gün</Text>
-            </View>
-          </View>
-        )}
+      {/* 1. KART: Toplam Tutar */}
+      <View style={styles.summaryCard}>
+        <Text style={styles.summaryTitle}>Aylık Toplam (Tahmini)</Text>
+        <Text style={styles.summaryValue}>≈ {totalExpense.toFixed(2)} ₺</Text>
       </View>
 
+      {/* 2. KART: Sıradaki Ödeme */}
+      {nextPayment && (
+        <View style={[styles.nextPaymentCard, { borderLeftColor: nextPayment.colorCode || '#333' }]}>
+          <View>
+            <Text style={styles.nextPaymentLabel}>Sıradaki Ödeme</Text>
+            <Text style={styles.nextPaymentName}>{nextPayment.name}</Text>
+          </View>
+          <View style={{ alignItems: 'flex-end' }}>
+            <Text style={styles.nextPaymentDate}>
+              {nextPayment.billingDay >= new Date().getDate() ? 'Bu Ay' : 'Gelecek Ay'}
+            </Text>
+            <Text style={styles.nextPaymentDay}>{nextPayment.billingDay}. Gün</Text>
+          </View>
+        </View>
+      )}
+
+      {/* 3. GRAFİK */}
+      {subscriptions.length > 0 && (
+        <ExpenseChart />
+      )}
+    </View>
+  );
+
+  return (
+    <SafeAreaView style={styles.container}>
+      
+      {/* FlatList'in dışındaki View'ları kaldırdık. Hepsi ListHeaderComponent ile gelecek */}
+      
       <FlatList
         data={subscriptions}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
-        contentContainerStyle={{ padding: 16 }}
+        contentContainerStyle={{ paddingBottom: 20 }}
+        ListHeaderComponent={renderHeader} // Başlık fonksiyonunu buraya bağladık
         ListEmptyComponent={<Text style={styles.emptyText}>Henüz abonelik yok.</Text>}
       />
 
-      {/* DÜZENLEME MODALI */}
-      {/* visible={!!editingSub} demek, editingSub doluysa true, boşsa false demektir */}
       <AddSubscriptionModal
         visible={!!editingSub}
         onClose={() => setEditingSub(null)}
         selectedCatalogItem={null}
-        subscriptionToEdit={editingSub} // Düzenlenecek veriyi gönderiyoruz
+        subscriptionToEdit={editingSub}
       />
     </SafeAreaView>
   );
 }
 
-// ... styles aynı kalabilir, sadece emptyText ekle veya mevcut olanı kullan ...
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f8f9fa' },
   headerContainer: { padding: 20, backgroundColor: '#fff', paddingBottom: 10 },
@@ -201,7 +196,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderLeftWidth: 6, // Renkli çizgi
+    borderLeftWidth: 6,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -211,10 +206,9 @@ const styles = StyleSheet.create({
   nextPaymentName: { fontSize: 18, fontWeight: 'bold', color: '#333' },
   nextPaymentDate: { fontSize: 12, color: '#666', marginBottom: 2 },
   nextPaymentDay: { fontSize: 16, fontWeight: 'bold', color: '#e74c3c' },
-
   whatsappButton: {
     flexDirection: 'row',
-    backgroundColor: '#25D366', // WhatsApp Yeşili
+    backgroundColor: '#25D366',
     paddingVertical: 6,
     paddingHorizontal: 10,
     borderRadius: 20,

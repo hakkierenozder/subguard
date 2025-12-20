@@ -30,6 +30,7 @@ export interface UserSubscription {
   colorCode?: string;
   price: number;
   currency: string;
+  category: string;
 
   billingPeriod: 'monthly' | 'yearly';
   billingDay: number; // Fatura kesim günü (örn: Her ayın 15'i)
