@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import SettingsScreen from './src/screens/SettingsScreen'; // İMPORT ET
 
 // Ekranlar
 import HomeScreen from './src/screens/HomeScreen';
@@ -13,7 +14,7 @@ import ReportsScreen from './src/screens/ReportsScreen';
 export default function App() {
   // Hangi sekmenin açık olduğunu tutan basit bir değişken
   // 'catalog' veya 'wallet'
-  const [activeTab, setActiveTab] = useState<'catalog' | 'wallet' | 'reports'>('wallet');
+ const [activeTab, setActiveTab] = useState<'catalog' | 'wallet' | 'reports' | 'settings'>('wallet');
 
   useEffect(() => {
     registerForPushNotificationsAsync().then(() => {
@@ -63,6 +64,16 @@ return (
             color={activeTab === 'reports' ? '#333' : '#999'} 
           />
           <Text style={[styles.tabText, activeTab === 'reports' && styles.activeTabText]}>Analiz</Text>
+        </TouchableOpacity>
+
+        {/* 4. AYARLAR BUTONU (YENİ) */}
+        <TouchableOpacity style={styles.tabItem} onPress={() => setActiveTab('settings')}>
+          <Ionicons 
+            name={activeTab === 'settings' ? "settings" : "settings-outline"} 
+            size={24} 
+            color={activeTab === 'settings' ? '#333' : '#999'} 
+          />
+          <Text style={[styles.tabText, activeTab === 'settings' && styles.activeTabText]}>Ayarlar</Text>
         </TouchableOpacity>
 
       </SafeAreaView>

@@ -79,3 +79,25 @@ export async function cancelNotification(notificationId: string) {
   await Notifications.cancelScheduledNotificationAsync(notificationId);
   console.log(`Bildirim iptal edildi: ${notificationId}`);
 }
+
+export async function cancelAllNotifications() {
+  await Notifications.cancelAllScheduledNotificationsAsync();
+}
+
+// 2. Toplu Senkronizasyon (Buluttan gelen verilerle alarmları kurar)
+export async function syncLocalNotifications(subscriptions: any[]) {
+  // Önce temizlik
+  await cancelAllNotifications();
+
+  // Sonra hepsi için tek tek kur
+  for (const sub of subscriptions) {
+    if (sub.billingDay) {
+      await scheduleSubscriptionNotification(
+        "Ödeme Hatırlatıcı",
+        `${sub.name} ödemen yaklaştı!`,
+        sub.billingDay
+      );
+    }
+  }
+  console.log(`${subscriptions.length} adet bildirim senkronize edildi.`);
+}

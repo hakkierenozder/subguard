@@ -4,7 +4,7 @@ import agent from '../api/agent'; // Düzelttiğimiz agent dosyası
 import { getUserId } from '../utils/AuthManager';
 import { convertToTRY } from '../utils/CurrencyService';
 import { Alert } from 'react-native';
-import { scheduleSubscriptionNotification, cancelNotification } from '../utils/NotificationManager';
+import { scheduleSubscriptionNotification, cancelNotification, syncLocalNotifications } from '../utils/NotificationManager';
 
 interface UserSubscriptionState {
   subscriptions: UserSubscription[];
@@ -28,23 +28,26 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
   loading: false,
 
   // 1. VERİLERİ ÇEK (READ)
-  fetchUserSubscriptions: async () => {
+fetchUserSubscriptions: async () => {
     set({ loading: true });
     try {
       const userId = await getUserId();
       const response = await agent.UserSubscriptions.list(userId);
-
+      
       if (response && response.data) {
         const mappedSubs = response.data.map((s: any) => ({
           ...s,
           id: s.id.toString(),
-
-          // JSON String'i Diziye Çevir (Parse)
-          // Eğer null veya boş gelirse boş dizi [] ata
-          sharedWith: s.sharedWithJson ? JSON.parse(s.sharedWithJson) : [],
-          usageHistory: s.usageHistoryJson ? JSON.parse(s.usageHistoryJson) : []
+          usageHistory: s.usageHistoryJson ? JSON.parse(s.usageHistoryJson) : [],
+          sharedWith: s.sharedWithJson ? JSON.parse(s.sharedWithJson) : []
         }));
+        
         set({ subscriptions: mappedSubs, loading: false });
+
+        // --- YENİ EKLENEN SATIR: BİLDİRİMLERİ KUR ---
+        // Veri buluttan geldi, şimdi telefonun alarmlarını buna göre ayarla.
+        syncLocalNotifications(mappedSubs); 
+
       } else {
         set({ loading: false });
       }
