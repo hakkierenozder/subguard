@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { UserSubscription } from '../types';
+import { UsageStatus, UserSubscription } from '../types';
 import { scheduleSubscriptionNotification, cancelNotification } from '../utils/NotificationManager';
 import { convertToTRY } from '../utils/CurrencyService';
 
@@ -13,6 +13,8 @@ interface UserSubscriptionState {
   updateSubscription: (id: string, updatedData: Partial<UserSubscription>) => Promise<void>;
   getTotalExpense: () => number;
   getNextPayment: () => UserSubscription | null;
+  logUsage: (id: string, status: UsageStatus) => void;
+  getPendingSurvey: () => UserSubscription | null; // Sıradaki anket sorusu
 }
 
 export const useUserSubscriptionStore = create<UserSubscriptionState>()(
@@ -111,6 +113,46 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>()(
         }, 0);
 
         return total;
+      },
+
+      // 1. KULLANIM DURUMUNU KAYDET
+      logUsage: (id, status) => {
+        const currentMonth = new Date().toISOString().slice(0, 7); // "2023-10"
+        
+        set((state) => ({
+          subscriptions: state.subscriptions.map((sub) => {
+            if (sub.id !== id) return sub;
+            
+            // Eski geçmişi al, bu ayın kaydı varsa güncelle, yoksa ekle
+            const history = sub.usageHistory || [];
+            // Bu ay zaten girilmiş mi?
+            const existingIndex = history.findIndex(h => h.month === currentMonth);
+            
+            let newHistory;
+            if (existingIndex >= 0) {
+                newHistory = [...history];
+                newHistory[existingIndex] = { month: currentMonth, status };
+            } else {
+                newHistory = [...history, { month: currentMonth, status }];
+            }
+
+            return { ...sub, usageHistory: newHistory };
+          }),
+        }));
+      },
+
+      // 2. KONTROL EDİLMEMİŞ ABONELİK BUL (Anket İçin)
+      getPendingSurvey: () => {
+        const currentMonth = new Date().toISOString().slice(0, 7); // "2023-10"
+        const subs = get().subscriptions;
+
+        // Henüz bu ay için log girilmemiş ilk aboneliği döndür
+        return subs.find(s => {
+            // Yeni eklenenlerin history'si undefined olabilir
+            const history = s.usageHistory || [];
+            const hasLogThisMonth = history.some(h => h.month === currentMonth);
+            return !hasLogThisMonth;
+        }) || null;
       },
       
     }),

@@ -30,6 +30,23 @@ export default function ReportsScreen() {
     return maxCat;
   };
 
+  const getWastedMoney = () => {
+    const currentMonth = new Date().toISOString().slice(0, 7);
+    let wasted = 0;
+
+    subscriptions.forEach(sub => {
+        const history = sub.usageHistory || [];
+        const thisMonthLog = history.find(h => h.month === currentMonth);
+        
+        if (thisMonthLog && thisMonthLog.status === 'none') {
+            wasted += convertToTRY(sub.price, sub.currency);
+        }
+    });
+    return wasted;
+  };
+
+  const wastedAmount = getWastedMoney();
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
@@ -47,6 +64,16 @@ export default function ReportsScreen() {
             <View style={styles.statCard}>
                 <Text style={styles.statLabel}>En Çok Harcama</Text>
                 <Text style={styles.statValue}>{getTopCategory()}</Text>
+            </View>
+
+            {/* YENİ KART: TASARRUF FIRSATI */}
+            <View style={[styles.statCard, wastedAmount > 0 && {backgroundColor: '#ffebee'}]}>
+                <Text style={[styles.statLabel, wastedAmount > 0 && {color: '#c62828'}]}>
+                    {wastedAmount > 0 ? 'Boşa Giden 😱' : 'Verimli ✅'}
+                </Text>
+                <Text style={[styles.statValue, wastedAmount > 0 && {color: '#d32f2f'}]}>
+                    {wastedAmount > 0 ? `≈ ${wastedAmount.toFixed(0)} ₺` : '0 ₺'}
+                </Text>
             </View>
         </View>
 

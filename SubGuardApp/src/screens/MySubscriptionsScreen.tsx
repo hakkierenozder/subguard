@@ -1,19 +1,17 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { UserSubscription } from '../types';
 import AddSubscriptionModal from '../components/AddSubscriptionModal';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
-import { Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import ExpenseChart from '../components/ExpenseChart';
+// ExpenseChart importu kaldırıldı!
 
 export default function MySubscriptionsScreen() {
   const { subscriptions, removeSubscription, getTotalExpense, getNextPayment } = useUserSubscriptionStore();
   const totalExpense = getTotalExpense();
   const nextPayment = getNextPayment();
 
-  // Düzenlenecek aboneliği tutan state
   const [editingSub, setEditingSub] = useState<UserSubscription | null>(null);
 
   const handleDelete = (id: string, name: string) => {
@@ -34,15 +32,10 @@ export default function MySubscriptionsScreen() {
 
   const handleSendReminder = (item: UserSubscription) => {
     if (!item.sharedWith || item.sharedWith.length === 0) return;
-
     const shareAmount = (item.price / (item.sharedWith.length + 1)).toFixed(2);
-    const message = `Selam! 👋 ${item.name} aboneliği için bu ayki payına düşen miktar: ${shareAmount} ${item.currency}. Gönderebilirsen süper olur! 💸`;
-
+    const message = `Selam! 👋 ${item.name} aboneliği için bu ayki payına düşen miktar: ${shareAmount} ${item.currency}.`;
     const url = `whatsapp://send?text=${encodeURIComponent(message)}`;
-
-    Linking.openURL(url).catch(() => {
-      Alert.alert("Hata", "WhatsApp yüklü değil veya açılamadı.");
-    });
+    Linking.openURL(url).catch(() => Alert.alert("Hata", "WhatsApp açılamadı."));
   };
 
   const renderItem = ({ item }: { item: UserSubscription }) => {
@@ -69,11 +62,7 @@ export default function MySubscriptionsScreen() {
                 {isExpired ? (
                   <Text style={{ color: 'red', fontWeight: 'bold', fontSize: 12 }}>SÖZLEŞME BİTTİ!</Text>
                 ) : (
-                  <Text style={{
-                    color: isCritical ? '#e74c3c' : '#7f8c8d',
-                    fontWeight: isCritical ? 'bold' : 'normal',
-                    fontSize: 12
-                  }}>
+                  <Text style={{ color: isCritical ? '#e74c3c' : '#7f8c8d', fontWeight: isCritical ? 'bold' : 'normal', fontSize: 12 }}>
                     Taahhüt Bitiş: {daysLeft} gün kaldı
                   </Text>
                 )}
@@ -96,10 +85,7 @@ export default function MySubscriptionsScreen() {
             )}
 
             {item.sharedWith && item.sharedWith.length > 0 && (
-              <TouchableOpacity
-                style={styles.whatsappButton}
-                onPress={() => handleSendReminder(item)}
-              >
+              <TouchableOpacity style={styles.whatsappButton} onPress={() => handleSendReminder(item)}>
                 <Ionicons name="logo-whatsapp" size={16} color="white" style={{ marginRight: 4 }} />
                 <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>İste</Text>
               </TouchableOpacity>
@@ -114,7 +100,6 @@ export default function MySubscriptionsScreen() {
     );
   };
 
-  // DÜZELTME: Header içeriğini bu fonksiyonun içine taşıdık
   const renderHeader = () => (
     <View style={styles.headerContainer}>
       <Text style={styles.header}>Cüzdanım</Text>
@@ -140,25 +125,19 @@ export default function MySubscriptionsScreen() {
           </View>
         </View>
       )}
-
-      {/* 3. GRAFİK */}
-      {subscriptions.length > 0 && (
-        <ExpenseChart />
-      )}
+      
+      {/* BURADA GRAFİK YOK ARTIK */}
     </View>
   );
 
   return (
     <SafeAreaView style={styles.container}>
-      
-      {/* FlatList'in dışındaki View'ları kaldırdık. Hepsi ListHeaderComponent ile gelecek */}
-      
       <FlatList
         data={subscriptions}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         contentContainerStyle={{ paddingBottom: 20 }}
-        ListHeaderComponent={renderHeader} // Başlık fonksiyonunu buraya bağladık
+        ListHeaderComponent={renderHeader}
         ListEmptyComponent={<Text style={styles.emptyText}>Henüz abonelik yok.</Text>}
       />
 
@@ -188,31 +167,10 @@ const styles = StyleSheet.create({
   deleteButton: { padding: 8 },
   deleteText: { color: 'red', fontSize: 14, fontWeight: '600' },
   emptyText: { textAlign: 'center', marginTop: 50, color: '#999', fontSize: 16 },
-  nextPaymentCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 15,
-    marginTop: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderLeftWidth: 6,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
+  nextPaymentCard: { backgroundColor: '#fff', borderRadius: 12, padding: 15, marginTop: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderLeftWidth: 6, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 },
   nextPaymentLabel: { fontSize: 12, color: '#999', marginBottom: 2 },
   nextPaymentName: { fontSize: 18, fontWeight: 'bold', color: '#333' },
   nextPaymentDate: { fontSize: 12, color: '#666', marginBottom: 2 },
   nextPaymentDay: { fontSize: 16, fontWeight: 'bold', color: '#e74c3c' },
-  whatsappButton: {
-    flexDirection: 'row',
-    backgroundColor: '#25D366',
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 20,
-    alignItems: 'center',
-    marginTop: 6
-  }
+  whatsappButton: { flexDirection: 'row', backgroundColor: '#25D366', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 20, alignItems: 'center', marginTop: 6 }
 });

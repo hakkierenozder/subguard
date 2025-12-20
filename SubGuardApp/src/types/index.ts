@@ -44,4 +44,13 @@ export interface UserSubscription {
   
   // YENİ: Ortakçı Listesi (Sadece isimleri tutuyoruz şimdilik)
   sharedWith?: string[];
+
+  usageHistory?: UsageLog[];
+}
+
+export type UsageStatus = 'active' | 'low' | 'none'; // Aktif, Az, Hiç
+
+export interface UsageLog {
+  month: string; // Örn: "2023-10" (Yıl-Ay formatında)
+  status: UsageStatus;
 }
