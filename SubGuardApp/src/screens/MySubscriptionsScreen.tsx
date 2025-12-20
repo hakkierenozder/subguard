@@ -3,6 +3,7 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, Linking, Tex
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { UserSubscription } from '../types';
 import AddSubscriptionModal from '../components/AddSubscriptionModal';
+import SubscriptionDetailModal from '../components/SubscriptionDetailModal'; // <-- YENİ IMPORT
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import { Ionicons } from '@expo/vector-icons';
 import { convertToTRY } from '../utils/CurrencyService';
@@ -10,12 +11,12 @@ import { convertToTRY } from '../utils/CurrencyService';
 type SortType = 'date' | 'price_desc' | 'price_asc' | 'name';
 
 export default function MySubscriptionsScreen() {
-  const {
-    subscriptions,
-    removeSubscription,
-    getTotalExpense,
+  const { 
+    subscriptions, 
+    removeSubscription, 
+    getTotalExpense, 
     getNextPayment,
-    fetchUserSubscriptions,
+    fetchUserSubscriptions, 
   } = useUserSubscriptionStore();
 
   const totalExpense = getTotalExpense();
@@ -23,6 +24,8 @@ export default function MySubscriptionsScreen() {
 
   // State'ler
   const [editingSub, setEditingSub] = useState<UserSubscription | null>(null);
+  const [detailSub, setDetailSub] = useState<UserSubscription | null>(null); // <-- YENİ STATE (Detay için)
+  
   const [isModalVisible, setModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [searchText, setSearchText] = useState('');
@@ -39,7 +42,7 @@ export default function MySubscriptionsScreen() {
   }, []);
 
   const getFilteredSubscriptions = () => {
-    let filtered = subscriptions.filter(sub =>
+    let filtered = subscriptions.filter(sub => 
       sub.name.toLowerCase().includes(searchText.toLowerCase())
     );
 
@@ -88,11 +91,11 @@ export default function MySubscriptionsScreen() {
   };
 
   const renderSortChip = (type: SortType, label: string, icon: keyof typeof Ionicons.glyphMap) => (
-    <TouchableOpacity
-      style={[styles.sortChip, sortBy === type && styles.activeSortChip]}
+    <TouchableOpacity 
+      style={[styles.sortChip, sortBy === type && styles.activeSortChip]} 
       onPress={() => setSortBy(type)}
     >
-      <Ionicons name={icon} size={14} color={sortBy === type ? '#fff' : '#666'} style={{ marginRight: 4 }} />
+      <Ionicons name={icon} size={14} color={sortBy === type ? '#fff' : '#666'} style={{marginRight: 4}} />
       <Text style={[styles.sortChipText, sortBy === type && styles.activeSortChipText]}>{label}</Text>
     </TouchableOpacity>
   );
@@ -103,48 +106,47 @@ export default function MySubscriptionsScreen() {
 
       <View style={styles.summaryRow}>
         <View style={styles.summaryCardSmall}>
-          {/* Yorum satırı düzeltildi */}
-          <Text style={styles.summaryLabel}>Aylık Payın</Text>
-          <Text style={styles.summaryValue}>≈ {totalExpense.toFixed(0)} ₺</Text>
+            <Text style={styles.summaryLabel}>Aylık Payın</Text> 
+            <Text style={styles.summaryValue}>≈ {totalExpense.toFixed(0)} ₺</Text>
         </View>
-
+        
         {nextPayment && (
-          <View style={[styles.summaryCardSmall, { borderLeftColor: nextPayment.colorCode || '#333', borderLeftWidth: 4 }]}>
-            <Text style={styles.summaryLabel}>Sonraki Ödeme</Text>
-            <Text style={styles.nextPaymentName}>{nextPayment.name}</Text>
-            <Text style={styles.nextPaymentDate}>{nextPayment.billingDay}. Gün</Text>
-          </View>
+            <View style={[styles.summaryCardSmall, {borderLeftColor: nextPayment.colorCode || '#333', borderLeftWidth: 4}]}>
+                <Text style={styles.summaryLabel}>Sonraki Ödeme</Text>
+                <Text style={styles.nextPaymentName}>{nextPayment.name}</Text>
+                <Text style={styles.nextPaymentDate}>{nextPayment.billingDay}. Gün</Text>
+            </View>
         )}
       </View>
 
       <View style={styles.filterSection}>
         <View style={styles.searchBar}>
-          <Ionicons name="search" size={20} color="#999" />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Abonelik ara..."
-            value={searchText}
-            onChangeText={setSearchText}
-            placeholderTextColor="#999"
-          />
-          {searchText.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchText('')}>
-              <Ionicons name="close-circle" size={18} color="#999" />
-            </TouchableOpacity>
-          )}
+            <Ionicons name="search" size={20} color="#999" />
+            <TextInput 
+                style={styles.searchInput}
+                placeholder="Abonelik ara..."
+                value={searchText}
+                onChangeText={setSearchText}
+                placeholderTextColor="#999"
+            />
+            {searchText.length > 0 && (
+                <TouchableOpacity onPress={() => setSearchText('')}>
+                    <Ionicons name="close-circle" size={18} color="#999" />
+                </TouchableOpacity>
+            )}
         </View>
 
         <View style={styles.sortRow}>
-          {renderSortChip('date', 'Tarih', 'calendar-outline')}
-          {renderSortChip('price_desc', 'Pahalı', 'arrow-up-outline')}
-          {renderSortChip('price_asc', 'Ucuz', 'arrow-down-outline')}
-          {renderSortChip('name', 'A-Z', 'text-outline')}
+            {renderSortChip('date', 'Tarih', 'calendar-outline')}
+            {renderSortChip('price_desc', 'Pahalı', 'arrow-up-outline')}
+            {renderSortChip('price_asc', 'Ucuz', 'arrow-down-outline')}
+            {renderSortChip('name', 'A-Z', 'text-outline')}
         </View>
       </View>
     </View>
   );
 
-const renderItem = ({ item }: { item: UserSubscription }) => {
+  const renderItem = ({ item }: { item: UserSubscription }) => {
     const daysLeft = item.hasContract ? getDaysLeft(item.contractEndDate) : null;
     const isCritical = daysLeft !== null && daysLeft <= 90 && daysLeft > 0;
     const isExpired = daysLeft !== null && daysLeft <= 0;
@@ -159,7 +161,7 @@ const renderItem = ({ item }: { item: UserSubscription }) => {
     return (
       <TouchableOpacity
         style={[styles.card, { borderLeftColor: themeColor }]}
-        onPress={() => setEditingSub(item)}
+        onPress={() => setDetailSub(item)} // <-- DÜZELTME BURADA: Artık Detay açıyoruz
       >
         <View style={styles.cardContent}>
           
@@ -200,14 +202,12 @@ const renderItem = ({ item }: { item: UserSubscription }) => {
           {/* SAĞ TARAF: WhatsApp Butonu + Minimal Takvim */}
           <View style={styles.rightSection}>
             
-            {/* WhatsApp Butonu (Artık solda duruyor) */}
             {partnerCount > 0 && (
                 <TouchableOpacity style={styles.whatsappIconBtn} onPress={() => handleSendReminder(item)}>
                     <Ionicons name="logo-whatsapp" size={22} color="#25D366" />
                 </TouchableOpacity>
             )}
 
-            {/* Takvim Kutusu */}
             <View style={styles.calendarBox}>
                 <View style={[styles.calendarTopStrip, { backgroundColor: themeColor }]} />
                 <Text style={[styles.calendarDayText, { color: themeColor }]}>{item.billingDay}</Text>
@@ -233,38 +233,55 @@ const renderItem = ({ item }: { item: UserSubscription }) => {
         contentContainerStyle={{ paddingBottom: 100 }}
         ListHeaderComponent={renderHeader}
         ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            {searchText ? (
-              <Text style={styles.emptyText}>"{searchText}" bulunamadı.</Text>
-            ) : (
-              <Text style={styles.emptyText}>Henüz abonelik yok.</Text>
-            )}
-          </View>
+            <View style={styles.emptyContainer}>
+                {searchText ? (
+                    <Text style={styles.emptyText}>"{searchText}" bulunamadı.</Text>
+                ) : (
+                    <Text style={styles.emptyText}>Henüz abonelik yok.</Text>
+                )}
+            </View>
         }
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#333']} />
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#333']} />
         }
       />
 
-      <TouchableOpacity
-        style={styles.fab}
+      {/* FAB BUTONU */}
+      <TouchableOpacity 
+        style={styles.fab} 
         onPress={() => {
-          setEditingSub(null);
-          setModalVisible(true);
+            setEditingSub(null);
+            setModalVisible(true);
         }}
       >
         <Ionicons name="add" size={32} color="white" />
       </TouchableOpacity>
 
+      {/* MODALLAR */}
+      
+      {/* 1. EKLEME/DÜZENLEME MODALI */}
       <AddSubscriptionModal
         visible={isModalVisible || !!editingSub}
         onClose={() => {
-          setModalVisible(false);
-          setEditingSub(null);
+            setModalVisible(false);
+            setEditingSub(null);
         }}
         selectedCatalogItem={null}
         subscriptionToEdit={editingSub}
       />
+
+      {/* 2. DETAY MODALI (YENİ) */}
+      <SubscriptionDetailModal 
+        visible={!!detailSub}
+        subscription={detailSub}
+        onClose={() => setDetailSub(null)}
+        onEdit={() => {
+            const sub = detailSub;
+            setDetailSub(null); // Detayı kapat
+            setEditingSub(sub); // Düzenlemeyi aç
+        }}
+      />
+
     </SafeAreaView>
   );
 }
@@ -273,11 +290,11 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f8f9fa' },
   headerContainer: { padding: 20, backgroundColor: '#fff', paddingBottom: 15, borderBottomWidth: 1, borderBottomColor: '#eee' },
   header: { fontSize: 28, fontWeight: 'bold', marginBottom: 15, color: '#333' },
-
+  
   summaryRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
-  summaryCardSmall: {
-    flex: 1, backgroundColor: '#f8f9fa', padding: 12, borderRadius: 12, marginHorizontal: 4,
-    borderWidth: 1, borderColor: '#eee'
+  summaryCardSmall: { 
+      flex: 1, backgroundColor: '#f8f9fa', padding: 12, borderRadius: 12, marginHorizontal: 4, 
+      borderWidth: 1, borderColor: '#eee'
   },
   summaryLabel: { fontSize: 11, color: '#999', marginBottom: 2, textTransform: 'uppercase', fontWeight: '600' },
   summaryValue: { fontSize: 20, fontWeight: 'bold', color: '#333' },
@@ -285,22 +302,22 @@ const styles = StyleSheet.create({
   nextPaymentDate: { fontSize: 12, color: '#e74c3c', fontWeight: '600' },
 
   filterSection: {},
-  searchBar: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: '#f1f3f5',
-    paddingHorizontal: 12, paddingVertical: 10, borderRadius: 10, marginBottom: 12
+  searchBar: { 
+      flexDirection: 'row', alignItems: 'center', backgroundColor: '#f1f3f5', 
+      paddingHorizontal: 12, paddingVertical: 10, borderRadius: 10, marginBottom: 12 
   },
   searchInput: { flex: 1, marginLeft: 8, fontSize: 15, color: '#333' },
   sortRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  sortChip: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff',
-    paddingVertical: 6, paddingHorizontal: 10, borderRadius: 20,
-    borderWidth: 1, borderColor: '#ddd'
+  sortChip: { 
+      flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', 
+      paddingVertical: 6, paddingHorizontal: 10, borderRadius: 20, 
+      borderWidth: 1, borderColor: '#ddd' 
   },
   activeSortChip: { backgroundColor: '#333', borderColor: '#333' },
   sortChipText: { fontSize: 11, color: '#666', fontWeight: '600' },
   activeSortChipText: { color: '#fff' },
 
-// --- KART STİLLERİ ---
+  // --- KART STİLLERİ ---
   card: { 
       backgroundColor: 'white', borderRadius: 12, marginBottom: 10, marginHorizontal: 20, padding: 14, 
       borderLeftWidth: 4, shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 3, elevation: 2, 
@@ -317,15 +334,20 @@ const styles = StyleSheet.create({
   shareInfoContainer: { flexDirection: 'row', alignItems: 'center', marginTop: 4, backgroundColor:'#f8f9fa', alignSelf:'flex-start', paddingHorizontal:6, paddingVertical:2, borderRadius:4 },
   shareInfoText: { fontSize: 10, color: '#666' },
 
-rightSection: { 
-      flexDirection: 'row', // Yanyana dizilim için
+  rightSection: { 
+      flexDirection: 'row', 
       alignItems: 'center', 
       justifyContent: 'center', 
       paddingLeft: 8 
   },
 
-  // MİNİMAL TAKVİM STİLİ (Revize Edildi)
-calendarBox: { 
+  whatsappIconBtn: { 
+      marginRight: 10, 
+      padding: 4 
+  },
+
+  // Minimal Takvim Stili
+  calendarBox: { 
       width: 36, height: 36, 
       backgroundColor: '#fff', 
       borderRadius: 8, 
@@ -342,22 +364,18 @@ calendarBox: {
   },
   calendarTopStrip: {
       width: '100%',
-      height: 5, // Daha ince şerit
+      height: 5,
       position: 'absolute',
       top: 0
   },
   calendarDayText: { 
-      fontSize: 16, // Daha küçük font (20 -> 16)
+      fontSize: 16, 
       fontWeight: '800', 
       marginTop: 3 
   },
 
-whatsappIconBtn: { 
-      marginRight: 10, // Takvim ile arasına boşluk koyduk
-      padding: 4 
-  },
   deleteButton: { padding: 6, marginLeft: 0 },
-
+  
   emptyContainer: { alignItems: 'center', marginTop: 50 },
   emptyText: { color: '#999', fontSize: 16 },
 
