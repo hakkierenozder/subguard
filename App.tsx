@@ -7,11 +7,13 @@ import { StatusBar } from 'expo-status-bar';
 import HomeScreen from './src/screens/HomeScreen';
 import MySubscriptionsScreen from './src/screens/MySubscriptionsScreen';
 import { registerForPushNotificationsAsync } from './src/utils/NotificationManager';
+import { Ionicons } from '@expo/vector-icons';
+import ReportsScreen from './src/screens/ReportsScreen';
 
 export default function App() {
   // Hangi sekmenin açık olduğunu tutan basit bir değişken
   // 'catalog' veya 'wallet'
-  const [activeTab, setActiveTab] = useState<'catalog' | 'wallet'>('catalog');
+  const [activeTab, setActiveTab] = useState<'catalog' | 'wallet' | 'reports'>('wallet');
 
   useEffect(() => {
     registerForPushNotificationsAsync().then(() => {
@@ -19,49 +21,48 @@ export default function App() {
     });
   }, []);
 
-  return (
+return (
     <SafeAreaProvider>
       <StatusBar style="auto" />
       
       {/* ANA İÇERİK ALANI */}
       <View style={styles.contentContainer}>
-        {activeTab === 'catalog' ? (
-          <HomeScreen />
-        ) : (
-          <MySubscriptionsScreen />
-        )}
+        {activeTab === 'catalog' && <HomeScreen />}
+        {activeTab === 'wallet' && <MySubscriptionsScreen />}
+        {activeTab === 'reports' && <ReportsScreen />}
       </View>
 
-      {/* ÖZEL TAB BAR (Kendi yaptığımız alt menü) */}
+      {/* ÖZEL TAB BAR */}
       <SafeAreaView edges={['bottom']} style={styles.tabBar}>
         
-        {/* Buton 1: Katalog */}
-        <TouchableOpacity 
-          style={styles.tabItem} 
-          onPress={() => setActiveTab('catalog')}
-        >
-          <Text style={[
-            styles.tabText, 
-            activeTab === 'catalog' && styles.activeTabText
-          ]}>
-            Keşfet
-          </Text>
-          {/* Aktifse altına nokta koy */}
-          {activeTab === 'catalog' && <View style={styles.activeDot} />}
+        {/* 1. Katalog */}
+        <TouchableOpacity style={styles.tabItem} onPress={() => setActiveTab('catalog')}>
+          <Ionicons 
+            name={activeTab === 'catalog' ? "grid" : "grid-outline"} 
+            size={24} 
+            color={activeTab === 'catalog' ? '#333' : '#999'} 
+          />
+          <Text style={[styles.tabText, activeTab === 'catalog' && styles.activeTabText]}>Keşfet</Text>
         </TouchableOpacity>
 
-        {/* Buton 2: Cüzdanım */}
-        <TouchableOpacity 
-          style={styles.tabItem} 
-          onPress={() => setActiveTab('wallet')}
-        >
-          <Text style={[
-            styles.tabText, 
-            activeTab === 'wallet' && styles.activeTabText
-          ]}>
-            Aboneliklerim
-          </Text>
-          {activeTab === 'wallet' && <View style={styles.activeDot} />}
+        {/* 2. Cüzdanım */}
+        <TouchableOpacity style={styles.tabItem} onPress={() => setActiveTab('wallet')}>
+          <Ionicons 
+            name={activeTab === 'wallet' ? "wallet" : "wallet-outline"} 
+            size={24} 
+            color={activeTab === 'wallet' ? '#333' : '#999'} 
+          />
+          <Text style={[styles.tabText, activeTab === 'wallet' && styles.activeTabText]}>Cüzdanım</Text>
+        </TouchableOpacity>
+
+        {/* 3. Raporlar (YENİ) */}
+        <TouchableOpacity style={styles.tabItem} onPress={() => setActiveTab('reports')}>
+          <Ionicons 
+            name={activeTab === 'reports' ? "pie-chart" : "pie-chart-outline"} 
+            size={24} 
+            color={activeTab === 'reports' ? '#333' : '#999'} 
+          />
+          <Text style={[styles.tabText, activeTab === 'reports' && styles.activeTabText]}>Analiz</Text>
         </TouchableOpacity>
 
       </SafeAreaView>
@@ -79,21 +80,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderTopWidth: 1,
     borderTopColor: '#e0e0e0',
-    
-    // DÜZELTME: Sabit height yerine padding kullanıyoruz.
-    // Böylece Android'de ekranın altına göre otomatik esneyecek.
-    paddingTop: 12, 
-    // paddingBottom: SafeAreaView tarafından otomatik yönetilecek (edges={['bottom']})
+    paddingTop: 10,
   },
   tabItem: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    // Butonların tıklama alanı rahat olsun
-    paddingBottom: Platform.OS === 'ios' ? 0 : 12, 
+    paddingBottom: Platform.OS === 'ios' ? 0 : 10, 
   },
   tabText: {
-    fontSize: 12, // Biraz küçülttük, daha zarif durur
+    fontSize: 10,
     color: '#999',
     fontWeight: '600',
     marginTop: 4,
@@ -101,12 +97,5 @@ const styles = StyleSheet.create({
   activeTabText: {
     color: '#333',
     fontWeight: 'bold',
-  },
-  activeDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#333',
-    marginTop: 6, // Yazı ile nokta arasını açtık
   }
 });
