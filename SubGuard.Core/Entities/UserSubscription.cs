@@ -29,8 +29,9 @@ namespace SubGuard.Core.Entities
         public DateTime? ContractStartDate { get; set; }
         public DateTime? ContractEndDate { get; set; }
 
-        // JSON olarak tutulabilir veya ayrı tablo yapılabilir. 
-        // Basitlik için şimdilik JSON string veya boş geçiyoruz.
-        // public string? SharedWithJson { get; set; } 
+        public string? SharedWithJson { get; set; }
+
+        // Frontend'deki UsageLog[] usageHistory dizisini JSON string olarak tutacağız
+        public string? UsageHistoryJson { get; set; }
     }
 }

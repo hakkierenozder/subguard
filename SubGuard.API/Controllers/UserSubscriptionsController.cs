@@ -32,5 +32,11 @@ namespace SubGuard.API.Controllers
         {
             return CreateActionResult(await _service.RemoveSubscriptionAsync(id));
         }
+
+        [HttpPut]
+        public async Task<IActionResult> Update([FromBody] UserSubscriptionDto dto)
+        {
+            return CreateActionResult(await _service.UpdateSubscriptionAsync(dto));
+        }
     }
 }

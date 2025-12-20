@@ -50,5 +50,27 @@ namespace SubGuard.Service.Services
             await _unitOfWork.CommitAsync();
             return CustomResponseDto<bool>.Success(204);
         }
+
+        public async Task<CustomResponseDto<bool>> UpdateSubscriptionAsync(UserSubscriptionDto dto)
+        {
+            // 1. Veritabanındaki orijinal kaydı bul
+            var entity = await _repo.GetByIdAsync(dto.Id);
+
+            if (entity == null)
+            {
+                return CustomResponseDto<bool>.Fail(404, "Abonelik bulunamadı.");
+            }
+
+            // 2. Gelen DTO'daki yeni verileri Entity'nin üzerine yaz (Map)
+            // AutoMapper bunu otomatik yapar ama manuel de yapabiliriz.
+            // _mapper.Map(source, destination) kullanımı:
+            _mapper.Map(dto, entity);
+
+            // 3. Değişiklikleri kaydet
+            _repo.Update(entity);
+            await _unitOfWork.CommitAsync();
+
+            return CustomResponseDto<bool>.Success(204);
+        }
     }
 }

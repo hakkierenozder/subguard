@@ -31,6 +31,7 @@ const Catalogs = {
 const UserSubscriptions = {
   list: (userId: string) => requests.get(`/usersubscriptions/${userId}`),
   create: (subscription: any) => requests.post('/usersubscriptions', subscription),
+  update: (subscription: any) => requests.put('/usersubscriptions', subscription),
   delete: (id: number | string) => requests.del(`/usersubscriptions/${id}`),
 };
 
