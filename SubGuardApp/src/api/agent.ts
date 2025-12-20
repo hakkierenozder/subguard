@@ -1,25 +1,40 @@
 import axios from 'axios';
+import { Platform } from 'react-native';
 
-// DİKKAT: Burayı kendi IP adresinle güncelle!
-// Android Emulator için genelde: 'http://10.0.2.2:5034/api' çalışır.
-// Fiziksel cihaz veya genel kullanım için yerel IP şarttır.
+// Android Emülatör: 10.0.2.2, iOS: localhost
 const MY_IP_ADDRESS = '192.168.1.4'; // <-- Senin IP adresin buraya!
 const API_PORT = '5252'; 
 
 export const API_URL = `http://${MY_IP_ADDRESS}:${API_PORT}/api`;
 
-const agent = axios.create({
+const axiosInstance = axios.create({
   baseURL: API_URL,
-  timeout: 10000, // 10 saniye içinde cevap gelmezse hata ver
+  timeout: 10000,
 });
 
-// İstekleri yöneten nesne
-export const CatalogService = {
-  // GET /api/catalogs isteği atar
-  getAll: async () => {
-    const response = await agent.get('/catalogs');
-    return response.data; // ApiResponse döner
-  }
+const responseBody = (response: any) => response.data;
+
+const requests = {
+  get: (url: string) => axiosInstance.get(url).then(responseBody),
+  post: (url: string, body: {}) => axiosInstance.post(url, body).then(responseBody),
+  del: (url: string) => axiosInstance.delete(url).then(responseBody),
+  put: (url: string, body: {}) => axiosInstance.put(url, body).then(responseBody),
 };
 
-export default agent;
+// Katalog İşlemleri
+const Catalogs = {
+  list: () => requests.get('/catalogs'),
+  details: (id: number) => requests.get(`/catalogs/${id}`),
+};
+
+// YENİ: Kullanıcı Abonelik İşlemleri
+const UserSubscriptions = {
+  list: (userId: string) => requests.get(`/usersubscriptions/${userId}`),
+  create: (subscription: any) => requests.post('/usersubscriptions', subscription),
+  delete: (id: number | string) => requests.del(`/usersubscriptions/${id}`),
+};
+
+export default {
+  Catalogs,
+  UserSubscriptions,
+};

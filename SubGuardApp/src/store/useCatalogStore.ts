@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { CatalogItem } from '../types';
-import { CatalogService } from '../api/agent';
+import agent from '../api/agent'; // Import the agent
 
 interface CatalogState {
   items: CatalogItem[];
@@ -21,7 +21,7 @@ export const useCatalogStore = create<CatalogState>((set) => ({
     
     try {
       // API'ye git
-      const response = await CatalogService.getAll();
+      const response = await agent.Catalogs.list();
       
       // Gelen veriyi (response.data.data) state'e at
       // Backend yapımız: { data: [...], statusCode: 200 } olduğu için response.data alıyoruz

@@ -31,6 +31,7 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 
 builder.Services.AddScoped<ICatalogRepository, CatalogRepository>();
 builder.Services.AddScoped<ICatalogService, CatalogService>();
+builder.Services.AddScoped<IUserSubscriptionService, UserSubscriptionService>();
 
 builder.Services.AddAutoMapper(typeof(MapProfile));
 

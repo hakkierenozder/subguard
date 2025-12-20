@@ -8,11 +8,24 @@ import { Ionicons } from '@expo/vector-icons';
 // ExpenseChart importu kaldırıldı!
 
 export default function MySubscriptionsScreen() {
-  const { subscriptions, removeSubscription, getTotalExpense, getNextPayment } = useUserSubscriptionStore();
+const { 
+    subscriptions, 
+    removeSubscription, 
+    getTotalExpense, 
+    getNextPayment,
+    fetchUserSubscriptions, // <-- Bunu eklemeyi unutma
+    loading 
+  } = useUserSubscriptionStore();
+
   const totalExpense = getTotalExpense();
   const nextPayment = getNextPayment();
 
   const [editingSub, setEditingSub] = useState<UserSubscription | null>(null);
+
+  // YENİ: Ekran açılınca verileri API'den çek
+  React.useEffect(() => {
+    fetchUserSubscriptions();
+  }, []);
 
   const handleDelete = (id: string, name: string) => {
     Alert.alert("Aboneliği Sil", `${name} aboneliğini silmek istiyor musun?`, [
