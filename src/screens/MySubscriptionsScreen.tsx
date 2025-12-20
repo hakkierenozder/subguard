@@ -4,6 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { UserSubscription } from '../types';
 import AddSubscriptionModal from '../components/AddSubscriptionModal'; // Import Et
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
+import { Linking } from 'react-native'; // Import et
+import { Ionicons } from '@expo/vector-icons';
 
 export default function MySubscriptionsScreen() {
   const { subscriptions, removeSubscription, getTotalExpense, getNextPayment } = useUserSubscriptionStore();
@@ -15,43 +17,126 @@ export default function MySubscriptionsScreen() {
 
   const handleDelete = (id: string, name: string) => {
     Alert.alert("Aboneliği Sil", `${name} aboneliğini silmek istiyor musun?`, [
-        { text: "Vazgeç", style: "cancel" },
-        { text: "Sil", style: "destructive", onPress: () => removeSubscription(id) }
+      { text: "Vazgeç", style: "cancel" },
+      { text: "Sil", style: "destructive", onPress: () => removeSubscription(id) }
     ]);
   };
 
-  const renderItem = ({ item }: { item: UserSubscription }) => (
-    // Kartın kendisine tıklayınca Düzenleme Modunu aç
-    <TouchableOpacity 
-      style={[styles.card, { borderLeftColor: item.colorCode || '#333' }]}
-      onPress={() => setEditingSub(item)} // Tıklayınca state'e atar
-    >
-      <View style={styles.cardContent}>
-        <View>
-          <Text style={styles.name}>{item.name}</Text>
-          <Text style={styles.price}>{item.price} {item.currency}</Text>
-        </View>
-        <View style={{ alignItems: 'flex-end' }}>
-          <Text style={styles.dateText}>Sonraki Ödeme:</Text>
-          <Text style={styles.dateValue}>{item.billingDay}. Gün</Text>
-        </View>
-      </View>
+  const getDaysLeft = (dateString?: string) => {
+    if (!dateString) return null;
+    const end = new Date(dateString);
+    const today = new Date();
+    const diffTime = end.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
 
-      <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item.id, item.name)}>
-        <Text style={styles.deleteText}>Sil</Text>
+  const handleSendReminder = (item: UserSubscription) => {
+    if (!item.sharedWith || item.sharedWith.length === 0) return;
+
+    const shareAmount = (item.price / (item.sharedWith.length + 1)).toFixed(2);
+    const message = `Selam! 👋 ${item.name} aboneliği için bu ayki payına düşen miktar: ${shareAmount} ${item.currency}. Gönderebilirsen süper olur! 💸`;
+
+    // WhatsApp URL Şeması
+    const url = `whatsapp://send?text=${encodeURIComponent(message)}`;
+
+    Linking.openURL(url).catch(() => {
+      Alert.alert("Hata", "WhatsApp yüklü değil veya açılamadı.");
+    });
+  };
+
+  const renderItem = ({ item }: { item: UserSubscription }) => {
+    // 1. Taahhüt Hesaplamaları
+    const daysLeft = item.hasContract ? getDaysLeft(item.contractEndDate) : null;
+    const isCritical = daysLeft !== null && daysLeft <= 90 && daysLeft > 0;
+    const isExpired = daysLeft !== null && daysLeft <= 0;
+
+    return (
+      <TouchableOpacity
+        style={[styles.card, { borderLeftColor: item.colorCode || '#333' }]}
+        onPress={() => setEditingSub(item)}
+      >
+        <View style={styles.cardContent}>
+          {/* --- SOL TARA --- */}
+          <View>
+            {/* İSİM ve ORTAK İKONU SATIRI */}
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={styles.name}>{item.name}</Text>
+              {/* Eğer ortak varsa ikon göster */}
+              {item.sharedWith && item.sharedWith.length > 0 && (
+                <Ionicons name="people" size={18} color="#999" style={{ marginLeft: 8 }} />
+              )}
+            </View>
+
+            {/* TAAHHÜT UYARISI (Varsa) */}
+            {item.hasContract && daysLeft !== null && (
+              <View style={{ marginTop: 5 }}>
+                {isExpired ? (
+                  <Text style={{ color: 'red', fontWeight: 'bold', fontSize: 12 }}>SÖZLEŞME BİTTİ!</Text>
+                ) : (
+                  <Text style={{
+                    color: isCritical ? '#e74c3c' : '#7f8c8d',
+                    fontWeight: isCritical ? 'bold' : 'normal',
+                    fontSize: 12
+                  }}>
+                    Taahhüt Bitiş: {daysLeft} gün kaldı
+                  </Text>
+                )}
+              </View>
+            )}
+
+            {/* Sözleşme yoksa fiyatı solda küçük göster (Eski mantık) */}
+            {!item.hasContract && (
+              <Text style={styles.price}>{item.price} {item.currency}</Text>
+            )}
+          </View>
+
+          {/* --- SAĞ TARAF --- */}
+          <View style={{ alignItems: 'flex-end', justifyContent: 'center' }}>
+
+            {/* Duruma Göre Bilgi Gösterimi */}
+            {item.hasContract ? (
+              // Sözleşmeliyse Fiyatı Büyük Göster
+              <Text style={[styles.price, { marginTop: 0, fontSize: 18 }]}>{item.price} {item.currency}</Text>
+            ) : (
+              // Sözleşme yoksa Tarihi Göster
+              <>
+                <Text style={styles.dateText}>Sonraki Ödeme:</Text>
+                <Text style={styles.dateValue}>{item.billingDay}. Gün</Text>
+              </>
+            )}
+
+            {/* WHATSAPP BUTONU (Eğer ortak varsa ekle) */}
+            {item.sharedWith && item.sharedWith.length > 0 && (
+              <TouchableOpacity
+                style={styles.whatsappButton}
+                onPress={() => handleSendReminder(item)}
+              >
+                <Ionicons name="logo-whatsapp" size={16} color="white" style={{ marginRight: 4 }} />
+                <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>İste</Text>
+              </TouchableOpacity>
+            )}
+
+          </View>
+        </View>
+
+        {/* Sil Butonu */}
+        <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item.id, item.name)}>
+          <Text style={styles.deleteText}>Sil</Text>
+        </TouchableOpacity>
       </TouchableOpacity>
-    </TouchableOpacity>
-  );
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.header}>Cüzdanım</Text>
 
-{/* 1. KART: Toplam Tutar (Mevcut) */}
+        {/* 1. KART: Toplam Tutar (Mevcut) */}
         <View style={styles.summaryCard}>
-          <Text style={styles.summaryTitle}>Aylık Toplam</Text>
-          <Text style={styles.summaryValue}>{totalExpense.toFixed(2)} TRY</Text>
+          <Text style={styles.summaryTitle}>Aylık Toplam (Tahmini)</Text>
+          <Text style={styles.summaryValue}>≈ {totalExpense.toFixed(2)} ₺</Text>
         </View>
 
         {/* 2. KART: Sıradaki Ödeme (YENİ) */}
@@ -62,10 +147,10 @@ export default function MySubscriptionsScreen() {
               <Text style={styles.nextPaymentName}>{nextPayment.name}</Text>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
-               <Text style={styles.nextPaymentDate}>
-                 {nextPayment.billingDay >= new Date().getDate() ? 'Bu Ay' : 'Gelecek Ay'}
-               </Text>
-               <Text style={styles.nextPaymentDay}>{nextPayment.billingDay}. Gün</Text>
+              <Text style={styles.nextPaymentDate}>
+                {nextPayment.billingDay >= new Date().getDate() ? 'Bu Ay' : 'Gelecek Ay'}
+              </Text>
+              <Text style={styles.nextPaymentDay}>{nextPayment.billingDay}. Gün</Text>
             </View>
           </View>
         )}
@@ -81,10 +166,10 @@ export default function MySubscriptionsScreen() {
 
       {/* DÜZENLEME MODALI */}
       {/* visible={!!editingSub} demek, editingSub doluysa true, boşsa false demektir */}
-      <AddSubscriptionModal 
-        visible={!!editingSub} 
-        onClose={() => setEditingSub(null)} 
-        selectedCatalogItem={null} 
+      <AddSubscriptionModal
+        visible={!!editingSub}
+        onClose={() => setEditingSub(null)}
+        selectedCatalogItem={null}
         subscriptionToEdit={editingSub} // Düzenlenecek veriyi gönderiyoruz
       />
     </SafeAreaView>
@@ -126,4 +211,14 @@ const styles = StyleSheet.create({
   nextPaymentName: { fontSize: 18, fontWeight: 'bold', color: '#333' },
   nextPaymentDate: { fontSize: 12, color: '#666', marginBottom: 2 },
   nextPaymentDay: { fontSize: 16, fontWeight: 'bold', color: '#e74c3c' },
+
+  whatsappButton: {
+    flexDirection: 'row',
+    backgroundColor: '#25D366', // WhatsApp Yeşili
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+    alignItems: 'center',
+    marginTop: 6
+  }
 });

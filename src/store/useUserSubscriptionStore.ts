@@ -3,6 +3,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserSubscription } from '../types';
 import { scheduleSubscriptionNotification, cancelNotification } from '../utils/NotificationManager';
+import { convertToTRY } from '../utils/CurrencyService';
 
 interface UserSubscriptionState {
   subscriptions: UserSubscription[];
@@ -102,8 +103,16 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>()(
 
 
       getTotalExpense: () => {
-        return get().subscriptions.reduce((total, sub) => total + sub.price, 0);
+        const subs = get().subscriptions;
+
+        // Hepsini TL'ye çevirip topla
+        const total = subs.reduce((sum, sub) => {
+          return sum + convertToTRY(sub.price, sub.currency);
+        }, 0);
+
+        return total;
       },
+      
     }),
     {
       name: 'user-subscriptions-storage',

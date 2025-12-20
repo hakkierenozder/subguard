@@ -1,18 +1,19 @@
 export interface Plan {
   id: number;
-  name: string;      // "Premium"
-  price: number;     // 229.99
-  currency: string;  // "TRY"
+  name: string;
+  price: number;
+  currency: string;
   billingCycleDays: number;
 }
 
 export interface CatalogItem {
   id: number;
-  name: string;      // "Netflix"
-  logoUrl: string;   
-  colorCode: string; // "#E50914"
+  name: string;
+  logoUrl?: string;
+  colorCode?: string;
   category: string;
-  plans: Plan[];     // İçinde planları da barındırır
+  requiresContract: boolean; // Backend'de zaten var!
+  plans?: Plan[];
 }
 
 export interface ApiResponse<T> {
@@ -22,22 +23,24 @@ export interface ApiResponse<T> {
 }
 
 export interface UserSubscription {
-  id: string;               // Local Unique ID (Silmek/Düzenlemek için)
-  catalogId?: number;       // Katalogdan geldiyse ID'si
-  
-  name: string;             // "Netflix"
-  logoUrl?: string;         // Logosu
-  colorCode?: string;       // "#E50914"
-  
-  price: number;            // 229.99
-  currency: string;         // "TRY"
-  
-  billingPeriod: 'monthly' | 'yearly';
-  billingDay: number;       // Her ayın kaçı? (Örn: 15)
-  nextBillingDate: string;  // "2024-03-15" (Hesaplama için kritik)
+  id: string;
+  catalogId: number;
+  name: string;
+  logoUrl?: string;
+  colorCode?: string;
+  price: number;
+  currency: string;
 
-  // Taahhüt Bilgileri (Faz 1'in yıldızı)
-  hasContract: boolean;
-  contractEndDate?: string; // "2025-01-20",
-  notificationId?: string; // YENİ EKLENEN SATIR (Opsiyonel)
+  billingPeriod: 'monthly' | 'yearly';
+  billingDay: number; // Fatura kesim günü (örn: Her ayın 15'i)
+
+  // YENİ EKLENENLER (Taahhüt Sayacı İçin)
+  hasContract: boolean;        // Sözleşmeli mi?
+  contractStartDate?: string;  // Başlangıç (ISO String)
+  contractEndDate?: string;    // Bitiş (Kritik Alan!)
+
+  notificationId?: string;
+  
+  // YENİ: Ortakçı Listesi (Sadece isimleri tutuyoruz şimdilik)
+  sharedWith?: string[];
 }
