@@ -11,6 +11,8 @@ public class AppDbContext : DbContext
     public DbSet<Catalog> Catalogs { get; set; }
     public DbSet<Plan> Plans { get; set; }
 
+    public DbSet<UserSubscription> UserSubscriptions { get; set; }
+
     // Otomatik Tarih Atama Mekanizması (Interceptor Mantığı)
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

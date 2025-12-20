@@ -11,6 +11,7 @@ namespace SubGuard.Service.Mapping
             // ReverseMap: Hem Entity -> DTO hem de DTO -> Entity dönüşümünü açar.
             CreateMap<Catalog, ServiceDto>().ReverseMap();
             CreateMap<Plan, PlanDto>().ReverseMap();
+            CreateMap<UserSubscription, UserSubscriptionDto>().ReverseMap();
         }
     }
 }
