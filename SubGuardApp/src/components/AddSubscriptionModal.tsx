@@ -8,8 +8,8 @@ import { Ionicons } from '@expo/vector-icons';
 interface Props {
   visible: boolean;
   onClose: () => void;
-  selectedCatalogItem: CatalogItem | null; 
-  subscriptionToEdit?: UserSubscription | null; 
+  selectedCatalogItem: CatalogItem | null;
+  subscriptionToEdit?: UserSubscription | null;
 }
 
 const CATEGORIES = ['Streaming', 'Music', 'Gaming', 'Cloud', 'Food', 'Gym', 'Rent', 'Bills', 'Other'];
@@ -17,14 +17,14 @@ type CurrencyType = 'TRY' | 'USD' | 'EUR';
 
 export default function AddSubscriptionModal({ visible, onClose, selectedCatalogItem, subscriptionToEdit }: Props) {
   const { addSubscription, updateSubscription } = useUserSubscriptionStore();
-  
+
   // Temel Bilgiler
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [category, setCategory] = useState('Other');
   const [currency, setCurrency] = useState<CurrencyType>('TRY');
   const [billingDay, setBillingDay] = useState('1');
-  
+
   // Paket Seçimi (Yeni)
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
 
@@ -66,7 +66,7 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
         resetForm();
         setName(selectedCatalogItem.name);
         setCategory(selectedCatalogItem.category);
-        
+
         // Eğer katalogda sadece 1 tane plan varsa otomatik seç
         // if (selectedCatalogItem.plans && selectedCatalogItem.plans.length === 1) {
         //     handleSelectPlan(selectedCatalogItem.plans[0]);
@@ -79,15 +79,15 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
   }, [visible, selectedCatalogItem, subscriptionToEdit]);
 
   const resetForm = () => {
-      setName('');
-      setPrice('');
-      setCategory('Other');
-      setCurrency('TRY');
-      setBillingDay('1');
-      setHasContract(false);
-      setSharedWith([]);
-      setShowShareInput(false);
-      setSelectedPlanId(null);
+    setName('');
+    setPrice('');
+    setCategory('Other');
+    setCurrency('TRY');
+    setBillingDay('1');
+    setHasContract(false);
+    setSharedWith([]);
+    setShowShareInput(false);
+    setSelectedPlanId(null);
   };
 
   const handleSelectPlan = (plan: Plan) => {
@@ -98,16 +98,16 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
   };
 
   const handleAddPerson = () => {
-      if (tempPerson.trim().length > 0) {
-          setSharedWith([...sharedWith, tempPerson.trim()]);
-          setTempPerson('');
-      }
+    if (tempPerson.trim().length > 0) {
+      setSharedWith([...sharedWith, tempPerson.trim()]);
+      setTempPerson('');
+    }
   };
 
   const handleRemovePerson = (index: number) => {
-      const newList = [...sharedWith];
-      newList.splice(index, 1);
-      setSharedWith(newList);
+    const newList = [...sharedWith];
+    newList.splice(index, 1);
+    setSharedWith(newList);
   };
 
   const handleSave = async () => {
@@ -123,7 +123,7 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
     }
 
     const subData = {
-      catalogId: selectedCatalogItem?.id || undefined, 
+      catalogId: selectedCatalogItem?.id || undefined,
       name,
       price: parseFloat(price.replace(',', '.')),
       currency,
@@ -131,21 +131,21 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
       category,
       hasContract,
       contractEndDate: hasContract ? contractDate.toISOString() : undefined,
-      colorCode: selectedCatalogItem?.colorCode || '#333',
+      colorCode: selectedCatalogItem?.colorCode || subscriptionToEdit?.colorCode || '#333',
       sharedWith: sharedWith
     };
 
     try {
-        if (isEditing && subscriptionToEdit) {
-          await updateSubscription(subscriptionToEdit.id, subData);
-        } else {
-          // @ts-ignore
-          await addSubscription(subData);
-        }
-        onClose();
+      if (isEditing && subscriptionToEdit) {
+        await updateSubscription(subscriptionToEdit.id, subData);
+      } else {
+        // @ts-ignore
+        await addSubscription(subData);
+      }
+      onClose();
     } catch (error) {
-        console.log(error);
-        Alert.alert("Hata", "Kaydedilirken bir sorun oluştu.");
+      console.log(error);
+      Alert.alert("Hata", "Kaydedilirken bir sorun oluştu.");
     }
   };
 
@@ -156,41 +156,41 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.overlay}>
         <View style={styles.modalContainer}>
-          
+
           <View style={styles.header}>
             <Text style={styles.title}>
               {isEditing ? 'Düzenle' : isCustom ? 'Özel Abonelik' : 'Yeni Abonelik'}
             </Text>
-            <TouchableOpacity onPress={onClose} style={{padding: 5}}>
+            <TouchableOpacity onPress={onClose} style={{ padding: 5 }}>
               <Ionicons name="close" size={24} color="#333" />
             </TouchableOpacity>
           </View>
 
           <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-            
+
             {/* İSİM & KATEGORİ */}
             <Text style={styles.label}>Abonelik İsmi</Text>
             {selectedCatalogItem && !isEditing ? (
-               <View style={styles.readOnlyInput}><Text style={{color:'#555'}}>{name}</Text></View>
+              <View style={styles.readOnlyInput}><Text style={{ color: '#555' }}>{name}</Text></View>
             ) : (
-               <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Örn: Ev Kirası" />
+              <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Örn: Ev Kirası" />
             )}
 
             {isCustom && (
-                <View>
-                    <Text style={styles.label}>Kategori</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.catScroll}>
-                        {CATEGORIES.map(cat => (
-                            <TouchableOpacity 
-                                key={cat} 
-                                style={[styles.catChip, category === cat && styles.activeCatChip]}
-                                onPress={() => setCategory(cat)}
-                            >
-                                <Text style={[styles.catText, category === cat && styles.activeCatText]}>{cat}</Text>
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
-                </View>
+              <View>
+                <Text style={styles.label}>Kategori</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.catScroll}>
+                  {CATEGORIES.map(cat => (
+                    <TouchableOpacity
+                      key={cat}
+                      style={[styles.catChip, category === cat && styles.activeCatChip]}
+                      onPress={() => setCategory(cat)}
+                    >
+                      <Text style={[styles.catText, category === cat && styles.activeCatText]}>{cat}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
             )}
 
             {/* --- YENİ BÖLÜM: PAKET SEÇİMİ (Varsa Göster) --- */}
@@ -199,7 +199,7 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
                 <Text style={styles.label}>Paket Seçimi</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.plansScroll}>
                   {selectedCatalogItem!.plans!.map((plan) => (
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       key={plan.id}
                       style={[styles.planChip, selectedPlanId === plan.id && styles.activePlanChip]}
                       onPress={() => handleSelectPlan(plan)}
@@ -219,14 +219,14 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
             {/* FİYAT */}
             <Text style={styles.label}>Fiyat (Toplam Tutar)</Text>
             <View style={styles.row}>
-              <TextInput 
-                style={[styles.input, { flex: 2, marginRight: 10 }]} 
+              <TextInput
+                style={[styles.input, { flex: 2, marginRight: 10 }]}
                 value={price} onChangeText={setPrice} keyboardType="numeric" placeholder="0.00"
               />
               <View style={styles.currencyContainer}>
                 {(['TRY', 'USD', 'EUR'] as const).map((curr) => (
                   <TouchableOpacity key={curr} style={[styles.currencyButton, currency === curr && styles.activeCurrency]} onPress={() => setCurrency(curr)}>
-                    <Text style={[styles.currencyText, currency === curr && {color:'white'}]}>{curr}</Text>
+                    <Text style={[styles.currencyText, currency === curr && { color: 'white' }]}>{curr}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -243,33 +243,33 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
             </View>
 
             {showShareInput && (
-                <View style={styles.shareSection}>
-                    <Text style={styles.helperText}>Sen dahil {sharedWith.length + 1} kişi kullanıyorsunuz.</Text>
-                    <Text style={styles.helperText}>Senin Payın: <Text style={{fontWeight:'bold', color:'#2ecc71'}}>{shareAmount} {currency}</Text></Text>
-                    
-                    <View style={styles.addPersonRow}>
-                        <TextInput 
-                            style={[styles.input, {flex:1, marginBottom:0, height:45}]} 
-                            placeholder="Kişi adı (Örn: Ahmet)"
-                            value={tempPerson}
-                            onChangeText={setTempPerson}
-                        />
-                        <TouchableOpacity style={styles.addBtn} onPress={handleAddPerson}>
-                            <Ionicons name="add" size={24} color="white" />
-                        </TouchableOpacity>
-                    </View>
+              <View style={styles.shareSection}>
+                <Text style={styles.helperText}>Sen dahil {sharedWith.length + 1} kişi kullanıyorsunuz.</Text>
+                <Text style={styles.helperText}>Senin Payın: <Text style={{ fontWeight: 'bold', color: '#2ecc71' }}>{shareAmount} {currency}</Text></Text>
 
-                    <View style={styles.chipContainer}>
-                        {sharedWith.map((person, index) => (
-                            <View key={index} style={styles.personChip}>
-                                <Text style={styles.personName}>{person}</Text>
-                                <TouchableOpacity onPress={() => handleRemovePerson(index)}>
-                                    <Ionicons name="close-circle" size={18} color="#666" style={{marginLeft:5}} />
-                                </TouchableOpacity>
-                            </View>
-                        ))}
-                    </View>
+                <View style={styles.addPersonRow}>
+                  <TextInput
+                    style={[styles.input, { flex: 1, marginBottom: 0, height: 45 }]}
+                    placeholder="Kişi adı (Örn: Ahmet)"
+                    value={tempPerson}
+                    onChangeText={setTempPerson}
+                  />
+                  <TouchableOpacity style={styles.addBtn} onPress={handleAddPerson}>
+                    <Ionicons name="add" size={24} color="white" />
+                  </TouchableOpacity>
                 </View>
+
+                <View style={styles.chipContainer}>
+                  {sharedWith.map((person, index) => (
+                    <View key={index} style={styles.personChip}>
+                      <Text style={styles.personName}>{person}</Text>
+                      <TouchableOpacity onPress={() => handleRemovePerson(index)}>
+                        <Ionicons name="close-circle" size={18} color="#666" style={{ marginLeft: 5 }} />
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                </View>
+              </View>
             )}
 
             {/* SÖZLEŞME */}
@@ -285,7 +285,7 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
                   <Ionicons name="calendar-outline" size={20} color="#333" />
                 </TouchableOpacity>
                 {showDatePicker && (
-                  <DateTimePicker value={contractDate} mode="date" display="default" onChange={(e, d) => { setShowDatePicker(false); if(d) setContractDate(d); }} />
+                  <DateTimePicker value={contractDate} mode="date" display="default" onChange={(e, d) => { setShowDatePicker(false); if (d) setContractDate(d); }} />
                 )}
               </View>
             )}
@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
   title: { fontSize: 22, fontWeight: 'bold', color: '#333' },
   content: { paddingBottom: 20 },
-  label: { fontSize: 14, color: '#666', marginBottom: 8, marginTop: 10, fontWeight:'600' },
+  label: { fontSize: 14, color: '#666', marginBottom: 8, marginTop: 10, fontWeight: '600' },
   input: { backgroundColor: '#f5f5f5', padding: 15, borderRadius: 12, fontSize: 16, borderWidth: 1, borderColor: '#eee' },
   readOnlyInput: { backgroundColor: '#eee', padding: 15, borderRadius: 12, borderWidth: 1, borderColor: '#ddd' },
   row: { flexDirection: 'row', alignItems: 'center' },
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
   currencyButton: { flex: 1, alignItems: 'center', paddingVertical: 10, borderRadius: 8 },
   activeCurrency: { backgroundColor: '#333' },
   currencyText: { fontWeight: 'bold', fontSize: 12, color: '#333' },
-  dateButton: { flexDirection: 'row', justifyContent: 'space-between', padding: 15, backgroundColor: '#f5f5f5', borderRadius: 12, alignItems: 'center', marginTop:5 },
+  dateButton: { flexDirection: 'row', justifyContent: 'space-between', padding: 15, backgroundColor: '#f5f5f5', borderRadius: 12, alignItems: 'center', marginTop: 5 },
   saveButton: { backgroundColor: '#333', padding: 18, borderRadius: 15, alignItems: 'center', marginTop: 10, marginBottom: 20 },
   saveButtonText: { color: 'white', fontSize: 18, fontWeight: 'bold' },
   catScroll: { flexDirection: 'row', marginBottom: 5 },
@@ -324,24 +324,24 @@ const styles = StyleSheet.create({
   activeCatChip: { backgroundColor: '#333', borderColor: '#333' },
   catText: { fontSize: 12, color: '#555' },
   activeCatText: { color: '#fff' },
-  
+
   // Yeni Stiller (Paket Seçimi)
   plansSection: { marginBottom: 10 },
   plansScroll: { flexDirection: 'row' },
-  planChip: { 
-    padding: 12, 
-    borderRadius: 12, 
-    backgroundColor: '#fff', 
-    marginRight: 10, 
-    borderWidth: 1, 
+  planChip: {
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: '#fff',
+    marginRight: 10,
+    borderWidth: 1,
     borderColor: '#eee',
     minWidth: 100,
     alignItems: 'center'
   },
-  activePlanChip: { 
-    backgroundColor: '#333', 
+  activePlanChip: {
+    backgroundColor: '#333',
     borderColor: '#333',
-    elevation: 2 
+    elevation: 2
   },
   planName: { fontSize: 13, color: '#333', fontWeight: 'bold', marginBottom: 2 },
   planPrice: { fontSize: 11, color: '#666' },

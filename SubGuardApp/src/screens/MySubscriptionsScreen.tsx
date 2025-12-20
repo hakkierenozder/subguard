@@ -16,7 +16,6 @@ export default function MySubscriptionsScreen() {
     getTotalExpense,
     getNextPayment,
     fetchUserSubscriptions,
-    loading
   } = useUserSubscriptionStore();
 
   const totalExpense = getTotalExpense();
@@ -104,7 +103,7 @@ export default function MySubscriptionsScreen() {
 
       <View style={styles.summaryRow}>
         <View style={styles.summaryCardSmall}>
-          {/* Yorumu buraya alabilirsiniz veya silebilirsiniz */}
+          {/* Yorum satırı düzeltildi */}
           <Text style={styles.summaryLabel}>Aylık Payın</Text>
           <Text style={styles.summaryValue}>≈ {totalExpense.toFixed(0)} ₺</Text>
         </View>
@@ -145,86 +144,81 @@ export default function MySubscriptionsScreen() {
     </View>
   );
 
-  const renderItem = ({ item }: { item: UserSubscription }) => {
+const renderItem = ({ item }: { item: UserSubscription }) => {
     const daysLeft = item.hasContract ? getDaysLeft(item.contractEndDate) : null;
     const isCritical = daysLeft !== null && daysLeft <= 90 && daysLeft > 0;
     const isExpired = daysLeft !== null && daysLeft <= 0;
-
-    // --- HESAPLAMA MANTIĞI EKLENDİ ---
+    
     const partnerCount = (item.sharedWith?.length || 0);
-    const myShare = partnerCount > 0
-      ? (item.price / (partnerCount + 1)).toFixed(2)
+    const myShare = partnerCount > 0 
+      ? (item.price / (partnerCount + 1)).toFixed(2) 
       : null;
+
+    const themeColor = item.colorCode || '#333';
 
     return (
       <TouchableOpacity
-        style={[styles.card, { borderLeftColor: item.colorCode || '#333' }]}
+        style={[styles.card, { borderLeftColor: themeColor }]}
         onPress={() => setEditingSub(item)}
       >
         <View style={styles.cardContent}>
-          <View>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={styles.name}>{item.name}</Text>
-              {partnerCount > 0 && (
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 6, backgroundColor: '#eee', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 8 }}>
-                  <Ionicons name="people" size={12} color="#666" style={{ marginRight: 4 }} />
-                  <Text style={{ fontSize: 10, color: '#666', fontWeight: 'bold' }}>{partnerCount + 1}</Text>
-                </View>
+          
+          {/* SOL TARAF: Bilgiler */}
+          <View style={{ flex: 1, justifyContent:'center' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+              <Text style={styles.name} numberOfLines={1}>{item.name}</Text>
+              
+              {item.hasContract && daysLeft !== null && (
+                 <View style={[styles.badge, { backgroundColor: isCritical || isExpired ? '#ffebee' : '#e3f2fd' }]}>
+                    <Text style={[styles.badgeText, { color: isCritical || isExpired ? '#c62828' : '#1565c0' }]}>
+                        {isExpired ? '!' : `${daysLeft} Gün`}
+                    </Text>
+                 </View>
               )}
             </View>
 
-            {item.hasContract && daysLeft !== null ? (
-              <View style={{ marginTop: 4 }}>
-                {isExpired ? (
-                  <Text style={{ color: 'red', fontWeight: 'bold', fontSize: 11 }}>BİTTİ!</Text>
-                ) : (
-                  <Text style={{ color: isCritical ? '#e74c3c' : '#7f8c8d', fontSize: 11 }}>
-                    {daysLeft} gün kaldı
-                  </Text>
-                )}
-              </View>
-            ) : (
-              // --- UI GÜNCELLEMESİ (SOL TARAFA PAY EKLEME) ---
-              <View>
-                <Text style={styles.price}>{item.price} {item.currency}</Text>
-                {myShare && (
-                  <Text style={{ fontSize: 11, color: '#2ecc71', fontWeight: '600', marginTop: 2 }}>
-                    Payın: {myShare} {item.currency}
-                  </Text>
-                )}
-              </View>
-            )}
+            <View style={{flexDirection:'row', alignItems:'baseline'}}>
+                <Text style={[styles.price, {color: themeColor}]}>
+                  {item.price} <Text style={{fontSize:12, color:'#999', fontWeight:'600'}}>{item.currency}</Text>
+                </Text>
+            </View>
+
+            {myShare ? (
+                <View style={styles.shareInfoContainer}>
+                    <Ionicons name="people" size={10} color="#666" style={{marginRight:4}} />
+                    <Text style={styles.shareInfoText}>
+                        Payın: <Text style={{color: themeColor, fontWeight:'700'}}>{myShare}</Text>
+                    </Text>
+                </View>
+            ) : item.hasContract && item.contractEndDate ? (
+              <Text style={{fontSize:10, color:'#999', marginTop: 2}}>
+                 Bitiş: {new Date(item.contractEndDate).toLocaleDateString('tr-TR')}
+              </Text>
+            ) : null}
           </View>
 
-          <View style={{ alignItems: 'flex-end', justifyContent: 'center' }}>
-            {item.hasContract ? (
-              // --- UI GÜNCELLEMESİ (SAĞ TARAFA PAY EKLEME - SÖZLEŞMELİ İSE) ---
-              <View style={{ alignItems: 'flex-end' }}>
-                <Text style={[styles.price, { marginTop: 0, fontSize: 16 }]}>{item.price} {item.currency}</Text>
-                {myShare && (
-                  <Text style={{ fontSize: 11, color: '#2ecc71', fontWeight: '600' }}>
-                    Payın: {myShare}
-                  </Text>
-                )}
-              </View>
-            ) : (
-              <>
-                <Text style={styles.dateValue}>{item.billingDay}. Gün</Text>
-                <Text style={styles.dateText}>Ödeme</Text>
-              </>
-            )}
-
+          {/* SAĞ TARAF: WhatsApp Butonu + Minimal Takvim */}
+          <View style={styles.rightSection}>
+            
+            {/* WhatsApp Butonu (Artık solda duruyor) */}
             {partnerCount > 0 && (
-              <TouchableOpacity style={styles.whatsappButton} onPress={() => handleSendReminder(item)}>
-                <Ionicons name="logo-whatsapp" size={14} color="white" />
-                <Text style={{ color: 'white', fontSize: 10, fontWeight: 'bold', marginLeft: 2 }}>İste</Text>
-              </TouchableOpacity>
+                <TouchableOpacity style={styles.whatsappIconBtn} onPress={() => handleSendReminder(item)}>
+                    <Ionicons name="logo-whatsapp" size={22} color="#25D366" />
+                </TouchableOpacity>
             )}
+
+            {/* Takvim Kutusu */}
+            <View style={styles.calendarBox}>
+                <View style={[styles.calendarTopStrip, { backgroundColor: themeColor }]} />
+                <Text style={[styles.calendarDayText, { color: themeColor }]}>{item.billingDay}</Text>
+            </View>
+
           </View>
+
         </View>
 
         <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item.id, item.name)}>
-          <Ionicons name="trash-outline" size={20} color="#ff4444" />
+          <Ionicons name="trash-outline" size={18} color="#ff4444" />
         </TouchableOpacity>
       </TouchableOpacity>
     );
@@ -236,7 +230,7 @@ export default function MySubscriptionsScreen() {
         data={filteredData}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: 80 }}
+        contentContainerStyle={{ paddingBottom: 100 }}
         ListHeaderComponent={renderHeader}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
@@ -306,19 +300,63 @@ const styles = StyleSheet.create({
   sortChipText: { fontSize: 11, color: '#666', fontWeight: '600' },
   activeSortChipText: { color: '#fff' },
 
-  card: {
-    backgroundColor: 'white', borderRadius: 12, marginBottom: 12, marginHorizontal: 20, padding: 16,
-    borderLeftWidth: 5, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 3, elevation: 2,
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'
+// --- KART STİLLERİ ---
+  card: { 
+      backgroundColor: 'white', borderRadius: 12, marginBottom: 10, marginHorizontal: 20, padding: 14, 
+      borderLeftWidth: 4, shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 3, elevation: 2, 
+      flexDirection: 'row', alignItems: 'center' 
   },
-  cardContent: { flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginRight: 10 },
-  name: { fontSize: 16, fontWeight: '600', color: '#333' },
-  price: { fontSize: 15, color: '#2ecc71', fontWeight: 'bold', marginTop: 2 },
-  dateText: { fontSize: 10, color: '#999' },
-  dateValue: { fontSize: 14, color: '#555', fontWeight: 'bold' },
-  deleteButton: { padding: 8 },
+  cardContent: { flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginRight: 8 },
+  
+  name: { fontSize: 15, fontWeight: '700', color: '#222', flexShrink: 1, marginRight: 6 },
+  price: { fontSize: 16, fontWeight: '800' },
+  
+  badge: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, marginLeft: 4 },
+  badgeText: { fontSize: 9, fontWeight: '700' },
 
-  whatsappButton: { flexDirection: 'row', backgroundColor: '#25D366', paddingVertical: 4, paddingHorizontal: 8, borderRadius: 12, alignItems: 'center', marginTop: 6 },
+  shareInfoContainer: { flexDirection: 'row', alignItems: 'center', marginTop: 4, backgroundColor:'#f8f9fa', alignSelf:'flex-start', paddingHorizontal:6, paddingVertical:2, borderRadius:4 },
+  shareInfoText: { fontSize: 10, color: '#666' },
+
+rightSection: { 
+      flexDirection: 'row', // Yanyana dizilim için
+      alignItems: 'center', 
+      justifyContent: 'center', 
+      paddingLeft: 8 
+  },
+
+  // MİNİMAL TAKVİM STİLİ (Revize Edildi)
+calendarBox: { 
+      width: 36, height: 36, 
+      backgroundColor: '#fff', 
+      borderRadius: 8, 
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 1,
+      elevation: 1,
+      alignItems: 'center', 
+      overflow: 'hidden',
+      justifyContent: 'center',
+      borderWidth: 0.5,
+      borderColor: '#f0f0f0'
+  },
+  calendarTopStrip: {
+      width: '100%',
+      height: 5, // Daha ince şerit
+      position: 'absolute',
+      top: 0
+  },
+  calendarDayText: { 
+      fontSize: 16, // Daha küçük font (20 -> 16)
+      fontWeight: '800', 
+      marginTop: 3 
+  },
+
+whatsappIconBtn: { 
+      marginRight: 10, // Takvim ile arasına boşluk koyduk
+      padding: 4 
+  },
+  deleteButton: { padding: 6, marginLeft: 0 },
 
   emptyContainer: { alignItems: 'center', marginTop: 50 },
   emptyText: { color: '#999', fontSize: 16 },
