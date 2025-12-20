@@ -9,3 +9,9 @@ obj/
 # Kullanıcı Ayarları
 *.user
 *.suo
+
+# Mobile Ignores
+node_modules/
+.expo/
+dist/
+web-build/
