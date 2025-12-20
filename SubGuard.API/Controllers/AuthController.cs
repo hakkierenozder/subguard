@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SubGuard.Core.DTOs.Auth;
 using SubGuard.Core.Services;
+using System.Security.Claims; // Bunu eklemeyi unutma
+using Microsoft.AspNetCore.Authorization; // Bunu eklemeyi unutma
 
 namespace SubGuard.API.Controllers
 {
@@ -25,6 +27,30 @@ namespace SubGuard.API.Controllers
         public async Task<IActionResult> Login(LoginDto loginDto)
         {
             return CreateActionResult(await _authService.LoginAsync(loginDto));
+        }
+
+        [Authorize] // Sadece giriş yapanlar
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetProfile()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return CreateActionResult(await _authService.GetUserProfileAsync(userId));
+        }
+
+        [Authorize]
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateProfile(UpdateProfileDto dto)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return CreateActionResult(await _authService.UpdateProfileAsync(userId, dto));
+        }
+
+        [Authorize]
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDto dto)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return CreateActionResult(await _authService.ChangePasswordAsync(userId, dto));
         }
     }
 }

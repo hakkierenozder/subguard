@@ -7,5 +7,9 @@ namespace SubGuard.Core.Services
     {
         Task<CustomResponseDto<TokenDto>> RegisterAsync(RegisterDto registerDto);
         Task<CustomResponseDto<TokenDto>> LoginAsync(LoginDto loginDto);
+
+        Task<CustomResponseDto<UserProfileDto>> GetUserProfileAsync(string userId);
+        Task<CustomResponseDto<bool>> UpdateProfileAsync(string userId, UpdateProfileDto dto);
+        Task<CustomResponseDto<bool>> ChangePasswordAsync(string userId, ChangePasswordDto dto);
     }
 }

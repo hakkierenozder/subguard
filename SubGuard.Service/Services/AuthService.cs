@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.DTOs.Auth;
 using SubGuard.Core.Entities;
+using SubGuard.Core.Repositories;
 using SubGuard.Core.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -13,12 +14,14 @@ namespace SubGuard.Service.Services
     public class AuthService : IAuthService
     {
         private readonly UserManager<AppUser> _userManager;
+        private readonly IGenericRepository<UserSubscription> _subRepo;
         private readonly IConfiguration _configuration;
 
-        public AuthService(UserManager<AppUser> userManager, IConfiguration configuration)
+        public AuthService(UserManager<AppUser> userManager, IConfiguration configuration, IGenericRepository<UserSubscription> subRepo)
         {
             _userManager = userManager;
             _configuration = configuration;
+            _subRepo = subRepo; // Bunu ekle
         }
 
         public async Task<CustomResponseDto<TokenDto>> RegisterAsync(RegisterDto registerDto)
@@ -40,6 +43,49 @@ namespace SubGuard.Service.Services
 
             // Kayıt başarılı, direkt token dönelim
             return await GenerateToken(user);
+        }
+
+        public async Task<CustomResponseDto<UserProfileDto>> GetUserProfileAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return CustomResponseDto<UserProfileDto>.Fail(404, "Kullanıcı bulunamadı.");
+
+            // Kullanıcının abonelik sayısını çek (Bonus)
+            var subCount = _subRepo.Where(x => x.UserId == userId).Count();
+
+            return CustomResponseDto<UserProfileDto>.Success(200, new UserProfileDto
+            {
+                Email = user.Email,
+                FullName = user.FullName,
+                TotalSubscriptions = subCount
+            });
+        }
+
+        public async Task<CustomResponseDto<bool>> UpdateProfileAsync(string userId, UpdateProfileDto dto)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return CustomResponseDto<bool>.Fail(404, "Kullanıcı bulunamadı.");
+
+            user.FullName = dto.FullName;
+            await _userManager.UpdateAsync(user);
+
+            return CustomResponseDto<bool>.Success(204);
+        }
+
+        public async Task<CustomResponseDto<bool>> ChangePasswordAsync(string userId, ChangePasswordDto dto)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return CustomResponseDto<bool>.Fail(404, "Kullanıcı bulunamadı.");
+
+            var result = await _userManager.ChangePasswordAsync(user, dto.CurrentPassword, dto.NewPassword);
+
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors.Select(x => x.Description).ToList();
+                return CustomResponseDto<bool>.Fail(400, errors);
+            }
+
+            return CustomResponseDto<bool>.Success(204);
         }
 
         public async Task<CustomResponseDto<TokenDto>> LoginAsync(LoginDto loginDto)

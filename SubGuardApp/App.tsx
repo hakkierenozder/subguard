@@ -41,6 +41,12 @@ export default function App() {
     setActiveTab('wallet'); // Cüzdana at
   };
 
+  const handleLogout = () => {
+    setIsLoggedIn(false); // Giriş durumunu kapat
+    setAuthMode('login'); // Login ekranına hazırla
+    setActiveTab('wallet'); // Bir sonraki giriş için tab'ı sıfırla
+  };
+
   // Çıkış Yapılınca (SettingsScreen'den tetiklenecek)
   // (Bunu SettingsScreen'e prop olarak geçmek yerine basit bir global event veya store ile de yapabiliriz ama şimdilik manuel logout yapıyoruz)
   
@@ -85,7 +91,7 @@ export default function App() {
             Logout için SettingsScreen içinde logoutUser() çağırıp, App.tsx'i yenilememiz (Reload) gerekebilir.
             Pratik Çözüm: SettingsScreen'de "logoutUser" yapıp "Updates.reloadAsync()" kullanabilirsin.
         */}
-        {activeTab === 'settings' && <SettingsScreen />} 
+        {activeTab === 'settings' && <SettingsScreen onLogout={handleLogout} />}
       </View>
 
       <SafeAreaView edges={['bottom']} style={styles.tabBar}>
