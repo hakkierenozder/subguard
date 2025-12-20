@@ -100,6 +100,7 @@ namespace SubGuard.Service.Services
 
         public async Task<CustomResponseDto<bool>> UpdateSubscriptionAsync(UserSubscriptionDto dto)
         {
+            // 1. Mevcut kaydı çek
             var entity = await _repo.GetByIdAsync(dto.Id);
 
             if (entity == null)
@@ -107,7 +108,38 @@ namespace SubGuard.Service.Services
                 return CustomResponseDto<bool>.Fail(404, "Abonelik bulunamadı.");
             }
 
+            // 2. Mevcut rengi yedekle (Mapper ezebilir)
+            var oldColor = entity.ColorCode;
+
+            // 3. DTO verisini Entity üzerine yaz
             _mapper.Map(dto, entity);
+
+            // --- DÜZELTME BAŞLANGIÇ ---
+
+            // Eğer güncelleme sonrası renk boş kaldıysa (DTO'dan null geldiyse)
+            if (string.IsNullOrEmpty(entity.ColorCode))
+            {
+                // A) Önce eski rengi geri yüklemeyi dene
+                if (!string.IsNullOrEmpty(oldColor))
+                {
+                    entity.ColorCode = oldColor;
+                }
+                // B) Eski renk de yoksa ve Katalog bağlantısı varsa, Katalog rengini çek
+                else if (entity.CatalogId.HasValue)
+                {
+                    var catalogItem = await _catalogRepo.GetByIdAsync(entity.CatalogId.Value);
+                    if (catalogItem != null)
+                    {
+                        entity.ColorCode = catalogItem.ColorCode;
+                    }
+                }
+                // C) Hala renk yoksa varsayılan yap
+                else
+                {
+                    entity.ColorCode = "#333333";
+                }
+            }
+            // --- DÜZELTME BİTİŞ ---
 
             _repo.Update(entity);
             await _unitOfWork.CommitAsync();
