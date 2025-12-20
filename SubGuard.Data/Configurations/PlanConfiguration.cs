@@ -17,24 +17,23 @@ namespace SubGuard.Data.Configurations
             builder.ToTable("Plans");
 
             // SEED DATA: Paket Fiyatları (Eksik olan kısım buydu)
+            // --- PLANLAR (Örnekler) ---
             builder.HasData(
-                // Netflix (CatalogId: 1)
-                new Plan { Id = 1, CatalogId = 1, Name = "Temel", Price = 119.99m, Currency = "TRY", BillingCycleDays = 30, CreatedDate = DateTime.UtcNow },
-                new Plan { Id = 2, CatalogId = 1, Name = "Standart", Price = 176.99m, Currency = "TRY", BillingCycleDays = 30, CreatedDate = DateTime.UtcNow },
-                new Plan { Id = 3, CatalogId = 1, Name = "Özel", Price = 229.99m, Currency = "TRY", BillingCycleDays = 30, CreatedDate = DateTime.UtcNow },
+                // Netflix
+                new Plan { Id = 1001, CatalogId = 101, Name = "Temel Plan", Price = 149.99m, Currency = "TRY", BillingCycleDays = 30 },
+                new Plan { Id = 1002, CatalogId = 101, Name = "Standart Plan", Price = 229.99m, Currency = "TRY", BillingCycleDays = 30 },
+                new Plan { Id = 1003, CatalogId = 101, Name = "Özel Plan", Price = 299.99m, Currency = "TRY", BillingCycleDays = 30 },
 
-                // Spotify (CatalogId: 2)
-                new Plan { Id = 4, CatalogId = 2, Name = "Bireysel", Price = 59.99m, Currency = "TRY", BillingCycleDays = 30, CreatedDate = DateTime.UtcNow },
-                new Plan { Id = 5, CatalogId = 2, Name = "Duo", Price = 79.99m, Currency = "TRY", BillingCycleDays = 30, CreatedDate = DateTime.UtcNow },
-                new Plan { Id = 6, CatalogId = 2, Name = "Aile", Price = 99.99m, Currency = "TRY", BillingCycleDays = 30, CreatedDate = DateTime.UtcNow },
+                // Spotify
+                new Plan { Id = 2001, CatalogId = 201, Name = "Bireysel", Price = 59.99m, Currency = "TRY", BillingCycleDays = 30 },
+                new Plan { Id = 2002, CatalogId = 201, Name = "Öğrenci", Price = 32.99m, Currency = "TRY", BillingCycleDays = 30 },
+                new Plan { Id = 2003, CatalogId = 201, Name = "Duo", Price = 79.99m, Currency = "TRY", BillingCycleDays = 30 },
+                new Plan { Id = 2004, CatalogId = 201, Name = "Aile", Price = 99.99m, Currency = "TRY", BillingCycleDays = 30 },
 
-                // Turkcell (CatalogId: 3)
-                new Plan { Id = 7, CatalogId = 3, Name = "Platinum 20GB", Price = 350.00m, Currency = "TRY", BillingCycleDays = 30, CreatedDate = DateTime.UtcNow },
-                new Plan { Id = 8, CatalogId = 3, Name = "Gülümseten 10GB", Price = 220.00m, Currency = "TRY", BillingCycleDays = 30, CreatedDate = DateTime.UtcNow },
-
-                new Plan { Id = 9, CatalogId = 4, Name = "50 GB", Price = 0.99m, Currency = "USD", BillingCycleDays = 30, CreatedDate = DateTime.UtcNow },
-                new Plan { Id = 10, CatalogId = 4, Name = "200 GB", Price = 2.99m, Currency = "USD", BillingCycleDays = 30, CreatedDate = DateTime.UtcNow },
-                new Plan { Id = 11, CatalogId = 4, Name = "2 TB", Price = 9.99m, Currency = "USD", BillingCycleDays = 30, CreatedDate = DateTime.UtcNow }
+                // YouTube Premium
+                new Plan { Id = 3001, CatalogId = 108, Name = "Bireysel", Price = 57.99m, Currency = "TRY", BillingCycleDays = 30 },
+                new Plan { Id = 3002, CatalogId = 108, Name = "Aile", Price = 115.99m, Currency = "TRY", BillingCycleDays = 30 },
+                new Plan { Id = 3003, CatalogId = 108, Name = "Öğrenci", Price = 37.99m, Currency = "TRY", BillingCycleDays = 30 }
             );
         }
     }

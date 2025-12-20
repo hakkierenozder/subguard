@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView, RefreshControl, Image, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCatalogStore } from '../store/useCatalogStore';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import { CatalogItem, UserSubscription } from '../types';
 import AddSubscriptionModal from '../components/AddSubscriptionModal';
-import UsageSurveyModal from '../components/UsageSurveyModal'; // <-- Anketi ekledik
+import UsageSurveyModal from '../components/UsageSurveyModal';
+import CatalogExplore from '../components/CatalogExplore'; // <--- YENİ IMPORT
 import { getUserName } from '../utils/AuthManager';
-import { Ionicons } from '@expo/vector-icons';
-import { convertToTRY } from '../utils/CurrencyService';
 
 export default function HomeScreen() {
   // Store'lar
-  const { catalogItems, fetchCatalog, loading: catalogLoading } = useCatalogStore();
+  const { fetchCatalog } = useCatalogStore(); // catalogItems'ı buradan sildik, CatalogExplore kendi çekecek.
   const { 
     subscriptions, 
     fetchUserSubscriptions, 
@@ -25,15 +24,12 @@ export default function HomeScreen() {
   const [userName, setUserName] = useState('');
   const [selectedItem, setSelectedItem] = useState<CatalogItem | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-  
-  // Anket State'i
   const [surveySub, setSurveySub] = useState<UserSubscription | null>(null);
 
   useEffect(() => {
     loadData();
   }, []);
 
-  // Kullanıcı ve Veri Yükleme
   const loadData = async () => {
     const name = await getUserName();
     setUserName(name);
@@ -42,8 +38,6 @@ export default function HomeScreen() {
         fetchCatalog(),
         fetchUserSubscriptions()
     ]);
-
-    // Anket Kontrolü (Veriler yüklendikten sonra)
     checkSurvey(); 
   };
 
@@ -56,7 +50,6 @@ export default function HomeScreen() {
   const checkSurvey = () => {
       const pending = getPendingSurvey();
       if (pending) {
-          // Biraz gecikmeli açalım ki kullanıcı korkmasın
           setTimeout(() => setSurveySub(pending), 1500);
       }
   };
@@ -70,8 +63,6 @@ export default function HomeScreen() {
         return dayA - dayB;
     })
     .slice(0, 2);
-
-  // --- RENDER ---
 
   const renderUpcomingCard = (item: UserSubscription) => {
       const today = new Date().getDate();
@@ -91,19 +82,6 @@ export default function HomeScreen() {
         </View>
       );
   };
-
-  const renderCatalogItem = ({ item }: { item: CatalogItem }) => (
-    <TouchableOpacity style={styles.catalogItem} onPress={() => setSelectedItem(item)}>
-      <View style={[styles.iconPlaceholder, { backgroundColor: item.colorCode || '#ddd' }]}>
-        <Text style={styles.iconText}>{item.name.charAt(0)}</Text>
-      </View>
-      <View style={styles.itemInfo}>
-        <Text style={styles.itemName}>{item.name}</Text>
-        <Text style={styles.itemCategory}>{item.category}</Text>
-      </View>
-      <Ionicons name="add-circle" size={28} color="#333" />
-    </TouchableOpacity>
-  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -147,16 +125,12 @@ export default function HomeScreen() {
             </View>
         )}
 
-        {/* KEŞFET (KATALOG) */}
+        {/* --- DEĞİŞEN KISIM BURASI --- */}
+        {/* KEŞFET (KATALOG) - ARTIK KATEGORİLİ VE YATAY */}
         <View style={styles.section}>
             <Text style={styles.sectionTitle}>Yeni Abonelik Ekle</Text>
-            <FlatList
-                data={catalogItems}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={renderCatalogItem}
-                scrollEnabled={false} // Ana scroll ile çakışmasın
-                contentContainerStyle={styles.listContainer}
-            />
+            {/* Eskiden burada FlatList vardı, şimdi yeni bileşenimiz var */}
+            <CatalogExplore onSelect={(item) => setSelectedItem(item)} />
         </View>
 
       </ScrollView>
@@ -204,7 +178,7 @@ const styles = StyleSheet.create({
   dashDivider: { width: 1, backgroundColor: '#eee', marginHorizontal: 10 },
 
   // Yaklaşanlar
-  section: { marginBottom: 25 },
+  section: { marginBottom: 15 }, // Biraz azalttık
   sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#333', marginBottom: 15 },
   upcomingRow: { flexDirection: 'row', justifyContent: 'space-between' },
   upcomingCard: { 
@@ -217,17 +191,4 @@ const styles = StyleSheet.create({
   upDayContainer: { alignItems: 'center' },
   upDayVal: { fontSize: 16, fontWeight: 'bold', color: '#e74c3c' },
   upDayLabel: { fontSize: 8, color: '#999' },
-
-  // Katalog Liste
-  listContainer: { paddingBottom: 10 },
-  catalogItem: { 
-      flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', 
-      padding: 12, borderRadius: 12, marginBottom: 10, 
-      borderWidth: 1, borderColor: '#f0f0f0' 
-  },
-  iconPlaceholder: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginRight: 15 },
-  iconText: { color: 'white', fontWeight: 'bold', fontSize: 18 },
-  itemInfo: { flex: 1 },
-  itemName: { fontSize: 16, fontWeight: '600', color: '#333' },
-  itemCategory: { fontSize: 12, color: '#999' }
 });
