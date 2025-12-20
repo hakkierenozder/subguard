@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Modal, StyleSheet, TouchableOpacity, TextInput, ScrollView, Switch, Alert, Platform, KeyboardAvoidingView } from 'react-native';
-import { CatalogItem, UserSubscription } from '../types';
+import { CatalogItem, UserSubscription, Plan } from '../types'; // Plan eklendi
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,18 +25,24 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
   const [currency, setCurrency] = useState<CurrencyType>('TRY');
   const [billingDay, setBillingDay] = useState('1');
   
+  // Paket Seçimi (Yeni)
+  const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
+
   // Sözleşme
   const [hasContract, setHasContract] = useState(false);
   const [contractDate, setContractDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  // --- YENİ: Ortak Kullanıcılar ---
+  // Ortak Kullanıcılar
   const [sharedWith, setSharedWith] = useState<string[]>([]);
   const [tempPerson, setTempPerson] = useState('');
   const [showShareInput, setShowShareInput] = useState(false);
 
   const isEditing = !!subscriptionToEdit;
   const isCustom = !selectedCatalogItem && !isEditing;
+
+  // Seçilen katalog öğesinin paketleri var mı?
+  const hasPlans = selectedCatalogItem?.plans && selectedCatalogItem.plans.length > 0;
 
   useEffect(() => {
     if (visible) {
@@ -51,15 +57,20 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
         if (subscriptionToEdit.contractEndDate) {
           setContractDate(new Date(subscriptionToEdit.contractEndDate));
         }
-        // Ortakları yükle
         setSharedWith(subscriptionToEdit.sharedWith || []);
         setShowShareInput((subscriptionToEdit.sharedWith?.length || 0) > 0);
+        setSelectedPlanId(null); // Edit modunda paket seçimi sıfırlanır (manuel kabul edilir)
 
       } else if (selectedCatalogItem) {
         // Katalog Modu
         resetForm();
         setName(selectedCatalogItem.name);
         setCategory(selectedCatalogItem.category);
+        
+        // Eğer katalogda sadece 1 tane plan varsa otomatik seç
+        // if (selectedCatalogItem.plans && selectedCatalogItem.plans.length === 1) {
+        //     handleSelectPlan(selectedCatalogItem.plans[0]);
+        // }
       } else {
         // Özel Mod
         resetForm();
@@ -76,6 +87,14 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
       setHasContract(false);
       setSharedWith([]);
       setShowShareInput(false);
+      setSelectedPlanId(null);
+  };
+
+  const handleSelectPlan = (plan: Plan) => {
+    setSelectedPlanId(plan.id);
+    setPrice(plan.price.toString());
+    // @ts-ignore - Backend'den gelen currency string olabilir, type casting yapıyoruz
+    setCurrency(plan.currency as CurrencyType);
   };
 
   const handleAddPerson = () => {
@@ -113,7 +132,7 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
       hasContract,
       contractEndDate: hasContract ? contractDate.toISOString() : undefined,
       colorCode: selectedCatalogItem?.colorCode || '#333',
-      sharedWith: sharedWith // <-- Ortaklar listesini ekledik
+      sharedWith: sharedWith
     };
 
     try {
@@ -130,7 +149,7 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
     }
   };
 
-  // Kişi başı maliyet hesaplama (Görsel bilgi için)
+  // Kişi başı maliyet hesaplama
   const shareAmount = price ? (parseFloat(price) / (sharedWith.length + 1)).toFixed(2) : '0';
 
   return (
@@ -149,7 +168,7 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
 
           <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
             
-            {/* İSİM & KATEGORİ (Önceki kodlar aynı) */}
+            {/* İSİM & KATEGORİ */}
             <Text style={styles.label}>Abonelik İsmi</Text>
             {selectedCatalogItem && !isEditing ? (
                <View style={styles.readOnlyInput}><Text style={{color:'#555'}}>{name}</Text></View>
@@ -174,6 +193,29 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
                 </View>
             )}
 
+            {/* --- YENİ BÖLÜM: PAKET SEÇİMİ (Varsa Göster) --- */}
+            {hasPlans && !isEditing && (
+              <View style={styles.plansSection}>
+                <Text style={styles.label}>Paket Seçimi</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.plansScroll}>
+                  {selectedCatalogItem!.plans!.map((plan) => (
+                    <TouchableOpacity 
+                      key={plan.id}
+                      style={[styles.planChip, selectedPlanId === plan.id && styles.activePlanChip]}
+                      onPress={() => handleSelectPlan(plan)}
+                    >
+                      <Text style={[styles.planName, selectedPlanId === plan.id && styles.activePlanText]}>
+                        {plan.name}
+                      </Text>
+                      <Text style={[styles.planPrice, selectedPlanId === plan.id && styles.activePlanText]}>
+                        {plan.price} {plan.currency}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+
             {/* FİYAT */}
             <Text style={styles.label}>Fiyat (Toplam Tutar)</Text>
             <View style={styles.row}>
@@ -194,7 +236,7 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
             <Text style={styles.label}>Her ayın kaçında ödeniyor?</Text>
             <TextInput style={styles.input} value={billingDay} onChangeText={setBillingDay} keyboardType="numeric" placeholder="1-31" maxLength={2} />
 
-            {/* --- YENİ BÖLÜM: ORTAK KULLANIM --- */}
+            {/* ORTAK KULLANIM */}
             <View style={[styles.row, { justifyContent: 'space-between', marginTop: 15 }]}>
               <Text style={styles.label}>Bu aboneliği paylaşıyor musun?</Text>
               <Switch value={showShareInput} onValueChange={setShowShareInput} />
@@ -230,7 +272,7 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
                 </View>
             )}
 
-            {/* SÖZLEŞME (Mevcut kod) */}
+            {/* SÖZLEŞME */}
             <View style={[styles.row, { justifyContent: 'space-between', marginTop: 10 }]}>
               <Text style={styles.label}>Taahhüt / Sözleşme Var mı?</Text>
               <Switch value={hasContract} onValueChange={setHasContract} />
@@ -283,7 +325,29 @@ const styles = StyleSheet.create({
   catText: { fontSize: 12, color: '#555' },
   activeCatText: { color: '#fff' },
   
-  // Yeni Stiller
+  // Yeni Stiller (Paket Seçimi)
+  plansSection: { marginBottom: 10 },
+  plansScroll: { flexDirection: 'row' },
+  planChip: { 
+    padding: 12, 
+    borderRadius: 12, 
+    backgroundColor: '#fff', 
+    marginRight: 10, 
+    borderWidth: 1, 
+    borderColor: '#eee',
+    minWidth: 100,
+    alignItems: 'center'
+  },
+  activePlanChip: { 
+    backgroundColor: '#333', 
+    borderColor: '#333',
+    elevation: 2 
+  },
+  planName: { fontSize: 13, color: '#333', fontWeight: 'bold', marginBottom: 2 },
+  planPrice: { fontSize: 11, color: '#666' },
+  activePlanText: { color: '#fff' },
+
+  // Ortak Stiller
   shareSection: { backgroundColor: '#f9f9f9', padding: 15, borderRadius: 12, marginTop: 5 },
   helperText: { fontSize: 12, color: '#666', marginBottom: 5 },
   addPersonRow: { flexDirection: 'row', marginTop: 10 },
