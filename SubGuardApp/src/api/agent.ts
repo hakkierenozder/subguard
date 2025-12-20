@@ -35,7 +35,13 @@ const UserSubscriptions = {
   delete: (id: number | string) => requests.del(`/usersubscriptions/${id}`),
 };
 
+const Auth = {
+  login: (body: any) => requests.post('/auth/login', body),
+  register: (body: any) => requests.post('/auth/register', body),
+};
+
 export default {
   Catalogs,
   UserSubscriptions,
+  Auth,
 };

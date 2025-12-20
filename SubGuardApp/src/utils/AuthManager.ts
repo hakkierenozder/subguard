@@ -1,25 +1,37 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import 'react-native-get-random-values';
-import { v4 as uuidv4 } from 'uuid'; // Eğer hata verirse: npx expo install uuid react-native-get-random-values
 
+const TOKEN_KEY = 'SUBGUARD_TOKEN';
 const USER_ID_KEY = 'SUBGUARD_USER_ID';
+const USER_NAME_KEY = 'SUBGUARD_USER_NAME';
 
-export const getUserId = async (): Promise<string> => {
-  try {
-    // 1. Hafızaya bak, ID var mı?
-    const existingId = await AsyncStorage.getItem(USER_ID_KEY);
-    
-    if (existingId) {
-      return existingId;
-    }
+// Giriş Başarılıysa Verileri Kaydet
+export const saveAuthData = async (token: string, userId: string, fullName: string) => {
+  await AsyncStorage.multiSet([
+    [TOKEN_KEY, token],
+    [USER_ID_KEY, userId],
+    [USER_NAME_KEY, fullName]
+  ]);
+};
 
-    // 2. Yoksa yeni bir tane oluştur ve kaydet
-    const newId = uuidv4();
-    await AsyncStorage.setItem(USER_ID_KEY, newId);
-    return newId;
+// Çıkış Yap (Verileri Sil)
+export const logoutUser = async () => {
+  await AsyncStorage.multiRemove([TOKEN_KEY, USER_ID_KEY, USER_NAME_KEY]);
+};
 
-  } catch (error) {
-    console.error("Kimlik hatası:", error);
-    return "guest-user"; // Acil durum ID'si
-  }
+// Token Var mı? (Giriş yapılmış mı?)
+export const isAuthenticated = async () => {
+  const token = await AsyncStorage.getItem(TOKEN_KEY);
+  return !!token;
+};
+
+// Aktif Kullanıcı ID'sini Getir
+export const getUserId = async () => {
+  const id = await AsyncStorage.getItem(USER_ID_KEY);
+  return id || '';
+};
+
+// Aktif Kullanıcı Adını Getir
+export const getUserName = async () => {
+    const name = await AsyncStorage.getItem(USER_NAME_KEY);
+    return name || 'Kullanıcı';
 };

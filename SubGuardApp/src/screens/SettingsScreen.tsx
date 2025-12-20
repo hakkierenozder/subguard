@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Switch } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { getUserId } from '../utils/AuthManager';
+import { getUserId, logoutUser } from '../utils/AuthManager';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
+import * as Updates from 'expo-updates';
 import { syncLocalNotifications } from '../utils/NotificationManager';
 
 export default function SettingsScreen() {
@@ -20,9 +21,25 @@ export default function SettingsScreen() {
     await fetchUserSubscriptions();
     Alert.alert("Başarılı", "Veriler ve bildirimler senkronize edildi. ✅");
   };
-
-  const handleReset = () => {
-      Alert.alert("Dikkat", "Bu işlem sadece yerel ayarları etkiler, verilerin silinmez.", [{text: "Tamam"}]);
+ 
+  const handleLogout = async () => {
+      Alert.alert("Çıkış Yap", "Hesabından çıkış yapmak istiyor musun?", [
+          { text: "Vazgeç", style: "cancel" },
+          { 
+              text: "Çıkış Yap", 
+              style: "destructive", 
+              onPress: async () => {
+                  await logoutUser();
+                  // Uygulamayı yeniden başlatarak Login ekranına atar
+                  try {
+                      await Updates.reloadAsync();
+                  } catch (e) {
+                      // Expo Go'da çalışmıyorsa alert ver
+                      Alert.alert("Çıkış Yapıldı", "Lütfen uygulamayı kapatıp açın.");
+                  }
+              } 
+          }
+      ]);
   };
 
   return (
@@ -82,7 +99,7 @@ export default function SettingsScreen() {
         </TouchableOpacity>
 
         {/* ÇIKIŞ / SIFIRLA */}
-        <TouchableOpacity style={[styles.row, {borderBottomWidth: 0}]} onPress={handleReset}>
+        <TouchableOpacity style={[styles.row, {borderBottomWidth: 0}]} onPress={handleLogout}>
             <View style={{flexDirection:'row', alignItems:'center'}}>
                 <Ionicons name="log-out-outline" size={22} color="red" style={styles.icon} />
                 <Text style={[styles.rowText, {color: 'red'}]}>Oturumu Kapat (Sıfırla)</Text>
