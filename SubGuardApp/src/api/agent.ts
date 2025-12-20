@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { Platform } from 'react-native';
 
@@ -10,6 +11,16 @@ export const API_URL = `http://${MY_IP_ADDRESS}:${API_PORT}/api`;
 const axiosInstance = axios.create({
   baseURL: API_URL,
   timeout: 10000,
+});
+
+axiosInstance.interceptors.request.use(async (config) => {
+  const token = await AsyncStorage.getItem('SUBGUARD_TOKEN');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
 });
 
 const responseBody = (response: any) => response.data;
@@ -27,9 +38,9 @@ const Catalogs = {
   details: (id: number) => requests.get(`/catalogs/${id}`),
 };
 
-// YENİ: Kullanıcı Abonelik İşlemleri
+// Kullanıcı Abonelik İşlemleri
 const UserSubscriptions = {
-  list: (userId: string) => requests.get(`/usersubscriptions/${userId}`),
+  list: () => requests.get('/usersubscriptions'), // Parametreyi kaldırdık
   create: (subscription: any) => requests.post('/usersubscriptions', subscription),
   update: (subscription: any) => requests.put('/usersubscriptions', subscription),
   delete: (id: number | string) => requests.del(`/usersubscriptions/${id}`),

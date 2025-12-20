@@ -31,29 +31,19 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
 fetchUserSubscriptions: async () => {
     set({ loading: true });
     try {
-      const userId = await getUserId();
-      const response = await agent.UserSubscriptions.list(userId);
+      // ARTIK ID ALMAMIZA GEREK YOK
+      // const userId = await getUserId(); <-- SİL
+      
+      // Token otomatik eklendiği için direkt çağırıyoruz
+      const response = await agent.UserSubscriptions.list(); 
       
       if (response && response.data) {
-        const mappedSubs = response.data.map((s: any) => ({
-          ...s,
-          id: s.id.toString(),
-          usageHistory: s.usageHistoryJson ? JSON.parse(s.usageHistoryJson) : [],
-          sharedWith: s.sharedWithJson ? JSON.parse(s.sharedWithJson) : []
-        }));
-        
-        set({ subscriptions: mappedSubs, loading: false });
-
-        // --- YENİ EKLENEN SATIR: BİLDİRİMLERİ KUR ---
-        // Veri buluttan geldi, şimdi telefonun alarmlarını buna göre ayarla.
-        syncLocalNotifications(mappedSubs); 
-
+        // ... (İçerik aynı kalsın: map işlemleri vs.)
       } else {
         set({ loading: false });
       }
     } catch (error) {
-      console.error("Veri çekme hatası:", error);
-      set({ loading: false });
+      // ...
     }
   },
 
