@@ -30,7 +30,11 @@ namespace SubGuard.Data.Configurations
 
                 // Turkcell (CatalogId: 3)
                 new Plan { Id = 7, CatalogId = 3, Name = "Platinum 20GB", Price = 350.00m, Currency = "TRY", BillingCycleDays = 30, CreatedDate = DateTime.UtcNow },
-                new Plan { Id = 8, CatalogId = 3, Name = "Gülümseten 10GB", Price = 220.00m, Currency = "TRY", BillingCycleDays = 30, CreatedDate = DateTime.UtcNow }
+                new Plan { Id = 8, CatalogId = 3, Name = "Gülümseten 10GB", Price = 220.00m, Currency = "TRY", BillingCycleDays = 30, CreatedDate = DateTime.UtcNow },
+
+                new Plan { Id = 9, CatalogId = 4, Name = "50 GB", Price = 0.99m, Currency = "USD", BillingCycleDays = 30, CreatedDate = DateTime.UtcNow },
+                new Plan { Id = 10, CatalogId = 4, Name = "200 GB", Price = 2.99m, Currency = "USD", BillingCycleDays = 30, CreatedDate = DateTime.UtcNow },
+                new Plan { Id = 11, CatalogId = 4, Name = "2 TB", Price = 9.99m, Currency = "USD", BillingCycleDays = 30, CreatedDate = DateTime.UtcNow }
             );
         }
     }

@@ -32,7 +32,8 @@ namespace SabGuard.Data.Configurations
             builder.HasData(
                 new Catalog { Id = 1, Name = "Netflix", Category = "Streaming", ColorCode = "#E50914", RequiresContract = false, CreatedDate = DateTime.UtcNow },
                 new Catalog { Id = 2, Name = "Turkcell", Category = "GSM", ColorCode = "#FFC900", RequiresContract = true, CreatedDate = DateTime.UtcNow },
-                new Catalog { Id = 3, Name = "Spotify", Category = "Music", ColorCode = "#1DB954", RequiresContract = false, CreatedDate = DateTime.UtcNow }
+                new Catalog { Id = 3, Name = "Spotify", Category = "Music", ColorCode = "#1DB954", RequiresContract = false, CreatedDate = DateTime.UtcNow },
+                new Catalog { Id = 4, Name = "Apple iCloud", Category = "Cloud", ColorCode = "#000000", RequiresContract = false, CreatedDate = DateTime.UtcNow }
             );
         }
     }
