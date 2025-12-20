@@ -10,13 +10,13 @@ import { convertToTRY } from '../utils/CurrencyService';
 type SortType = 'date' | 'price_desc' | 'price_asc' | 'name';
 
 export default function MySubscriptionsScreen() {
-  const { 
-    subscriptions, 
-    removeSubscription, 
-    getTotalExpense, 
+  const {
+    subscriptions,
+    removeSubscription,
+    getTotalExpense,
     getNextPayment,
-    fetchUserSubscriptions, 
-    loading 
+    fetchUserSubscriptions,
+    loading
   } = useUserSubscriptionStore();
 
   const totalExpense = getTotalExpense();
@@ -40,7 +40,7 @@ export default function MySubscriptionsScreen() {
   }, []);
 
   const getFilteredSubscriptions = () => {
-    let filtered = subscriptions.filter(sub => 
+    let filtered = subscriptions.filter(sub =>
       sub.name.toLowerCase().includes(searchText.toLowerCase())
     );
 
@@ -89,11 +89,11 @@ export default function MySubscriptionsScreen() {
   };
 
   const renderSortChip = (type: SortType, label: string, icon: keyof typeof Ionicons.glyphMap) => (
-    <TouchableOpacity 
-      style={[styles.sortChip, sortBy === type && styles.activeSortChip]} 
+    <TouchableOpacity
+      style={[styles.sortChip, sortBy === type && styles.activeSortChip]}
       onPress={() => setSortBy(type)}
     >
-      <Ionicons name={icon} size={14} color={sortBy === type ? '#fff' : '#666'} style={{marginRight: 4}} />
+      <Ionicons name={icon} size={14} color={sortBy === type ? '#fff' : '#666'} style={{ marginRight: 4 }} />
       <Text style={[styles.sortChipText, sortBy === type && styles.activeSortChipText]}>{label}</Text>
     </TouchableOpacity>
   );
@@ -104,41 +104,42 @@ export default function MySubscriptionsScreen() {
 
       <View style={styles.summaryRow}>
         <View style={styles.summaryCardSmall}>
-            <Text style={styles.summaryLabel}>Aylık Payın</Text> {/* Label güncellendi */}
-            <Text style={styles.summaryValue}>≈ {totalExpense.toFixed(0)} ₺</Text>
+          {/* Yorumu buraya alabilirsiniz veya silebilirsiniz */}
+          <Text style={styles.summaryLabel}>Aylık Payın</Text>
+          <Text style={styles.summaryValue}>≈ {totalExpense.toFixed(0)} ₺</Text>
         </View>
-        
+
         {nextPayment && (
-            <View style={[styles.summaryCardSmall, {borderLeftColor: nextPayment.colorCode || '#333', borderLeftWidth: 4}]}>
-                <Text style={styles.summaryLabel}>Sonraki Ödeme</Text>
-                <Text style={styles.nextPaymentName}>{nextPayment.name}</Text>
-                <Text style={styles.nextPaymentDate}>{nextPayment.billingDay}. Gün</Text>
-            </View>
+          <View style={[styles.summaryCardSmall, { borderLeftColor: nextPayment.colorCode || '#333', borderLeftWidth: 4 }]}>
+            <Text style={styles.summaryLabel}>Sonraki Ödeme</Text>
+            <Text style={styles.nextPaymentName}>{nextPayment.name}</Text>
+            <Text style={styles.nextPaymentDate}>{nextPayment.billingDay}. Gün</Text>
+          </View>
         )}
       </View>
 
       <View style={styles.filterSection}>
         <View style={styles.searchBar}>
-            <Ionicons name="search" size={20} color="#999" />
-            <TextInput 
-                style={styles.searchInput}
-                placeholder="Abonelik ara..."
-                value={searchText}
-                onChangeText={setSearchText}
-                placeholderTextColor="#999"
-            />
-            {searchText.length > 0 && (
-                <TouchableOpacity onPress={() => setSearchText('')}>
-                    <Ionicons name="close-circle" size={18} color="#999" />
-                </TouchableOpacity>
-            )}
+          <Ionicons name="search" size={20} color="#999" />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Abonelik ara..."
+            value={searchText}
+            onChangeText={setSearchText}
+            placeholderTextColor="#999"
+          />
+          {searchText.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchText('')}>
+              <Ionicons name="close-circle" size={18} color="#999" />
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.sortRow}>
-            {renderSortChip('date', 'Tarih', 'calendar-outline')}
-            {renderSortChip('price_desc', 'Pahalı', 'arrow-up-outline')}
-            {renderSortChip('price_asc', 'Ucuz', 'arrow-down-outline')}
-            {renderSortChip('name', 'A-Z', 'text-outline')}
+          {renderSortChip('date', 'Tarih', 'calendar-outline')}
+          {renderSortChip('price_desc', 'Pahalı', 'arrow-up-outline')}
+          {renderSortChip('price_asc', 'Ucuz', 'arrow-down-outline')}
+          {renderSortChip('name', 'A-Z', 'text-outline')}
         </View>
       </View>
     </View>
@@ -148,11 +149,11 @@ export default function MySubscriptionsScreen() {
     const daysLeft = item.hasContract ? getDaysLeft(item.contractEndDate) : null;
     const isCritical = daysLeft !== null && daysLeft <= 90 && daysLeft > 0;
     const isExpired = daysLeft !== null && daysLeft <= 0;
-    
+
     // --- HESAPLAMA MANTIĞI EKLENDİ ---
     const partnerCount = (item.sharedWith?.length || 0);
-    const myShare = partnerCount > 0 
-      ? (item.price / (partnerCount + 1)).toFixed(2) 
+    const myShare = partnerCount > 0
+      ? (item.price / (partnerCount + 1)).toFixed(2)
       : null;
 
     return (
@@ -165,9 +166,9 @@ export default function MySubscriptionsScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={styles.name}>{item.name}</Text>
               {partnerCount > 0 && (
-                <View style={{flexDirection:'row', alignItems:'center', marginLeft: 6, backgroundColor:'#eee', paddingHorizontal:6, paddingVertical:2, borderRadius:8}}>
-                    <Ionicons name="people" size={12} color="#666" style={{ marginRight: 4 }} />
-                    <Text style={{fontSize:10, color:'#666', fontWeight:'bold'}}>{partnerCount + 1}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 6, backgroundColor: '#eee', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 8 }}>
+                  <Ionicons name="people" size={12} color="#666" style={{ marginRight: 4 }} />
+                  <Text style={{ fontSize: 10, color: '#666', fontWeight: 'bold' }}>{partnerCount + 1}</Text>
                 </View>
               )}
             </View>
@@ -185,12 +186,12 @@ export default function MySubscriptionsScreen() {
             ) : (
               // --- UI GÜNCELLEMESİ (SOL TARAFA PAY EKLEME) ---
               <View>
-                  <Text style={styles.price}>{item.price} {item.currency}</Text>
-                  {myShare && (
-                      <Text style={{fontSize: 11, color:'#2ecc71', fontWeight:'600', marginTop: 2}}>
-                          Payın: {myShare} {item.currency}
-                      </Text>
-                  )}
+                <Text style={styles.price}>{item.price} {item.currency}</Text>
+                {myShare && (
+                  <Text style={{ fontSize: 11, color: '#2ecc71', fontWeight: '600', marginTop: 2 }}>
+                    Payın: {myShare} {item.currency}
+                  </Text>
+                )}
               </View>
             )}
           </View>
@@ -198,13 +199,13 @@ export default function MySubscriptionsScreen() {
           <View style={{ alignItems: 'flex-end', justifyContent: 'center' }}>
             {item.hasContract ? (
               // --- UI GÜNCELLEMESİ (SAĞ TARAFA PAY EKLEME - SÖZLEŞMELİ İSE) ---
-              <View style={{alignItems:'flex-end'}}>
-                  <Text style={[styles.price, { marginTop: 0, fontSize: 16 }]}>{item.price} {item.currency}</Text>
-                  {myShare && (
-                      <Text style={{fontSize: 11, color:'#2ecc71', fontWeight:'600'}}>
-                          Payın: {myShare}
-                      </Text>
-                  )}
+              <View style={{ alignItems: 'flex-end' }}>
+                <Text style={[styles.price, { marginTop: 0, fontSize: 16 }]}>{item.price} {item.currency}</Text>
+                {myShare && (
+                  <Text style={{ fontSize: 11, color: '#2ecc71', fontWeight: '600' }}>
+                    Payın: {myShare}
+                  </Text>
+                )}
               </View>
             ) : (
               <>
@@ -238,24 +239,24 @@ export default function MySubscriptionsScreen() {
         contentContainerStyle={{ paddingBottom: 80 }}
         ListHeaderComponent={renderHeader}
         ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-                {searchText ? (
-                    <Text style={styles.emptyText}>"{searchText}" bulunamadı.</Text>
-                ) : (
-                    <Text style={styles.emptyText}>Henüz abonelik yok.</Text>
-                )}
-            </View>
+          <View style={styles.emptyContainer}>
+            {searchText ? (
+              <Text style={styles.emptyText}>"{searchText}" bulunamadı.</Text>
+            ) : (
+              <Text style={styles.emptyText}>Henüz abonelik yok.</Text>
+            )}
+          </View>
         }
         refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#333']} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#333']} />
         }
       />
 
-      <TouchableOpacity 
-        style={styles.fab} 
+      <TouchableOpacity
+        style={styles.fab}
         onPress={() => {
-            setEditingSub(null);
-            setModalVisible(true);
+          setEditingSub(null);
+          setModalVisible(true);
         }}
       >
         <Ionicons name="add" size={32} color="white" />
@@ -264,8 +265,8 @@ export default function MySubscriptionsScreen() {
       <AddSubscriptionModal
         visible={isModalVisible || !!editingSub}
         onClose={() => {
-            setModalVisible(false);
-            setEditingSub(null);
+          setModalVisible(false);
+          setEditingSub(null);
         }}
         selectedCatalogItem={null}
         subscriptionToEdit={editingSub}
@@ -278,11 +279,11 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f8f9fa' },
   headerContainer: { padding: 20, backgroundColor: '#fff', paddingBottom: 15, borderBottomWidth: 1, borderBottomColor: '#eee' },
   header: { fontSize: 28, fontWeight: 'bold', marginBottom: 15, color: '#333' },
-  
+
   summaryRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
-  summaryCardSmall: { 
-      flex: 1, backgroundColor: '#f8f9fa', padding: 12, borderRadius: 12, marginHorizontal: 4, 
-      borderWidth: 1, borderColor: '#eee'
+  summaryCardSmall: {
+    flex: 1, backgroundColor: '#f8f9fa', padding: 12, borderRadius: 12, marginHorizontal: 4,
+    borderWidth: 1, borderColor: '#eee'
   },
   summaryLabel: { fontSize: 11, color: '#999', marginBottom: 2, textTransform: 'uppercase', fontWeight: '600' },
   summaryValue: { fontSize: 20, fontWeight: 'bold', color: '#333' },
@@ -290,25 +291,25 @@ const styles = StyleSheet.create({
   nextPaymentDate: { fontSize: 12, color: '#e74c3c', fontWeight: '600' },
 
   filterSection: {},
-  searchBar: { 
-      flexDirection: 'row', alignItems: 'center', backgroundColor: '#f1f3f5', 
-      paddingHorizontal: 12, paddingVertical: 10, borderRadius: 10, marginBottom: 12 
+  searchBar: {
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#f1f3f5',
+    paddingHorizontal: 12, paddingVertical: 10, borderRadius: 10, marginBottom: 12
   },
   searchInput: { flex: 1, marginLeft: 8, fontSize: 15, color: '#333' },
   sortRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  sortChip: { 
-      flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', 
-      paddingVertical: 6, paddingHorizontal: 10, borderRadius: 20, 
-      borderWidth: 1, borderColor: '#ddd' 
+  sortChip: {
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff',
+    paddingVertical: 6, paddingHorizontal: 10, borderRadius: 20,
+    borderWidth: 1, borderColor: '#ddd'
   },
   activeSortChip: { backgroundColor: '#333', borderColor: '#333' },
   sortChipText: { fontSize: 11, color: '#666', fontWeight: '600' },
   activeSortChipText: { color: '#fff' },
 
-  card: { 
-      backgroundColor: 'white', borderRadius: 12, marginBottom: 12, marginHorizontal: 20, padding: 16, 
-      borderLeftWidth: 5, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 3, elevation: 2, 
-      flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' 
+  card: {
+    backgroundColor: 'white', borderRadius: 12, marginBottom: 12, marginHorizontal: 20, padding: 16,
+    borderLeftWidth: 5, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 3, elevation: 2,
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'
   },
   cardContent: { flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginRight: 10 },
   name: { fontSize: 16, fontWeight: '600', color: '#333' },
@@ -316,9 +317,9 @@ const styles = StyleSheet.create({
   dateText: { fontSize: 10, color: '#999' },
   dateValue: { fontSize: 14, color: '#555', fontWeight: 'bold' },
   deleteButton: { padding: 8 },
-  
+
   whatsappButton: { flexDirection: 'row', backgroundColor: '#25D366', paddingVertical: 4, paddingHorizontal: 8, borderRadius: 12, alignItems: 'center', marginTop: 6 },
-  
+
   emptyContainer: { alignItems: 'center', marginTop: 50 },
   emptyText: { color: '#999', fontSize: 16 },
 
