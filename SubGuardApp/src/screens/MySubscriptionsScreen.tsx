@@ -1,32 +1,84 @@
-import React, { useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, Linking } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, Linking, TextInput, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { UserSubscription } from '../types';
 import AddSubscriptionModal from '../components/AddSubscriptionModal';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import { Ionicons } from '@expo/vector-icons';
-// ExpenseChart importu kaldırıldı!
+import { convertToTRY } from '../utils/CurrencyService'; // <-- Bunu eklemeyi unutma!
+
+// Sıralama Tipleri
+type SortType = 'date' | 'price_desc' | 'price_asc' | 'name';
 
 export default function MySubscriptionsScreen() {
-const { 
+  const { 
     subscriptions, 
     removeSubscription, 
     getTotalExpense, 
     getNextPayment,
-    fetchUserSubscriptions, // <-- Bunu eklemeyi unutma
+    fetchUserSubscriptions, 
     loading 
   } = useUserSubscriptionStore();
 
   const totalExpense = getTotalExpense();
   const nextPayment = getNextPayment();
 
+  // State'ler
   const [editingSub, setEditingSub] = useState<UserSubscription | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [searchText, setSearchText] = useState('');
+  const [sortBy, setSortBy] = useState<SortType>('date');
 
-  // YENİ: Ekran açılınca verileri API'den çek
+  // İlk Açılış
   React.useEffect(() => {
     fetchUserSubscriptions();
   }, []);
 
+  // Aşağı Çekince Yenile
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchUserSubscriptions();
+    setRefreshing(false);
+  }, []);
+
+  // --- FİLTRELEME VE SIRALAMA MANTIĞI ---
+  const getFilteredSubscriptions = () => {
+    // 1. Arama Filtresi
+    let filtered = subscriptions.filter(sub => 
+      sub.name.toLowerCase().includes(searchText.toLowerCase())
+    );
+
+    // 2. Sıralama
+    return filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'date':
+          // Ödeme gününe göre (Yaklaşanlar önce)
+          const today = new Date().getDate();
+          const dayA = a.billingDay < today ? a.billingDay + 30 : a.billingDay;
+          const dayB = b.billingDay < today ? b.billingDay + 30 : b.billingDay;
+          return dayA - dayB;
+        
+        case 'price_desc':
+          // Fiyat (Pahalıdan ucuza) - Kur çevirerek karşılaştır
+          return convertToTRY(b.price, b.currency) - convertToTRY(a.price, a.currency);
+        
+        case 'price_asc':
+          // Fiyat (Ucuzdan pahalıya)
+          return convertToTRY(a.price, a.currency) - convertToTRY(b.price, b.currency);
+        
+        case 'name':
+          // İsim (A-Z)
+          return a.name.localeCompare(b.name);
+          
+        default:
+          return 0;
+      }
+    });
+  };
+
+  const filteredData = getFilteredSubscriptions();
+
+  // --- YARDIMCI FONKSİYONLAR ---
   const handleDelete = (id: string, name: string) => {
     Alert.alert("Aboneliği Sil", `${name} aboneliğini silmek istiyor musun?`, [
       { text: "Vazgeç", style: "cancel" },
@@ -39,8 +91,7 @@ const {
     const end = new Date(dateString);
     const today = new Date();
     const diffTime = end.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
   const handleSendReminder = (item: UserSubscription) => {
@@ -50,6 +101,66 @@ const {
     const url = `whatsapp://send?text=${encodeURIComponent(message)}`;
     Linking.openURL(url).catch(() => Alert.alert("Hata", "WhatsApp açılamadı."));
   };
+
+  // --- RENDER COMPONENTLERİ ---
+  
+  const renderSortChip = (type: SortType, label: string, icon: keyof typeof Ionicons.glyphMap) => (
+    <TouchableOpacity 
+      style={[styles.sortChip, sortBy === type && styles.activeSortChip]} 
+      onPress={() => setSortBy(type)}
+    >
+      <Ionicons name={icon} size={14} color={sortBy === type ? '#fff' : '#666'} style={{marginRight: 4}} />
+      <Text style={[styles.sortChipText, sortBy === type && styles.activeSortChipText]}>{label}</Text>
+    </TouchableOpacity>
+  );
+
+  const renderHeader = () => (
+    <View style={styles.headerContainer}>
+      <Text style={styles.header}>Cüzdanım</Text>
+
+      {/* ÖZET KARTLAR */}
+      <View style={styles.summaryRow}>
+        <View style={styles.summaryCardSmall}>
+            <Text style={styles.summaryLabel}>Aylık Toplam</Text>
+            <Text style={styles.summaryValue}>≈ {totalExpense.toFixed(0)} ₺</Text>
+        </View>
+        
+        {nextPayment && (
+            <View style={[styles.summaryCardSmall, {borderLeftColor: nextPayment.colorCode || '#333', borderLeftWidth: 4}]}>
+                <Text style={styles.summaryLabel}>Sonraki Ödeme</Text>
+                <Text style={styles.nextPaymentName}>{nextPayment.name}</Text>
+                <Text style={styles.nextPaymentDate}>{nextPayment.billingDay}. Gün</Text>
+            </View>
+        )}
+      </View>
+
+      {/* ARAMA VE SIRALAMA ALANI */}
+      <View style={styles.filterSection}>
+        <View style={styles.searchBar}>
+            <Ionicons name="search" size={20} color="#999" />
+            <TextInput 
+                style={styles.searchInput}
+                placeholder="Abonelik ara..."
+                value={searchText}
+                onChangeText={setSearchText}
+                placeholderTextColor="#999"
+            />
+            {searchText.length > 0 && (
+                <TouchableOpacity onPress={() => setSearchText('')}>
+                    <Ionicons name="close-circle" size={18} color="#999" />
+                </TouchableOpacity>
+            )}
+        </View>
+
+        <View style={styles.sortRow}>
+            {renderSortChip('date', 'Tarih', 'calendar-outline')}
+            {renderSortChip('price_desc', 'Pahalı', 'arrow-up-outline')}
+            {renderSortChip('price_asc', 'Ucuz', 'arrow-down-outline')}
+            {renderSortChip('name', 'A-Z', 'text-outline')}
+        </View>
+      </View>
+    </View>
+  );
 
   const renderItem = ({ item }: { item: UserSubscription }) => {
     const daysLeft = item.hasContract ? getDaysLeft(item.contractEndDate) : null;
@@ -66,92 +177,71 @@ const {
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={styles.name}>{item.name}</Text>
               {item.sharedWith && item.sharedWith.length > 0 && (
-                <Ionicons name="people" size={18} color="#999" style={{ marginLeft: 8 }} />
+                <Ionicons name="people" size={16} color="#999" style={{ marginLeft: 6 }} />
               )}
             </View>
 
-            {item.hasContract && daysLeft !== null && (
-              <View style={{ marginTop: 5 }}>
+            {item.hasContract && daysLeft !== null ? (
+              <View style={{ marginTop: 4 }}>
                 {isExpired ? (
-                  <Text style={{ color: 'red', fontWeight: 'bold', fontSize: 12 }}>SÖZLEŞME BİTTİ!</Text>
+                  <Text style={{ color: 'red', fontWeight: 'bold', fontSize: 11 }}>BİTTİ!</Text>
                 ) : (
-                  <Text style={{ color: isCritical ? '#e74c3c' : '#7f8c8d', fontWeight: isCritical ? 'bold' : 'normal', fontSize: 12 }}>
-                    Taahhüt Bitiş: {daysLeft} gün kaldı
+                  <Text style={{ color: isCritical ? '#e74c3c' : '#7f8c8d', fontSize: 11 }}>
+                    {daysLeft} gün kaldı
                   </Text>
                 )}
               </View>
-            )}
-
-            {!item.hasContract && (
-              <Text style={styles.price}>{item.price} {item.currency}</Text>
+            ) : (
+                <Text style={styles.price}>{item.price} {item.currency}</Text>
             )}
           </View>
 
           <View style={{ alignItems: 'flex-end', justifyContent: 'center' }}>
             {item.hasContract ? (
-              <Text style={[styles.price, { marginTop: 0, fontSize: 18 }]}>{item.price} {item.currency}</Text>
+              <Text style={[styles.price, { marginTop: 0, fontSize: 16 }]}>{item.price} {item.currency}</Text>
             ) : (
               <>
-                <Text style={styles.dateText}>Sonraki Ödeme:</Text>
                 <Text style={styles.dateValue}>{item.billingDay}. Gün</Text>
+                <Text style={styles.dateText}>Ödeme</Text>
               </>
             )}
 
             {item.sharedWith && item.sharedWith.length > 0 && (
               <TouchableOpacity style={styles.whatsappButton} onPress={() => handleSendReminder(item)}>
-                <Ionicons name="logo-whatsapp" size={16} color="white" style={{ marginRight: 4 }} />
-                <Text style={{ color: 'white', fontSize: 12, fontWeight: 'bold' }}>İste</Text>
+                <Ionicons name="logo-whatsapp" size={14} color="white" />
+                <Text style={{ color: 'white', fontSize: 10, fontWeight: 'bold', marginLeft: 2 }}>İste</Text>
               </TouchableOpacity>
             )}
           </View>
         </View>
 
         <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item.id, item.name)}>
-          <Text style={styles.deleteText}>Sil</Text>
+          <Ionicons name="trash-outline" size={20} color="#ff4444" />
         </TouchableOpacity>
       </TouchableOpacity>
     );
   };
 
-  const renderHeader = () => (
-    <View style={styles.headerContainer}>
-      <Text style={styles.header}>Cüzdanım</Text>
-
-      {/* 1. KART: Toplam Tutar */}
-      <View style={styles.summaryCard}>
-        <Text style={styles.summaryTitle}>Aylık Toplam (Tahmini)</Text>
-        <Text style={styles.summaryValue}>≈ {totalExpense.toFixed(2)} ₺</Text>
-      </View>
-
-      {/* 2. KART: Sıradaki Ödeme */}
-      {nextPayment && (
-        <View style={[styles.nextPaymentCard, { borderLeftColor: nextPayment.colorCode || '#333' }]}>
-          <View>
-            <Text style={styles.nextPaymentLabel}>Sıradaki Ödeme</Text>
-            <Text style={styles.nextPaymentName}>{nextPayment.name}</Text>
-          </View>
-          <View style={{ alignItems: 'flex-end' }}>
-            <Text style={styles.nextPaymentDate}>
-              {nextPayment.billingDay >= new Date().getDate() ? 'Bu Ay' : 'Gelecek Ay'}
-            </Text>
-            <Text style={styles.nextPaymentDay}>{nextPayment.billingDay}. Gün</Text>
-          </View>
-        </View>
-      )}
-      
-      {/* BURADA GRAFİK YOK ARTIK */}
-    </View>
-  );
-
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
-        data={subscriptions}
+        data={filteredData}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         contentContainerStyle={{ paddingBottom: 20 }}
         ListHeaderComponent={renderHeader}
-        ListEmptyComponent={<Text style={styles.emptyText}>Henüz abonelik yok.</Text>}
+        ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+                {searchText ? (
+                    <Text style={styles.emptyText}>"{searchText}" bulunamadı.</Text>
+                ) : (
+                    <Text style={styles.emptyText}>Henüz abonelik yok.</Text>
+                )}
+            </View>
+        }
+        refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#333']} />
+        }
       />
 
       <AddSubscriptionModal
@@ -166,24 +256,52 @@ const {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f8f9fa' },
-  headerContainer: { padding: 20, backgroundColor: '#fff', paddingBottom: 10 },
-  header: { fontSize: 28, fontWeight: 'bold', marginBottom: 15 },
-  summaryCard: { backgroundColor: '#333', borderRadius: 16, padding: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 5, elevation: 5 },
-  summaryTitle: { color: '#ccc', fontSize: 16 },
-  summaryValue: { color: '#fff', fontSize: 24, fontWeight: 'bold' },
-  card: { backgroundColor: 'white', borderRadius: 12, marginBottom: 12, padding: 16, borderLeftWidth: 6, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 3, elevation: 2, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  headerContainer: { padding: 20, backgroundColor: '#fff', paddingBottom: 15, borderBottomWidth: 1, borderBottomColor: '#eee' },
+  header: { fontSize: 28, fontWeight: 'bold', marginBottom: 15, color: '#333' },
+  
+  // Özet Kartlar
+  summaryRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
+  summaryCardSmall: { 
+      flex: 1, backgroundColor: '#f8f9fa', padding: 12, borderRadius: 12, marginHorizontal: 4, 
+      borderWidth: 1, borderColor: '#eee'
+  },
+  summaryLabel: { fontSize: 11, color: '#999', marginBottom: 2, textTransform: 'uppercase', fontWeight: '600' },
+  summaryValue: { fontSize: 20, fontWeight: 'bold', color: '#333' },
+  nextPaymentName: { fontSize: 16, fontWeight: 'bold', color: '#333' },
+  nextPaymentDate: { fontSize: 12, color: '#e74c3c', fontWeight: '600' },
+
+  // Arama ve Filtre
+  filterSection: {},
+  searchBar: { 
+      flexDirection: 'row', alignItems: 'center', backgroundColor: '#f1f3f5', 
+      paddingHorizontal: 12, paddingVertical: 10, borderRadius: 10, marginBottom: 12 
+  },
+  searchInput: { flex: 1, marginLeft: 8, fontSize: 15, color: '#333' },
+  sortRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  sortChip: { 
+      flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', 
+      paddingVertical: 6, paddingHorizontal: 10, borderRadius: 20, 
+      borderWidth: 1, borderColor: '#ddd' 
+  },
+  activeSortChip: { backgroundColor: '#333', borderColor: '#333' },
+  sortChipText: { fontSize: 11, color: '#666', fontWeight: '600' },
+  activeSortChipText: { color: '#fff' },
+
+  // Liste Elemanları
+  card: { 
+      backgroundColor: 'white', borderRadius: 12, marginBottom: 12, marginHorizontal: 20, padding: 16, 
+      borderLeftWidth: 5, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 3, elevation: 2, 
+      flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' 
+  },
   cardContent: { flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginRight: 10 },
-  name: { fontSize: 18, fontWeight: '600', color: '#333' },
-  price: { fontSize: 16, color: '#2ecc71', fontWeight: 'bold', marginTop: 4 },
-  dateText: { fontSize: 12, color: '#999' },
-  dateValue: { fontSize: 14, color: '#555', fontWeight: '500' },
+  name: { fontSize: 16, fontWeight: '600', color: '#333' },
+  price: { fontSize: 15, color: '#2ecc71', fontWeight: 'bold', marginTop: 2 },
+  dateText: { fontSize: 10, color: '#999' },
+  dateValue: { fontSize: 14, color: '#555', fontWeight: 'bold' },
   deleteButton: { padding: 8 },
-  deleteText: { color: 'red', fontSize: 14, fontWeight: '600' },
-  emptyText: { textAlign: 'center', marginTop: 50, color: '#999', fontSize: 16 },
-  nextPaymentCard: { backgroundColor: '#fff', borderRadius: 12, padding: 15, marginTop: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderLeftWidth: 6, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 },
-  nextPaymentLabel: { fontSize: 12, color: '#999', marginBottom: 2 },
-  nextPaymentName: { fontSize: 18, fontWeight: 'bold', color: '#333' },
-  nextPaymentDate: { fontSize: 12, color: '#666', marginBottom: 2 },
-  nextPaymentDay: { fontSize: 16, fontWeight: 'bold', color: '#e74c3c' },
-  whatsappButton: { flexDirection: 'row', backgroundColor: '#25D366', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 20, alignItems: 'center', marginTop: 6 }
+  
+  whatsappButton: { flexDirection: 'row', backgroundColor: '#25D366', paddingVertical: 4, paddingHorizontal: 8, borderRadius: 12, alignItems: 'center', marginTop: 6 },
+  
+  emptyContainer: { alignItems: 'center', marginTop: 50 },
+  emptyText: { color: '#999', fontSize: 16 }
 });
