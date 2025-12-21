@@ -60,32 +60,35 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
 
   // 2. ABONELİK EKLE
   addSubscription: async (newSub) => {
-    try {
-      const currentUserId = await getUserId();
+  try {
+    const currentUserId = await getUserId();
 
-      // Backend'e gidecek veri
-      const payload = {
-        userId: currentUserId,
-        catalogId: newSub.catalogId,
-        name: newSub.name,
-        price: newSub.price,
-        currency: newSub.currency,
-        billingDay: newSub.billingDay,
-        category: newSub.category,
-        colorCode: newSub.colorCode,
-        hasContract: newSub.hasContract,
+    // Backend'e gidecek veri
+    const payload = {
+      userId: currentUserId,
+      catalogId: newSub.catalogId,
+      name: newSub.name,
+      price: newSub.price,
+      currency: newSub.currency,
+      billingDay: newSub.billingDay,
+      category: newSub.category,
+      colorCode: newSub.colorCode,
+      hasContract: newSub.hasContract,
+      
+      // Tarih alanlarını düzgün formatlayarak gönder
+      contractStartDate: newSub.contractStartDate 
+        ? new Date(newSub.contractStartDate).toISOString() 
+        : null,
+      contractEndDate: newSub.contractEndDate 
+        ? new Date(newSub.contractEndDate).toISOString() 
+        : null,
+      
+      isActive: true,
+      sharedWithJson: newSub.sharedWith ? JSON.stringify(newSub.sharedWith) : null
+    };
 
-        // --- DÜZELTME BURASI ---
-        // Bu satır eksikti, bu yüzden veritabanına null gidiyordu.
-        contractStartDate: newSub.contractStartDate ? newSub.contractStartDate : null,
-        // -----------------------
-
-        contractEndDate: newSub.contractEndDate ? newSub.contractEndDate : null,
-        isActive: true,
-        sharedWithJson: newSub.sharedWith ? JSON.stringify(newSub.sharedWith) : null
-      };
-
-      const response = await agent.UserSubscriptions.create(payload);
+    console.log('Payload gönderildi:', payload); // DEBUG için ekle
+    const response = await agent.UserSubscriptions.create(payload);
 
       if (response && response.data) {
         const createdSub = {
