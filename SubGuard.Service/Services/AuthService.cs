@@ -57,7 +57,8 @@ namespace SubGuard.Service.Services
             {
                 Email = user.Email,
                 FullName = user.FullName,
-                TotalSubscriptions = subCount
+                TotalSubscriptions = subCount,
+                MonthlyBudget = user.MonthlyBudget // <--- BU SATIRI EKLEMEN GEREKİYOR!
             });
         }
 
