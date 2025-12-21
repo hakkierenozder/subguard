@@ -74,7 +74,8 @@ addSubscription: async (newSub) => {
             category: newSub.category,
             colorCode: newSub.colorCode,
             hasContract: newSub.hasContract,
-            contractEndDate: newSub.contractEndDate ? newSub.contractEndDate : null,
+            contractStartDate: newSub.contractStartDate || null,
+            contractEndDate: newSub.contractEndDate || null,
             isActive: true, // <--- DÜZELTME 1: Varsayılan olarak AKTİF gönderiyoruz
             sharedWithJson: newSub.sharedWith ? JSON.stringify(newSub.sharedWith) : null
         };
@@ -140,7 +141,8 @@ updateSubscription: async (id, updatedData) => {
             category: newSub.category,
             colorCode: newSub.colorCode,
             hasContract: newSub.hasContract,
-            contractEndDate: newSub.contractEndDate ? newSub.contractEndDate : null,
+            contractStartDate: newSub.contractStartDate || null,
+            contractEndDate: newSub.contractEndDate || null,
             
             // Pasiflik durumu korunmalı veya güncellenmeli
             isActive: newSub.isActive !== undefined ? newSub.isActive : true, 

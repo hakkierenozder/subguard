@@ -12,7 +12,7 @@ interface Props {
   subscriptionToEdit?: UserSubscription | null;
 }
 
-const CATEGORIES = ['Streaming', 'Music', 'Gaming', 'Cloud', 'Food', 'Gym', 'Rent', 'Bills', 'Education', 'Other'];
+const CATEGORIES = ['Streaming', 'Music', 'Gaming', 'Cloud', 'Food', 'Gym', 'Rent', 'Bills', 'Other'];
 type CurrencyType = 'TRY' | 'USD' | 'EUR';
 
 export default function AddSubscriptionModal({ visible, onClose, selectedCatalogItem, subscriptionToEdit }: Props) {
@@ -27,13 +27,12 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
 
   // --- SÖZLEŞME TARİHLERİ ---
   const [hasContract, setHasContract] = useState(false);
-  const [startDate, setStartDate] = useState(new Date()); // Başlangıç
-  const [endDate, setEndDate] = useState(new Date());     // Bitiş
-  
-  // Hangi tarih seçici açık? 'start', 'end' veya null
+  const [startDate, setStartDate] = useState(new Date()); // YENİ: Başlangıç Tarihi
+  const [endDate, setEndDate] = useState(new Date());     // Bitiş Tarihi
+
+  // Hangi picker açık?
   const [showDatePicker, setShowDatePicker] = useState<'start' | 'end' | null>(null);
 
-  // Ortak Kullanıcılar
   const [sharedWith, setSharedWith] = useState<string[]>([]);
   const [tempPerson, setTempPerson] = useState('');
   const [showShareInput, setShowShareInput] = useState(false);
@@ -45,22 +44,24 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
   useEffect(() => {
     if (visible) {
       if (subscriptionToEdit) {
-        // Edit Modu
+        // --- DÜZENLEME MODU ---
         setName(subscriptionToEdit.name);
         setPrice(subscriptionToEdit.price.toString());
         setCurrency((subscriptionToEdit.currency as CurrencyType) || 'TRY');
         setBillingDay(subscriptionToEdit.billingDay.toString());
         setCategory(subscriptionToEdit.category || 'Other');
-        
+
         setHasContract(subscriptionToEdit.hasContract || false);
+
+        // Tarihleri Doldur (Varsa)
         if (subscriptionToEdit.contractStartDate) setStartDate(new Date(subscriptionToEdit.contractStartDate));
         if (subscriptionToEdit.contractEndDate) setEndDate(new Date(subscriptionToEdit.contractEndDate));
-        
+
         setSharedWith(subscriptionToEdit.sharedWith || []);
         setShowShareInput((subscriptionToEdit.sharedWith?.length || 0) > 0);
         setSelectedPlanId(null);
       } else if (selectedCatalogItem) {
-        // Katalog Modu
+        // --- KATALOG MODU ---
         resetForm();
         setName(selectedCatalogItem.name);
         setCategory(selectedCatalogItem.category);
@@ -77,13 +78,12 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
     setCurrency('TRY');
     setBillingDay('1');
     setHasContract(false);
-    setStartDate(new Date());
-    
-    // Varsayılan bitiş: 1 yıl sonrası
+
+    setStartDate(new Date()); // Bugün
     const nextYear = new Date();
     nextYear.setFullYear(nextYear.getFullYear() + 1);
-    setEndDate(nextYear);
-    
+    setEndDate(nextYear); // 1 Yıl Sonrası
+
     setSharedWith([]);
     setShowShareInput(false);
     setSelectedPlanId(null);
@@ -103,7 +103,7 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
     }
   };
 
-  const handleSave = async () => {
+const handleSave = async () => {
     if (!name || !price || !billingDay) {
       Alert.alert("Eksik Bilgi", "Lütfen isim, fiyat ve gün alanlarını doldurun.");
       return;
@@ -114,8 +114,11 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
       return;
     }
 
+    // CatalogId düzeltmesi (Önceki adımdan)
+    const finalCatalogId = selectedCatalogItem?.id ?? subscriptionToEdit?.catalogId ?? undefined;
+
     const subData = {
-      catalogId: selectedCatalogItem?.id || undefined,
+      catalogId: finalCatalogId,
       name,
       price: parseFloat(price.replace(',', '.')),
       currency,
@@ -124,8 +127,10 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
       colorCode: selectedCatalogItem?.colorCode || subscriptionToEdit?.colorCode || '#333',
       sharedWith: sharedWith,
       
-      // SÖZLEŞME VERİLERİ
+      // --- DÜZELTME BURADA ---
       hasContract,
+      // null yerine undefined kullanıyoruz çünkü TypeScript 'Partial<UserSubscription>' tipinde undefined bekliyor.
+      // Store tarafı bu veriyi API'ye gönderirken null'a çeviriyor zaten.
       contractStartDate: hasContract ? startDate.toISOString() : undefined,
       contractEndDate: hasContract ? endDate.toISOString() : undefined,
     };
@@ -156,8 +161,7 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
           </View>
 
           <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-            
-            {/* İSİM & KATEGORİ */}
+
             <Text style={styles.label}>Abonelik İsmi</Text>
             <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Örn: Spotify" editable={!selectedCatalogItem || isEditing} />
 
@@ -174,7 +178,6 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
               </View>
             )}
 
-            {/* PAKETLER */}
             {hasPlans && !isEditing && (
               <View style={styles.plansSection}>
                 <Text style={styles.label}>Paket Seçimi</Text>
@@ -189,24 +192,22 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
               </View>
             )}
 
-            {/* FİYAT VE GÜN */}
             <View style={styles.row}>
-                <View style={{flex:1, marginRight:10}}>
-                    <Text style={styles.label}>Fiyat</Text>
-                    <View style={[styles.row, styles.input, {padding:0, paddingHorizontal:10}]}>
-                        <TextInput style={{flex:1, fontSize:16}} value={price} onChangeText={setPrice} keyboardType="numeric" placeholder="0.00" />
-                        <TouchableOpacity onPress={() => setCurrency(currency === 'TRY' ? 'USD' : currency === 'USD' ? 'EUR' : 'TRY')}>
-                            <Text style={{fontWeight:'bold', color:'#333'}}>{currency}</Text>
-                        </TouchableOpacity>
-                    </View>
+              <View style={{ flex: 1, marginRight: 10 }}>
+                <Text style={styles.label}>Fiyat</Text>
+                <View style={[styles.row, styles.input, { padding: 0, paddingHorizontal: 10 }]}>
+                  <TextInput style={{ flex: 1, fontSize: 16 }} value={price} onChangeText={setPrice} keyboardType="numeric" placeholder="0.00" />
+                  <TouchableOpacity onPress={() => setCurrency(currency === 'TRY' ? 'USD' : currency === 'USD' ? 'EUR' : 'TRY')}>
+                    <Text style={{ fontWeight: 'bold', color: '#333' }}>{currency}</Text>
+                  </TouchableOpacity>
                 </View>
-                <View style={{flex:1}}>
-                    <Text style={styles.label}>Ödeme Günü</Text>
-                    <TextInput style={styles.input} value={billingDay} onChangeText={setBillingDay} keyboardType="numeric" placeholder="1-31" maxLength={2} />
-                </View>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.label}>Ödeme Günü</Text>
+                <TextInput style={styles.input} value={billingDay} onChangeText={setBillingDay} keyboardType="numeric" placeholder="1-31" maxLength={2} />
+              </View>
             </View>
 
-            {/* ORTAK KULLANIM */}
             <View style={[styles.row, { justifyContent: 'space-between', marginTop: 15 }]}>
               <Text style={styles.label}>Ortak Kullanım</Text>
               <Switch value={showShareInput} onValueChange={setShowShareInput} />
@@ -221,7 +222,7 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
                   {sharedWith.map((person, index) => (
                     <View key={index} style={styles.personChip}>
                       <Text style={styles.personName}>{person}</Text>
-                      <TouchableOpacity onPress={() => {const n=[...sharedWith]; n.splice(index,1); setSharedWith(n)}}><Ionicons name="close-circle" size={16} color="#666" style={{marginLeft:5}}/></TouchableOpacity>
+                      <TouchableOpacity onPress={() => { const n = [...sharedWith]; n.splice(index, 1); setSharedWith(n) }}><Ionicons name="close-circle" size={16} color="#666" style={{ marginLeft: 5 }} /></TouchableOpacity>
                     </View>
                   ))}
                 </View>
@@ -229,7 +230,7 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
               </View>
             )}
 
-            {/* SÖZLEŞME (GÜNCELLENEN KISIM) */}
+            {/* --- SÖZLEŞME ALANI (GÜNCELLENDİ) --- */}
             <View style={[styles.row, { justifyContent: 'space-between', marginTop: 15 }]}>
               <Text style={styles.label}>Taahhüt Var mı?</Text>
               <Switch value={hasContract} onValueChange={setHasContract} />
@@ -238,33 +239,34 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
             {hasContract && (
               <View style={styles.contractContainer}>
                 <View style={styles.row}>
-                    <View style={{flex:1, marginRight:10}}>
-                        <Text style={styles.subLabel}>Başlangıç</Text>
-                        <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker('start')}>
-                            <Text>{startDate.toLocaleDateString('tr-TR')}</Text>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={{flex:1}}>
-                        <Text style={styles.subLabel}>Bitiş</Text>
-                        <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker('end')}>
-                            <Text>{endDate.toLocaleDateString('tr-TR')}</Text>
-                        </TouchableOpacity>
-                    </View>
+                  {/* BAŞLANGIÇ TARİHİ */}
+                  <View style={{ flex: 1, marginRight: 10 }}>
+                    <Text style={styles.subLabel}>Başlangıç</Text>
+                    <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker('start')}>
+                      <Text>{startDate.toLocaleDateString('tr-TR')}</Text>
+                    </TouchableOpacity>
+                  </View>
+                  {/* BİTİŞ TARİHİ */}
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.subLabel}>Bitiş</Text>
+                    <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker('end')}>
+                      <Text>{endDate.toLocaleDateString('tr-TR')}</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
-                
-                {/* DATE PICKER LOGIC */}
+
                 {showDatePicker && (
-                  <DateTimePicker 
-                    value={showDatePicker === 'start' ? startDate : endDate} 
-                    mode="date" 
-                    display="default" 
-                    onChange={(e, d) => { 
-                        if (d) {
-                            if (showDatePicker === 'start') setStartDate(d);
-                            else setEndDate(d);
-                        }
-                        setShowDatePicker(null); 
-                    }} 
+                  <DateTimePicker
+                    value={showDatePicker === 'start' ? startDate : endDate}
+                    mode="date"
+                    display="default"
+                    onChange={(e, d) => {
+                      if (d) {
+                        if (showDatePicker === 'start') setStartDate(d);
+                        else setEndDate(d);
+                      }
+                      setShowDatePicker(null);
+                    }}
                   />
                 )}
               </View>
@@ -300,7 +302,7 @@ const styles = StyleSheet.create({
   plansSection: { marginBottom: 10 },
   planChip: { padding: 10, borderRadius: 10, backgroundColor: '#fff', marginRight: 10, borderWidth: 1, borderColor: '#eee', alignItems: 'center' },
   activePlanChip: { backgroundColor: '#333', borderColor: '#333' },
-  planName: { fontSize: 12, fontWeight: 'bold', color:'#333' },
+  planName: { fontSize: 12, fontWeight: 'bold', color: '#333' },
   activePlanText: { color: '#fff' },
   planPrice: { fontSize: 10, color: '#666' },
   shareSection: { backgroundColor: '#f9f9f9', padding: 10, borderRadius: 10, marginTop: 5 },
@@ -309,11 +311,10 @@ const styles = StyleSheet.create({
   chipContainer: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 10 },
   personChip: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#e0e0e0', paddingVertical: 4, paddingHorizontal: 10, borderRadius: 15, marginRight: 5, marginBottom: 5 },
   personName: { fontSize: 11, marginRight: 5 },
-  helperText: { fontSize: 11, color: '#2ecc71', marginTop: 5, fontWeight:'bold' },
+  helperText: { fontSize: 11, color: '#2ecc71', marginTop: 5, fontWeight: 'bold' },
   saveButton: { backgroundColor: '#333', padding: 16, borderRadius: 12, alignItems: 'center', marginTop: 10, marginBottom: 20 },
   saveButtonText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
-  
-  // Sözleşme Stilleri
-  contractContainer: { backgroundColor:'#f0f8ff', padding:10, borderRadius:10, marginTop:5, borderWidth:1, borderColor:'#dbeafe' },
-  dateButton: { backgroundColor: '#fff', padding: 10, borderRadius: 8, alignItems: 'center', borderWidth:1, borderColor:'#ddd' }
+
+  contractContainer: { backgroundColor: '#f0f8ff', padding: 10, borderRadius: 10, marginTop: 5, borderWidth: 1, borderColor: '#dbeafe' },
+  dateButton: { backgroundColor: '#fff', padding: 10, borderRadius: 8, alignItems: 'center', borderWidth: 1, borderColor: '#ddd' }
 });
