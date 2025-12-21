@@ -9,5 +9,6 @@ namespace SubGuard.Core.DTOs.Auth
     public class UpdateProfileDto
     {
         public string FullName { get; set; }
+        public decimal? MonthlyBudget { get; set; } // Yeni Alan
     }
 }

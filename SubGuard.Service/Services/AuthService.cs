@@ -66,7 +66,16 @@ namespace SubGuard.Service.Services
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return CustomResponseDto<bool>.Fail(404, "Kullanıcı bulunamadı.");
 
-            user.FullName = dto.FullName;
+            if (!string.IsNullOrEmpty(dto.FullName))
+            {
+                user.FullName = dto.FullName;
+            }
+
+            if (dto.MonthlyBudget.HasValue)
+            {
+                user.MonthlyBudget = dto.MonthlyBudget.Value;
+            }
+
             await _userManager.UpdateAsync(user);
 
             return CustomResponseDto<bool>.Success(204);

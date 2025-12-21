@@ -6,12 +6,13 @@ import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import { CatalogItem, UserSubscription } from '../types';
 import AddSubscriptionModal from '../components/AddSubscriptionModal';
 import UsageSurveyModal from '../components/UsageSurveyModal';
-import CatalogExplore from '../components/CatalogExplore'; // <--- YENİ IMPORT
+import CatalogExplore from '../components/CatalogExplore';
 import { getUserName } from '../utils/AuthManager';
+import agent from '../api/agent';
 
 export default function HomeScreen() {
   // Store'lar
-  const { fetchCatalog } = useCatalogStore(); // catalogItems'ı buradan sildik, CatalogExplore kendi çekecek.
+  const { fetchCatalog } = useCatalogStore();
   const { 
     subscriptions, 
     fetchUserSubscriptions, 
@@ -25,14 +26,21 @@ export default function HomeScreen() {
   const [selectedItem, setSelectedItem] = useState<CatalogItem | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [surveySub, setSurveySub] = useState<UserSubscription | null>(null);
+  const [monthlyBudget, setMonthlyBudget] = useState(0);
 
   useEffect(() => {
     loadData();
   }, []);
 
   const loadData = async () => {
-    const name = await getUserName();
-    setUserName(name);
+    // Profil bilgisini de çekiyoruz
+    try {
+        const profileRes = await agent.Auth.getProfile();
+        if (profileRes?.data) {
+            setUserName(profileRes.data.fullName);
+            setMonthlyBudget(profileRes.data.monthlyBudget || 0); // Bütçeyi al
+        }
+    } catch(e) {}
     
     await Promise.all([
         fetchCatalog(),
@@ -83,6 +91,10 @@ export default function HomeScreen() {
       );
   };
 
+  const totalExpense = getTotalExpense();
+  const budgetPercentage = monthlyBudget > 0 ? (totalExpense / monthlyBudget) * 100 : 0;
+  const isOverBudget = totalExpense > monthlyBudget;
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
@@ -104,15 +116,41 @@ export default function HomeScreen() {
 
         {/* ÖZET PANOSU */}
         <View style={styles.dashboard}>
-            <View style={styles.dashItem}>
-                <Text style={styles.dashLabel}>Aylık Toplam</Text>
-                <Text style={styles.dashValue}>{getTotalExpense().toFixed(0)} ₺</Text>
+            
+            {/* DÜZELTME: İstatistikleri yan yana tutan Row Wrapper */}
+            <View style={[styles.dashRow, { marginBottom: monthlyBudget > 0 ? 15 : 0 }]}>
+                <View style={styles.dashItem}>
+                    <Text style={styles.dashLabel}>Aylık Toplam</Text>
+                    <Text style={styles.dashValue}>{getTotalExpense().toFixed(0)} ₺</Text>
+                </View>
+                <View style={styles.dashDivider} />
+                <View style={styles.dashItem}>
+                    <Text style={styles.dashLabel}>Bütçe Hedefi</Text>
+                    <Text style={styles.dashValue}>{monthlyBudget > 0 ? `${monthlyBudget} ₺` : '-'}</Text>
+                </View>
             </View>
-            <View style={styles.dashDivider} />
-            <View style={styles.dashItem}>
-                <Text style={styles.dashLabel}>Aktif Abonelik</Text>
-                <Text style={styles.dashValue}>{subscriptions.length}</Text>
-            </View>
+
+            {/* BÜTÇE PROGRESS BAR */}
+            {monthlyBudget > 0 && (
+                <View style={styles.progressContainer}>
+                    <View style={styles.progressBarBg}>
+                        <View 
+                            style={[
+                                styles.progressBarFill, 
+                                { 
+                                    width: `${Math.min(budgetPercentage, 100)}%`,
+                                    backgroundColor: isOverBudget ? '#ff4444' : '#2ecc71'
+                                }
+                            ]} 
+                        />
+                    </View>
+                    <Text style={styles.progressText}>
+                        {isOverBudget 
+                            ? `Bütçeyi ${(totalExpense - monthlyBudget).toFixed(0)} ₺ aştın!` 
+                            : `%${budgetPercentage.toFixed(0)} kullanıldı`}
+                    </Text>
+                </View>
+            )}
         </View>
 
         {/* YAKLAŞAN ÖDEMELER */}
@@ -125,11 +163,9 @@ export default function HomeScreen() {
             </View>
         )}
 
-        {/* --- DEĞİŞEN KISIM BURASI --- */}
-        {/* KEŞFET (KATALOG) - ARTIK KATEGORİLİ VE YATAY */}
+        {/* KEŞFET (KATALOG) */}
         <View style={styles.section}>
             <Text style={styles.sectionTitle}>Yeni Abonelik Ekle</Text>
-            {/* Eskiden burada FlatList vardı, şimdi yeni bileşenimiz var */}
             <CatalogExplore onSelect={(item) => setSelectedItem(item)} />
         </View>
 
@@ -169,16 +205,28 @@ const styles = StyleSheet.create({
 
   // Dashboard
   dashboard: { 
-      flexDirection: 'row', backgroundColor: '#fff', borderRadius: 16, padding: 20, marginBottom: 25,
-      shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 10, elevation: 3 
+      backgroundColor: '#fff', borderRadius: 16, padding: 20, marginBottom: 25,
+      shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 10, elevation: 3,
+      flexDirection: 'column' // Alt alta dizilim (Row + Progress Bar)
+  },
+  dashRow: { 
+      flexDirection: 'row', 
+      alignItems: 'center'
+      // marginBottom buradan kaldırıldı, inline olarak veriliyor.
   },
   dashItem: { flex: 1, alignItems: 'center' },
   dashLabel: { fontSize: 12, color: '#999', marginBottom: 5, textTransform: 'uppercase', fontWeight: '600' },
   dashValue: { fontSize: 22, fontWeight: 'bold', color: '#333' },
   dashDivider: { width: 1, backgroundColor: '#eee', marginHorizontal: 10 },
 
+  // Progress Bar
+  progressContainer: { marginTop: 5 },
+  progressBarBg: { height: 10, backgroundColor: '#f0f0f0', borderRadius: 5, overflow: 'hidden' },
+  progressBarFill: { height: '100%', borderRadius: 5 },
+  progressText: { fontSize: 11, color: '#666', marginTop: 5, textAlign: 'right', fontWeight:'600' },
+
   // Yaklaşanlar
-  section: { marginBottom: 15 }, // Biraz azalttık
+  section: { marginBottom: 15 }, 
   sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#333', marginBottom: 15 },
   upcomingRow: { flexDirection: 'row', justifyContent: 'space-between' },
   upcomingCard: { 

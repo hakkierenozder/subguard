@@ -11,5 +11,6 @@ namespace SubGuard.Core.Entities
     public class AppUser : IdentityUser
     {
         public string FullName { get; set; }
+        public decimal MonthlyBudget { get; set; } = 0; // Yeni Alan (Varsayılan 0)
     }
 }

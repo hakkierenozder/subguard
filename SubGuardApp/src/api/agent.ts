@@ -50,7 +50,7 @@ const Auth = {
   login: (body: any) => requests.post('/auth/login', body),
   register: (body: any) => requests.post('/auth/register', body),
   getProfile: () => requests.get('/auth/profile'),
-  updateProfile: (body: { fullName: string }) => requests.put('/auth/profile', body),
+updateProfile: (body: { fullName?: string; monthlyBudget?: number }) => requests.put('/auth/profile', body),
   changePassword: (body: any) => requests.post('/auth/change-password', body),
 };
 

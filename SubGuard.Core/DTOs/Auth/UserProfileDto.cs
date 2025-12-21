@@ -11,5 +11,6 @@ namespace SubGuard.Core.DTOs.Auth
         public string Email { get; set; }
         public string FullName { get; set; }
         public int TotalSubscriptions { get; set; } // Bonus özellik
+        public decimal MonthlyBudget { get; set; } // Yeni Alan
     }
 }
