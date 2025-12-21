@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
-import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView, Alert, Dimensions, StatusBar, Platform } from 'react-native';
+import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView, Alert, Dimensions, StatusBar, Switch } from 'react-native';
 import { UserSubscription } from '../types';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
+import { LinearGradient } from 'expo-linear-gradient';
 
 interface Props {
     visible: boolean;
@@ -13,81 +14,87 @@ interface Props {
 
 const { width } = Dimensions.get('window');
 
-// --- SLATE BLUE TEMA ---
+// --- RENK PALETİ ---
 const COLORS = {
-    primary: '#334155', // Slate 700
-    primaryLight: '#E2E8F0', // Slate 200
-    primarySoft: '#F1F5F9', // Slate 100
-    
-    background: '#FFFFFF', 
+    primaryDark: '#1E293B',
+    primary: '#334155',
+    primaryLight: '#475569',
+
+    background: '#FFFFFF',
     surface: '#F8FAFC',
-    
-    textMain: '#0F172A', // Slate 900
-    textBody: '#64748B', // Slate 500
-    textMuted: '#94A3B8', // Slate 400
-    
+    surfaceHighlight: '#F1F5F9',
+
+    textMain: '#0F172A',
+    textBody: '#334155',
+    textMuted: '#94A3B8',
+
+    white: '#FFFFFF',
     border: '#E2E8F0',
-    
-    success: '#10B981',
-    successBg: '#DCFCE7',
-    successText: '#166534',
-    
-    warning: '#F59E0B',
-    warningBg: '#FEF3C7',
-    warningText: '#92400E',
-    
+
+    // Semantik Renkler (Düzeltildi)
+    success: '#10B981', // Yeşil
+    warning: '#F59E0B', // Turuncu
+    inactive: '#CBD5E1', // Gri
     error: '#EF4444',
-    errorBg: '#FEE2E2',
-    errorText: '#991B1B'
 };
 
-export default function SubscriptionDetailModal({ visible, subscription, onClose, onEdit }: Props) {
-    const { removeSubscription, updateSubscription } = useUserSubscriptionStore();
+export default function SubscriptionDetailModal({ visible, subscription: initialSubscription, onClose, onEdit }: Props) {
+    const { removeSubscription, updateSubscription, subscriptions } = useUserSubscriptionStore();
 
-    // HATA DÜZELTME: useMemo Hook'u, "if (!subscription)" kontrolünden ÖNCE çağrılmalı.
-    // React Hook'ları her render'da aynı sırada çalışmalıdır.
+    // ÇÖZÜM: Store'dan canlı veriyi çekiyoruz. 
+    // Böylece Switch değiştiği an bu değişken güncelleniyor ve ekran yeniden çiziliyor.
+    const liveSubscription = useUserSubscriptionStore((state) =>
+        state.subscriptions.find((s) => s.id === initialSubscription?.id)
+    );
+
+    // Eğer store'da bulamazsak (örn silinmişse) initial veriyi kullan, o da yoksa null.
+    const subscription = liveSubscription || initialSubscription;
+
+    // --- KULLANIM VERİSİ HESAPLAMA (Düzeltildi) ---
     const usageData = useMemo(() => {
         if (!subscription) return [];
-
         const history = subscription.usageHistory || [];
         const months = [];
+
+        // Son 6 ay
         for (let i = 5; i >= 0; i--) {
             const d = new Date();
+            d.setDate(1); // KRİTİK DÜZELTME: 31 çeken ay hatasını önlemek için günü 1'e sabitliyoruz.
             d.setMonth(d.getMonth() - i);
-            const key = d.toISOString().slice(0, 7); 
-            
-            // Backend yapısına uygun kontrol
+
+            const key = d.toISOString().slice(0, 7); // "2023-12" formatı
             const log = history.find((h: any) => h.month === key);
-            
+
             months.push({
                 label: d.toLocaleDateString('tr-TR', { month: 'short' }).toUpperCase(),
-                status: log ? log.status : 'none'
+                // Eğer log varsa status'ü al, yoksa 'missing' (veri yok) olarak işaretle
+                status: log ? log.status : 'missing',
             });
         }
         return months;
-    }, [subscription]); // subscription değiştiğinde yeniden hesapla
+    }, [subscription]);; // subscription değiştiğinde (Switch'e basınca) burası da güncellenir
 
-    // HATA DÜZELTME: Early return (erken çıkış) hook çağrılarından SONRA yapılmalı.
     if (!subscription) return null;
 
-    // --- MANTIK ---
+    // --- AKSİYONLAR ---
     const handleDelete = () => {
         Alert.alert(
             "Aboneliği Sil",
             `${subscription.name} aboneliğini silmek istediğine emin misin?`,
             [
                 { text: "Vazgeç", style: "cancel" },
-                { text: "Sil", style: "destructive", onPress: async () => { await removeSubscription(subscription.id); onClose(); }}
+                { text: "Sil", style: "destructive", onPress: async () => { await removeSubscription(subscription.id); onClose(); } }
             ]
         );
     };
 
-    const toggleStatus = async () => {
-        const newStatus = !subscription.isActive;
-        await updateSubscription(subscription.id, { isActive: newStatus });
+    const toggleStatus = async (value: boolean) => {
+        // Switch'ten gelen değer ile store'u güncelliyoruz.
+        // liveSubscription sayesinde ekran anında güncellenecek.
+        await updateSubscription(subscription.id, { isActive: value });
     };
 
-    // Hesaplamalar
+    // --- HESAPLAMALAR ---
     const totalCost = subscription.price;
     const partners = subscription.sharedWith || [];
     const partnersCount = partners.length;
@@ -97,14 +104,14 @@ export default function SubscriptionDetailModal({ visible, subscription, onClose
         const today = new Date();
         const billingDay = subscription.billingDay;
         let nextDate = new Date(today.getFullYear(), today.getMonth(), billingDay);
-        
+
         if (nextDate < today) {
             nextDate.setMonth(nextDate.getMonth() + 1);
         }
-        
+
         const diffTime = Math.abs(nextDate.getTime() - today.getTime());
         const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
+
         return { nextDate, daysLeft };
     };
     const { nextDate, daysLeft } = getBillingData();
@@ -113,181 +120,164 @@ export default function SubscriptionDetailModal({ visible, subscription, onClose
         <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
             <View style={styles.container}>
                 <StatusBar barStyle="dark-content" />
-                
-                {/* Modal Tutamacı */}
-                <View style={styles.dragHandle} />
 
                 {/* --- HEADER --- */}
-                <View style={styles.header}>
-                    <TouchableOpacity onPress={onClose} style={styles.closeBtn} hitSlop={{top:10, bottom:10, left:10, right:10}}>
-                        <Ionicons name="close" size={24} color={COLORS.textMuted} />
+                <View style={styles.topBar}>
+                    <TouchableOpacity onPress={onClose} style={styles.iconBtn}>
+                        <Ionicons name="chevron-down" size={28} color={COLORS.textMain} />
                     </TouchableOpacity>
-
-                    <View style={[styles.logoContainer, { backgroundColor: subscription.colorCode || COLORS.primary }]}>
-                        <Text style={styles.logoText}>{subscription.name.charAt(0).toUpperCase()}</Text>
-                    </View>
-
-                    <Text style={styles.title}>{subscription.name}</Text>
-                    
-                    <View style={styles.priceContainer}>
-                        <Text style={styles.currency}>{subscription.currency}</Text>
-                        <Text style={styles.price}>{subscription.price}</Text>
-                        <Text style={styles.period}>/ay</Text>
-                    </View>
-
-                    <View style={[styles.statusBadge, { backgroundColor: subscription.isActive ? COLORS.successBg : COLORS.warningBg }]}>
-                        <View style={[styles.statusDot, { backgroundColor: subscription.isActive ? COLORS.success : COLORS.warning }]} />
-                        <Text style={[styles.statusText, { color: subscription.isActive ? COLORS.successText : COLORS.warningText }]}>
-                            {subscription.isActive ? 'Aktif' : 'Donduruldu'}
-                        </Text>
+                    <View style={styles.topBarActions}>
+                        <TouchableOpacity onPress={() => { onClose(); onEdit(subscription); }} style={styles.iconBtn}>
+                            <Ionicons name="pencil-outline" size={22} color={COLORS.textMain} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={handleDelete} style={[styles.iconBtn, { marginLeft: 8 }]}>
+                            <Ionicons name="trash-outline" size={22} color={COLORS.error} />
+                        </TouchableOpacity>
                     </View>
                 </View>
 
-                <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+                <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-                    {/* 1. İSTATİSTİK GRID */}
-                    <View style={styles.gridContainer}>
-                        <View style={styles.gridItem}>
-                            <Ionicons name="calendar-outline" size={18} color={COLORS.textMuted} style={{marginBottom:6}}/>
-                            <Text style={styles.gridLabel}>Sonraki Ödeme</Text>
-                            <Text style={styles.gridValue}>{daysLeft} Gün</Text>
-                            <Text style={styles.gridSub}>{nextDate.toLocaleDateString('tr-TR', {day:'numeric', month:'long'})}</Text>
+                    {/* 1. HERO BÖLÜMÜ (İsim ve Fiyat) */}
+                    <View style={[styles.heroSection, !subscription.isActive && styles.heroDisabled]}>
+                        <View style={[styles.logoPlaceholder, { backgroundColor: subscription.isActive ? (subscription.colorCode || COLORS.primary) : COLORS.inactive }]}>
+                            <Text style={styles.logoText}>{subscription.name.charAt(0).toUpperCase()}</Text>
                         </View>
-                        <View style={styles.verticalDivider} />
-                        <View style={styles.gridItem}>
-                            <Ionicons name="wallet-outline" size={18} color={COLORS.textMuted} style={{marginBottom:6}}/>
-                            <Text style={styles.gridLabel}>Senin Payın</Text>
-                            <Text style={[styles.gridValue, { color: COLORS.primary }]}>{myShare.toFixed(1)} {subscription.currency}</Text>
-                            <Text style={styles.gridSub}>{partnersCount > 0 ? `${partnersCount + 1} Ortaklı` : 'Bireysel'}</Text>
+                        <Text style={styles.heroTitle}>{subscription.name}</Text>
+
+                        <View style={styles.priceRow}>
+                            <Text style={styles.heroCurrency}>{subscription.currency}</Text>
+                            <Text style={styles.heroPrice}>{subscription.price}</Text>
+                            <Text style={styles.heroPeriod}>/ay</Text>
                         </View>
                     </View>
 
-                    {/* 2. KULLANIM GEÇMİŞİ */}
-                    <View style={styles.sectionContainer}>
-                        <View style={{flexDirection:'row', justifyContent:'space-between', alignItems:'center', marginBottom:12}}>
-                            <Text style={styles.sectionHeader}>KULLANIM SIKLIĞI</Text>
-                            <Text style={styles.sectionSubHeader}>Son 6 Ay</Text>
+                    {/* 2. DURUM YÖNETİMİ (Switch) */}
+                    <View style={styles.statusCard}>
+                        <View style={styles.statusInfo}>
+                            <Text style={styles.statusTitle}>Abonelik Durumu</Text>
+                            <Text style={styles.statusDesc}>
+                                {subscription.isActive
+                                    ? "Şu an aktif. Takvimde ve raporlarda görünür."
+                                    : "Donduruldu. Ödemeler ve hatırlatmalar kapalı."}
+                            </Text>
                         </View>
-                        <View style={styles.card}>
-                            <View style={styles.usageChart}>
+                        <Switch
+                            trackColor={{ false: COLORS.border, true: COLORS.success }}
+                            thumbColor={COLORS.white}
+                            ios_backgroundColor={COLORS.border}
+                            onValueChange={toggleStatus}
+                            value={subscription.isActive}
+                            style={{ transform: [{ scaleX: .8 }, { scaleY: .8 }] }}
+                        />
+                    </View>
+
+                    {/* 3. ÖDEME BİLGİSİ (Canlı Güncellenen Kart) */}
+                    <LinearGradient
+                        colors={subscription.isActive ? [COLORS.primary, COLORS.primaryDark] : [COLORS.inactive, '#94A3B8']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.billingCard}
+                    >
+                        <View style={styles.billingRow}>
+                            <View>
+                                <Text style={styles.billingLabel}>SIRADAKİ ÖDEME</Text>
+                                <Text style={styles.billingDate}>
+                                    {subscription.isActive
+                                        ? nextDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })
+                                        : 'Donduruldu'}
+                                </Text>
+                            </View>
+                            {subscription.isActive && (
+                                <View style={styles.daysLeftBadge}>
+                                    <Text style={styles.daysLeftText}>{daysLeft} gün kaldı</Text>
+                                </View>
+                            )}
+                        </View>
+                    </LinearGradient>
+
+                    {/* 4. KULLANIM GEÇMİŞİ (Düzeltilmiş Renkler ve Mantık) */}
+<View style={styles.section}>
+                        <View style={styles.sectionHeaderRow}>
+                            <Text style={styles.sectionTitle}>KULLANIM SIKLIĞI</Text>
+                            <Text style={styles.sectionBadge}>Son 6 Ay</Text>
+                        </View>
+
+                        <View style={styles.usageContainer}>
+                            <View style={styles.chartRow}>
                                 {usageData.map((m, i) => {
-                                    // Yükseklik ve Renk Ayarı
-                                    let barHeight = 6; 
-                                    let barColor = COLORS.primaryLight;
-                                    
-                                    if (m.status === 'active') { barHeight = 40; barColor = COLORS.primary; }
-                                    else if (m.status === 'low') { barHeight = 20; barColor = COLORS.textMuted; }
-                                    
+                                    // GÖRSEL AYARLAR
+                                    let height = 4;        // Varsayılan (Veri Yok - Missing)
+                                    let color = '#E2E8F0'; // Çok silik gri
+                                    let labelColor = COLORS.textMuted;
+
+                                    if (m.status === 'active') {
+                                        height = 60; 
+                                        color = COLORS.success; // YEŞİL
+                                        labelColor = COLORS.success;
+                                    } else if (m.status === 'low') {
+                                        height = 32; 
+                                        color = COLORS.warning; // TURUNCU
+                                        labelColor = COLORS.warning;
+                                    } else if (m.status === 'none') {
+                                        // "Hiç Kullanmadım" seçimi
+                                        height = 12; // Kısa ama belirgin bir çubuk
+                                        color = COLORS.textMuted; // Koyu Gri
+                                    }
+
                                     return (
-                                        <View key={i} style={styles.usageCol}>
-                                            <View style={[styles.usageBar, { height: barHeight, backgroundColor: barColor }]} />
-                                            <Text style={styles.usageLabel}>{m.label}</Text>
+                                        <View key={i} style={styles.usageItem}>
+                                            <View style={styles.barContainer}>
+                                                <View style={[styles.barFill, { height, backgroundColor: color }]} />
+                                            </View>
+                                            <Text style={[styles.barLabel, { color: m.status !== 'missing' ? labelColor : '#CBD5E1' }]}>
+                                                {m.label}
+                                            </Text>
                                         </View>
                                     );
                                 })}
                             </View>
-                            <Text style={styles.chartLegend}>* Keşfet ekranından yapılan işaretlemelere göre</Text>
+                            
+                            {/* LEJANT (Renk Açıklaması - Güncellendi) */}
+                            <View style={styles.legendContainer}>
+                                <View style={styles.legendItem}>
+                                    <View style={[styles.legendDot, { backgroundColor: COLORS.success }]} />
+                                    <Text style={styles.legendText}>Yoğun</Text>
+                                </View>
+                                <View style={styles.legendItem}>
+                                    <View style={[styles.legendDot, { backgroundColor: COLORS.warning }]} />
+                                    <Text style={styles.legendText}>Seyrek</Text>
+                                </View>
+                                <View style={styles.legendItem}>
+                                    <View style={[styles.legendDot, { backgroundColor: COLORS.textMuted }]} />
+                                    <Text style={styles.legendText}>Hiç</Text>
+                                </View>
+                            </View>
                         </View>
                     </View>
 
-                    {/* 3. ORTAKLAR */}
-                    {partnersCount > 0 && (
-                        <View style={styles.sectionContainer}>
-                            <Text style={styles.sectionHeader}>MALİYET PAYLAŞIMI</Text>
-                            <View style={styles.card}>
-                                {/* Ben */}
-                                <View style={styles.partnerItem}>
-                                    <View style={[styles.avatar, { backgroundColor: COLORS.primary }]}>
-                                        <Text style={[styles.avatarText, { color: 'white' }]}>B</Text>
-                                    </View>
-                                    <View style={{flex: 1}}>
-                                        <Text style={styles.partnerName}>Ben</Text>
-                                        <Text style={styles.partnerRole}>Abonelik Sahibi</Text>
-                                    </View>
-                                    <Text style={styles.partnerAmount}>{myShare.toFixed(1)} {subscription.currency}</Text>
-                                </View>
-                                
-                                <View style={styles.divider} />
+                    {/* 5. DETAYLAR */}
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>DETAYLAR</Text>
 
-                                {/* Diğerleri */}
-                                {partners.map((p, i) => (
-                                    <React.Fragment key={i}>
-                                        <View style={styles.partnerItem}>
-                                            <View style={[styles.avatar, { backgroundColor: COLORS.primarySoft }]}>
-                                                <Text style={[styles.avatarText, { color: COLORS.primary }]}>{p.charAt(0).toUpperCase()}</Text>
-                                            </View>
-                                            <View style={{flex: 1}}>
-                                                <Text style={styles.partnerName}>{p}</Text>
-                                                <Text style={styles.partnerRole}>Ortak</Text>
-                                            </View>
-                                            <Text style={styles.partnerAmount}>{myShare.toFixed(1)} {subscription.currency}</Text>
-                                        </View>
-                                        {i < partnersCount - 1 && <View style={styles.divider} />}
-                                    </React.Fragment>
-                                ))}
+                        <View style={styles.detailRow}>
+                            <View style={styles.detailIconBox}>
+                                <Ionicons name="people-outline" size={20} color={COLORS.primary} />
                             </View>
-                        </View>
-                    )}
-
-                    {/* 4. TAAHHÜT DURUMU */}
-                    {subscription.hasContract && subscription.contractEndDate && (
-                        <View style={styles.sectionContainer}>
-                            <Text style={styles.sectionHeader}>TAAHHÜT DETAYI</Text>
-                            <View style={styles.card}>
-                                {(() => {
-                                    const start = subscription.contractStartDate ? new Date(subscription.contractStartDate) : new Date(new Date().setFullYear(new Date().getFullYear() - 1));
-                                    const end = new Date(subscription.contractEndDate);
-                                    const total = end.getTime() - start.getTime();
-                                    const passed = new Date().getTime() - start.getTime();
-                                    const percent = Math.min(Math.max(passed / total, 0), 1) * 100;
-
-                                    return (
-                                        <>
-                                            <View style={{flexDirection:'row', justifyContent:'space-between', marginBottom: 10}}>
-                                                <Text style={styles.contractLabel}>Sözleşme İlerlemesi</Text>
-                                                <Text style={styles.contractValue}>%{percent.toFixed(0)}</Text>
-                                            </View>
-                                            <View style={styles.progressBarBg}>
-                                                <View style={[styles.progressBarFill, { width: `${percent}%`, backgroundColor: percent > 85 ? COLORS.warning : COLORS.primary }]} />
-                                            </View>
-                                            <View style={{flexDirection:'row', justifyContent:'space-between', marginTop: 8}}>
-                                                <Text style={styles.contractDate}>{start.toLocaleDateString()}</Text>
-                                                <Text style={styles.contractDate}>{end.toLocaleDateString()}</Text>
-                                            </View>
-                                        </>
-                                    );
-                                })()}
+                            <View style={styles.detailContent}>
+                                <Text style={styles.detailLabel}>Abonelik Tipi</Text>
+                                <Text style={styles.detailValue}>
+                                    {partnersCount > 0 ? `${partnersCount + 1} Kişilik Ortak Plan` : 'Bireysel Abonelik'}
+                                </Text>
                             </View>
+                            {partnersCount > 0 && (
+                                <Text style={styles.detailRightText}>-{myShare.toFixed(1)} {subscription.currency} / kişi</Text>
+                            )}
                         </View>
-                    )}
+                    </View>
 
-                    <View style={{ height: 100 }} />
+                    <View style={{ height: 60 }} />
                 </ScrollView>
-
-                {/* --- FOOTER ACTIONS --- */}
-                <View style={styles.footer}>
-                    <TouchableOpacity style={styles.footerBtn} onPress={toggleStatus}>
-                        <View style={[styles.footerIconBox, { backgroundColor: COLORS.surface, borderColor: COLORS.border }]}>
-                            <Ionicons name={subscription.isActive ? "pause" : "play"} size={20} color={COLORS.textBody} />
-                        </View>
-                        <Text style={styles.footerText}>{subscription.isActive ? 'Dondur' : 'Başlat'}</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={styles.footerBtn} onPress={() => { onClose(); onEdit(subscription); }}>
-                        <View style={[styles.footerIconBox, { backgroundColor: COLORS.primarySoft, borderColor: COLORS.primaryLight }]}>
-                            <Ionicons name="create-outline" size={20} color={COLORS.primary} />
-                        </View>
-                        <Text style={[styles.footerText, { color: COLORS.primary }]}>Düzenle</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={styles.footerBtn} onPress={handleDelete}>
-                        <View style={[styles.footerIconBox, { backgroundColor: COLORS.errorBg, borderColor: '#FECACA' }]}>
-                            <Ionicons name="trash-outline" size={20} color={COLORS.error} />
-                        </View>
-                        <Text style={[styles.footerText, { color: COLORS.error }]}>Sil</Text>
-                    </TouchableOpacity>
-                </View>
-
             </View>
         </Modal>
     );
@@ -298,288 +288,274 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: COLORS.background,
     },
-    dragHandle: {
-        width: 40,
-        height: 4,
-        backgroundColor: COLORS.primaryLight,
-        borderRadius: 2,
-        alignSelf: 'center',
-        marginTop: 10,
-    },
-    
-    // HEADER
-    header: {
+    topBar: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        paddingVertical: 24,
-        backgroundColor: COLORS.background,
+        paddingHorizontal: 20,
+        paddingTop: 20,
+        paddingBottom: 10,
     },
-    closeBtn: {
-        position: 'absolute',
-        right: 20,
-        top: 20,
-        padding: 4,
-        zIndex: 10,
+    topBarActions: {
+        flexDirection: 'row',
     },
-    logoContainer: {
-        width: 64,
-        height: 64,
-        borderRadius: 22,
+    iconBtn: {
+        width: 40,
+        height: 40,
+        backgroundColor: COLORS.surface,
+        borderRadius: 12,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 16,
+    },
+
+    // HERO
+    heroSection: {
+        alignItems: 'center',
+        marginTop: 10,
+        marginBottom: 20,
+    },
+    heroDisabled: {
+        opacity: 0.6,
+    },
+    logoPlaceholder: {
+        width: 64,
+        height: 64,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 12,
         shadowColor: COLORS.primary,
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.15,
-        shadowRadius: 10,
-        elevation: 6,
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
     },
     logoText: {
         fontSize: 28,
         fontWeight: 'bold',
-        color: '#FFF',
+        color: COLORS.white,
     },
-    title: {
+    heroTitle: {
         fontSize: 22,
         fontWeight: '800',
         color: COLORS.textMain,
         marginBottom: 4,
     },
-    priceContainer: {
+    priceRow: {
         flexDirection: 'row',
         alignItems: 'flex-end',
-        marginBottom: 12,
     },
-    currency: {
+    heroCurrency: {
         fontSize: 18,
         fontWeight: '600',
-        color: COLORS.textBody,
-        marginBottom: 5,
+        color: COLORS.textMuted,
+        marginBottom: 6,
         marginRight: 4,
     },
-    price: {
-        fontSize: 34,
-        fontWeight: '800',
+    heroPrice: {
+        fontSize: 36,
+        fontWeight: '900',
         color: COLORS.textMain,
         letterSpacing: -1,
     },
-    period: {
-        fontSize: 15,
-        color: COLORS.textMuted,
+    heroPeriod: {
+        fontSize: 14,
         fontWeight: '500',
-        marginBottom: 6,
+        color: COLORS.textMuted,
+        marginBottom: 8,
         marginLeft: 2,
     },
-    statusBadge: {
+
+    // STATUS CARD
+    statusCard: {
+        marginHorizontal: 20,
+        marginBottom: 20,
+        padding: 16,
+        backgroundColor: COLORS.surface,
+        borderRadius: 16,
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 20,
-    },
-    statusDot: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
-        marginRight: 8,
-    },
-    statusText: {
-        fontSize: 12,
-        fontWeight: '700',
-    },
-
-    // CONTENT
-    content: {
-        paddingHorizontal: 20,
-        paddingTop: 20,
-    },
-
-    // GRID
-    gridContainer: {
-        flexDirection: 'row',
-        backgroundColor: COLORS.surface,
-        borderRadius: 20,
-        padding: 20,
-        marginBottom: 24,
+        justifyContent: 'space-between',
         borderWidth: 1,
         borderColor: COLORS.border,
     },
-    gridItem: {
+    statusInfo: {
         flex: 1,
-        alignItems: 'center',
+        marginRight: 12,
     },
-    verticalDivider: {
-        width: 1,
-        backgroundColor: COLORS.border,
-        marginHorizontal: 12,
-    },
-    gridLabel: {
-        fontSize: 12,
-        color: COLORS.textMuted,
-        marginBottom: 4,
-    },
-    gridValue: {
-        fontSize: 16,
+    statusTitle: {
+        fontSize: 14,
         fontWeight: '700',
         color: COLORS.textMain,
         marginBottom: 2,
     },
-    gridSub: {
+    statusDesc: {
         fontSize: 11,
-        color: COLORS.textBody,
+        color: COLORS.textMuted,
+        lineHeight: 16,
+    },
+
+    // BILLING CARD
+    billingCard: {
+        marginHorizontal: 20,
+        borderRadius: 20,
+        padding: 24,
+        marginBottom: 32,
+        shadowColor: COLORS.primary,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.15,
+        shadowRadius: 16,
+        elevation: 5,
+    },
+    billingRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    billingLabel: {
+        color: 'rgba(255,255,255,0.7)',
+        fontSize: 11,
+        fontWeight: '700',
+        marginBottom: 4,
+        letterSpacing: 1,
+    },
+    billingDate: {
+        color: COLORS.white,
+        fontSize: 20,
+        fontWeight: '700',
+    },
+    daysLeftBadge: {
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 8,
+    },
+    daysLeftText: {
+        color: COLORS.white,
+        fontSize: 12,
+        fontWeight: '600',
     },
 
     // SECTIONS
-    sectionContainer: {
-        marginBottom: 24,
+    section: {
+        paddingHorizontal: 24,
+        marginBottom: 32,
     },
-    sectionHeader: {
+    sectionHeaderRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    sectionTitle: {
         fontSize: 12,
-        fontWeight: '700',
+        fontWeight: '800',
         color: COLORS.textMuted,
         letterSpacing: 1,
-        marginLeft: 4,
     },
-    sectionSubHeader: {
-        fontSize: 12,
-        color: COLORS.textBody,
-        marginRight: 4,
+    sectionBadge: {
+        fontSize: 11,
+        fontWeight: '600',
+        color: COLORS.primary,
+        backgroundColor: COLORS.surfaceHighlight,
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 4,
     },
-    card: {
+
+    // CHART
+    usageContainer: {
         backgroundColor: COLORS.surface,
         borderRadius: 20,
         padding: 20,
-        borderWidth: 1,
-        borderColor: COLORS.border,
     },
-
-    // USAGE CHART
-    usageChart: {
+    chartRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-end',
-        height: 60,
-        marginBottom: 10,
+        height: 80,
+        marginBottom: 16,
     },
-    usageCol: {
+    usageItem: {
         alignItems: 'center',
         justifyContent: 'flex-end',
-        width: (width - 80) / 6,
+        flex: 1,
     },
-    usageBar: {
-        width: 8,
-        borderRadius: 4,
+    barContainer: {
+        height: 60,
+        justifyContent: 'flex-end',
         marginBottom: 8,
+        width: '100%',
+        alignItems: 'center',
     },
-    usageLabel: {
+    barFill: {
+        width: 12,
+        borderRadius: 6,
+    },
+    barLabel: {
         fontSize: 10,
-        color: COLORS.textMuted,
         fontWeight: '600',
-    },
-    chartLegend: {
-        fontSize: 10,
         color: COLORS.textMuted,
-        fontStyle: 'italic',
-        textAlign: 'center',
     },
-
-    // PARTNERS
-    partnerItem: {
+    legendContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginTop: 4,
+        gap: 16,
+        borderTopWidth: 1,
+        borderTopColor: COLORS.border,
+        paddingTop: 12,
+    },
+    legendItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 4,
     },
-    avatar: {
-        width: 36,
-        height: 36,
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 12,
-    },
-    avatarText: {
-        fontSize: 14,
-        fontWeight: '700',
-    },
-    partnerName: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: COLORS.textMain,
-    },
-    partnerRole: {
-        fontSize: 11,
-        color: COLORS.textMuted,
-    },
-    partnerAmount: {
-        fontSize: 14,
-        fontWeight: '700',
-        color: COLORS.textBody,
-    },
-    divider: {
-        height: 1,
-        backgroundColor: COLORS.border,
-        marginVertical: 12,
-        marginLeft: 48,
-    },
-
-    // CONTRACT
-    contractLabel: {
-        fontSize: 13,
-        fontWeight: '600',
-        color: COLORS.textMain,
-    },
-    contractValue: {
-        fontSize: 13,
-        fontWeight: '700',
-        color: COLORS.primary,
-    },
-    progressBarBg: {
+    legendDot: {
+        width: 8,
         height: 8,
-        backgroundColor: COLORS.primaryLight,
         borderRadius: 4,
-        overflow: 'hidden',
+        marginRight: 6,
     },
-    progressBarFill: {
-        height: '100%',
-        borderRadius: 4,
-    },
-    contractDate: {
+    legendText: {
         fontSize: 11,
-        color: COLORS.textMuted,
+        color: COLORS.textBody,
         fontWeight: '500',
     },
 
-    // FOOTER
-    footer: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: COLORS.background,
-        borderTopWidth: 1,
-        borderTopColor: COLORS.border,
+    // DETAILS
+    detailRow: {
         flexDirection: 'row',
-        paddingHorizontal: 24,
-        paddingTop: 16,
-        paddingBottom: Platform.OS === 'ios' ? 34 : 20,
-        justifyContent: 'space-between',
-        gap: 12,
-    },
-    footerBtn: {
-        flex: 1,
         alignItems: 'center',
+        marginBottom: 20,
     },
-    footerIconBox: {
-        width: 48,
-        height: 48,
-        borderRadius: 16,
+    detailIconBox: {
+        width: 40,
+        height: 40,
+        borderRadius: 12,
+        backgroundColor: COLORS.surface,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 6,
-        borderWidth: 1,
+        marginRight: 14,
     },
-    footerText: {
+    detailContent: {
+        flex: 1,
+    },
+    detailLabel: {
         fontSize: 11,
+        color: COLORS.textMuted,
+        marginBottom: 2,
+    },
+    detailValue: {
+        fontSize: 15,
         fontWeight: '600',
-        color: COLORS.textBody,
+        color: COLORS.textMain,
+    },
+    detailRightText: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: COLORS.primary,
+    },
+
+    scrollContent: {
+        paddingBottom: 40,
     },
 });
