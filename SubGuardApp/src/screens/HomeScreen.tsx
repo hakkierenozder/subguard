@@ -9,6 +9,7 @@ import UsageSurveyModal from '../components/UsageSurveyModal';
 import CatalogExplore from '../components/CatalogExplore';
 import { getUserName } from '../utils/AuthManager';
 import agent from '../api/agent';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function HomeScreen() {
     // Store'lar
@@ -62,6 +63,15 @@ export default function HomeScreen() {
         }
     };
 
+    const expiringContracts = subscriptions.filter(s => {
+        if (!s.isActive || !s.hasContract || !s.contractEndDate) return false;
+        const today = new Date();
+        const end = new Date(s.contractEndDate);
+        const diffTime = end.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays >= 0 && diffDays <= 30; // 30 günden az kaldıysa
+    });
+
     // Yaklaşan Ödemeler (En yakın 2)
     const upcomingPayments = [...subscriptions]
         .filter(sub => sub.isActive !== false) // <--- DÜZELTME BURADA: Pasifleri listeye alma
@@ -72,6 +82,7 @@ export default function HomeScreen() {
             return dayA - dayB;
         })
         .slice(0, 2);
+
 
     const renderUpcomingCard = (item: UserSubscription) => {
         const today = new Date().getDate();
@@ -114,6 +125,20 @@ export default function HomeScreen() {
                         <Text style={styles.avatarText}>{userName?.charAt(0).toUpperCase()}</Text>
                     </View>
                 </View>
+
+                {/* YENİ: KRİTİK UYARI KARTI */}
+                {expiringContracts.length > 0 && (
+                    <View style={styles.alertCard}>
+                        <Ionicons name="warning" size={24} color="#fff" style={{ marginRight: 10 }} />
+                        <View style={{ flex: 1 }}>
+                            <Text style={styles.alertTitle}>Taahhüt Uyarısı</Text>
+                            <Text style={styles.alertDesc}>
+                                {expiringContracts.length} aboneliğin taahhüdü 30 gün içinde bitiyor.
+                            </Text>
+                        </View>
+                        <Ionicons name="chevron-forward" size={20} color="#fff" />
+                    </View>
+                )}
 
                 {/* ÖZET PANOSU */}
                 <View style={styles.dashboard}>
@@ -240,4 +265,11 @@ const styles = StyleSheet.create({
     upDayContainer: { alignItems: 'center' },
     upDayVal: { fontSize: 16, fontWeight: 'bold', color: '#e74c3c' },
     upDayLabel: { fontSize: 8, color: '#999' },
+    alertCard: {
+        backgroundColor: '#e74c3c', flexDirection: 'row', alignItems: 'center',
+        padding: 15, borderRadius: 12, marginBottom: 20, marginHorizontal: 0,
+        shadowColor: '#e74c3c', shadowOpacity: 0.3, shadowRadius: 8, elevation: 4
+    },
+    alertTitle: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
+    alertDesc: { color: 'rgba(255,255,255,0.9)', fontSize: 12, marginTop: 2 }
 });

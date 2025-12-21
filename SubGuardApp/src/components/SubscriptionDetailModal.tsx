@@ -88,19 +88,19 @@ export default function SubscriptionDetailModal({ visible, subscription, onClose
         }
     };
 
-const toggleStatus = async () => {
-      if (!subscription) return;
-      
-      const newStatus = !subscription.isActive;
-      
-      // Store fonksiyonunu çağırıyoruz. ID dönüşümü ve hata yönetimi orada yapılıyor.
-      await updateSubscription(subscription.id, { isActive: newStatus });
-      
-      onClose(); // Modalı kapat
-      
-      // Alert göstermene gerek kalmayabilir çünkü UI anında güncellenecek (Optimistic Update)
-      // Ama istersen bırakabilirsin.
-  };
+    const toggleStatus = async () => {
+        if (!subscription) return;
+
+        const newStatus = !subscription.isActive;
+
+        // Store fonksiyonunu çağırıyoruz. ID dönüşümü ve hata yönetimi orada yapılıyor.
+        await updateSubscription(subscription.id, { isActive: newStatus });
+
+        onClose(); // Modalı kapat
+
+        // Alert göstermene gerek kalmayabilir çünkü UI anında güncellenecek (Optimistic Update)
+        // Ama istersen bırakabilirsin.
+    };
 
     return (
         <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
@@ -191,14 +191,47 @@ const toggleStatus = async () => {
                         </View>
                     )}
 
-                    {/* 4. SÖZLEŞME BİLGİSİ */}
+                    {/* 4. SÖZLEŞME DURUMU (YENİ GÖRÜNÜM) */}
                     {subscription.hasContract && subscription.contractEndDate && (
-                        <View style={[styles.section, { borderLeftWidth: 4, borderLeftColor: '#e74c3c', paddingLeft: 10 }]}>
-                            <Text style={styles.sectionTitle}>Sözleşme Bitiş</Text>
-                            <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
-                                {new Date(subscription.contractEndDate).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}
-                            </Text>
-                            <Text style={{ color: '#666', marginTop: 5 }}>İptal etmeden önce taahhüt bedelini kontrol et.</Text>
+                        <View style={styles.contractCard}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                                <Text style={styles.sectionTitle}>Taahhüt Durumu</Text>
+                                <View style={{ backgroundColor: '#e3f2fd', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 }}>
+                                    <Text style={{ color: '#1565c0', fontSize: 10, fontWeight: 'bold' }}>Aktif</Text>
+                                </View>
+                            </View>
+
+                            {/* Progress Bar Hesabı */}
+                            {(() => {
+                                const start = subscription.contractStartDate ? new Date(subscription.contractStartDate) : new Date();
+                                const end = new Date(subscription.contractEndDate);
+                                const today = new Date();
+
+                                // Eski kayıtlarda start date yoksa, bitime 1 yıl var gibi davran
+                                if (!subscription.contractStartDate) start.setFullYear(end.getFullYear() - 1);
+
+                                const totalDuration = end.getTime() - start.getTime();
+                                const elapsed = today.getTime() - start.getTime();
+                                let progress = elapsed / totalDuration;
+                                if (progress < 0) progress = 0;
+                                if (progress > 1) progress = 1;
+
+                                const daysLeft = Math.ceil((end.getTime() - today.getTime()) / (1000 * 3600 * 24));
+
+                                return (
+                                    <View>
+                                        <View style={styles.progressBarBg}>
+                                            <View style={[styles.progressBarFill, { width: `${progress * 100}%`, backgroundColor: progress > 0.8 ? '#ef4444' : '#3b82f6' }]} />
+                                        </View>
+
+                                        <View style={styles.dateRow}>
+                                            <Text style={styles.dateText}>{start.toLocaleDateString()}</Text>
+                                            <Text style={styles.daysLeftText}>{daysLeft} gün kaldı</Text>
+                                            <Text style={styles.dateText}>{end.toLocaleDateString()}</Text>
+                                        </View>
+                                    </View>
+                                );
+                            })()}
                         </View>
                     )}
 
@@ -275,14 +308,14 @@ const styles = StyleSheet.create({
     avatarPartner: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#e0e0e0', justifyContent: 'center', alignItems: 'center', marginRight: -10, borderWidth: 2, borderColor: '#fff' },
     partnerText: { color: '#555', fontWeight: 'bold' },
 
-    footer: { 
-      flexDirection: 'row', 
-      padding: 20, 
-      paddingBottom: 40, // iPhone safe area için
-      backgroundColor: '#fff', 
-      borderTopWidth: 1, 
-      borderTopColor: '#f0f0f0' 
-  },
+    footer: {
+        flexDirection: 'row',
+        padding: 20,
+        paddingBottom: 40, // iPhone safe area için
+        backgroundColor: '#fff',
+        borderTopWidth: 1,
+        borderTopColor: '#f0f0f0'
+    },
     editBtn: { flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f0f0f0', padding: 16, borderRadius: 12, marginRight: 10 },
     editBtnText: { marginLeft: 8, fontWeight: '600', color: '#333' },
     deleteBtn: { flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: '#ff4444', padding: 16, borderRadius: 12 },
@@ -326,18 +359,28 @@ const styles = StyleSheet.create({
         color: '#333',
     },
     actionBtn: {
-      flex: 1,
-      flexDirection: 'row',
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: '#f8f9fa',
-      paddingVertical: 12,
-      borderRadius: 12,
-  },
-  actionBtnText: {
-      marginLeft: 6,
-      fontWeight: '600',
-      color: '#333',
-      fontSize: 13
-  },
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#f8f9fa',
+        paddingVertical: 12,
+        borderRadius: 12,
+    },
+    actionBtnText: {
+        marginLeft: 6,
+        fontWeight: '600',
+        color: '#333',
+        fontSize: 13
+    },
+    contractCard: {
+        backgroundColor: '#fff', padding: 15, borderRadius: 16, marginBottom: 25,
+        borderWidth: 1, borderColor: '#e0e0e0',
+        shadowColor: "#000", shadowOpacity: 0.03, shadowRadius: 3, elevation: 1
+    },
+    progressBarBg: { height: 10, backgroundColor: '#f0f0f0', borderRadius: 5, overflow: 'hidden', marginVertical: 8 },
+    progressBarFill: { height: '100%', borderRadius: 5 },
+    dateRow: { flexDirection: 'row', justifyContent: 'space-between' },
+    dateText: { fontSize: 10, color: '#999' },
+    daysLeftText: { fontSize: 11, fontWeight: 'bold', color: '#333' }
 });

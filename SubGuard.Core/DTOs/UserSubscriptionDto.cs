@@ -15,6 +15,8 @@ namespace SubGuard.Core.DTOs
         public string? ColorCode { get; set; }
 
         public bool HasContract { get; set; }
+
+        public DateTime? ContractStartDate { get; set; }
         public DateTime? ContractEndDate { get; set; }
 
         public string? SharedWithJson { get; set; }
