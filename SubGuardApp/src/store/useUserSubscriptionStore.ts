@@ -184,13 +184,20 @@ logUsage: (id, status) => {
     get().updateSubscription(id, { usageHistory: newHistory });
   },
 
-  getPendingSurvey: () => {
-    const currentMonth = new Date().toISOString().slice(0, 7);
-    const subs = get().subscriptions;
-    return subs.find(s => {
-        const history = s.usageHistory || [];
-        return !history.some(h => h.month === currentMonth);
-    }) || null;
+getPendingSurvey: () => {
+      const currentMonth = new Date().toISOString().slice(0, 7); // "2024-12"
+      const subs = get().subscriptions;
+      
+      return subs.find(s => {
+          // --- DÜZELTME BURADA ---
+          // Eğer abonelik pasif ise (dondurulmuşsa), bunu atla ve anket sorma.
+          if (s.isActive === false) return false; 
+          // -----------------------
+
+          const history = s.usageHistory || [];
+          // Bu ay için kayıt yoksa anket yap
+          return !history.some(h => h.month === currentMonth);
+      }) || null;
   },
 
 getTotalExpense: () => {
