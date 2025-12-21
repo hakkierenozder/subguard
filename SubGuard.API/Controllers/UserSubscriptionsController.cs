@@ -36,9 +36,17 @@ namespace SubGuard.API.Controllers
             return CreateActionResult(await _service.AddSubscriptionAsync(dto));
         }
 
-        [HttpPut]
-        public async Task<IActionResult> Update([FromBody] UserSubscriptionDto dto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UserSubscriptionDto dto)
         {
+            // Güvenlik: URL'deki ID ile Body'deki ID aynı mı?
+            if (id != dto.Id)
+            {
+                // CreateActionResult kullanmak için uygun bir hata dönüşü
+                // (CustomBaseController yapına uygun basit bir BadRequest dönüyoruz)
+                return BadRequest(CustomResponseDto<bool>.Fail(400, "URL ID ve Body ID uyuşmuyor."));
+            }
+
             dto.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return CreateActionResult(await _service.UpdateSubscriptionAsync(dto));
         }

@@ -16,7 +16,7 @@ interface Props {
 const { width } = Dimensions.get('window');
 
 export default function SubscriptionDetailModal({ visible, subscription, onClose, onEdit }: Props) {
-    const { removeSubscription } = useUserSubscriptionStore();
+    const { removeSubscription, updateSubscription } = useUserSubscriptionStore();
 
     if (!subscription) return null;
 
@@ -88,23 +88,19 @@ export default function SubscriptionDetailModal({ visible, subscription, onClose
         }
     };
 
-    const toggleStatus = async () => {
-        try {
-            const newStatus = !subscription.isActive;
-            // Backend'e güncelleme gönder
-            await agent.UserSubscriptions.update(subscription.id, { ...subscription, isActive: newStatus });
-
-            // Modalı kapat ve listeyi yenilemesi için ana ekranı tetikle
-            // Not: Burada store'dan update fonksiyonu çağırmak daha clean olur ama şimdilik refresh yeterli
-            onClose();
-
-            // Kullanıcıya bilgi ver (Opsiyonel, store'daki fetch tetiklenince UI güncellenir)
-            Alert.alert("Başarılı", `Abonelik ${newStatus ? 'aktifleştirildi' : 'donduruldu'}.`);
-
-        } catch (error) {
-            Alert.alert("Hata", "Durum güncellenemedi.");
-        }
-    };
+const toggleStatus = async () => {
+      if (!subscription) return;
+      
+      const newStatus = !subscription.isActive;
+      
+      // Store fonksiyonunu çağırıyoruz. ID dönüşümü ve hata yönetimi orada yapılıyor.
+      await updateSubscription(subscription.id, { isActive: newStatus });
+      
+      onClose(); // Modalı kapat
+      
+      // Alert göstermene gerek kalmayabilir çünkü UI anında güncellenecek (Optimistic Update)
+      // Ama istersen bırakabilirsin.
+  };
 
     return (
         <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
