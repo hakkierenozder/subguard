@@ -1,10 +1,8 @@
-import React from 'react';
-import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView, Alert, Dimensions } from 'react-native';
-import { UserSubscription, UsageStatus } from '../types';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useMemo } from 'react';
+import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView, Alert, Dimensions, StatusBar, Platform } from 'react-native';
+import { UserSubscription } from '../types';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
-import { convertToTRY } from '../utils/CurrencyService';
-import agent from '../api/agent'; // API çağrısı için
 
 interface Props {
     visible: boolean;
@@ -15,258 +13,278 @@ interface Props {
 
 const { width } = Dimensions.get('window');
 
+// --- SLATE BLUE TEMA ---
+const COLORS = {
+    primary: '#334155', // Slate 700
+    primaryLight: '#E2E8F0', // Slate 200
+    primarySoft: '#F1F5F9', // Slate 100
+    
+    background: '#FFFFFF', 
+    surface: '#F8FAFC',
+    
+    textMain: '#0F172A', // Slate 900
+    textBody: '#64748B', // Slate 500
+    textMuted: '#94A3B8', // Slate 400
+    
+    border: '#E2E8F0',
+    
+    success: '#10B981',
+    successBg: '#DCFCE7',
+    successText: '#166534',
+    
+    warning: '#F59E0B',
+    warningBg: '#FEF3C7',
+    warningText: '#92400E',
+    
+    error: '#EF4444',
+    errorBg: '#FEE2E2',
+    errorText: '#991B1B'
+};
+
 export default function SubscriptionDetailModal({ visible, subscription, onClose, onEdit }: Props) {
     const { removeSubscription, updateSubscription } = useUserSubscriptionStore();
 
+    // HATA DÜZELTME: useMemo Hook'u, "if (!subscription)" kontrolünden ÖNCE çağrılmalı.
+    // React Hook'ları her render'da aynı sırada çalışmalıdır.
+    const usageData = useMemo(() => {
+        if (!subscription) return [];
+
+        const history = subscription.usageHistory || [];
+        const months = [];
+        for (let i = 5; i >= 0; i--) {
+            const d = new Date();
+            d.setMonth(d.getMonth() - i);
+            const key = d.toISOString().slice(0, 7); 
+            
+            // Backend yapısına uygun kontrol
+            const log = history.find((h: any) => h.month === key);
+            
+            months.push({
+                label: d.toLocaleDateString('tr-TR', { month: 'short' }).toUpperCase(),
+                status: log ? log.status : 'none'
+            });
+        }
+        return months;
+    }, [subscription]); // subscription değiştiğinde yeniden hesapla
+
+    // HATA DÜZELTME: Early return (erken çıkış) hook çağrılarından SONRA yapılmalı.
     if (!subscription) return null;
 
+    // --- MANTIK ---
     const handleDelete = () => {
         Alert.alert(
             "Aboneliği Sil",
             `${subscription.name} aboneliğini silmek istediğine emin misin?`,
             [
                 { text: "Vazgeç", style: "cancel" },
-                {
-                    text: "Sil",
-                    style: "destructive",
-                    onPress: async () => {
-                        await removeSubscription(subscription.id);
-                        onClose();
-                    }
-                }
+                { text: "Sil", style: "destructive", onPress: async () => { await removeSubscription(subscription.id); onClose(); }}
             ]
         );
     };
 
-    // --- Maliyet Hesaplama ---
+    const toggleStatus = async () => {
+        const newStatus = !subscription.isActive;
+        await updateSubscription(subscription.id, { isActive: newStatus });
+    };
+
+    // Hesaplamalar
     const totalCost = subscription.price;
-    const partnersCount = subscription.sharedWith?.length || 0;
+    const partners = subscription.sharedWith || [];
+    const partnersCount = partners.length;
     const myShare = totalCost / (partnersCount + 1);
 
-    // --- Tarih Hesaplama ---
-    const today = new Date();
-    const nextBillingDate = new Date();
-    if (subscription.billingDay < today.getDate()) {
-        nextBillingDate.setMonth(nextBillingDate.getMonth() + 1);
-    }
-    nextBillingDate.setDate(subscription.billingDay);
-    const daysLeft = Math.ceil((nextBillingDate.getTime() - today.getTime()) / (1000 * 3600 * 24));
-
-    // --- Kullanım Geçmişi (Son 6 Ay) ---
-    const renderUsageHistory = () => {
-        const history = subscription.usageHistory || [];
-        const months = [];
-        for (let i = 5; i >= 0; i--) {
-            const d = new Date();
-            d.setMonth(d.getMonth() - i);
-            const key = d.toISOString().slice(0, 7); // "2024-01"
-            const log = history.find(h => h.month === key);
-            months.push({
-                label: d.toLocaleDateString('tr-TR', { month: 'short' }),
-                status: log?.status || 'unknown'
-            });
+    const getBillingData = () => {
+        const today = new Date();
+        const billingDay = subscription.billingDay;
+        let nextDate = new Date(today.getFullYear(), today.getMonth(), billingDay);
+        
+        if (nextDate < today) {
+            nextDate.setMonth(nextDate.getMonth() + 1);
         }
-
-        return (
-            <View style={styles.usageContainer}>
-                {months.map((m, index) => (
-                    <View key={index} style={styles.usageItem}>
-                        <View style={[styles.usageDot, getUsageStyle(m.status)]} />
-                        <Text style={styles.usageText}>{m.label}</Text>
-                    </View>
-                ))}
-            </View>
-        );
+        
+        const diffTime = Math.abs(nextDate.getTime() - today.getTime());
+        const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        return { nextDate, daysLeft };
     };
-
-    const getUsageStyle = (status: string | undefined) => {
-        switch (status) {
-            case 'active': return { backgroundColor: '#2ecc71', height: 24 }; // Yüksek
-            case 'low': return { backgroundColor: '#f1c40f', height: 16 };    // Orta
-            case 'none': return { backgroundColor: '#e74c3c', height: 8 };    // Düşük/Yok
-            default: return { backgroundColor: '#eee', height: 4 };           // Veri Yok
-        }
-    };
-
-    const toggleStatus = async () => {
-        if (!subscription) return;
-
-        const newStatus = !subscription.isActive;
-
-        // Store fonksiyonunu çağırıyoruz. ID dönüşümü ve hata yönetimi orada yapılıyor.
-        await updateSubscription(subscription.id, { isActive: newStatus });
-
-        onClose(); // Modalı kapat
-
-        // Alert göstermene gerek kalmayabilir çünkü UI anında güncellenecek (Optimistic Update)
-        // Ama istersen bırakabilirsin.
-    };
+    const { nextDate, daysLeft } = getBillingData();
 
     return (
         <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
             <View style={styles.container}>
+                <StatusBar barStyle="dark-content" />
+                
+                {/* Modal Tutamacı */}
+                <View style={styles.dragHandle} />
 
-                {/* HEADER: İsim ve İkon */}
+                {/* --- HEADER --- */}
                 <View style={styles.header}>
-                    <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-                        <Ionicons name="chevron-down" size={28} color="#999" />
+                    <TouchableOpacity onPress={onClose} style={styles.closeBtn} hitSlop={{top:10, bottom:10, left:10, right:10}}>
+                        <Ionicons name="close" size={24} color={COLORS.textMuted} />
                     </TouchableOpacity>
 
-                    <View style={[styles.logoContainer, { backgroundColor: subscription.colorCode || '#333' }]}>
-                        <Text style={styles.logoText}>{subscription.name.charAt(0)}</Text>
+                    <View style={[styles.logoContainer, { backgroundColor: subscription.colorCode || COLORS.primary }]}>
+                        <Text style={styles.logoText}>{subscription.name.charAt(0).toUpperCase()}</Text>
                     </View>
 
                     <Text style={styles.title}>{subscription.name}</Text>
-                    <Text style={styles.price}>{subscription.price} {subscription.currency}</Text>
+                    
+                    <View style={styles.priceContainer}>
+                        <Text style={styles.currency}>{subscription.currency}</Text>
+                        <Text style={styles.price}>{subscription.price}</Text>
+                        <Text style={styles.period}>/ay</Text>
+                    </View>
 
-                    <View style={styles.badgeRow}>
-                        <View style={styles.badge}>
-                            <Text style={styles.badgeText}>{subscription.category}</Text>
-                        </View>
-                        {subscription.hasContract && (
-                            <View style={[styles.badge, { backgroundColor: '#fff3cd' }]}>
-                                <Text style={[styles.badgeText, { color: '#856404' }]}>Sözleşmeli</Text>
-                            </View>
-                        )}
+                    <View style={[styles.statusBadge, { backgroundColor: subscription.isActive ? COLORS.successBg : COLORS.warningBg }]}>
+                        <View style={[styles.statusDot, { backgroundColor: subscription.isActive ? COLORS.success : COLORS.warning }]} />
+                        <Text style={[styles.statusText, { color: subscription.isActive ? COLORS.successText : COLORS.warningText }]}>
+                            {subscription.isActive ? 'Aktif' : 'Donduruldu'}
+                        </Text>
                     </View>
                 </View>
 
-                <ScrollView contentContainerStyle={styles.content}>
+                <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
-                    {/* 1. ÖZET KARTLARI */}
-                    <View style={styles.statsRow}>
-                        <View style={styles.statCard}>
-                            <Text style={styles.statLabel}>Sonraki Ödeme</Text>
-                            <Text style={styles.statValue}>{daysLeft} Gün</Text>
-                            <Text style={styles.statSub}>{nextBillingDate.toLocaleDateString('tr-TR')}</Text>
+                    {/* 1. İSTATİSTİK GRID */}
+                    <View style={styles.gridContainer}>
+                        <View style={styles.gridItem}>
+                            <Ionicons name="calendar-outline" size={18} color={COLORS.textMuted} style={{marginBottom:6}}/>
+                            <Text style={styles.gridLabel}>Sonraki Ödeme</Text>
+                            <Text style={styles.gridValue}>{daysLeft} Gün</Text>
+                            <Text style={styles.gridSub}>{nextDate.toLocaleDateString('tr-TR', {day:'numeric', month:'long'})}</Text>
                         </View>
-                        <View style={styles.statCard}>
-                            <Text style={styles.statLabel}>Senin Payın</Text>
-                            <Text style={[styles.statValue, { color: '#2ecc71' }]}>{myShare.toFixed(1)} {subscription.currency}</Text>
-                            <Text style={styles.statSub}>{partnersCount > 0 ? `${partnersCount} kişiyle ortak` : 'Bireysel'}</Text>
+                        <View style={styles.verticalDivider} />
+                        <View style={styles.gridItem}>
+                            <Ionicons name="wallet-outline" size={18} color={COLORS.textMuted} style={{marginBottom:6}}/>
+                            <Text style={styles.gridLabel}>Senin Payın</Text>
+                            <Text style={[styles.gridValue, { color: COLORS.primary }]}>{myShare.toFixed(1)} {subscription.currency}</Text>
+                            <Text style={styles.gridSub}>{partnersCount > 0 ? `${partnersCount + 1} Ortaklı` : 'Bireysel'}</Text>
                         </View>
                     </View>
 
                     {/* 2. KULLANIM GEÇMİŞİ */}
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Kullanım Sıklığı (Son 6 Ay)</Text>
-                        {renderUsageHistory()}
-                        <Text style={styles.helperText}>* Veriler anket yanıtlarına göre oluşturulur.</Text>
+                    <View style={styles.sectionContainer}>
+                        <View style={{flexDirection:'row', justifyContent:'space-between', alignItems:'center', marginBottom:12}}>
+                            <Text style={styles.sectionHeader}>KULLANIM SIKLIĞI</Text>
+                            <Text style={styles.sectionSubHeader}>Son 6 Ay</Text>
+                        </View>
+                        <View style={styles.card}>
+                            <View style={styles.usageChart}>
+                                {usageData.map((m, i) => {
+                                    // Yükseklik ve Renk Ayarı
+                                    let barHeight = 6; 
+                                    let barColor = COLORS.primaryLight;
+                                    
+                                    if (m.status === 'active') { barHeight = 40; barColor = COLORS.primary; }
+                                    else if (m.status === 'low') { barHeight = 20; barColor = COLORS.textMuted; }
+                                    
+                                    return (
+                                        <View key={i} style={styles.usageCol}>
+                                            <View style={[styles.usageBar, { height: barHeight, backgroundColor: barColor }]} />
+                                            <Text style={styles.usageLabel}>{m.label}</Text>
+                                        </View>
+                                    );
+                                })}
+                            </View>
+                            <Text style={styles.chartLegend}>* Keşfet ekranından yapılan işaretlemelere göre</Text>
+                        </View>
                     </View>
 
-                    {/* 3. ORTAK KULLANICILAR VE PAYLAŞIM */}
+                    {/* 3. ORTAKLAR */}
                     {partnersCount > 0 && (
-                        <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>Maliyet Paylaşımı</Text>
-
-                            <View style={styles.partnerList}>
-                                {/* 1. KENDİSİ (Ben) */}
-                                <View style={styles.partnerRow}>
-                                    <View style={styles.partnerLeft}>
-                                        <View style={[styles.avatarSmall, { backgroundColor: '#333' }]}>
-                                            <Text style={[styles.avatarTextSmall, { color: '#fff' }]}>Ben</Text>
-                                        </View>
-                                        <Text style={styles.partnerName}>Ben (Abonelik Sahibi)</Text>
+                        <View style={styles.sectionContainer}>
+                            <Text style={styles.sectionHeader}>MALİYET PAYLAŞIMI</Text>
+                            <View style={styles.card}>
+                                {/* Ben */}
+                                <View style={styles.partnerItem}>
+                                    <View style={[styles.avatar, { backgroundColor: COLORS.primary }]}>
+                                        <Text style={[styles.avatarText, { color: 'white' }]}>B</Text>
+                                    </View>
+                                    <View style={{flex: 1}}>
+                                        <Text style={styles.partnerName}>Ben</Text>
+                                        <Text style={styles.partnerRole}>Abonelik Sahibi</Text>
                                     </View>
                                     <Text style={styles.partnerAmount}>{myShare.toFixed(1)} {subscription.currency}</Text>
                                 </View>
+                                
+                                <View style={styles.divider} />
 
-                                {/* 2. DİĞER ORTAKLAR */}
-                                {subscription.sharedWith?.map((person, idx) => (
-                                    <View key={idx} style={styles.partnerRow}>
-                                        <View style={styles.partnerLeft}>
-                                            <View style={[styles.avatarSmall, { backgroundColor: '#f0f0f0' }]}>
-                                                <Text style={[styles.avatarTextSmall, { color: '#555' }]}>
-                                                    {person.charAt(0).toUpperCase()}
-                                                </Text>
+                                {/* Diğerleri */}
+                                {partners.map((p, i) => (
+                                    <React.Fragment key={i}>
+                                        <View style={styles.partnerItem}>
+                                            <View style={[styles.avatar, { backgroundColor: COLORS.primarySoft }]}>
+                                                <Text style={[styles.avatarText, { color: COLORS.primary }]}>{p.charAt(0).toUpperCase()}</Text>
                                             </View>
-                                            <Text style={styles.partnerName}>{person}</Text>
+                                            <View style={{flex: 1}}>
+                                                <Text style={styles.partnerName}>{p}</Text>
+                                                <Text style={styles.partnerRole}>Ortak</Text>
+                                            </View>
+                                            <Text style={styles.partnerAmount}>{myShare.toFixed(1)} {subscription.currency}</Text>
                                         </View>
-                                        <Text style={styles.partnerAmount}>{myShare.toFixed(1)} {subscription.currency}</Text>
-                                    </View>
+                                        {i < partnersCount - 1 && <View style={styles.divider} />}
+                                    </React.Fragment>
                                 ))}
                             </View>
-
-                            <Text style={styles.helperText}>Toplam tutar {partnersCount + 1} kişiye eşit bölünmüştür.</Text>
                         </View>
                     )}
 
-                    {/* 4. SÖZLEŞME DURUMU (YENİ GÖRÜNÜM) */}
+                    {/* 4. TAAHHÜT DURUMU */}
                     {subscription.hasContract && subscription.contractEndDate && (
-                        <View style={styles.contractCard}>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                                <Text style={styles.sectionTitle}>Taahhüt Durumu</Text>
-                                <View style={{ backgroundColor: '#e3f2fd', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 }}>
-                                    <Text style={{ color: '#1565c0', fontSize: 10, fontWeight: 'bold' }}>Aktif</Text>
-                                </View>
+                        <View style={styles.sectionContainer}>
+                            <Text style={styles.sectionHeader}>TAAHHÜT DETAYI</Text>
+                            <View style={styles.card}>
+                                {(() => {
+                                    const start = subscription.contractStartDate ? new Date(subscription.contractStartDate) : new Date(new Date().setFullYear(new Date().getFullYear() - 1));
+                                    const end = new Date(subscription.contractEndDate);
+                                    const total = end.getTime() - start.getTime();
+                                    const passed = new Date().getTime() - start.getTime();
+                                    const percent = Math.min(Math.max(passed / total, 0), 1) * 100;
+
+                                    return (
+                                        <>
+                                            <View style={{flexDirection:'row', justifyContent:'space-between', marginBottom: 10}}>
+                                                <Text style={styles.contractLabel}>Sözleşme İlerlemesi</Text>
+                                                <Text style={styles.contractValue}>%{percent.toFixed(0)}</Text>
+                                            </View>
+                                            <View style={styles.progressBarBg}>
+                                                <View style={[styles.progressBarFill, { width: `${percent}%`, backgroundColor: percent > 85 ? COLORS.warning : COLORS.primary }]} />
+                                            </View>
+                                            <View style={{flexDirection:'row', justifyContent:'space-between', marginTop: 8}}>
+                                                <Text style={styles.contractDate}>{start.toLocaleDateString()}</Text>
+                                                <Text style={styles.contractDate}>{end.toLocaleDateString()}</Text>
+                                            </View>
+                                        </>
+                                    );
+                                })()}
                             </View>
-
-                            {/* Progress Bar Hesabı */}
-                            {(() => {
-                                const start = subscription.contractStartDate ? new Date(subscription.contractStartDate) : new Date();
-                                const end = new Date(subscription.contractEndDate);
-                                const today = new Date();
-
-                                // Eski kayıtlarda start date yoksa, bitime 1 yıl var gibi davran
-                                if (!subscription.contractStartDate) start.setFullYear(end.getFullYear() - 1);
-
-                                const totalDuration = end.getTime() - start.getTime();
-                                const elapsed = today.getTime() - start.getTime();
-                                let progress = elapsed / totalDuration;
-                                if (progress < 0) progress = 0;
-                                if (progress > 1) progress = 1;
-
-                                const daysLeft = Math.ceil((end.getTime() - today.getTime()) / (1000 * 3600 * 24));
-
-                                return (
-                                    <View>
-                                        <View style={styles.progressBarBg}>
-                                            <View style={[styles.progressBarFill, { width: `${progress * 100}%`, backgroundColor: progress > 0.8 ? '#ef4444' : '#3b82f6' }]} />
-                                        </View>
-
-                                        <View style={styles.dateRow}>
-                                            <Text style={styles.dateText}>{start.toLocaleDateString()}</Text>
-                                            <Text style={styles.daysLeftText}>{daysLeft} gün kaldı</Text>
-                                            <Text style={styles.dateText}>{end.toLocaleDateString()}</Text>
-                                        </View>
-                                    </View>
-                                );
-                            })()}
                         </View>
                     )}
 
+                    <View style={{ height: 100 }} />
                 </ScrollView>
 
-                {/* FOOTER: İşlemler */}
+                {/* --- FOOTER ACTIONS --- */}
                 <View style={styles.footer}>
-                    {/* SOL: Durum Değiştir Butonu (YENİ) */}
-                    <TouchableOpacity
-                        style={[styles.actionBtn, { backgroundColor: subscription.isActive ? '#fff3cd' : '#d4edda' }]}
-                        onPress={toggleStatus}
-                    >
-                        <Ionicons
-                            name={subscription.isActive ? "pause-circle-outline" : "play-circle-outline"}
-                            size={22}
-                            color={subscription.isActive ? '#856404' : '#155724'}
-                        />
-                        <Text style={[styles.actionBtnText, { color: subscription.isActive ? '#856404' : '#155724' }]}>
-                            {subscription.isActive ? 'Dondur' : 'Aktifleştir'}
-                        </Text>
+                    <TouchableOpacity style={styles.footerBtn} onPress={toggleStatus}>
+                        <View style={[styles.footerIconBox, { backgroundColor: COLORS.surface, borderColor: COLORS.border }]}>
+                            <Ionicons name={subscription.isActive ? "pause" : "play"} size={20} color={COLORS.textBody} />
+                        </View>
+                        <Text style={styles.footerText}>{subscription.isActive ? 'Dondur' : 'Başlat'}</Text>
                     </TouchableOpacity>
 
-                    <View style={{ width: 10 }} />
-
-                    {/* ORTA: Düzenle */}
-                    <TouchableOpacity style={styles.actionBtn} onPress={() => { onClose(); onEdit(subscription); }}>
-                        <Ionicons name="create-outline" size={22} color="#333" />
-                        <Text style={styles.actionBtnText}>Düzenle</Text>
+                    <TouchableOpacity style={styles.footerBtn} onPress={() => { onClose(); onEdit(subscription); }}>
+                        <View style={[styles.footerIconBox, { backgroundColor: COLORS.primarySoft, borderColor: COLORS.primaryLight }]}>
+                            <Ionicons name="create-outline" size={20} color={COLORS.primary} />
+                        </View>
+                        <Text style={[styles.footerText, { color: COLORS.primary }]}>Düzenle</Text>
                     </TouchableOpacity>
 
-                    <View style={{ width: 10 }} />
-
-                    {/* SAĞ: Sil */}
-                    <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#ffebee' }]} onPress={handleDelete}>
-                        <Ionicons name="trash-outline" size={22} color="#c62828" />
+                    <TouchableOpacity style={styles.footerBtn} onPress={handleDelete}>
+                        <View style={[styles.footerIconBox, { backgroundColor: COLORS.errorBg, borderColor: '#FECACA' }]}>
+                            <Ionicons name="trash-outline" size={20} color={COLORS.error} />
+                        </View>
+                        <Text style={[styles.footerText, { color: COLORS.error }]}>Sil</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -276,111 +294,292 @@ export default function SubscriptionDetailModal({ visible, subscription, onClose
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#f8f9fa' },
-    header: { alignItems: 'center', padding: 20, backgroundColor: '#fff', borderBottomLeftRadius: 24, borderBottomRightRadius: 24, shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 10, elevation: 5 },
-    closeBtn: { position: 'absolute', top: 15, left: 20, padding: 10, zIndex: 9 },
-    logoContainer: { width: 70, height: 70, borderRadius: 35, justifyContent: 'center', alignItems: 'center', marginBottom: 15, marginTop: 10 },
-    logoText: { color: '#fff', fontSize: 32, fontWeight: 'bold' },
-    title: { fontSize: 24, fontWeight: 'bold', color: '#333', marginBottom: 5 },
-    price: { fontSize: 18, color: '#666', fontWeight: '500' },
-    badgeRow: { flexDirection: 'row', marginTop: 10 },
-    badge: { backgroundColor: '#f0f0f0', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8, marginHorizontal: 4 },
-    badgeText: { fontSize: 12, color: '#666', fontWeight: '600' },
-
-    content: { padding: 20 },
-
-    statsRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 25 },
-    statCard: { flex: 0.48, backgroundColor: '#fff', padding: 15, borderRadius: 16, alignItems: 'center', shadowColor: "#000", shadowOpacity: 0.03, shadowRadius: 5, elevation: 2 },
-    statLabel: { fontSize: 12, color: '#999', marginBottom: 5, textTransform: 'uppercase' },
-    statValue: { fontSize: 20, fontWeight: 'bold', color: '#333' },
-    statSub: { fontSize: 11, color: '#bbb', marginTop: 2 },
-
-    section: { marginBottom: 25, backgroundColor: '#fff', padding: 15, borderRadius: 16 },
-    sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#333', marginBottom: 15 },
-
-    usageContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', height: 60, paddingBottom: 5 },
-    usageItem: { alignItems: 'center', width: (width - 80) / 6 },
-    usageDot: { width: 12, borderRadius: 6, marginBottom: 8 },
-    usageText: { fontSize: 10, color: '#999' },
-    helperText: { fontSize: 10, color: '#ccc', marginTop: 10, fontStyle: 'italic' },
-    avatarMe: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#333', justifyContent: 'center', alignItems: 'center', marginRight: -10, borderWidth: 2, borderColor: '#fff', zIndex: 2 },
-    avatarText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
-    avatarPartner: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#e0e0e0', justifyContent: 'center', alignItems: 'center', marginRight: -10, borderWidth: 2, borderColor: '#fff' },
-    partnerText: { color: '#555', fontWeight: 'bold' },
-
-    footer: {
-        flexDirection: 'row',
-        padding: 20,
-        paddingBottom: 40, // iPhone safe area için
-        backgroundColor: '#fff',
-        borderTopWidth: 1,
-        borderTopColor: '#f0f0f0'
+    container: {
+        flex: 1,
+        backgroundColor: COLORS.background,
     },
-    editBtn: { flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f0f0f0', padding: 16, borderRadius: 12, marginRight: 10 },
-    editBtnText: { marginLeft: 8, fontWeight: '600', color: '#333' },
-    deleteBtn: { flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: '#ff4444', padding: 16, borderRadius: 12 },
-    deleteBtnText: { marginLeft: 8, fontWeight: '600', color: '#fff' },
-    partnerList: {
-        marginTop: 5,
+    dragHandle: {
+        width: 40,
+        height: 4,
+        backgroundColor: COLORS.primaryLight,
+        borderRadius: 2,
+        alignSelf: 'center',
+        marginTop: 10,
     },
-    partnerRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+    
+    // HEADER
+    header: {
         alignItems: 'center',
-        marginBottom: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: '#f9f9f9',
-        paddingBottom: 8,
+        paddingVertical: 24,
+        backgroundColor: COLORS.background,
     },
-    partnerLeft: {
-        flexDirection: 'row',
-        alignItems: 'center',
+    closeBtn: {
+        position: 'absolute',
+        right: 20,
+        top: 20,
+        padding: 4,
+        zIndex: 10,
     },
-    avatarSmall: {
-        width: 32,
-        height: 32,
-        borderRadius: 16,
+    logoContainer: {
+        width: 64,
+        height: 64,
+        borderRadius: 22,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 10,
+        marginBottom: 16,
+        shadowColor: COLORS.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 10,
+        elevation: 6,
     },
-    avatarTextSmall: {
-        fontSize: 10,
+    logoText: {
+        fontSize: 28,
         fontWeight: 'bold',
+        color: '#FFF',
+    },
+    title: {
+        fontSize: 22,
+        fontWeight: '800',
+        color: COLORS.textMain,
+        marginBottom: 4,
+    },
+    priceContainer: {
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+        marginBottom: 12,
+    },
+    currency: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: COLORS.textBody,
+        marginBottom: 5,
+        marginRight: 4,
+    },
+    price: {
+        fontSize: 34,
+        fontWeight: '800',
+        color: COLORS.textMain,
+        letterSpacing: -1,
+    },
+    period: {
+        fontSize: 15,
+        color: COLORS.textMuted,
+        fontWeight: '500',
+        marginBottom: 6,
+        marginLeft: 2,
+    },
+    statusBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
+    },
+    statusDot: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+        marginRight: 8,
+    },
+    statusText: {
+        fontSize: 12,
+        fontWeight: '700',
+    },
+
+    // CONTENT
+    content: {
+        paddingHorizontal: 20,
+        paddingTop: 20,
+    },
+
+    // GRID
+    gridContainer: {
+        flexDirection: 'row',
+        backgroundColor: COLORS.surface,
+        borderRadius: 20,
+        padding: 20,
+        marginBottom: 24,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+    },
+    gridItem: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    verticalDivider: {
+        width: 1,
+        backgroundColor: COLORS.border,
+        marginHorizontal: 12,
+    },
+    gridLabel: {
+        fontSize: 12,
+        color: COLORS.textMuted,
+        marginBottom: 4,
+    },
+    gridValue: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: COLORS.textMain,
+        marginBottom: 2,
+    },
+    gridSub: {
+        fontSize: 11,
+        color: COLORS.textBody,
+    },
+
+    // SECTIONS
+    sectionContainer: {
+        marginBottom: 24,
+    },
+    sectionHeader: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: COLORS.textMuted,
+        letterSpacing: 1,
+        marginLeft: 4,
+    },
+    sectionSubHeader: {
+        fontSize: 12,
+        color: COLORS.textBody,
+        marginRight: 4,
+    },
+    card: {
+        backgroundColor: COLORS.surface,
+        borderRadius: 20,
+        padding: 20,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+    },
+
+    // USAGE CHART
+    usageChart: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-end',
+        height: 60,
+        marginBottom: 10,
+    },
+    usageCol: {
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        width: (width - 80) / 6,
+    },
+    usageBar: {
+        width: 8,
+        borderRadius: 4,
+        marginBottom: 8,
+    },
+    usageLabel: {
+        fontSize: 10,
+        color: COLORS.textMuted,
+        fontWeight: '600',
+    },
+    chartLegend: {
+        fontSize: 10,
+        color: COLORS.textMuted,
+        fontStyle: 'italic',
+        textAlign: 'center',
+    },
+
+    // PARTNERS
+    partnerItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 4,
+    },
+    avatar: {
+        width: 36,
+        height: 36,
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
+    },
+    avatarText: {
+        fontSize: 14,
+        fontWeight: '700',
     },
     partnerName: {
         fontSize: 14,
-        color: '#333',
-        fontWeight: '500',
+        fontWeight: '600',
+        color: COLORS.textMain,
+    },
+    partnerRole: {
+        fontSize: 11,
+        color: COLORS.textMuted,
     },
     partnerAmount: {
         fontSize: 14,
-        fontWeight: 'bold',
-        color: '#333',
+        fontWeight: '700',
+        color: COLORS.textBody,
     },
-    actionBtn: {
-        flex: 1,
+    divider: {
+        height: 1,
+        backgroundColor: COLORS.border,
+        marginVertical: 12,
+        marginLeft: 48,
+    },
+
+    // CONTRACT
+    contractLabel: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: COLORS.textMain,
+    },
+    contractValue: {
+        fontSize: 13,
+        fontWeight: '700',
+        color: COLORS.primary,
+    },
+    progressBarBg: {
+        height: 8,
+        backgroundColor: COLORS.primaryLight,
+        borderRadius: 4,
+        overflow: 'hidden',
+    },
+    progressBarFill: {
+        height: '100%',
+        borderRadius: 4,
+    },
+    contractDate: {
+        fontSize: 11,
+        color: COLORS.textMuted,
+        fontWeight: '500',
+    },
+
+    // FOOTER
+    footer: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: COLORS.background,
+        borderTopWidth: 1,
+        borderTopColor: COLORS.border,
         flexDirection: 'row',
+        paddingHorizontal: 24,
+        paddingTop: 16,
+        paddingBottom: Platform.OS === 'ios' ? 34 : 20,
+        justifyContent: 'space-between',
+        gap: 12,
+    },
+    footerBtn: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    footerIconBox: {
+        width: 48,
+        height: 48,
+        borderRadius: 16,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#f8f9fa',
-        paddingVertical: 12,
-        borderRadius: 12,
+        marginBottom: 6,
+        borderWidth: 1,
     },
-    actionBtnText: {
-        marginLeft: 6,
+    footerText: {
+        fontSize: 11,
         fontWeight: '600',
-        color: '#333',
-        fontSize: 13
+        color: COLORS.textBody,
     },
-    contractCard: {
-        backgroundColor: '#fff', padding: 15, borderRadius: 16, marginBottom: 25,
-        borderWidth: 1, borderColor: '#e0e0e0',
-        shadowColor: "#000", shadowOpacity: 0.03, shadowRadius: 3, elevation: 1
-    },
-    progressBarBg: { height: 10, backgroundColor: '#f0f0f0', borderRadius: 5, overflow: 'hidden', marginVertical: 8 },
-    progressBarFill: { height: '100%', borderRadius: 5 },
-    dateRow: { flexDirection: 'row', justifyContent: 'space-between' },
-    dateText: { fontSize: 10, color: '#999' },
-    daysLeftText: { fontSize: 11, fontWeight: 'bold', color: '#333' }
 });
