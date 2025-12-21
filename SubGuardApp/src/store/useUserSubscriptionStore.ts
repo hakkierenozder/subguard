@@ -138,6 +138,7 @@ updateSubscription: async (id, updatedData) => {
     const oldSub = get().subscriptions.find((s) => s.id === id);
     if (!oldSub) return;
 
+    // Optimistic Update (Arayüzde anında güncelle)
     const newSub = { ...oldSub, ...updatedData };
     set((state) => ({
       subscriptions: state.subscriptions.map((s) => 
@@ -146,26 +147,40 @@ updateSubscription: async (id, updatedData) => {
     }));
 
     try {
-        const currentUserId = await getUserId(); // ID'yi al
+        const currentUserId = await getUserId(); 
 
         const payload = {
             id: Number(newSub.id),
-            userId: currentUserId, // <-- EKLENDİ
+            userId: currentUserId,
             catalogId: newSub.catalogId,
             name: newSub.name,
             price: newSub.price,
             currency: newSub.currency,
             billingDay: newSub.billingDay,
             category: newSub.category,
+            colorCode: newSub.colorCode, // <-- Bunu da eklemek iyi olur
             hasContract: newSub.hasContract,
             contractEndDate: newSub.contractEndDate ? newSub.contractEndDate : null,
+            // isActive durumunu da payload'a eklemeliyiz (Dondurma özelliği için)
+            isActive: newSub.isActive !== undefined ? newSub.isActive : true, 
+            
             sharedWithJson: newSub.sharedWith ? JSON.stringify(newSub.sharedWith) : null,
             usageHistoryJson: newSub.usageHistory ? JSON.stringify(newSub.usageHistory) : null
         };
 
-        await agent.UserSubscriptions.update(payload);
+        // --- DÜZELTME BURADA ---
+        // Artık agent.ts'de tanımladığımız gibi 2 parametre gönderiyoruz: (id, payload)
+        await agent.UserSubscriptions.update(id, payload);
+        
     } catch (error) {
         console.error("Güncelleme hatası:", error);
+        // Hata olursa eski haline döndürebilirsin (Opsiyonel)
+        set((state) => ({
+            subscriptions: state.subscriptions.map((s) => 
+              s.id === id ? oldSub : s
+            ),
+        }));
+        // Kullanıcıya hata mesajı göstermek için Alert eklenebilir ama store içinde Alert pek önerilmez.
     }
   },
 
@@ -200,19 +215,17 @@ logUsage: (id, status) => {
   },
 
 getTotalExpense: () => {
-    const subs = get().subscriptions;
-    return subs.reduce((sum, sub) => {
-        // 1. Döviz çevirimi
-        const totalAmount = convertToTRY(sub.price, sub.currency);
-        
-        // 2. Paylaşım Kontrolü
-        // sharedWith dizisi varsa uzunluğunu al, yoksa 0. Kendisini (+1) ekle.
-        const partnerCount = (sub.sharedWith?.length || 0);
-        const myShare = totalAmount / (partnerCount + 1);
-
-        return sum + myShare;
-    }, 0);
-  },
+    const { subscriptions } = get();
+    return subscriptions
+        .filter(sub => sub.isActive !== false) // Sadece aktifleri topla (undefined ise aktif say)
+        .reduce((total, sub) => {
+            const price = convertToTRY(sub.price, sub.currency);
+            // Ortaklı hesaplama mantığı (önceki geliştirmemiz)
+            const partnerCount = (sub.sharedWith?.length || 0);
+            const myShare = price / (partnerCount + 1);
+            return total + myShare;
+        }, 0);
+},
 
   getNextPayment: () => {
     const subs = get().subscriptions;

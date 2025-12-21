@@ -4,7 +4,7 @@ import { Platform } from 'react-native';
 
 // Android Emülatör: 10.0.2.2, iOS: localhost
 const MY_IP_ADDRESS = '192.168.1.4'; // <-- Senin IP adresin buraya!
-const API_PORT = '5252'; 
+const API_PORT = '5252';
 
 export const API_URL = `http://${MY_IP_ADDRESS}:${API_PORT}/api`;
 
@@ -42,7 +42,7 @@ const Catalogs = {
 const UserSubscriptions = {
   list: () => requests.get('/usersubscriptions'), // Parametreyi kaldırdık
   create: (subscription: any) => requests.post('/usersubscriptions', subscription),
-  update: (subscription: any) => requests.put('/usersubscriptions', subscription),
+  update: (id: string, subscription: any) => requests.put(`/usersubscriptions/${id}`, subscription),
   delete: (id: number | string) => requests.del(`/usersubscriptions/${id}`),
 };
 
@@ -50,7 +50,7 @@ const Auth = {
   login: (body: any) => requests.post('/auth/login', body),
   register: (body: any) => requests.post('/auth/register', body),
   getProfile: () => requests.get('/auth/profile'),
-updateProfile: (body: { fullName?: string; monthlyBudget?: number }) => requests.put('/auth/profile', body),
+  updateProfile: (body: { fullName?: string; monthlyBudget?: number }) => requests.put('/auth/profile', body),
   changePassword: (body: any) => requests.post('/auth/change-password', body),
 };
 

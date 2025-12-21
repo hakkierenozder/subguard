@@ -49,6 +49,8 @@ export interface UserSubscription {
 
   sharedWithJson?: string | null;
   usageHistoryJson?: string | null;
+
+  isActive: boolean;
 }
 
 export type UsageStatus = 'active' | 'low' | 'none'; // Aktif, Az, Hiç

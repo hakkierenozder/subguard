@@ -19,5 +19,7 @@ namespace SubGuard.Core.DTOs
 
         public string? SharedWithJson { get; set; }
         public string? UsageHistoryJson { get; set; }
+
+        public bool IsActive { get; set; } // <--- Bunu ekle
     }
 }
