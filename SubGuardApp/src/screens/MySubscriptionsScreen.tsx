@@ -1,31 +1,46 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, Linking, TextInput, RefreshControl } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, Linking, TextInput, RefreshControl, StatusBar, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { UserSubscription } from '../types';
 import AddSubscriptionModal from '../components/AddSubscriptionModal';
 import SubscriptionDetailModal from '../components/SubscriptionDetailModal';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { convertToTRY } from '../utils/CurrencyService';
 
-type SortType = 'date' | 'price_desc' | 'price_asc' | 'name';
+// Tip tanımları
+type SortType = 'date' | 'price_desc' | 'name';
+
+// --- MODERN & SADE RENK PALETİ ---
+const COLORS = {
+  // Yeni Ana Renk: Fırtına Mavisi (Slate Blue)
+  // Göz yormaz, cırtlak değildir, premium durur.
+  primary: '#334155', 
+  
+  // Gölge ve derinlik için koyu ton
+  primaryDark: '#1E293B', 
+  
+  background: '#F9FAFB',
+  textDark: '#0F172A',
+  textLight: '#64748B',
+  white: '#FFFFFF',
+  
+  success: '#10B981',
+  passive: '#E2E8F0', // Pasif gri
+};
 
 export default function MySubscriptionsScreen() {
   const {
     subscriptions,
-    removeSubscription,
     getTotalExpense,
-    getNextPayment,
     fetchUserSubscriptions,
   } = useUserSubscriptionStore();
 
   const totalExpense = getTotalExpense();
-  const nextPayment = getNextPayment();
 
-  // State'ler
+  // State Yönetimi
   const [editingSub, setEditingSub] = useState<UserSubscription | null>(null);
   const [detailSub, setDetailSub] = useState<UserSubscription | null>(null);
-
   const [isModalVisible, setModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [searchText, setSearchText] = useState('');
@@ -41,6 +56,40 @@ export default function MySubscriptionsScreen() {
     setRefreshing(false);
   }, []);
 
+  // --- Yardımcı Fonksiyonlar ---
+
+  const getNextPaymentDateText = (billingDay: number) => {
+    const today = new Date();
+    const currentDay = today.getDate();
+    
+    if (billingDay === currentDay) return "Bugün";
+    if (billingDay === currentDay + 1) return "Yarın";
+    
+    let targetDate = new Date(today.getFullYear(), today.getMonth(), billingDay);
+    if (currentDay > billingDay) {
+        targetDate = new Date(today.getFullYear(), today.getMonth() + 1, billingDay);
+    }
+    
+    const diffTime = Math.abs(targetDate.getTime() - today.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+    
+    return `${diffDays} gün kaldı`;
+  };
+
+  const handleShareOnWhatsApp = (item: UserSubscription) => {
+    const partnerCount = item.sharedWith?.length || 0;
+    const shareAmount = partnerCount > 0 
+        ? (item.price / (partnerCount + 1)).toFixed(2) 
+        : item.price.toFixed(2);
+
+    const message = `Selam! 👋 ${item.name} aboneliği yenileniyor. Bu ayki payına düşen miktar: ${shareAmount} ${item.currency}.`;
+    const url = `whatsapp://send?text=${encodeURIComponent(message)}`;
+
+    Linking.openURL(url).catch(() => {
+      Alert.alert("Hata", "WhatsApp cihazında yüklü görünmüyor.");
+    });
+  };
+
   const getFilteredSubscriptions = () => {
     let filtered = subscriptions.filter(sub =>
       sub.name.toLowerCase().includes(searchText.toLowerCase())
@@ -49,14 +98,12 @@ export default function MySubscriptionsScreen() {
     return filtered.sort((a, b) => {
       switch (sortBy) {
         case 'date':
-          const today = new Date().getDate();
-          const dayA = a.billingDay < today ? a.billingDay + 30 : a.billingDay;
-          const dayB = b.billingDay < today ? b.billingDay + 30 : b.billingDay;
-          return dayA - dayB;
+           const today = new Date().getDate();
+           const valA = a.billingDay < today ? a.billingDay + 30 : a.billingDay;
+           const valB = b.billingDay < today ? b.billingDay + 30 : b.billingDay;
+           return valA - valB;
         case 'price_desc':
           return convertToTRY(b.price, b.currency) - convertToTRY(a.price, a.currency);
-        case 'price_asc':
-          return convertToTRY(a.price, a.currency) - convertToTRY(b.price, b.currency);
         case 'name':
           return a.name.localeCompare(b.name);
         default:
@@ -65,348 +112,430 @@ export default function MySubscriptionsScreen() {
     });
   };
 
-  const filteredData = getFilteredSubscriptions();
-
-  const handleDelete = (id: string, name: string) => {
-    Alert.alert("Aboneliği Sil", `${name} aboneliğini silmek istiyor musun?`, [
-      { text: "Vazgeç", style: "cancel" },
-      { text: "Sil", style: "destructive", onPress: () => removeSubscription(id) }
-    ]);
-  };
-
-  const getDaysLeft = (dateString?: string) => {
-    if (!dateString) return null;
-    const end = new Date(dateString);
-    const today = new Date();
-    const diffTime = end.getTime() - today.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  };
-
-  const handleSendReminder = (item: UserSubscription) => {
-    if (!item.sharedWith || item.sharedWith.length === 0) return;
-    const shareAmount = (item.price / (item.sharedWith.length + 1)).toFixed(2);
-    const message = `Selam! 👋 ${item.name} aboneliği için bu ayki payına düşen miktar: ${shareAmount} ${item.currency}.`;
-    const url = `whatsapp://send?text=${encodeURIComponent(message)}`;
-    Linking.openURL(url).catch(() => Alert.alert("Hata", "WhatsApp açılamadı."));
-  };
-
-  // --- Modal Geçiş Fonksiyonu (YENİ) ---
   const handleEditFromDetail = (sub: UserSubscription) => {
-    setDetailSub(null); // Önce detayı kapat
-    // Modal kapanma animasyonu bitene kadar bekle (500ms), sonra düzenlemeyi aç
+    setDetailSub(null);
     setTimeout(() => {
       setEditingSub(sub);
-    }, 500);
+    }, 400);
   };
 
-  const renderSortChip = (type: SortType, label: string, icon: keyof typeof Ionicons.glyphMap) => (
-    <TouchableOpacity
-      style={[styles.sortChip, sortBy === type && styles.activeSortChip]}
-      onPress={() => setSortBy(type)}
-    >
-      <Ionicons name={icon} size={14} color={sortBy === type ? '#fff' : '#666'} style={{ marginRight: 4 }} />
-      <Text style={[styles.sortChipText, sortBy === type && styles.activeSortChipText]}>{label}</Text>
-    </TouchableOpacity>
-  );
+  // --- Render Components ---
 
-  const renderHeader = () => (
-    <View style={styles.headerContainer}>
-      <Text style={styles.header}>Cüzdanım</Text>
+  const renderHeader = () => {
+    const activeSubsCount = subscriptions.filter(s => s.isActive !== false).length;
 
-      <View style={styles.summaryRow}>
-        <View style={styles.summaryCardSmall}>
-          <Text style={styles.summaryLabel}>Aylık Payın</Text>
-          <Text style={styles.summaryValue}>≈ {totalExpense.toFixed(0)} ₺</Text>
-        </View>
-
-        {nextPayment && (
-          <View style={[styles.summaryCardSmall, { borderLeftColor: nextPayment.colorCode || '#333', borderLeftWidth: 4 }]}>
-            <Text style={styles.summaryLabel}>Sonraki Ödeme</Text>
-            <Text style={styles.nextPaymentName}>{nextPayment.name}</Text>
-            <Text style={styles.nextPaymentDate}>{nextPayment.billingDay}. Gün</Text>
+    return (
+      <View style={styles.headerContainer}>
+        {/* HERO CARD - Yeni Renk ile */}
+        <View style={styles.heroCard}>
+          <View style={styles.heroCardTop}>
+              <View>
+                  <Text style={styles.heroLabel}>Aylık Toplam Gider</Text>
+                  <View style={styles.heroAmountRow}>
+                      <Text style={styles.heroCurrency}>₺</Text>
+                      <Text style={styles.heroAmount}>{totalExpense.toFixed(2)}</Text>
+                  </View>
+              </View>
+              <View style={styles.heroIconContainer}>
+                  <MaterialCommunityIcons name="wallet-outline" size={32} color={COLORS.white} />
+              </View>
           </View>
-        )}
-      </View>
+          
+          <View style={styles.heroCardBottom}>
+              <Text style={styles.heroSubText}>
+                  {activeSubsCount} aktif abonelik yönetiliyor
+              </Text>
+          </View>
+        </View>
 
-      <View style={styles.filterSection}>
-        <View style={styles.searchBar}>
-          <Ionicons name="search" size={20} color="#999" />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Abonelik ara..."
-            value={searchText}
-            onChangeText={setSearchText}
-            placeholderTextColor="#999"
+        {/* Arama ve Filtreleme */}
+        <View style={styles.searchAndFilterContainer}>
+          <View style={styles.searchContainer}>
+              <Ionicons name="search" size={20} color={COLORS.textLight} style={styles.searchIcon} />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Ara..."
+                placeholderTextColor={COLORS.textLight}
+                value={searchText}
+                onChangeText={setSearchText}
+              />
+          </View>
+
+          <FlatList
+              horizontal
+              data={['date', 'price_desc', 'name'] as SortType[]}
+              keyExtractor={(item) => item}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.filterListContent}
+              renderItem={({ item }) => {
+                  let label = '';
+                  if(item === 'date') label = 'Yaklaşanlar';
+                  else if(item === 'price_desc') label = 'En Yüksek';
+                  else label = 'A-Z';
+
+                  const isActive = sortBy === item;
+                  return (
+                      <TouchableOpacity 
+                          onPress={() => setSortBy(item)} 
+                          style={[styles.filterChip, isActive && styles.activeFilterChip]}
+                      >
+                          <Text style={[styles.filterText, isActive && styles.activeFilterText]}>{label}</Text>
+                      </TouchableOpacity>
+                  );
+              }}
           />
-          {searchText.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchText('')}>
-              <Ionicons name="close-circle" size={18} color="#999" />
-            </TouchableOpacity>
-          )}
-        </View>
-
-        <View style={styles.sortRow}>
-          {renderSortChip('date', 'Tarih', 'calendar-outline')}
-          {renderSortChip('price_desc', 'Pahalı', 'arrow-up-outline')}
-          {renderSortChip('price_asc', 'Ucuz', 'arrow-down-outline')}
-          {renderSortChip('name', 'A-Z', 'text-outline')}
         </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   const renderItem = ({ item }: { item: UserSubscription }) => {
-    const isPassive = item.isActive === false; // Pasif mi?
-    const daysLeft = item.hasContract ? getDaysLeft(item.contractEndDate) : null;
-    const isCritical = daysLeft !== null && daysLeft <= 90 && daysLeft > 0;
-    const isExpired = daysLeft !== null && daysLeft <= 0;
+    // Logo arkaplanı için ana rengin çok açık bir tonu
+    const brandColor = item.colorCode || COLORS.primary;
+    const nextPaymentText = getNextPaymentDateText(item.billingDay);
+    const isPassive = item.isActive === false;
 
-    const partnerCount = (item.sharedWith?.length || 0);
-    const myShare = partnerCount > 0
-      ? (item.price / (partnerCount + 1)).toFixed(2)
-      : null;
-
-    const themeColor = item.colorCode || '#333';
+    const renderLogo = () => (
+        <View style={[styles.logoContainer, { backgroundColor: brandColor + '15' }]}> 
+          <Text style={[styles.logoText, { color: brandColor }]}>
+            {item.name.charAt(0).toUpperCase()}
+          </Text>
+        </View>
+    );
 
     return (
       <TouchableOpacity
-        style={[
-          styles.card,
-          { borderLeftColor: themeColor },
-          isPassive && { opacity: 0.6, backgroundColor: '#f9f9f9' } // Pasifse soluklaştır
-        ]}
-        onPress={() => setDetailSub(item)}
         activeOpacity={0.7}
+        onPress={() => setDetailSub(item)}
+        style={[styles.rowContainer, isPassive && styles.passiveRow]}
       >
-        <View style={styles.cardContent}>
-
-          {/* SOL TARAF: Bilgiler */}
-          <View style={{ flex: 1, justifyContent: 'center' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-              <Text style={[styles.name, isPassive && { textDecorationLine: 'line-through', color: '#999' }]} numberOfLines={1}>
-                {item.name}
-              </Text>
-
-              {item.hasContract && daysLeft !== null && (
-                <View style={[styles.badge, { backgroundColor: isCritical || isExpired ? '#ffebee' : '#e3f2fd' }]}>
-                  <Text style={[styles.badgeText, { color: isCritical || isExpired ? '#c62828' : '#1565c0' }]}>
-                    {isExpired ? '!' : `${daysLeft} Gün`}
-                  </Text>
-                </View>
-              )}
-            </View>
-
-            <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
-              <Text style={[styles.price, { color: themeColor }]}>
-                {item.price} <Text style={{ fontSize: 12, color: '#999', fontWeight: '600' }}>{item.currency}</Text>
+        <View style={styles.rowLeft}>
+          {renderLogo()}
+          <View style={styles.textContainer}>
+            <Text style={[styles.serviceName, isPassive && { textDecorationLine: 'line-through', color: COLORS.textLight }]} numberOfLines={1}>
+              {item.name}
+            </Text>
+            <View style={styles.subInfoContainer}>
+              <Ionicons name="time-outline" size={12} color={COLORS.textLight} style={{marginRight: 4}} />
+              <Text style={styles.nextDateText}>
+                  {isPassive ? 'Donduruldu' : nextPaymentText}
               </Text>
             </View>
-
-            {myShare ? (
-              <View style={styles.shareInfoContainer}>
-                <Ionicons name="people" size={10} color="#666" style={{ marginRight: 4 }} />
-                <Text style={styles.shareInfoText}>
-                  Payın: <Text style={{ color: themeColor, fontWeight: '700' }}>{myShare}</Text>
-                </Text>
-              </View>
-            ) : item.hasContract && item.contractEndDate ? (
-              <Text style={{ fontSize: 10, color: '#999', marginTop: 2 }}>
-                Bitiş: {new Date(item.contractEndDate).toLocaleDateString('tr-TR')}
-              </Text>
-            ) : null}
           </View>
-
-          {/* SAĞ TARAF: WhatsApp Butonu + Minimal Takvim */}
-          <View style={styles.rightSection}>
-
-            {partnerCount > 0 && (
-              <TouchableOpacity style={styles.whatsappIconBtn} onPress={() => handleSendReminder(item)}>
-                <Ionicons name="logo-whatsapp" size={22} color="#25D366" />
-              </TouchableOpacity>
-            )}
-
-            <View style={styles.calendarBox}>
-              <View style={[styles.calendarTopStrip, { backgroundColor: themeColor }]} />
-              <Text style={[styles.calendarDayText, { color: themeColor }]}>{item.billingDay}</Text>
-            </View>
-
-          </View>
-
         </View>
 
-        <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item.id, item.name)}>
-          <Ionicons name="trash-outline" size={18} color="#ff4444" />
-        </TouchableOpacity>
+        <View style={styles.rowRight}>
+          <Text style={[styles.priceText, isPassive && { color: COLORS.textLight }]}>{item.price}</Text>
+          <View style={styles.currencyAndActionRow}>
+             <Text style={styles.currencyText}>{item.currency}</Text>
+             
+             {!isPassive && (
+               <TouchableOpacity 
+                  style={styles.whatsappButton} 
+                  onPress={() => handleShareOnWhatsApp(item)}
+                  hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
+               >
+                  <FontAwesome5 name="whatsapp" size={14} color="#25D366" />
+               </TouchableOpacity>
+             )}
+          </View>
+        </View>
       </TouchableOpacity>
     );
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <FlatList
-        data={filteredData}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: 100 }}
-        ListHeaderComponent={renderHeader}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            {searchText ? (
-              <Text style={styles.emptyText}>"{searchText}" bulunamadı.</Text>
-            ) : (
-              <Text style={styles.emptyText}>Henüz abonelik yok.</Text>
-            )}
-          </View>
-        }
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#333']} />
-        }
-      />
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
+      <SafeAreaView edges={['top']} style={styles.safeArea}>
+        
+        <FlatList
+          data={getFilteredSubscriptions()}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          ListHeaderComponent={renderHeader}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
+          }
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+              <MaterialCommunityIcons name="wallet-giftcard" size={48} color={COLORS.passive} />
+              <Text style={styles.emptyText}>Henüz abonelik eklemedin.</Text>
+            </View>
+          }
+        />
 
-      {/* FAB BUTONU */}
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => {
-          setEditingSub(null);
-          setModalVisible(true);
-        }}
-      >
-        <Ionicons name="add" size={32} color="white" />
-      </TouchableOpacity>
+        {/* FAB (Ekleme Butonu) - Artık Kart Rengiyle Aynı */}
+        <TouchableOpacity
+          style={styles.fab}
+          activeOpacity={0.9}
+          onPress={() => {
+            setEditingSub(null);
+            setModalVisible(true);
+          }}
+        >
+          <Ionicons name="add" size={30} color={COLORS.white} />
+        </TouchableOpacity>
 
-      {/* MODALLAR */}
+        <AddSubscriptionModal
+          visible={isModalVisible || !!editingSub}
+          onClose={() => {
+            setModalVisible(false);
+            setEditingSub(null);
+          }}
+          selectedCatalogItem={null}
+          subscriptionToEdit={editingSub}
+        />
 
-      {/* 1. EKLEME/DÜZENLEME MODALI */}
-      <AddSubscriptionModal
-        visible={isModalVisible || !!editingSub}
-        onClose={() => {
-          setModalVisible(false);
-          setEditingSub(null);
-        }}
-        selectedCatalogItem={null}
-        subscriptionToEdit={editingSub}
-      />
-
-      {/* 2. DETAY MODALI */}
-      <SubscriptionDetailModal
-        visible={!!detailSub}
-        subscription={detailSub}
-        onClose={() => setDetailSub(null)}
-        onEdit={handleEditFromDetail}
-      />
-
-    </SafeAreaView>
+        <SubscriptionDetailModal
+          visible={!!detailSub}
+          subscription={detailSub}
+          onClose={() => setDetailSub(null)}
+          onEdit={handleEditFromDetail}
+        />
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
-  headerContainer: { padding: 20, backgroundColor: '#fff', paddingBottom: 15, borderBottomWidth: 1, borderBottomColor: '#eee' },
-  header: { fontSize: 28, fontWeight: 'bold', marginBottom: 15, color: '#333' },
-
-  summaryRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
-  summaryCardSmall: {
-    flex: 1, backgroundColor: '#f8f9fa', padding: 12, borderRadius: 12, marginHorizontal: 4,
-    borderWidth: 1, borderColor: '#eee'
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.background,
   },
-  summaryLabel: { fontSize: 11, color: '#999', marginBottom: 2, textTransform: 'uppercase', fontWeight: '600' },
-  summaryValue: { fontSize: 20, fontWeight: 'bold', color: '#333' },
-  nextPaymentName: { fontSize: 16, fontWeight: 'bold', color: '#333' },
-  nextPaymentDate: { fontSize: 12, color: '#e74c3c', fontWeight: '600' },
-
-  filterSection: {},
-  searchBar: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: '#f1f3f5',
-    paddingHorizontal: 12, paddingVertical: 10, borderRadius: 10, marginBottom: 12
+  safeArea: {
+    flex: 1,
   },
-  searchInput: { flex: 1, marginLeft: 8, fontSize: 15, color: '#333' },
-  sortRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  sortChip: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff',
-    paddingVertical: 6, paddingHorizontal: 10, borderRadius: 20,
-    borderWidth: 1, borderColor: '#ddd'
+  listContent: {
+    paddingBottom: 100,
   },
-  activeSortChip: { backgroundColor: '#333', borderColor: '#333' },
-  sortChipText: { fontSize: 11, color: '#666', fontWeight: '600' },
-  activeSortChipText: { color: '#fff' },
-
-  // --- KART STİLLERİ ---
-  card: {
-    backgroundColor: 'white', borderRadius: 12, marginBottom: 10, marginHorizontal: 20, padding: 14,
-    borderLeftWidth: 4, shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 3, elevation: 2,
-    flexDirection: 'row', alignItems: 'center'
+  headerContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 10,
   },
-  cardContent: { flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginRight: 8 },
+  
+  // HERO CARD
+  heroCard: {
+    backgroundColor: COLORS.primary, // #334155
+    borderRadius: 24,
+    padding: 24,
+    marginBottom: 20,
+    shadowColor: COLORS.primaryDark,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  heroCardTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+  },
+  heroLabel: {
+    color: '#94A3B8', // Slate 400
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  heroAmountRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  heroCurrency: {
+    color: COLORS.white,
+    fontSize: 24,
+    fontWeight: '600',
+    marginTop: 6,
+    marginRight: 4,
+  },
+  heroAmount: {
+    color: COLORS.white,
+    fontSize: 42,
+    fontWeight: '800',
+    letterSpacing: -1,
+  },
+  heroIconContainer: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    padding: 10,
+    borderRadius: 14,
+  },
+  heroCardBottom: {
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.1)',
+    paddingTop: 16,
+  },
+  heroSubText: {
+    color: '#CBD5E1', // Slate 300
+    fontSize: 13,
+    fontWeight: '500',
+  },
 
-  name: { fontSize: 15, fontWeight: '700', color: '#222', flexShrink: 1, marginRight: 6 },
-  price: { fontSize: 16, fontWeight: '800' },
-
-  badge: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, marginLeft: 4 },
-  badgeText: { fontSize: 9, fontWeight: '700' },
-
-  shareInfoContainer: { flexDirection: 'row', alignItems: 'center', marginTop: 4, backgroundColor: '#f8f9fa', alignSelf: 'flex-start', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
-  shareInfoText: { fontSize: 10, color: '#666' },
-
-  rightSection: {
+  searchAndFilterContainer: {
+    marginBottom: 10,
+  },
+  searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingLeft: 8
+    backgroundColor: COLORS.white,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    height: 48,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
   },
-
-  whatsappIconBtn: {
+  searchIcon: {
     marginRight: 10,
-    padding: 4
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 15,
+    color: COLORS.textDark,
+    height: '100%',
+  },
+  filterListContent: {
+    paddingRight: 20,
+  },
+  filterChip: {
+    paddingVertical: 8,
+    paddingHorizontal: 18,
+    borderRadius: 20,
+    backgroundColor: COLORS.white,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  // AKTİF FİLTRE BUTONU - Kart Rengiyle Aynı
+  activeFilterChip: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  filterText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.textLight,
+  },
+  activeFilterText: {
+    color: COLORS.white,
   },
 
-  // Minimal Takvim Stili
-  calendarBox: {
-    width: 36, height: 36,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 1,
-    elevation: 1,
+  rowContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    overflow: 'hidden',
+    justifyContent: 'space-between',
+    backgroundColor: COLORS.white,
+    marginHorizontal: 20,
+    marginBottom: 12,
+    padding: 16,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.02,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  passiveRow: {
+    opacity: 0.6,
+    backgroundColor: '#F8FAFC',
+    borderColor: '#E2E8F0',
+  },
+  rowLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  logoContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
     justifyContent: 'center',
-    borderWidth: 0.5,
-    borderColor: '#f0f0f0'
+    alignItems: 'center',
+    marginRight: 14,
   },
-  calendarTopStrip: {
-    width: '100%',
-    height: 5,
-    position: 'absolute',
-    top: 0
+  logoText: {
+    fontSize: 18,
+    fontWeight: 'bold',
   },
-  calendarDayText: {
+  textContainer: {
+    flex: 1,
+  },
+  serviceName: {
     fontSize: 16,
-    fontWeight: '800',
-    marginTop: 3
+    fontWeight: '700',
+    color: COLORS.textDark,
+    marginBottom: 2,
+  },
+  subInfoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  nextDateText: {
+    fontSize: 12,
+    color: COLORS.textLight,
+    fontWeight: '500',
+  },
+  rowRight: {
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+  priceText: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: COLORS.textDark,
+  },
+  currencyAndActionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  currencyText: {
+    fontSize: 12,
+    color: COLORS.textLight,
+    fontWeight: '600',
+    marginRight: 8,
+  },
+  whatsappButton: {
+    backgroundColor: '#DCFCE7', // WhatsApp yeşiline uygun açık bir ton
+    padding: 6,
+    borderRadius: 8,
   },
 
-  deleteButton: { padding: 6, marginLeft: 0 },
-
-  emptyContainer: { alignItems: 'center', marginTop: 50 },
-  emptyText: { color: '#999', fontSize: 16 },
-
+  emptyState: {
+    alignItems: 'center',
+    marginTop: 80,
+    opacity: 0.6,
+  },
+  emptyText: {
+    marginTop: 12,
+    fontSize: 15,
+    color: COLORS.textLight,
+    fontWeight: '500',
+  },
+  
+  // FAB (Ekleme Butonu) - Kart Rengiyle Aynı (İsteğin üzerine)
   fab: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 30,
     right: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#333',
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: COLORS.primary, // #334155
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 10,
-    shadowColor: '#000',
+    shadowColor: COLORS.primaryDark,
+    shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
-    shadowRadius: 5,
-    shadowOffset: { width: 0, height: 4 },
-    zIndex: 9999,
+    shadowRadius: 12,
+    elevation: 8,
+    zIndex: 100,
   }
 });

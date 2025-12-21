@@ -24,3 +24,15 @@ export const getCurrencySymbol = (currency: string) => {
     default: return '₺';
   }
 };
+
+// Servis objesi olarak export et (Hatanın çözümü)
+export const CurrencyService = {
+  format: (amount: number, currency: string = 'TRY'): string => {
+    const symbol = getCurrencySymbol(currency);
+    // İsteğe bağlı: Intl.NumberFormat kullanılabilir ama React Native Android'de 
+    // bazen polyfill gerektirdiği için şimdilik manuel formatlama daha güvenli.
+    return `${symbol}${amount.toFixed(2)}`;
+  },
+  convertToTRY,
+  getCurrencySymbol
+};
