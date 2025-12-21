@@ -3,7 +3,7 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, Linking, Tex
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { UserSubscription } from '../types';
 import AddSubscriptionModal from '../components/AddSubscriptionModal';
-import SubscriptionDetailModal from '../components/SubscriptionDetailModal'; // <-- YENİ IMPORT
+import SubscriptionDetailModal from '../components/SubscriptionDetailModal';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import { Ionicons } from '@expo/vector-icons';
 import { convertToTRY } from '../utils/CurrencyService';
@@ -24,7 +24,7 @@ export default function MySubscriptionsScreen() {
 
   // State'ler
   const [editingSub, setEditingSub] = useState<UserSubscription | null>(null);
-  const [detailSub, setDetailSub] = useState<UserSubscription | null>(null); // <-- YENİ STATE (Detay için)
+  const [detailSub, setDetailSub] = useState<UserSubscription | null>(null);
   
   const [isModalVisible, setModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -88,6 +88,15 @@ export default function MySubscriptionsScreen() {
     const message = `Selam! 👋 ${item.name} aboneliği için bu ayki payına düşen miktar: ${shareAmount} ${item.currency}.`;
     const url = `whatsapp://send?text=${encodeURIComponent(message)}`;
     Linking.openURL(url).catch(() => Alert.alert("Hata", "WhatsApp açılamadı."));
+  };
+
+  // --- Modal Geçiş Fonksiyonu (YENİ) ---
+  const handleEditFromDetail = (sub: UserSubscription) => {
+      setDetailSub(null); // Önce detayı kapat
+      // Modal kapanma animasyonu bitene kadar bekle (500ms), sonra düzenlemeyi aç
+      setTimeout(() => {
+          setEditingSub(sub);
+      }, 500);
   };
 
   const renderSortChip = (type: SortType, label: string, icon: keyof typeof Ionicons.glyphMap) => (
@@ -161,7 +170,8 @@ export default function MySubscriptionsScreen() {
     return (
       <TouchableOpacity
         style={[styles.card, { borderLeftColor: themeColor }]}
-        onPress={() => setDetailSub(item)} // <-- DÜZELTME BURADA: Artık Detay açıyoruz
+        onPress={() => setDetailSub(item)}
+        activeOpacity={0.7}
       >
         <View style={styles.cardContent}>
           
@@ -270,16 +280,12 @@ export default function MySubscriptionsScreen() {
         subscriptionToEdit={editingSub}
       />
 
-      {/* 2. DETAY MODALI (YENİ) */}
+      {/* 2. DETAY MODALI */}
       <SubscriptionDetailModal 
         visible={!!detailSub}
         subscription={detailSub}
         onClose={() => setDetailSub(null)}
-        onEdit={() => {
-            const sub = detailSub;
-            setDetailSub(null); // Detayı kapat
-            setEditingSub(sub); // Düzenlemeyi aç
-        }}
+        onEdit={handleEditFromDetail}
       />
 
     </SafeAreaView>

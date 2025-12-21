@@ -9,9 +9,11 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 
 export default function ReportsScreen() {
   const { subscriptions, getTotalExpense } = useUserSubscriptionStore();
-  const totalMonthlyExpense = getTotalExpense(); // Mevcut kur ile TL karşılığı
+  
+  // Store zaten doğru hesaplıyor, bunu kullanıyoruz.
+  const totalMonthlyExpense = getTotalExpense(); 
 
-  // --- ANALİZ MANTIĞI ---
+  // --- ANALİZ MANTIĞI (DÜZELTİLDİ) ---
   const statistics = useMemo(() => {
     const categoryStats: Record<string, number> = {};
     let maxCategorySpend = 0;
@@ -19,18 +21,26 @@ export default function ReportsScreen() {
     // 1. Kategorilere Göre Topla
     subscriptions.forEach(sub => {
       const amountInTRY = convertToTRY(sub.price, sub.currency);
+      
+      // --- DÜZELTME BURADA ---
+      // Store'daki gibi kişi sayısına bölme işlemini burada da yapmalıyız
+      // Aksi takdirde grafikler paylaşılan tutarı değil, tam tutarı gösterir.
+      const partnerCount = (sub.sharedWith?.length || 0);
+      const myShare = amountInTRY / (partnerCount + 1);
+      // -----------------------
+
       const catName = sub.category || 'Other';
       
       if (!categoryStats[catName]) categoryStats[catName] = 0;
-      categoryStats[catName] += amountInTRY;
+      categoryStats[catName] += myShare; // amountInTRY yerine myShare ekliyoruz
     });
 
-    // 2. En yüksek harcamayı bul (Bar uzunluğu için referans)
+    // 2. En yüksek harcamayı bul
     Object.values(categoryStats).forEach(val => {
         if (val > maxCategorySpend) maxCategorySpend = val;
     });
 
-    // 3. Sıralı Liste Oluştur (Çoktan aza)
+    // 3. Sıralı Liste Oluştur
     const sortedCategories = Object.keys(categoryStats)
         .map(key => ({
             name: key,
@@ -43,22 +53,21 @@ export default function ReportsScreen() {
     return { sortedCategories, maxCategorySpend };
   }, [subscriptions, totalMonthlyExpense]);
 
-  // --- RENDER ---
+  // --- RENDER (Aynı kalacak) ---
 
   const renderCategoryItem = (item: any, index: number) => (
     <View key={item.name} style={styles.catContainer}>
-        {/* Başlık ve Tutar */}
         <View style={styles.catHeader}>
             <View style={styles.catTitleRow}>
                 <View style={[styles.dot, { backgroundColor: getCategoryColor(index) }]} />
                 <Text style={styles.catName}>{item.name}</Text>
             </View>
             <View>
+                {/* Artık burası da düşülmüş fiyatı gösterecek */}
                 <Text style={styles.catPrice}>{item.total.toFixed(0)} ₺</Text>
             </View>
         </View>
 
-        {/* Progress Bar */}
         <View style={styles.barBackground}>
             <View 
                 style={[
@@ -82,10 +91,10 @@ export default function ReportsScreen() {
 
       <ScrollView contentContainerStyle={styles.content}>
         
-        {/* ÖZET KARTI (TOPLAM) */}
+        {/* ÖZET KARTI */}
         <View style={styles.totalCard}>
             <Text style={styles.totalLabel}>Aylık Tahmini Gider</Text>
-            <Text style={styles.totalValue}>{totalMonthlyExpense.toFixed(2)} ₺</Text>
+            <Text style={styles.totalValue}>{totalMonthlyExpense.toFixed(0)} ₺</Text>
             
             <View style={styles.divider} />
             
@@ -101,7 +110,6 @@ export default function ReportsScreen() {
             </View>
         </View>
 
-        {/* KATEGORİ LİSTESİ */}
         <Text style={styles.sectionTitle}>Kategorilere Göre Dağılım</Text>
         
         {statistics.sortedCategories.length > 0 ? (
@@ -120,7 +128,7 @@ export default function ReportsScreen() {
   );
 }
 
-// Yardımcı: Renk Paleti
+// Renk Paleti ve Stiller Aynen Kalıyor...
 const getCategoryColor = (index: number) => {
     const colors = ['#333333', '#555555', '#777777', '#999999', '#AAAAAA', '#CCCCCC'];
     return colors[index % colors.length];
@@ -131,8 +139,6 @@ const styles = StyleSheet.create({
   header: { padding: 20, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#eee' },
   headerTitle: { fontSize: 24, fontWeight: 'bold', color: '#333' },
   content: { padding: 20 },
-  
-  // Toplam Kartı
   totalCard: { 
       backgroundColor: '#333', borderRadius: 16, padding: 24, marginBottom: 25,
       shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 8, elevation: 5 
@@ -143,8 +149,6 @@ const styles = StyleSheet.create({
   projectionRow: { flexDirection: 'row', justifyContent: 'space-between' },
   projLabel: { color: '#bbb', fontSize: 12, marginBottom: 2 },
   projValue: { color: '#fff', fontSize: 16, fontWeight: '600' },
-
-  // Kategori Listesi
   sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#333', marginBottom: 15 },
   chartContainer: { backgroundColor: '#fff', borderRadius: 12, padding: 15, borderWidth: 1, borderColor: '#eee' },
   catContainer: { marginBottom: 18 },
@@ -153,12 +157,9 @@ const styles = StyleSheet.create({
   dot: { width: 8, height: 8, borderRadius: 4, marginRight: 8 },
   catName: { fontSize: 14, color: '#333', fontWeight: '600' },
   catPrice: { fontSize: 14, color: '#333', fontWeight: 'bold' },
-  
-  // Custom Progress Bar
   barBackground: { height: 8, backgroundColor: '#f0f0f0', borderRadius: 4, overflow: 'hidden' },
   barFill: { height: '100%', borderRadius: 4 },
   catPercent: { fontSize: 10, color: '#999', marginTop: 4, textAlign: 'right' },
-
   emptyState: { alignItems: 'center', marginTop: 30 },
   emptyText: { color: '#999', marginTop: 10 }
 });
