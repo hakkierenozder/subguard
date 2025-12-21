@@ -19,60 +19,57 @@ const COLORS = {
     primaryDark: '#1E293B',
     primary: '#334155',
     primaryLight: '#475569',
-
+    
     background: '#FFFFFF',
     surface: '#F8FAFC',
     surfaceHighlight: '#F1F5F9',
-
+    
     textMain: '#0F172A',
     textBody: '#334155',
     textMuted: '#94A3B8',
-
+    
     white: '#FFFFFF',
     border: '#E2E8F0',
-
-    // Semantik Renkler (Düzeltildi)
-    success: '#10B981', // Yeşil
-    warning: '#F59E0B', // Turuncu
-    inactive: '#CBD5E1', // Gri
-    error: '#EF4444',
+    
+    // Semantik Renkler
+    success: '#10B981', // Yeşil (Aktif)
+    warning: '#F59E0B', // Turuncu (Seyrek)
+    inactive: '#CBD5E1', // Gri (Veri Yok)
+    error: '#EF4444',   // Kırmızı (Hiç Kullanılmadı - ZARAR)
 };
 
 export default function SubscriptionDetailModal({ visible, subscription: initialSubscription, onClose, onEdit }: Props) {
     const { removeSubscription, updateSubscription, subscriptions } = useUserSubscriptionStore();
 
-    // ÇÖZÜM: Store'dan canlı veriyi çekiyoruz. 
-    // Böylece Switch değiştiği an bu değişken güncelleniyor ve ekran yeniden çiziliyor.
-    const liveSubscription = useUserSubscriptionStore((state) =>
+    // Store'dan canlı veri (Switch değişimi anlık yansısın diye)
+    const liveSubscription = useUserSubscriptionStore((state) => 
         state.subscriptions.find((s) => s.id === initialSubscription?.id)
     );
 
-    // Eğer store'da bulamazsak (örn silinmişse) initial veriyi kullan, o da yoksa null.
     const subscription = liveSubscription || initialSubscription;
 
-    // --- KULLANIM VERİSİ HESAPLAMA (Düzeltildi) ---
+    // --- KULLANIM VERİSİ HESAPLAMA ---
     const usageData = useMemo(() => {
         if (!subscription) return [];
         const history = subscription.usageHistory || [];
         const months = [];
-
+        
         // Son 6 ay
         for (let i = 5; i >= 0; i--) {
             const d = new Date();
-            d.setDate(1); // KRİTİK DÜZELTME: 31 çeken ay hatasını önlemek için günü 1'e sabitliyoruz.
+            d.setDate(1); // Ay atlama sorununu çözmek için günü 1'e sabitle
             d.setMonth(d.getMonth() - i);
-
-            const key = d.toISOString().slice(0, 7); // "2023-12" formatı
+            
+            const key = d.toISOString().slice(0, 7);
             const log = history.find((h: any) => h.month === key);
-
+            
             months.push({
                 label: d.toLocaleDateString('tr-TR', { month: 'short' }).toUpperCase(),
-                // Eğer log varsa status'ü al, yoksa 'missing' (veri yok) olarak işaretle
-                status: log ? log.status : 'missing',
+                status: log ? log.status : 'missing', // 'active' | 'low' | 'none' | 'missing'
             });
         }
         return months;
-    }, [subscription]);; // subscription değiştiğinde (Switch'e basınca) burası da güncellenir
+    }, [subscription]);
 
     if (!subscription) return null;
 
@@ -83,14 +80,12 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
             `${subscription.name} aboneliğini silmek istediğine emin misin?`,
             [
                 { text: "Vazgeç", style: "cancel" },
-                { text: "Sil", style: "destructive", onPress: async () => { await removeSubscription(subscription.id); onClose(); } }
+                { text: "Sil", style: "destructive", onPress: async () => { await removeSubscription(subscription.id); onClose(); }}
             ]
         );
     };
 
     const toggleStatus = async (value: boolean) => {
-        // Switch'ten gelen değer ile store'u güncelliyoruz.
-        // liveSubscription sayesinde ekran anında güncellenecek.
         await updateSubscription(subscription.id, { isActive: value });
     };
 
@@ -104,14 +99,14 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
         const today = new Date();
         const billingDay = subscription.billingDay;
         let nextDate = new Date(today.getFullYear(), today.getMonth(), billingDay);
-
+        
         if (nextDate < today) {
             nextDate.setMonth(nextDate.getMonth() + 1);
         }
-
+        
         const diffTime = Math.abs(nextDate.getTime() - today.getTime());
         const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
+        
         return { nextDate, daysLeft };
     };
     const { nextDate, daysLeft } = getBillingData();
@@ -137,14 +132,14 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                 </View>
 
                 <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-
-                    {/* 1. HERO BÖLÜMÜ (İsim ve Fiyat) */}
+                    
+                    {/* 1. HERO BÖLÜMÜ */}
                     <View style={[styles.heroSection, !subscription.isActive && styles.heroDisabled]}>
                         <View style={[styles.logoPlaceholder, { backgroundColor: subscription.isActive ? (subscription.colorCode || COLORS.primary) : COLORS.inactive }]}>
                             <Text style={styles.logoText}>{subscription.name.charAt(0).toUpperCase()}</Text>
                         </View>
                         <Text style={styles.heroTitle}>{subscription.name}</Text>
-
+                        
                         <View style={styles.priceRow}>
                             <Text style={styles.heroCurrency}>{subscription.currency}</Text>
                             <Text style={styles.heroPrice}>{subscription.price}</Text>
@@ -152,13 +147,13 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                         </View>
                     </View>
 
-                    {/* 2. DURUM YÖNETİMİ (Switch) */}
+                    {/* 2. DURUM YÖNETİMİ */}
                     <View style={styles.statusCard}>
                         <View style={styles.statusInfo}>
                             <Text style={styles.statusTitle}>Abonelik Durumu</Text>
                             <Text style={styles.statusDesc}>
-                                {subscription.isActive
-                                    ? "Şu an aktif. Takvimde ve raporlarda görünür."
+                                {subscription.isActive 
+                                    ? "Şu an aktif. Takvimde ve raporlarda görünür." 
                                     : "Donduruldu. Ödemeler ve hatırlatmalar kapalı."}
                             </Text>
                         </View>
@@ -172,7 +167,7 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                         />
                     </View>
 
-                    {/* 3. ÖDEME BİLGİSİ (Canlı Güncellenen Kart) */}
+                    {/* 3. ÖDEME KARTI */}
                     <LinearGradient
                         colors={subscription.isActive ? [COLORS.primary, COLORS.primaryDark] : [COLORS.inactive, '#94A3B8']}
                         start={{ x: 0, y: 0 }}
@@ -183,7 +178,7 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                             <View>
                                 <Text style={styles.billingLabel}>SIRADAKİ ÖDEME</Text>
                                 <Text style={styles.billingDate}>
-                                    {subscription.isActive
+                                    {subscription.isActive 
                                         ? nextDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })
                                         : 'Donduruldu'}
                                 </Text>
@@ -196,8 +191,8 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                         </View>
                     </LinearGradient>
 
-                    {/* 4. KULLANIM GEÇMİŞİ (Düzeltilmiş Renkler ve Mantık) */}
-<View style={styles.section}>
+                    {/* 4. KULLANIM GEÇMİŞİ (GÜNCELLENDİ) */}
+                    <View style={styles.section}>
                         <View style={styles.sectionHeaderRow}>
                             <Text style={styles.sectionTitle}>KULLANIM SIKLIĞI</Text>
                             <Text style={styles.sectionBadge}>Son 6 Ay</Text>
@@ -207,7 +202,7 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                             <View style={styles.chartRow}>
                                 {usageData.map((m, i) => {
                                     // GÖRSEL AYARLAR
-                                    let height = 4;        // Varsayılan (Veri Yok - Missing)
+                                    let height = 4;        // Varsayılan (missing)
                                     let color = '#E2E8F0'; // Çok silik gri
                                     let labelColor = COLORS.textMuted;
 
@@ -220,9 +215,10 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                                         color = COLORS.warning; // TURUNCU
                                         labelColor = COLORS.warning;
                                     } else if (m.status === 'none') {
-                                        // "Hiç Kullanmadım" seçimi
-                                        height = 12; // Kısa ama belirgin bir çubuk
-                                        color = COLORS.textMuted; // Koyu Gri
+                                        // --- BURAYI GÜNCELLEDİK ---
+                                        height = 16; // Biraz daha belirgin
+                                        color = COLORS.error; // KIRMIZI (Hiç kullanılmadı)
+                                        labelColor = COLORS.error; 
                                     }
 
                                     return (
@@ -238,7 +234,7 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                                 })}
                             </View>
                             
-                            {/* LEJANT (Renk Açıklaması - Güncellendi) */}
+                            {/* LEJANT (GÜNCELLENDİ) */}
                             <View style={styles.legendContainer}>
                                 <View style={styles.legendItem}>
                                     <View style={[styles.legendDot, { backgroundColor: COLORS.success }]} />
@@ -249,7 +245,8 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                                     <Text style={styles.legendText}>Seyrek</Text>
                                 </View>
                                 <View style={styles.legendItem}>
-                                    <View style={[styles.legendDot, { backgroundColor: COLORS.textMuted }]} />
+                                    {/* Kırmızı Nokta */}
+                                    <View style={[styles.legendDot, { backgroundColor: COLORS.error }]} />
                                     <Text style={styles.legendText}>Hiç</Text>
                                 </View>
                             </View>
@@ -259,7 +256,6 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                     {/* 5. DETAYLAR */}
                     <View style={styles.section}>
                         <Text style={styles.sectionTitle}>DETAYLAR</Text>
-
                         <View style={styles.detailRow}>
                             <View style={styles.detailIconBox}>
                                 <Ionicons name="people-outline" size={20} color={COLORS.primary} />
@@ -273,6 +269,15 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                             {partnersCount > 0 && (
                                 <Text style={styles.detailRightText}>-{myShare.toFixed(1)} {subscription.currency} / kişi</Text>
                             )}
+                        </View>
+                        <View style={styles.detailRow}>
+                            <View style={styles.detailIconBox}>
+                                <Ionicons name="folder-open-outline" size={20} color={COLORS.primary} />
+                            </View>
+                            <View style={styles.detailContent}>
+                                <Text style={styles.detailLabel}>Kategori</Text>
+                                <Text style={styles.detailValue}>{subscription.category}</Text>
+                            </View>
                         </View>
                     </View>
 
@@ -307,7 +312,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-
+    
     // HERO
     heroSection: {
         alignItems: 'center',
@@ -472,7 +477,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-end',
-        height: 80,
+        height: 80, 
         marginBottom: 16,
     },
     usageItem: {
