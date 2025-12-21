@@ -1,22 +1,41 @@
-import React, { useState, useEffect } from 'react'; // useCallback ve useFocusEffect kaldırıldı
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, TextInput, Modal, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, TextInput, Modal, KeyboardAvoidingView, Platform, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { logoutUser } from '../utils/AuthManager';
 import agent from '../api/agent';
-import * as Updates from 'expo-updates';
 
 interface Props {
-    onLogout: () => void; // App.tsx'ten gelecek fonksiyon
+    onLogout: () => void;
 }
 
+// --- MODERN SLATE BLUE TEMASI ---
+const COLORS = {
+    primary: '#334155', // Slate 700 - Ana Renk
+    primaryDark: '#1E293B', // Slate 900
+    
+    background: '#F9FAFB', // Sayfa Arkaplanı
+    cardBg: '#FFFFFF',
+    
+    textDark: '#0F172A',
+    textMedium: '#334155',
+    textLight: '#64748B',
+    white: '#FFFFFF',
+    
+    border: '#E2E8F0',
+    success: '#10B981',
+    error: '#EF4444',
+    
+    inputBg: '#F1F5F9',
+};
+
 export default function SettingsScreen({ onLogout }: Props) {
-const [profile, setProfile] = useState({ 
-    fullName: '', 
-    email: '', 
-    totalSubscriptions: 0, 
-    monthlyBudget: 0  // <-- Bunu ekledik
-});
+    const [profile, setProfile] = useState({ 
+        fullName: '', 
+        email: '', 
+        totalSubscriptions: 0, 
+        monthlyBudget: 0 
+    });
 
     // Modallar
     const [editNameVisible, setEditNameVisible] = useState(false);
@@ -25,13 +44,9 @@ const [profile, setProfile] = useState({
     const [changePassVisible, setChangePassVisible] = useState(false);
     const [passData, setPassData] = useState({ current: '', new: '' });
 
-    // Bütçe Modalı için State
     const [budgetModalVisible, setBudgetModalVisible] = useState(false);
     const [newBudget, setNewBudget] = useState('');
 
-    // --- DÜZELTME BURADA ---
-    // useFocusEffect yerine useEffect kullanıyoruz.
-    // Bu ekran her açıldığında (render olduğunda) çalışır.
     useEffect(() => {
         fetchProfile();
     }, []);
@@ -42,7 +57,7 @@ const [profile, setProfile] = useState({
             if (response && response.data) {
                 setProfile(response.data);
                 setNewName(response.data.fullName);
-                setNewBudget(response.data.monthlyBudget?.toString() || '0'); // <-- Eklendi
+                setNewBudget(response.data.monthlyBudget?.toString() || '0');
             }
         } catch (error) {
             console.log("Profil çekilemedi");
@@ -59,7 +74,7 @@ const [profile, setProfile] = useState({
             await agent.Auth.updateProfile({ monthlyBudget: budgetVal });
             Alert.alert("Başarılı", "Bütçe hedefi güncellendi.");
             setBudgetModalVisible(false);
-            fetchProfile(); // Veriyi tazele
+            fetchProfile();
         } catch (error) {
             Alert.alert("Hata", "Güncelleme yapılamadı.");
         }
@@ -71,7 +86,7 @@ const [profile, setProfile] = useState({
             await agent.Auth.updateProfile({ fullName: newName });
             Alert.alert("Başarılı", "Profil güncellendi.");
             setEditNameVisible(false);
-            fetchProfile(); // Güncel veriyi çek
+            fetchProfile();
         } catch (error) {
             Alert.alert("Hata", "Güncelleme yapılamadı.");
         }
@@ -97,174 +112,507 @@ const [profile, setProfile] = useState({
                 text: "Çıkış Yap",
                 style: "destructive",
                 onPress: async () => {
-                    // Tokenları sil
                     await logoutUser();
-
-                    // App.tsx'e haber ver: "Beni dışarı at!"
                     onLogout();
                 }
             }
         ]);
     };
 
-    return (
-        <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>Profil & Ayarlar</Text>
+    // --- REUSABLE COMPONENTS ---
+    const SettingsItem = ({ icon, title, subtitle, onPress, isDestructive = false }: any) => (
+        <TouchableOpacity style={styles.settingsItem} onPress={onPress} activeOpacity={0.7}>
+            <View style={[styles.iconBox, isDestructive && { backgroundColor: '#FEE2E2' }]}>
+                <Ionicons 
+                    name={icon} 
+                    size={20} 
+                    color={isDestructive ? COLORS.error : COLORS.primary} 
+                />
             </View>
+            <View style={styles.itemContent}>
+                <Text style={[styles.itemTitle, isDestructive && { color: COLORS.error }]}>{title}</Text>
+                {subtitle && <Text style={styles.itemSubtitle}>{subtitle}</Text>}
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={COLORS.textLight} />
+        </TouchableOpacity>
+    );
 
-            <ScrollView contentContainerStyle={styles.content}>
+    return (
+        <View style={styles.container}>
+            <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
+            <SafeAreaView edges={['top']} style={styles.safeArea}>
+                
+                <View style={styles.header}>
+                    <Text style={styles.headerTitle}>Ayarlar</Text>
+                </View>
 
-                {/* PROFİL KARTI */}
-                <View style={styles.card}>
-                    <View style={styles.profileRow}>
-                        <View style={styles.avatar}>
-                            <Text style={styles.avatarText}>{profile.fullName?.charAt(0).toUpperCase() || 'U'}</Text>
+                <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+
+                    {/* 1. PROFİL KARTI (Hero Style) */}
+                    <View style={styles.profileCard}>
+                        <View style={styles.profileHeader}>
+                            <View style={styles.avatarContainer}>
+                                <Text style={styles.avatarText}>
+                                    {profile.fullName?.charAt(0).toUpperCase() || 'U'}
+                                </Text>
+                            </View>
+                            <View style={styles.profileInfo}>
+                                <Text style={styles.profileName}>{profile.fullName || 'Misafir Kullanıcı'}</Text>
+                                <Text style={styles.profileEmail}>{profile.email}</Text>
+                            </View>
+                            <TouchableOpacity style={styles.editButton} onPress={() => setEditNameVisible(true)}>
+                                <MaterialCommunityIcons name="pencil" size={20} color={COLORS.white} />
+                            </TouchableOpacity>
+                        </View>
+                        
+                        <View style={styles.divider} />
+                        
+                        <View style={styles.statRow}>
+                            <View style={styles.statItem}>
+                                <Text style={styles.statValue}>{profile.totalSubscriptions}</Text>
+                                <Text style={styles.statLabel}>Abonelik</Text>
+                            </View>
+                            <View style={styles.verticalDivider} />
+                            <View style={styles.statItem}>
+                                <Text style={styles.statValue}>1.1.0</Text>
+                                <Text style={styles.statLabel}>Versiyon</Text>
+                            </View>
+                        </View>
+                    </View>
+
+                    {/* 2. BÜTÇE WIDGET'I */}
+                    <TouchableOpacity style={styles.budgetWidget} onPress={() => setBudgetModalVisible(true)} activeOpacity={0.8}>
+                        <View style={styles.budgetIconCircle}>
+                            <MaterialCommunityIcons name="target" size={24} color={COLORS.primary} />
                         </View>
                         <View style={{ flex: 1 }}>
-                            <Text style={styles.name}>{profile.fullName || 'Kullanıcı'}</Text>
-                            <Text style={styles.email}>{profile.email}</Text>
+                            <Text style={styles.widgetTitle}>Aylık Bütçe Hedefi</Text>
+                            <Text style={styles.widgetSub}>Harcamalarını kontrol altında tut</Text>
                         </View>
-                        <TouchableOpacity onPress={() => setEditNameVisible(true)}>
-                            <Ionicons name="create-outline" size={24} color="#fff" />
-                        </TouchableOpacity>
-                    </View>
-                    <View style={styles.statRow}>
-                        <Text style={styles.statText}>Toplam Abonelik: {profile.totalSubscriptions}</Text>
-                    </View>
-                </View>
-
-                {/* YENİ: BÜTÇE KARTI */}
-                <View style={styles.budgetCard}>
-                    <View>
-                        <Text style={styles.budgetTitle}>Aylık Bütçe Hedefi</Text>
-                        <Text style={styles.budgetVal}>{profile.monthlyBudget > 0 ? `${profile.monthlyBudget} ₺` : 'Belirlenmedi'}</Text>
-                    </View>
-                    <TouchableOpacity style={styles.budgetBtn} onPress={() => setBudgetModalVisible(true)}>
-                        <Text style={styles.budgetBtnText}>Düzenle</Text>
+                        <View style={styles.budgetAmountContainer}>
+                            <Text style={styles.budgetAmount}>
+                                {profile.monthlyBudget > 0 ? `${profile.monthlyBudget} ₺` : '-'}
+                            </Text>
+                        </View>
                     </TouchableOpacity>
-                </View>
 
-                <Text style={styles.sectionTitle}>Hesap</Text>
-
-                <TouchableOpacity style={styles.row} onPress={() => setChangePassVisible(true)}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Ionicons name="key-outline" size={22} color="#333" style={styles.icon} />
-                        <Text style={styles.rowText}>Şifre Değiştir</Text>
-                    </View>
-                    <Ionicons name="chevron-forward" size={20} color="#ccc" />
-                </TouchableOpacity>
-
-                <Text style={styles.sectionTitle}>Uygulama</Text>
-
-                {/* Çıkış Yap */}
-                <TouchableOpacity style={[styles.row, { borderBottomWidth: 0 }]} onPress={handleLogout}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Ionicons name="log-out-outline" size={22} color="red" style={styles.icon} />
-                        <Text style={[styles.rowText, { color: 'red' }]}>Oturumu Kapat</Text>
-                    </View>
-                </TouchableOpacity>
-
-                <Text style={styles.footer}>SubGuard v1.1.0</Text>
-
-            </ScrollView>
-
-            {/* İSİM DÜZENLEME MODALI */}
-            <Modal visible={editNameVisible} transparent animationType="slide">
-                <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>İsmini Düzenle</Text>
-                        <TextInput style={styles.input} value={newName} onChangeText={setNewName} placeholder="Ad Soyad" />
-                        <View style={styles.modalButtons}>
-                            <TouchableOpacity onPress={() => setEditNameVisible(false)} style={styles.cancelBtn}><Text>Vazgeç</Text></TouchableOpacity>
-                            <TouchableOpacity onPress={handleUpdateName} style={styles.saveBtn}><Text style={{ color: 'white' }}>Kaydet</Text></TouchableOpacity>
-                        </View>
-                    </View>
-                </KeyboardAvoidingView>
-            </Modal>
-
-            {/* ŞİFRE DEĞİŞTİRME MODALI */}
-            <Modal visible={changePassVisible} transparent animationType="slide">
-                <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Şifre Değiştir</Text>
-                        <TextInput style={styles.input} placeholder="Mevcut Şifre" secureTextEntry value={passData.current} onChangeText={(t) => setPassData({ ...passData, current: t })} />
-                        <TextInput style={styles.input} placeholder="Yeni Şifre" secureTextEntry value={passData.new} onChangeText={(t) => setPassData({ ...passData, new: t })} />
-                        <View style={styles.modalButtons}>
-                            <TouchableOpacity onPress={() => setChangePassVisible(false)} style={styles.cancelBtn}><Text>Vazgeç</Text></TouchableOpacity>
-                            <TouchableOpacity onPress={handleChangePassword} style={styles.saveBtn}><Text style={{ color: 'white' }}>Değiştir</Text></TouchableOpacity>
-                        </View>
-                    </View>
-                </KeyboardAvoidingView>
-            </Modal>
-
-            {/* YENİ: BÜTÇE DÜZENLEME MODALI */}
-            <Modal visible={budgetModalVisible} transparent animationType="slide">
-                <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Bütçe Hedefi Belirle</Text>
-                        <Text style={styles.modalSub}>Aylık harcamaların için kendini sınırla.</Text>
-
-                        <TextInput
-                            style={styles.input}
-                            value={newBudget}
-                            onChangeText={setNewBudget}
-                            placeholder="Örn: 1000"
-                            keyboardType="numeric"
+                    {/* 3. AYAR GRUPLARI */}
+                    <Text style={styles.sectionHeader}>Güvenlik</Text>
+                    <View style={styles.sectionContainer}>
+                        <SettingsItem 
+                            icon="lock-closed-outline" 
+                            title="Şifre Değiştir" 
+                            subtitle="Güvenliğiniz için düzenli değiştirin"
+                            onPress={() => setChangePassVisible(true)} 
                         />
-
-                        <View style={styles.modalButtons}>
-                            <TouchableOpacity onPress={() => setBudgetModalVisible(false)} style={styles.cancelBtn}>
-                                <Text>Vazgeç</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={handleUpdateBudget} style={styles.saveBtn}>
-                                <Text style={{ color: 'white' }}>Kaydet</Text>
-                            </TouchableOpacity>
-                        </View>
                     </View>
-                </KeyboardAvoidingView>
-            </Modal>
 
-        </SafeAreaView>
+                    <Text style={styles.sectionHeader}>Uygulama</Text>
+                    <View style={styles.sectionContainer}>
+                        <SettingsItem 
+                            icon="log-out-outline" 
+                            title="Oturumu Kapat" 
+                            isDestructive 
+                            onPress={handleLogout} 
+                        />
+                    </View>
+
+                    <Text style={styles.footerText}>SubGuard © 2025</Text>
+
+                </ScrollView>
+
+                {/* --- MODALLAR --- */}
+                
+                {/* İSİM DÜZENLEME */}
+                <Modal visible={editNameVisible} transparent animationType="fade">
+                    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.modalOverlay}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>Profil Düzenle</Text>
+                            <Text style={styles.modalSub}>Görünen isminizi güncelleyin.</Text>
+                            
+                            <TextInput 
+                                style={styles.input} 
+                                value={newName} 
+                                onChangeText={setNewName} 
+                                placeholder="Ad Soyad" 
+                                placeholderTextColor={COLORS.textLight}
+                            />
+                            
+                            <View style={styles.modalButtons}>
+                                <TouchableOpacity onPress={() => setEditNameVisible(false)} style={styles.cancelBtn}>
+                                    <Text style={styles.cancelBtnText}>Vazgeç</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={handleUpdateName} style={styles.saveBtn}>
+                                    <Text style={styles.saveBtnText}>Kaydet</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </KeyboardAvoidingView>
+                </Modal>
+
+                {/* ŞİFRE DEĞİŞTİRME */}
+                <Modal visible={changePassVisible} transparent animationType="fade">
+                    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.modalOverlay}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>Şifre Değiştir</Text>
+                            
+                            <TextInput 
+                                style={styles.input} 
+                                placeholder="Mevcut Şifre" 
+                                placeholderTextColor={COLORS.textLight}
+                                secureTextEntry 
+                                value={passData.current} 
+                                onChangeText={(t) => setPassData({ ...passData, current: t })} 
+                            />
+                            <TextInput 
+                                style={[styles.input, { marginTop: 10 }]} 
+                                placeholder="Yeni Şifre" 
+                                placeholderTextColor={COLORS.textLight}
+                                secureTextEntry 
+                                value={passData.new} 
+                                onChangeText={(t) => setPassData({ ...passData, new: t })} 
+                            />
+                            
+                            <View style={styles.modalButtons}>
+                                <TouchableOpacity onPress={() => setChangePassVisible(false)} style={styles.cancelBtn}>
+                                    <Text style={styles.cancelBtnText}>Vazgeç</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={handleChangePassword} style={styles.saveBtn}>
+                                    <Text style={styles.saveBtnText}>Güncelle</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </KeyboardAvoidingView>
+                </Modal>
+
+                {/* BÜTÇE DÜZENLEME */}
+                <Modal visible={budgetModalVisible} transparent animationType="fade">
+                    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.modalOverlay}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>Bütçe Hedefi</Text>
+                            <Text style={styles.modalSub}>Aylık harcama limitinizi belirleyin.</Text>
+
+                            <View style={styles.budgetInputContainer}>
+                                <Text style={styles.currencyPrefix}>₺</Text>
+                                <TextInput
+                                    style={styles.budgetInput}
+                                    value={newBudget}
+                                    onChangeText={setNewBudget}
+                                    placeholder="0"
+                                    keyboardType="numeric"
+                                    autoFocus
+                                />
+                            </View>
+
+                            <View style={styles.modalButtons}>
+                                <TouchableOpacity onPress={() => setBudgetModalVisible(false)} style={styles.cancelBtn}>
+                                    <Text style={styles.cancelBtnText}>Vazgeç</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={handleUpdateBudget} style={styles.saveBtn}>
+                                    <Text style={styles.saveBtnText}>Kaydet</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </KeyboardAvoidingView>
+                </Modal>
+
+            </SafeAreaView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#f8f9fa' },
-    header: { padding: 20, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#eee' },
-    headerTitle: { fontSize: 24, fontWeight: 'bold', color: '#333' },
-    content: { padding: 20 },
-    card: { backgroundColor: '#333', borderRadius: 12, padding: 20, marginBottom: 25, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 5, elevation: 3 },
-    profileRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },
-    avatar: { width: 50, height: 50, borderRadius: 25, backgroundColor: '#555', justifyContent: 'center', alignItems: 'center', marginRight: 15 },
-    avatarText: { color: 'white', fontSize: 20, fontWeight: 'bold' },
-    name: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
-    email: { color: '#ccc', fontSize: 14 },
-    statRow: { borderTopWidth: 1, borderTopColor: '#444', paddingTop: 10 },
-    statText: { color: '#2ecc71', fontWeight: '600' },
-    sectionTitle: { fontSize: 14, fontWeight: '600', color: '#999', marginBottom: 10, marginLeft: 5, marginTop: 10 },
-    row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff', padding: 16, borderRadius: 12, marginBottom: 10, borderWidth: 1, borderColor: '#eee' },
-    rowText: { fontSize: 16, color: '#333' },
-    icon: { marginRight: 12 },
-    footer: { textAlign: 'center', color: '#ccc', marginTop: 20, fontSize: 12 },
-
-    // Modal Styles
-    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
-    modalContent: { backgroundColor: 'white', borderRadius: 15, padding: 20 },
-    modalTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 15, textAlign: 'center' },
-    input: { borderWidth: 1, borderColor: '#ddd', padding: 12, borderRadius: 8, marginBottom: 10, backgroundColor: '#f9f9f9' },
-    modalButtons: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 },
-    cancelBtn: { flex: 1, padding: 12, alignItems: 'center', backgroundColor: '#eee', borderRadius: 8, marginRight: 5 },
-    saveBtn: { flex: 1, padding: 12, alignItems: 'center', backgroundColor: '#333', borderRadius: 8, marginLeft: 5 },
-    budgetCard: {
-        backgroundColor: '#fff', padding: 16, borderRadius: 12, marginBottom: 20,
-        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-        borderWidth: 1, borderColor: '#e0e0e0', borderLeftWidth: 4, borderLeftColor: '#2ecc71'
+    container: {
+        flex: 1,
+        backgroundColor: COLORS.background,
     },
-    budgetTitle: { fontSize: 12, color: '#999', fontWeight: '600', textTransform: 'uppercase' },
-    budgetVal: { fontSize: 20, fontWeight: 'bold', color: '#333', marginTop: 2 },
-    budgetBtn: { backgroundColor: '#f0f0f0', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 },
-    budgetBtnText: { fontSize: 12, fontWeight: '600', color: '#333' },
-    modalSub: { textAlign: 'center', color: '#666', marginBottom: 15, fontSize: 13 }
+    safeArea: {
+        flex: 1,
+    },
+    header: {
+        paddingHorizontal: 24,
+        paddingVertical: 12,
+    },
+    headerTitle: {
+        fontSize: 28,
+        fontWeight: '800',
+        color: COLORS.textDark,
+        letterSpacing: -0.5,
+    },
+    content: {
+        paddingHorizontal: 24,
+        paddingBottom: 40,
+        paddingTop: 10,
+    },
 
+    // PROFILE CARD (Hero Style)
+    profileCard: {
+        backgroundColor: COLORS.primary, // Slate 700
+        borderRadius: 24,
+        padding: 24,
+        marginBottom: 20,
+        shadowColor: COLORS.primaryDark,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.25,
+        shadowRadius: 16,
+        elevation: 8,
+    },
+    profileHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    avatarContainer: {
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 2,
+        borderColor: 'rgba(255,255,255,0.3)',
+    },
+    avatarText: {
+        color: COLORS.white,
+        fontSize: 24,
+        fontWeight: 'bold',
+    },
+    profileInfo: {
+        flex: 1,
+        marginLeft: 16,
+    },
+    profileName: {
+        color: COLORS.white,
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 4,
+    },
+    profileEmail: {
+        color: '#CBD5E1', // Slate 300
+        fontSize: 13,
+    },
+    editButton: {
+        width: 36,
+        height: 36,
+        borderRadius: 12,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    divider: {
+        height: 1,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        marginVertical: 20,
+    },
+    statRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+    },
+    statItem: {
+        alignItems: 'center',
+    },
+    statValue: {
+        color: COLORS.white,
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    statLabel: {
+        color: '#94A3B8', // Slate 400
+        fontSize: 12,
+        marginTop: 2,
+        fontWeight: '500',
+    },
+    verticalDivider: {
+        width: 1,
+        height: 30,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+    },
+
+    // BUDGET WIDGET
+    budgetWidget: {
+        backgroundColor: COLORS.cardBg,
+        borderRadius: 20,
+        padding: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 24,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.03,
+        shadowRadius: 8,
+        elevation: 2,
+    },
+    budgetIconCircle: {
+        width: 48,
+        height: 48,
+        borderRadius: 16,
+        backgroundColor: '#F1F5F9', // Light Slate
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 16,
+    },
+    widgetTitle: {
+        fontSize: 15,
+        fontWeight: '700',
+        color: COLORS.textDark,
+        marginBottom: 2,
+    },
+    widgetSub: {
+        fontSize: 12,
+        color: COLORS.textLight,
+    },
+    budgetAmountContainer: {
+        backgroundColor: '#F0FDF4', // Light Green
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 12,
+    },
+    budgetAmount: {
+        color: COLORS.success,
+        fontWeight: '700',
+        fontSize: 14,
+    },
+
+    // SECTIONS & ITEMS
+    sectionHeader: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: COLORS.textLight,
+        marginBottom: 10,
+        marginLeft: 4,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+    },
+    sectionContainer: {
+        backgroundColor: COLORS.cardBg,
+        borderRadius: 20,
+        paddingVertical: 8,
+        marginBottom: 24,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+    },
+    settingsItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 14,
+        paddingHorizontal: 16,
+    },
+    iconBox: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        backgroundColor: '#F1F5F9',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 14,
+    },
+    itemContent: {
+        flex: 1,
+    },
+    itemTitle: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: COLORS.textDark,
+    },
+    itemSubtitle: {
+        fontSize: 12,
+        color: COLORS.textLight,
+        marginTop: 2,
+    },
+
+    // MODAL STYLES
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(15, 23, 42, 0.6)', // Slate 900 with opacity
+        justifyContent: 'center',
+        padding: 24,
+    },
+    modalContent: {
+        backgroundColor: COLORS.white,
+        borderRadius: 24,
+        padding: 24,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.1,
+        shadowRadius: 20,
+        elevation: 10,
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: COLORS.textDark,
+        textAlign: 'center',
+        marginBottom: 8,
+    },
+    modalSub: {
+        fontSize: 14,
+        color: COLORS.textLight,
+        textAlign: 'center',
+        marginBottom: 24,
+    },
+    input: {
+        backgroundColor: COLORS.inputBg,
+        borderRadius: 14,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        fontSize: 16,
+        color: COLORS.textDark,
+        marginBottom: 12,
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        gap: 12,
+        marginTop: 12,
+    },
+    cancelBtn: {
+        flex: 1,
+        backgroundColor: COLORS.inputBg,
+        paddingVertical: 14,
+        borderRadius: 14,
+        alignItems: 'center',
+    },
+    cancelBtnText: {
+        color: COLORS.textDark,
+        fontWeight: '600',
+        fontSize: 15,
+    },
+    saveBtn: {
+        flex: 1,
+        backgroundColor: COLORS.primary,
+        paddingVertical: 14,
+        borderRadius: 14,
+        alignItems: 'center',
+    },
+    saveBtnText: {
+        color: COLORS.white,
+        fontWeight: '600',
+        fontSize: 15,
+    },
+    budgetInputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 20,
+    },
+    currencyPrefix: {
+        fontSize: 32,
+        fontWeight: 'bold',
+        color: COLORS.textDark,
+        marginRight: 4,
+    },
+    budgetInput: {
+        fontSize: 32,
+        fontWeight: 'bold',
+        color: COLORS.textDark,
+        minWidth: 100,
+        textAlign: 'center',
+    },
+
+    footerText: {
+        textAlign: 'center',
+        color: COLORS.textLight,
+        fontSize: 12,
+        marginTop: 20,
+    }
 });
