@@ -1,19 +1,36 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Dimensions, StatusBar, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import { convertToTRY } from '../utils/CurrencyService';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
+// --- MODERN & SADE RENK PALETİ (Global Tema) ---
+const COLORS = {
+  primary: '#334155', // Slate 700 - Fırtına Mavisi
+  primaryDark: '#1E293B', // Slate 900
+  primaryLight: '#475569', // Slate 600
+  
+  background: '#F9FAFB',
+  cardBg: '#FFFFFF',
+  
+  textDark: '#0F172A',
+  textMedium: '#334155',
+  textLight: '#64748B', // Slate 500
+  textExtraLight: '#94A3B8', // Slate 400
+  white: '#FFFFFF',
+  
+  success: '#10B981',
+  warning: '#F59E0B',
+  passive: '#E2E8F0',
+  border: '#F1F5F9',
+};
 
 export default function ReportsScreen() {
   const { subscriptions, getTotalExpense } = useUserSubscriptionStore();
-  
-  // Store'daki getTotalExpense fonksiyonu zaten sadece aktifleri topluyor.
   const totalMonthlyExpense = getTotalExpense(); 
 
-  // --- ABONELİK SAYILARI (YENİ) ---
+  // --- ABONELİK İSTATİSTİKLERİ ---
   const activeSubsCount = subscriptions.filter(s => s.isActive !== false).length;
   const passiveSubsCount = subscriptions.filter(s => s.isActive === false).length;
 
@@ -22,29 +39,24 @@ export default function ReportsScreen() {
     const categoryStats: Record<string, number> = {};
     let maxCategorySpend = 0;
 
-    // 1. Kategorilere Göre Topla
     subscriptions.forEach(sub => {
-      // Dondurulmuş (Pasif) abonelikleri grafiğe dahil etme
+      // Pasif abonelikleri toplama dahil etme
       if (sub.isActive === false) return; 
 
       const amountInTRY = convertToTRY(sub.price, sub.currency);
-      
-      // Paylaşımlı maliyet hesabı (Store ile tutarlı olması için)
       const partnerCount = (sub.sharedWith?.length || 0);
       const myShare = amountInTRY / (partnerCount + 1);
 
-      const catName = sub.category || 'Other';
+      const catName = sub.category || 'Diğer';
       
       if (!categoryStats[catName]) categoryStats[catName] = 0;
-      categoryStats[catName] += myShare; // Toplam tutarı değil, payımıza düşeni ekliyoruz
+      categoryStats[catName] += myShare;
     });
 
-    // 2. En yüksek harcamayı bul (Bar uzunluğu için referans)
     Object.values(categoryStats).forEach(val => {
         if (val > maxCategorySpend) maxCategorySpend = val;
     });
 
-    // 3. Sıralı Liste Oluştur (Çoktan aza)
     const sortedCategories = Object.keys(categoryStats)
         .map(key => ({
             name: key,
@@ -54,202 +66,340 @@ export default function ReportsScreen() {
         }))
         .sort((a, b) => b.total - a.total);
 
-    return { sortedCategories, maxCategorySpend };
+    return { sortedCategories };
   }, [subscriptions, totalMonthlyExpense]);
 
-  // --- RENDER ---
+  // --- RENDER HELPERS ---
+
+  // Kategori Bar Rengi: Listenin sırasına göre Primary rengin opaklığını değiştirir
+  const getDynamicBarColor = (index: number) => {
+    const opacity = Math.max(0.3, 1 - (index * 0.15)); // Her adımda %15 daha şeffaf
+    return `rgba(51, 65, 85, ${opacity})`; // #334155 in RGB'si
+  };
 
   const renderCategoryItem = (item: any, index: number) => (
     <View key={item.name} style={styles.catContainer}>
-        {/* Başlık ve Tutar */}
+        {/* Üst Satır: İsim ve Tutar */}
         <View style={styles.catHeader}>
             <View style={styles.catTitleRow}>
-                <View style={[styles.dot, { backgroundColor: getCategoryColor(index) }]} />
+                {/* Kategori İkonu / Dot */}
+                <View style={[styles.categoryIcon, { backgroundColor: getDynamicBarColor(index) }]}>
+                    <Text style={styles.categoryIndexText}>{index + 1}</Text>
+                </View>
                 <Text style={styles.catName}>{item.name}</Text>
             </View>
-            <View>
+            <View style={{ alignItems: 'flex-end' }}>
                 <Text style={styles.catPrice}>{item.total.toFixed(0)} ₺</Text>
+                <Text style={styles.catPercent}>%{item.percentage.toFixed(1)}</Text>
             </View>
         </View>
 
-        {/* Progress Bar */}
+        {/* Progress Bar Arkaplanı */}
         <View style={styles.barBackground}>
+            {/* Doluluk Oranı */}
             <View 
                 style={[
                     styles.barFill, 
                     { 
                         width: `${item.barWidth}%`, 
-                        backgroundColor: getCategoryColor(index) 
+                        backgroundColor: getDynamicBarColor(index) 
                     }
                 ]} 
             />
         </View>
-        <Text style={styles.catPercent}>Toplamın %{item.percentage.toFixed(1)}'i</Text>
     </View>
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Harcama Analizi</Text>
-      </View>
-
-      <ScrollView contentContainerStyle={styles.content}>
+    <View style={styles.mainContainer}>
+      <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
+      <SafeAreaView edges={['top']} style={styles.safeArea}>
         
-{/* ÖZET KARTI (MODERN GÖRÜNÜM) */}
-        <View style={styles.totalCard}>
-            <View style={{ alignItems: 'center', marginBottom: 20 }}>
-                <Text style={styles.totalLabel}>Aylık Tahmini Gider</Text>
-                <Text style={styles.totalValue}>{totalMonthlyExpense.toFixed(0)} <Text style={{fontSize: 20, color:'#ccc'}}>₺</Text></Text>
-            </View>
-            
-            {/* Alt Bilgi Izgarası */}
-            <View style={styles.statsGrid}>
-                
-                {/* 1. Sütun: Yıllık */}
-                <View style={styles.statItem}>
-                    <Text style={styles.statLabel}>Yıllık</Text>
-                    <Text style={styles.statValue}>{(totalMonthlyExpense * 12).toFixed(0)} ₺</Text>
-                </View>
-
-                <View style={styles.verticalLine} />
-
-                {/* 2. Sütun: Aktif */}
-                <View style={styles.statItem}>
-                    <Text style={styles.statLabel}>Aktif</Text>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <View style={[styles.statusDot, { backgroundColor: '#2ecc71' }]} />
-                        <Text style={styles.statValue}>{activeSubsCount}</Text>
-                    </View>
-                </View>
-
-                {/* 3. Sütun: Pasif (Varsa Göster) */}
-                {passiveSubsCount > 0 && (
-                    <>
-                        <View style={styles.verticalLine} />
-                        <View style={styles.statItem}>
-                            <Text style={styles.statLabel}>Dondurulan</Text>
-                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <View style={[styles.statusDot, { backgroundColor: '#f1c40f' }]} />
-                                <Text style={[styles.statValue, { color: '#f1c40f' }]}>{passiveSubsCount}</Text>
-                            </View>
-                        </View>
-                    </>
-                )}
-            </View>
+        {/* HEADER */}
+        <View style={styles.header}>
+            <Text style={styles.headerTitle}>Harcama Analizi</Text>
+            <Text style={styles.headerSubtitle}>Giderlerinizin detaylı dökümü</Text>
         </View>
 
-        {/* KATEGORİ LİSTESİ */}
-        <Text style={styles.sectionTitle}>Kategorilere Göre Dağılım</Text>
-        
-        {statistics.sortedCategories.length > 0 ? (
-            <View style={styles.chartContainer}>
-                {statistics.sortedCategories.map((item, index) => renderCategoryItem(item, index))}
-            </View>
-        ) : (
-            <View style={styles.emptyState}>
-                <Ionicons name="pie-chart-outline" size={48} color="#ccc" />
-                <Text style={styles.emptyText}>Aktif abonelik verisi yok.</Text>
-            </View>
-        )}
+        <ScrollView 
+            contentContainerStyle={styles.scrollContent} 
+            showsVerticalScrollIndicator={false}
+        >
+            
+            {/* 1. ÖZET KARTI (HERO CARD) */}
+            <View style={styles.heroCard}>
+                <View style={styles.heroTop}>
+                    <View>
+                        <Text style={styles.heroLabel}>Yıllık Projeksiyon</Text>
+                        <View style={styles.heroAmountRow}>
+                            <Text style={styles.heroCurrency}>₺</Text>
+                            <Text style={styles.heroAmount}>{(totalMonthlyExpense * 12).toFixed(0)}</Text>
+                        </View>
+                    </View>
+                    <View style={styles.heroIconContainer}>
+                        <MaterialCommunityIcons name="chart-box-outline" size={32} color={COLORS.white} />
+                    </View>
+                </View>
+                
+                <View style={styles.heroDivider} />
 
-      </ScrollView>
-    </SafeAreaView>
+                {/* Alt İstatistikler */}
+                <View style={styles.statsRow}>
+                    <View style={styles.statItem}>
+                        <Text style={styles.statLabel}>Aylık Ort.</Text>
+                        <Text style={styles.statValue}>{totalMonthlyExpense.toFixed(0)} ₺</Text>
+                    </View>
+                    <View style={styles.verticalLine} />
+                    <View style={styles.statItem}>
+                        <Text style={styles.statLabel}>Aktif</Text>
+                        <Text style={styles.statValue}>{activeSubsCount}</Text>
+                    </View>
+                    {passiveSubsCount > 0 && (
+                        <>
+                            <View style={styles.verticalLine} />
+                            <View style={styles.statItem}>
+                                <Text style={styles.statLabel}>Pasif</Text>
+                                <Text style={[styles.statValue, { color: '#CBD5E1' }]}>{passiveSubsCount}</Text>
+                            </View>
+                        </>
+                    )}
+                </View>
+            </View>
+
+            {/* 2. HARCAMA DAĞILIMI */}
+            <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Kategori Dağılımı</Text>
+                <TouchableOpacity>
+                    <Ionicons name="filter" size={20} color={COLORS.textLight} />
+                </TouchableOpacity>
+            </View>
+            
+            {statistics.sortedCategories.length > 0 ? (
+                <View style={styles.chartCard}>
+                    {statistics.sortedCategories.map((item, index) => renderCategoryItem(item, index))}
+                </View>
+            ) : (
+                <View style={styles.emptyState}>
+                    <MaterialCommunityIcons name="chart-pie" size={64} color={COLORS.passive} />
+                    <Text style={styles.emptyText}>Henüz analiz edilecek veri yok.</Text>
+                    <Text style={styles.emptySubText}>Abonelik ekledikçe grafikler burada belirecek.</Text>
+                </View>
+            )}
+
+        </ScrollView>
+      </SafeAreaView>
+    </View>
   );
 }
 
-// Yardımcı: Renk Paleti
-const getCategoryColor = (index: number) => {
-    const colors = ['#333333', '#555555', '#777777', '#999999', '#AAAAAA', '#CCCCCC'];
-    return colors[index % colors.length];
-};
-
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
-  header: { padding: 20, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#eee' },
-  headerTitle: { fontSize: 24, fontWeight: 'bold', color: '#333' },
-  content: { padding: 20 },
-  
-  // Toplam Kartı
-totalCard: { 
-      backgroundColor: '#333', 
-      borderRadius: 24, // Daha yuvarlak köşeler
-      padding: 20, 
-      marginBottom: 25,
-      shadowColor: '#000', 
-      shadowOpacity: 0.2, 
-      shadowRadius: 8, 
-      elevation: 5 
+  mainContainer: {
+    flex: 1,
+    backgroundColor: COLORS.background,
   },
-  totalLabel: { 
-      color: '#aaa', 
-      fontSize: 12, 
-      marginBottom: 5, 
-      textTransform: 'uppercase', 
-      letterSpacing: 1,
-      fontWeight: '600'
+  safeArea: {
+    flex: 1,
   },
-  totalValue: { 
-      color: '#fff', 
-      fontSize: 42, // Ana tutar daha büyük
-      fontWeight: 'bold' 
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 100,
   },
-  divider: { height: 1, backgroundColor: '#555', marginVertical: 15 },
-  projectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }, // alignItems changed
-  projLabel: { color: '#bbb', fontSize: 12, marginBottom: 2 },
-  projValue: { color: '#fff', fontSize: 16, fontWeight: '600' },
 
-  // Kategori Listesi
-  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#333', marginBottom: 15 },
-  chartContainer: { backgroundColor: '#fff', borderRadius: 12, padding: 15, borderWidth: 1, borderColor: '#eee' },
-  catContainer: { marginBottom: 18 },
-  catHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
-  catTitleRow: { flexDirection: 'row', alignItems: 'center' },
-  dot: { width: 8, height: 8, borderRadius: 4, marginRight: 8 },
-  catName: { fontSize: 14, color: '#333', fontWeight: '600' },
-  catPrice: { fontSize: 14, color: '#333', fontWeight: 'bold' },
+  // HEADER
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 15,
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: COLORS.textDark,
+    letterSpacing: -0.5,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: COLORS.textLight,
+    marginTop: 4,
+    fontWeight: '500',
+  },
   
-  // Custom Progress Bar
-  barBackground: { height: 8, backgroundColor: '#f0f0f0', borderRadius: 4, overflow: 'hidden' },
-  barFill: { height: '100%', borderRadius: 4 },
-  catPercent: { fontSize: 10, color: '#999', marginTop: 4, textAlign: 'right' },
-
-  emptyState: { alignItems: 'center', marginTop: 30 },
-  emptyText: { color: '#999', marginTop: 10 },
-  statsGrid: {
-      flexDirection: 'row',
-      backgroundColor: 'rgba(255,255,255,0.1)', // Hafif transparan zemin
-      borderRadius: 16,
-      paddingVertical: 15,
-      paddingHorizontal: 10,
-      justifyContent: 'space-around', // Eşit dağılım
-      alignItems: 'center'
+  // HERO CARD (Slate Blue Theme)
+  heroCard: {
+    backgroundColor: COLORS.primary, // #334155
+    borderRadius: 24,
+    padding: 24,
+    marginBottom: 30,
+    // 3D Gölge Efekti
+    shadowColor: COLORS.primaryDark,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  heroTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  heroLabel: {
+    color: '#94A3B8', // Slate 400
+    fontSize: 13,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: 8,
+  },
+  heroAmountRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  heroCurrency: {
+    color: COLORS.white,
+    fontSize: 24,
+    fontWeight: '600',
+    marginTop: 4,
+    marginRight: 4,
+  },
+  heroAmount: {
+    color: COLORS.white,
+    fontSize: 40,
+    fontWeight: '800',
+    letterSpacing: -1,
+  },
+  heroIconContainer: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    padding: 10,
+    borderRadius: 14,
+  },
+  heroDivider: {
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    marginVertical: 20,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   statItem: {
-      alignItems: 'center',
-      minWidth: 60,
+    flex: 1,
+    alignItems: 'center',
   },
   statLabel: {
-      color: '#bbb',
-      fontSize: 10,
-      marginBottom: 4,
-      fontWeight: '600',
-      textTransform: 'uppercase'
+    color: '#94A3B8', // Slate 400
+    fontSize: 12,
+    marginBottom: 4,
+    fontWeight: '500',
   },
   statValue: {
-      color: '#fff',
-      fontSize: 16,
-      fontWeight: 'bold'
+    color: COLORS.white,
+    fontSize: 16,
+    fontWeight: '700',
   },
   verticalLine: {
-      width: 1,
-      height: '70%',
-      backgroundColor: 'rgba(255,255,255,0.2)'
+    width: 1,
+    height: 30,
+    backgroundColor: 'rgba(255,255,255,0.1)',
   },
-  statusDot: {
-      width: 6,
-      height: 6,
-      borderRadius: 3,
-      marginRight: 6
+
+  // SECTION
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: COLORS.textDark,
+  },
+
+  // CHART CARD (Kategori Listesi)
+  chartCard: {
+    backgroundColor: COLORS.cardBg,
+    borderRadius: 24,
+    padding: 20,
+    // Hafif gölge
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  catContainer: {
+    marginBottom: 24,
+  },
+  catHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  catTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  categoryIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  categoryIndexText: {
+    color: COLORS.white,
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  catName: {
+    fontSize: 15,
+    color: COLORS.textDark,
+    fontWeight: '600',
+  },
+  catPrice: {
+    fontSize: 15,
+    color: COLORS.textDark,
+    fontWeight: '700',
+  },
+  catPercent: {
+    fontSize: 12,
+    color: COLORS.textLight,
+    marginTop: 2,
+  },
+  
+  // Progress Bar
+  barBackground: {
+    height: 10, // Biraz daha kalın
+    backgroundColor: COLORS.border,
+    borderRadius: 5,
+    overflow: 'hidden',
+  },
+  barFill: {
+    height: '100%',
+    borderRadius: 5,
+  },
+
+  // EMPTY STATE
+  emptyState: {
+    alignItems: 'center',
+    marginTop: 40,
+    padding: 20,
+  },
+  emptyText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: COLORS.textMedium,
+    fontWeight: '600',
+  },
+  emptySubText: {
+    marginTop: 8,
+    fontSize: 14,
+    color: COLORS.textLight,
+    textAlign: 'center',
   },
 });
