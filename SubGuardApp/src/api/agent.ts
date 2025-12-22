@@ -1,9 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import { Platform } from 'react-native';
 
-// Android Emülatör: 10.0.2.2, iOS: localhost
-const MY_IP_ADDRESS = '192.168.1.4'; // <-- Senin IP adresin buraya!
+// IP adresini kendi ortamına göre güncelle (Emülatör için 10.0.2.2 veya kendi IP'n)
+const MY_IP_ADDRESS = '192.168.1.4'; 
 const API_PORT = '5252';
 
 export const API_URL = `http://${MY_IP_ADDRESS}:${API_PORT}/api`;
@@ -32,18 +31,19 @@ const requests = {
   put: (url: string, body: {}) => axiosInstance.put(url, body).then(responseBody),
 };
 
-// Katalog İşlemleri
 const Catalogs = {
   list: () => requests.get('/catalogs'),
   details: (id: number) => requests.get(`/catalogs/${id}`),
 };
 
-// Kullanıcı Abonelik İşlemleri
 const UserSubscriptions = {
-  list: () => requests.get('/usersubscriptions'), // Parametreyi kaldırdık
+  list: () => requests.get('/usersubscriptions'),
   create: (subscription: any) => requests.post('/usersubscriptions', subscription),
-  update: (id: string, subscription: any) => requests.put(`/usersubscriptions/${id}`, subscription),
-  delete: (id: number | string) => requests.del(`/usersubscriptions/${id}`),
+  // DÜZELTME: id tipi number yapıldı
+  update: (id: number, subscription: any) => requests.put(`/usersubscriptions/${id}`, subscription),
+  delete: (id: number) => requests.del(`/usersubscriptions/${id}`),
+  // EKLENDİ: logUsage
+  logUsage: (id: number, body: { status: string }) => requests.post(`/usersubscriptions/${id}/usage`, body),
 };
 
 const Auth = {

@@ -12,18 +12,18 @@ export interface CatalogItem {
   logoUrl?: string;
   colorCode?: string;
   category: string;
-  requiresContract: boolean; // Backend'de zaten var!
+  requiresContract: boolean;
   plans?: Plan[];
 }
 
 export interface ApiResponse<T> {
-  data: T;           // Asıl veri burada
+  data: T;
   statusCode: number;
   errors: string[] | null;
 }
 
 export interface UserSubscription {
-  id: string;
+  id: number; // DÜZELTME: Backend int olduğu için number yaptık
   catalogId?: number;
   userId?: string;
   name: string;
@@ -34,16 +34,14 @@ export interface UserSubscription {
   category: string;
 
   billingPeriod: 'monthly' | 'yearly';
-  billingDay: number; // Fatura kesim günü (örn: Her ayın 15'i)
+  billingDay: number;
 
-  // YENİ EKLENENLER (Taahhüt Sayacı İçin)
-  hasContract: boolean;        // Sözleşmeli mi?
-  contractStartDate?: string;  // Başlangıç (ISO String)
-  contractEndDate?: string;    // Bitiş (Kritik Alan!)
+  hasContract: boolean;
+  contractStartDate?: string;
+  contractEndDate?: string;
 
   notificationId?: string;
   
-  // YENİ: Ortakçı Listesi (Sadece isimleri tutuyoruz şimdilik)
   sharedWith?: string[];
   usageHistory?: UsageLog[];
 
@@ -53,10 +51,42 @@ export interface UserSubscription {
   isActive: boolean;
 }
 
-export type UsageStatus = 'active' | 'low' | 'none'; // Aktif, Az, Hiç
+// --- EKSİK DTO'LAR EKLENDİ ---
+export interface UserSubscriptionCreateDto {
+  catalogId?: number;
+  name: string;
+  price: number;
+  currency: string;
+  category: string;
+  billingDay: number;
+  colorCode?: string;
+  logoUrl?: string;
+  sharedWith?: string[];
+  hasContract?: boolean;
+  contractStartDate?: string;
+  contractEndDate?: string;
+}
+
+export interface UserSubscriptionUpdateDto {
+  catalogId?: number;
+  name?: string;
+  price?: number;
+  currency?: string;
+  billingDay?: number;
+  category?: string;
+  colorCode?: string;
+  logoUrl?: string;
+  sharedWith?: string[];
+  hasContract?: boolean;
+  contractStartDate?: string;
+  contractEndDate?: string;
+  isActive?: boolean;
+}
+
+export type UsageStatus = 'active' | 'low' | 'none';
 
 export interface UsageLog {
-  month: string; // Örn: "2023-10" (Yıl-Ay formatında)
+  month: string;
   status: UsageStatus;
 }
 
