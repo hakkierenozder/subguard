@@ -1,566 +1,520 @@
-import React, { useMemo } from 'react';
-import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView, Alert, Dimensions, StatusBar, Switch } from 'react-native';
-import { UserSubscription } from '../types';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useState, useEffect } from 'react';
+import { 
+    View, 
+    Text, 
+    Modal, 
+    StyleSheet, 
+    TouchableOpacity, 
+    ScrollView, 
+    Alert, 
+    StatusBar,
+    Image,
+    Dimensions
+} from 'react-native';
+import { UserSubscription, UsageLog } from '../types';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
+import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import AddSubscriptionModal from './AddSubscriptionModal';
 
 interface Props {
-    visible: boolean;
-    subscription: UserSubscription | null;
-    onClose: () => void;
-    onEdit: (sub: UserSubscription) => void;
+  visible: boolean;
+  subscription: UserSubscription | null;
+  onClose: () => void;
 }
 
-const { width } = Dimensions.get('window');
-
-// --- RENK PALETİ ---
-const COLORS = {
-    primaryDark: '#1E293B',
-    primary: '#334155',
-    primaryLight: '#475569',
-    
-    background: '#FFFFFF',
-    surface: '#F8FAFC',
-    surfaceHighlight: '#F1F5F9',
-    
+const THEME = {
+    primary: '#334155',    // Slate 700
+    primaryDark: '#1E293B',// Slate 800
+    accent: '#4F46E5',     // Indigo
+    bg: '#F8FAFC',
+    cardBg: '#FFFFFF',
     textMain: '#0F172A',
-    textBody: '#334155',
-    textMuted: '#94A3B8',
-    
-    white: '#FFFFFF',
-    border: '#E2E8F0',
-    
-    // Semantik Renkler
-    success: '#10B981', // Yeşil (Aktif)
-    warning: '#F59E0B', // Turuncu (Seyrek)
-    inactive: '#CBD5E1', // Gri (Veri Yok)
-    error: '#EF4444',   // Kırmızı (Hiç Kullanılmadı - ZARAR)
+    textSec: '#64748B',
+    success: '#10B981',
+    warning: '#F59E0B',
+    danger: '#EF4444',
+    inactive: '#94A3B8'
 };
 
-export default function SubscriptionDetailModal({ visible, subscription: initialSubscription, onClose, onEdit }: Props) {
-    const { removeSubscription, updateSubscription, subscriptions } = useUserSubscriptionStore();
+export default function SubscriptionDetailModal({ visible, subscription, onClose }: Props) {
+  const { removeSubscription, updateSubscription } = useUserSubscriptionStore();
+  const [isEditModalVisible, setEditModalVisible] = useState(false);
+  
+  // OPTIMISTIC UI İÇİN LOCAL STATE
+  const [localSub, setLocalSub] = useState<UserSubscription | null>(null);
 
-    // Store'dan canlı veri (Switch değişimi anlık yansısın diye)
-    const liveSubscription = useUserSubscriptionStore((state) => 
-        state.subscriptions.find((s) => s.id === initialSubscription?.id)
+  // Modal her açıldığında veya subscription prop'u değiştiğinde local state'i güncelle
+  useEffect(() => {
+      setLocalSub(subscription);
+  }, [subscription, visible]);
+
+  if (!localSub) return null;
+
+  const isActive = localSub.isActive !== false; // null veya true ise aktiftir
+  const cardColor = localSub.colorCode || THEME.primary;
+
+  // --- HESAPLAMALAR ---
+  const sharedCount = (localSub.sharedWith?.length || 0) + 1; // Kullanıcı + Ortaklar
+  const pricePerPerson = (localSub.price / sharedCount).toFixed(2);
+
+  // --- AKSİYONLAR ---
+  const handleDelete = () => {
+    Alert.alert(
+      "Aboneliği Sil",
+      `${localSub.name} aboneliğini silmek istediğine emin misin?`,
+      [
+        { text: "Vazgeç", style: "cancel" },
+        { 
+            text: "Sil", 
+            style: "destructive", 
+            onPress: async () => {
+                await removeSubscription(localSub.id);
+                onClose();
+            }
+        }
+      ]
     );
+  };
 
-    const subscription = liveSubscription || initialSubscription;
+  const handleToggleStatus = async () => {
+      // 1. Önce UI'ı hemen güncelle (Optimistic Update)
+      const newStatus = !isActive;
+      setLocalSub(prev => prev ? ({ ...prev, isActive: newStatus }) : null);
 
-    // --- KULLANIM VERİSİ HESAPLAMA ---
-    const usageData = useMemo(() => {
-        if (!subscription) return [];
-        const history = subscription.usageHistory || [];
-        const months = [];
+      // 2. Arka planda API'ye gönder
+      const updateData = {
+          ...localSub,
+          isActive: newStatus,
+          // Tarihleri string güvenliği için kontrol et
+          contractStartDate: localSub.contractStartDate || undefined,
+          contractEndDate: localSub.contractEndDate || undefined,
+      };
+
+      try {
+          await updateSubscription(localSub.id, updateData);
+      } catch (error) {
+          // Hata olursa UI'ı geri al
+          setLocalSub(prev => prev ? ({ ...prev, isActive: !newStatus }) : null);
+          Alert.alert("Hata", "Durum güncellenemedi, değişiklik geri alındı.");
+      }
+  };
+
+  const getUsageColor = (status: string) => {
+      switch(status) {
+          case 'active': return THEME.success;
+          case 'low': return THEME.warning;
+          case 'none': return THEME.danger;
+          default: return THEME.textSec;
+      }
+  };
+
+  const getUsageLabel = (status: string) => {
+      switch(status) {
+          case 'active': return 'Aktif';
+          case 'low': return 'Az';
+          case 'none': return 'Kullanılmıyor';
+          default: return '-';
+      }
+  };
+
+  return (
+    <Modal visible={visible} animationType="fade" transparent={true} onRequestClose={onClose}>
+      <View style={styles.overlay}>
+        <StatusBar barStyle="light-content" backgroundColor="rgba(0,0,0,0.7)" />
         
-        // Son 6 ay
-        for (let i = 5; i >= 0; i--) {
-            const d = new Date();
-            d.setDate(1); // Ay atlama sorununu çözmek için günü 1'e sabitle
-            d.setMonth(d.getMonth() - i);
+        <View style={styles.modalContainer}>
             
-            const key = d.toISOString().slice(0, 7);
-            const log = history.find((h: any) => h.month === key);
-            
-            months.push({
-                label: d.toLocaleDateString('tr-TR', { month: 'short' }).toUpperCase(),
-                status: log ? log.status : 'missing', // 'active' | 'low' | 'none' | 'missing'
-            });
-        }
-        return months;
-    }, [subscription]);
+            {/* ÜST HERO ALANI */}
+            <LinearGradient
+                colors={isActive ? [cardColor, THEME.primaryDark] : [THEME.inactive, '#475569']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.headerGradient}
+            >
+                <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+                    <Ionicons name="close" size={24} color="#FFF" />
+                </TouchableOpacity>
 
-    if (!subscription) return null;
-
-    // --- AKSİYONLAR ---
-    const handleDelete = () => {
-        Alert.alert(
-            "Aboneliği Sil",
-            `${subscription.name} aboneliğini silmek istediğine emin misin?`,
-            [
-                { text: "Vazgeç", style: "cancel" },
-                { text: "Sil", style: "destructive", onPress: async () => { await removeSubscription(subscription.id); onClose(); }}
-            ]
-        );
-    };
-
-    const toggleStatus = async (value: boolean) => {
-        await updateSubscription(subscription.id, { isActive: value });
-    };
-
-    // --- HESAPLAMALAR ---
-    const totalCost = subscription.price;
-    const partners = subscription.sharedWith || [];
-    const partnersCount = partners.length;
-    const myShare = totalCost / (partnersCount + 1);
-
-    const getBillingData = () => {
-        const today = new Date();
-        const billingDay = subscription.billingDay;
-        let nextDate = new Date(today.getFullYear(), today.getMonth(), billingDay);
-        
-        if (nextDate < today) {
-            nextDate.setMonth(nextDate.getMonth() + 1);
-        }
-        
-        const diffTime = Math.abs(nextDate.getTime() - today.getTime());
-        const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
-        return { nextDate, daysLeft };
-    };
-    const { nextDate, daysLeft } = getBillingData();
-
-    return (
-        <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
-            <View style={styles.container}>
-                <StatusBar barStyle="dark-content" />
-
-                {/* --- HEADER --- */}
-                <View style={styles.topBar}>
-                    <TouchableOpacity onPress={onClose} style={styles.iconBtn}>
-                        <Ionicons name="chevron-down" size={28} color={COLORS.textMain} />
-                    </TouchableOpacity>
-                    <View style={styles.topBarActions}>
-                        <TouchableOpacity onPress={() => { onClose(); onEdit(subscription); }} style={styles.iconBtn}>
-                            <Ionicons name="pencil-outline" size={22} color={COLORS.textMain} />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={handleDelete} style={[styles.iconBtn, { marginLeft: 8 }]}>
-                            <Ionicons name="trash-outline" size={22} color={COLORS.error} />
-                        </TouchableOpacity>
-                    </View>
+                <View style={styles.logoWrapper}>
+                    {localSub.logoUrl ? (
+                        <Image source={{ uri: localSub.logoUrl }} style={styles.logoImage} />
+                    ) : (
+                        <Text style={[styles.logoText, { color: cardColor }]}>
+                            {localSub.name.charAt(0).toUpperCase()}
+                        </Text>
+                    )}
                 </View>
 
-                <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                    
-                    {/* 1. HERO BÖLÜMÜ */}
-                    <View style={[styles.heroSection, !subscription.isActive && styles.heroDisabled]}>
-                        <View style={[styles.logoPlaceholder, { backgroundColor: subscription.isActive ? (subscription.colorCode || COLORS.primary) : COLORS.inactive }]}>
-                            <Text style={styles.logoText}>{subscription.name.charAt(0).toUpperCase()}</Text>
-                        </View>
-                        <Text style={styles.heroTitle}>{subscription.name}</Text>
-                        
-                        <View style={styles.priceRow}>
-                            <Text style={styles.heroCurrency}>{subscription.currency}</Text>
-                            <Text style={styles.heroPrice}>{subscription.price}</Text>
-                            <Text style={styles.heroPeriod}>/ay</Text>
-                        </View>
+                <Text style={styles.subName}>{localSub.name}</Text>
+                
+                {/* Durum Badge */}
+                <TouchableOpacity onPress={handleToggleStatus} activeOpacity={0.8}>
+                    <View style={[styles.statusBadge, { backgroundColor: isActive ? 'rgba(16, 185, 129, 0.2)' : 'rgba(0,0,0,0.2)' }]}>
+                        <View style={[styles.statusDot, { backgroundColor: isActive ? '#10B981' : '#CBD5E1' }]} />
+                        <Text style={styles.statusText}>{isActive ? 'Aktif Abonelik' : 'Durduruldu'}</Text>
                     </View>
+                </TouchableOpacity>
+            </LinearGradient>
 
-                    {/* 2. DURUM YÖNETİMİ */}
-                    <View style={styles.statusCard}>
-                        <View style={styles.statusInfo}>
-                            <Text style={styles.statusTitle}>Abonelik Durumu</Text>
-                            <Text style={styles.statusDesc}>
-                                {subscription.isActive 
-                                    ? "Şu an aktif. Takvimde ve raporlarda görünür." 
-                                    : "Donduruldu. Ödemeler ve hatırlatmalar kapalı."}
+            <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+                
+                {/* 1. FİYAT & ÖDEME BİLGİSİ */}
+                <View style={styles.priceSection}>
+                    <Text style={styles.sectionTitle}>MALİYET DETAYLARI</Text>
+                    <View style={styles.priceRow}>
+                        <View>
+                            <Text style={styles.priceLabel}>Toplam Tutar</Text>
+                            <Text style={[styles.priceValue, !isActive && { color: THEME.textSec }]}>
+                                {localSub.price} <Text style={{fontSize: 16}}>{localSub.currency}</Text>
                             </Text>
                         </View>
-                        <Switch
-                            trackColor={{ false: COLORS.border, true: COLORS.success }}
-                            thumbColor={COLORS.white}
-                            ios_backgroundColor={COLORS.border}
-                            onValueChange={toggleStatus}
-                            value={subscription.isActive}
-                            style={{ transform: [{ scaleX: .8 }, { scaleY: .8 }] }}
-                        />
+                        {sharedCount > 1 && (
+                            <View style={styles.splitPriceBox}>
+                                <Text style={styles.priceLabel}>Sana Düşen</Text>
+                                <Text style={[styles.priceValue, { color: THEME.accent }]}>
+                                    {pricePerPerson} <Text style={{fontSize: 16}}>{localSub.currency}</Text>
+                                </Text>
+                            </View>
+                        )}
                     </View>
+                    <Text style={styles.billingInfo}>
+                        <Ionicons name="calendar-outline" size={14} color={THEME.textSec} /> Her ayın {localSub.billingDay}. günü yenilenir.
+                    </Text>
+                </View>
 
-                    {/* 3. ÖDEME KARTI */}
-                    <LinearGradient
-                        colors={subscription.isActive ? [COLORS.primary, COLORS.primaryDark] : [COLORS.inactive, '#94A3B8']}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                        style={styles.billingCard}
+                {/* 2. ORTAKLAR (Varsa) */}
+                {localSub.sharedWith && localSub.sharedWith.length > 0 && (
+                    <View style={styles.detailSection}>
+                        <Text style={styles.sectionTitle}>ORTAK KULLANIM ({sharedCount} Kişi)</Text>
+                        <View style={styles.sharedContainer}>
+                            <View style={styles.sharedChip}>
+                                <Ionicons name="person" size={12} color="#FFF" />
+                                <Text style={styles.sharedTextMe}>Sen</Text>
+                            </View>
+                            {localSub.sharedWith.map((person, idx) => (
+                                <View key={idx} style={[styles.sharedChip, styles.sharedChipOther]}>
+                                    <Text style={styles.sharedText}>{person}</Text>
+                                </View>
+                            ))}
+                        </View>
+                    </View>
+                )}
+
+                {/* 3. KULLANIM GEÇMİŞİ (Varsa) */}
+                {localSub.usageHistory && localSub.usageHistory.length > 0 && (
+                    <View style={styles.detailSection}>
+                        <Text style={styles.sectionTitle}>KULLANIM GEÇMİŞİ</Text>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{marginTop: 8}}>
+                            {localSub.usageHistory.map((log, idx) => (
+                                <View key={idx} style={styles.usageCard}>
+                                    <View style={[styles.usageDot, { backgroundColor: getUsageColor(log.status) }]} />
+                                    <Text style={styles.usageMonth}>{log.month}</Text>
+                                    <Text style={[styles.usageStatus, { color: getUsageColor(log.status) }]}>
+                                        {getUsageLabel(log.status)}
+                                    </Text>
+                                </View>
+                            ))}
+                        </ScrollView>
+                    </View>
+                )}
+
+                {/* 4. DİĞER DETAYLAR */}
+                <View style={styles.detailSection}>
+                    <Text style={styles.sectionTitle}>DİĞER BİLGİLER</Text>
+                    <View style={styles.infoRow}>
+                        <Text style={styles.infoLabel}>Kategori</Text>
+                        <Text style={styles.infoValue}>{localSub.category || 'Genel'}</Text>
+                    </View>
+                    {localSub.hasContract && (
+                        <View style={styles.infoRow}>
+                            <Text style={styles.infoLabel}>Taahhüt Bitiş</Text>
+                            <Text style={[styles.infoValue, { color: '#D97706' }]}>
+                                {localSub.contractEndDate 
+                                    ? new Date(localSub.contractEndDate).toLocaleDateString('tr-TR') 
+                                    : '-'}
+                            </Text>
+                        </View>
+                    )}
+                </View>
+
+                <View style={{height: 20}} />
+
+                {/* AKSİYON BUTONLARI */}
+                <View style={styles.actionsContainer}>
+                    <TouchableOpacity 
+                        style={[styles.actionBtn, { backgroundColor: isActive ? '#FEF2F2' : '#F0FDF4' }]} 
+                        onPress={handleToggleStatus}
                     >
-                        <View style={styles.billingRow}>
-                            <View>
-                                <Text style={styles.billingLabel}>SIRADAKİ ÖDEME</Text>
-                                <Text style={styles.billingDate}>
-                                    {subscription.isActive 
-                                        ? nextDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })
-                                        : 'Donduruldu'}
-                                </Text>
-                            </View>
-                            {subscription.isActive && (
-                                <View style={styles.daysLeftBadge}>
-                                    <Text style={styles.daysLeftText}>{daysLeft} gün kaldı</Text>
-                                </View>
-                            )}
-                        </View>
-                    </LinearGradient>
+                        <Ionicons name={isActive ? "pause" : "play"} size={20} color={isActive ? THEME.danger : THEME.success} />
+                        <Text style={[styles.actionText, { color: isActive ? THEME.danger : THEME.success }]}>
+                            {isActive ? 'Durdur' : 'Başlat'}
+                        </Text>
+                    </TouchableOpacity>
 
-                    {/* 4. KULLANIM GEÇMİŞİ (GÜNCELLENDİ) */}
-                    <View style={styles.section}>
-                        <View style={styles.sectionHeaderRow}>
-                            <Text style={styles.sectionTitle}>KULLANIM SIKLIĞI</Text>
-                            <Text style={styles.sectionBadge}>Son 6 Ay</Text>
-                        </View>
+                    <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#EEF2FF' }]} onPress={() => setEditModalVisible(true)}>
+                        <Ionicons name="create-outline" size={20} color={THEME.accent} />
+                        <Text style={[styles.actionText, { color: THEME.accent }]}>Düzenle</Text>
+                    </TouchableOpacity>
 
-                        <View style={styles.usageContainer}>
-                            <View style={styles.chartRow}>
-                                {usageData.map((m, i) => {
-                                    // GÖRSEL AYARLAR
-                                    let height = 4;        // Varsayılan (missing)
-                                    let color = '#E2E8F0'; // Çok silik gri
-                                    let labelColor = COLORS.textMuted;
+                    <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#F1F5F9' }]} onPress={handleDelete}>
+                        <Ionicons name="trash-outline" size={20} color={THEME.textSec} />
+                        <Text style={[styles.actionText, { color: THEME.textSec }]}>Sil</Text>
+                    </TouchableOpacity>
+                </View>
 
-                                    if (m.status === 'active') {
-                                        height = 60; 
-                                        color = COLORS.success; // YEŞİL
-                                        labelColor = COLORS.success;
-                                    } else if (m.status === 'low') {
-                                        height = 32; 
-                                        color = COLORS.warning; // TURUNCU
-                                        labelColor = COLORS.warning;
-                                    } else if (m.status === 'none') {
-                                        // --- BURAYI GÜNCELLEDİK ---
-                                        height = 16; // Biraz daha belirgin
-                                        color = COLORS.error; // KIRMIZI (Hiç kullanılmadı)
-                                        labelColor = COLORS.error; 
-                                    }
+                <View style={{height: 40}} />
+            </ScrollView>
+        </View>
 
-                                    return (
-                                        <View key={i} style={styles.usageItem}>
-                                            <View style={styles.barContainer}>
-                                                <View style={[styles.barFill, { height, backgroundColor: color }]} />
-                                            </View>
-                                            <Text style={[styles.barLabel, { color: m.status !== 'missing' ? labelColor : '#CBD5E1' }]}>
-                                                {m.label}
-                                            </Text>
-                                        </View>
-                                    );
-                                })}
-                            </View>
-                            
-                            {/* LEJANT (GÜNCELLENDİ) */}
-                            <View style={styles.legendContainer}>
-                                <View style={styles.legendItem}>
-                                    <View style={[styles.legendDot, { backgroundColor: COLORS.success }]} />
-                                    <Text style={styles.legendText}>Yoğun</Text>
-                                </View>
-                                <View style={styles.legendItem}>
-                                    <View style={[styles.legendDot, { backgroundColor: COLORS.warning }]} />
-                                    <Text style={styles.legendText}>Seyrek</Text>
-                                </View>
-                                <View style={styles.legendItem}>
-                                    {/* Kırmızı Nokta */}
-                                    <View style={[styles.legendDot, { backgroundColor: COLORS.error }]} />
-                                    <Text style={styles.legendText}>Hiç</Text>
-                                </View>
-                            </View>
-                        </View>
-                    </View>
-
-                    {/* 5. DETAYLAR */}
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>DETAYLAR</Text>
-                        <View style={styles.detailRow}>
-                            <View style={styles.detailIconBox}>
-                                <Ionicons name="people-outline" size={20} color={COLORS.primary} />
-                            </View>
-                            <View style={styles.detailContent}>
-                                <Text style={styles.detailLabel}>Abonelik Tipi</Text>
-                                <Text style={styles.detailValue}>
-                                    {partnersCount > 0 ? `${partnersCount + 1} Kişilik Ortak Plan` : 'Bireysel Abonelik'}
-                                </Text>
-                            </View>
-                            {partnersCount > 0 && (
-                                <Text style={styles.detailRightText}>-{myShare.toFixed(1)} {subscription.currency} / kişi</Text>
-                            )}
-                        </View>
-                        <View style={styles.detailRow}>
-                            <View style={styles.detailIconBox}>
-                                <Ionicons name="folder-open-outline" size={20} color={COLORS.primary} />
-                            </View>
-                            <View style={styles.detailContent}>
-                                <Text style={styles.detailLabel}>Kategori</Text>
-                                <Text style={styles.detailValue}>{subscription.category}</Text>
-                            </View>
-                        </View>
-                    </View>
-
-                    <View style={{ height: 60 }} />
-                </ScrollView>
-            </View>
-        </Modal>
-    );
+        {/* DÜZENLEME MODALI */}
+        {isEditModalVisible && (
+            <AddSubscriptionModal
+                visible={isEditModalVisible}
+                onClose={() => {
+                    setEditModalVisible(false);
+                    // Modal kapandığında ana listeyi tazelemek için parent'ı tetikleyebiliriz
+                    // Ama store zaten güncel, bir sonraki girişte güncellenir.
+                }}
+                selectedCatalogItem={null}
+                subscriptionToEdit={localSub}
+            />
+        )}
+      </View>
+    </Modal>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: COLORS.background,
-    },
-    topBar: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingTop: 20,
-        paddingBottom: 10,
-    },
-    topBarActions: {
-        flexDirection: 'row',
-    },
-    iconBtn: {
-        width: 40,
-        height: 40,
-        backgroundColor: COLORS.surface,
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    
-    // HERO
-    heroSection: {
-        alignItems: 'center',
-        marginTop: 10,
-        marginBottom: 20,
-    },
-    heroDisabled: {
-        opacity: 0.6,
-    },
-    logoPlaceholder: {
-        width: 64,
-        height: 64,
-        borderRadius: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 12,
-        shadowColor: COLORS.primary,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-    },
-    logoText: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: COLORS.white,
-    },
-    heroTitle: {
-        fontSize: 22,
-        fontWeight: '800',
-        color: COLORS.textMain,
-        marginBottom: 4,
-    },
-    priceRow: {
-        flexDirection: 'row',
-        alignItems: 'flex-end',
-    },
-    heroCurrency: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: COLORS.textMuted,
-        marginBottom: 6,
-        marginRight: 4,
-    },
-    heroPrice: {
-        fontSize: 36,
-        fontWeight: '900',
-        color: COLORS.textMain,
-        letterSpacing: -1,
-    },
-    heroPeriod: {
-        fontSize: 14,
-        fontWeight: '500',
-        color: COLORS.textMuted,
-        marginBottom: 8,
-        marginLeft: 2,
-    },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(15, 23, 42, 0.8)', 
+    justifyContent: 'flex-end', // Alttan açılır gibi dursun
+  },
+  modalContainer: {
+    width: '100%',
+    height: '92%', // Ekranı neredeyse kaplasın
+    backgroundColor: '#FFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    overflow: 'hidden',
+  },
+  
+  // Header
+  headerGradient: {
+    paddingTop: 40,
+    paddingBottom: 24,
+    alignItems: 'center',
+  },
+  closeBtn: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    padding: 8,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 20,
+  },
+  logoWrapper: {
+    width: 72,
+    height: 72,
+    borderRadius: 20,
+    backgroundColor: '#FFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  logoImage: {
+    width: 44,
+    height: 44,
+    resizeMode: 'contain',
+  },
+  logoText: {
+    fontSize: 28,
+    fontWeight: 'bold',
+  },
+  subName: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#FFF',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 6,
+  },
+  statusText: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: '600',
+  },
 
-    // STATUS CARD
-    statusCard: {
-        marginHorizontal: 20,
-        marginBottom: 20,
-        padding: 16,
-        backgroundColor: COLORS.surface,
-        borderRadius: 16,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        borderWidth: 1,
-        borderColor: COLORS.border,
-    },
-    statusInfo: {
-        flex: 1,
-        marginRight: 12,
-    },
-    statusTitle: {
-        fontSize: 14,
-        fontWeight: '700',
-        color: COLORS.textMain,
-        marginBottom: 2,
-    },
-    statusDesc: {
-        fontSize: 11,
-        color: COLORS.textMuted,
-        lineHeight: 16,
-    },
+  // Content
+  content: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingTop: 24,
+  },
+  sectionTitle: {
+      fontSize: 11,
+      fontWeight: '700',
+      color: THEME.textSec,
+      marginBottom: 10,
+      letterSpacing: 1,
+      textTransform: 'uppercase',
+  },
+  
+  // Price Section
+  priceSection: {
+      marginBottom: 24,
+      backgroundColor: '#F8FAFC',
+      padding: 16,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: '#E2E8F0',
+  },
+  priceRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+  },
+  splitPriceBox: {
+      alignItems: 'flex-end',
+      backgroundColor: '#FFFFFF',
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: '#E2E8F0',
+  },
+  priceLabel: {
+      fontSize: 12,
+      color: THEME.textSec,
+      marginBottom: 2,
+  },
+  priceValue: {
+      fontSize: 24,
+      fontWeight: '800',
+      color: THEME.textMain,
+  },
+  billingInfo: {
+      marginTop: 12,
+      fontSize: 13,
+      color: THEME.textSec,
+      fontWeight: '500',
+  },
 
-    // BILLING CARD
-    billingCard: {
-        marginHorizontal: 20,
-        borderRadius: 20,
-        padding: 24,
-        marginBottom: 32,
-        shadowColor: COLORS.primary,
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.15,
-        shadowRadius: 16,
-        elevation: 5,
-    },
-    billingRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    billingLabel: {
-        color: 'rgba(255,255,255,0.7)',
-        fontSize: 11,
-        fontWeight: '700',
-        marginBottom: 4,
-        letterSpacing: 1,
-    },
-    billingDate: {
-        color: COLORS.white,
-        fontSize: 20,
-        fontWeight: '700',
-    },
-    daysLeftBadge: {
-        backgroundColor: 'rgba(255,255,255,0.2)',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 8,
-    },
-    daysLeftText: {
-        color: COLORS.white,
-        fontSize: 12,
-        fontWeight: '600',
-    },
+  // Shared Section
+  detailSection: {
+      marginBottom: 24,
+  },
+  sharedContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+  },
+  sharedChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: THEME.primary,
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      borderRadius: 20,
+      marginRight: 8,
+      marginBottom: 8,
+  },
+  sharedChipOther: {
+      backgroundColor: '#E2E8F0',
+  },
+  sharedTextMe: {
+      color: '#FFF',
+      fontSize: 12,
+      fontWeight: '600',
+      marginLeft: 4,
+  },
+  sharedText: {
+      color: THEME.textMain,
+      fontSize: 12,
+      fontWeight: '600',
+  },
 
-    // SECTIONS
-    section: {
-        paddingHorizontal: 24,
-        marginBottom: 32,
-    },
-    sectionHeaderRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 16,
-    },
-    sectionTitle: {
-        fontSize: 12,
-        fontWeight: '800',
-        color: COLORS.textMuted,
-        letterSpacing: 1,
-    },
-    sectionBadge: {
-        fontSize: 11,
-        fontWeight: '600',
-        color: COLORS.primary,
-        backgroundColor: COLORS.surfaceHighlight,
-        paddingHorizontal: 8,
-        paddingVertical: 2,
-        borderRadius: 4,
-    },
+  // Usage History
+  usageCard: {
+      backgroundColor: '#FFF',
+      borderWidth: 1,
+      borderColor: '#E2E8F0',
+      borderRadius: 12,
+      padding: 10,
+      marginRight: 10,
+      width: 80,
+      alignItems: 'center',
+  },
+  usageDot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      marginBottom: 6,
+  },
+  usageMonth: {
+      fontSize: 12,
+      fontWeight: '700',
+      color: THEME.textMain,
+  },
+  usageStatus: {
+      fontSize: 10,
+      fontWeight: '600',
+      marginTop: 2,
+  },
 
-    // CHART
-    usageContainer: {
-        backgroundColor: COLORS.surface,
-        borderRadius: 20,
-        padding: 20,
-    },
-    chartRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-end',
-        height: 80, 
-        marginBottom: 16,
-    },
-    usageItem: {
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        flex: 1,
-    },
-    barContainer: {
-        height: 60,
-        justifyContent: 'flex-end',
-        marginBottom: 8,
-        width: '100%',
-        alignItems: 'center',
-    },
-    barFill: {
-        width: 12,
-        borderRadius: 6,
-    },
-    barLabel: {
-        fontSize: 10,
-        fontWeight: '600',
-        color: COLORS.textMuted,
-    },
-    legendContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        marginTop: 4,
-        gap: 16,
-        borderTopWidth: 1,
-        borderTopColor: COLORS.border,
-        paddingTop: 12,
-    },
-    legendItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    legendDot: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        marginRight: 6,
-    },
-    legendText: {
-        fontSize: 11,
-        color: COLORS.textBody,
-        fontWeight: '500',
-    },
+  // Info Row
+  infoRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: '#F1F5F9',
+  },
+  infoLabel: {
+      fontSize: 14,
+      color: THEME.textSec,
+      fontWeight: '500',
+  },
+  infoValue: {
+      fontSize: 14,
+      color: THEME.textMain,
+      fontWeight: '600',
+  },
 
-    // DETAILS
-    detailRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    detailIconBox: {
-        width: 40,
-        height: 40,
-        borderRadius: 12,
-        backgroundColor: COLORS.surface,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 14,
-    },
-    detailContent: {
-        flex: 1,
-    },
-    detailLabel: {
-        fontSize: 11,
-        color: COLORS.textMuted,
-        marginBottom: 2,
-    },
-    detailValue: {
-        fontSize: 15,
-        fontWeight: '600',
-        color: COLORS.textMain,
-    },
-    detailRightText: {
-        fontSize: 13,
-        fontWeight: '600',
-        color: COLORS.primary,
-    },
-
-    scrollContent: {
-        paddingBottom: 40,
-    },
+  // Actions
+  actionsContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+  },
+  actionBtn: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 14,
+      borderRadius: 14,
+      marginHorizontal: 4,
+  },
+  actionText: {
+      fontSize: 13,
+      fontWeight: '700',
+      marginLeft: 6,
+  },
 });
