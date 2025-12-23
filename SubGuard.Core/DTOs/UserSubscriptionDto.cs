@@ -4,7 +4,7 @@ namespace SubGuard.Core.DTOs
 {
     public class UserSubscriptionDto : BaseDto
     {
-        public string? UserId { get; set; }
+        public string UserId { get; set; }
         public int? CatalogId { get; set; }
         public string Name { get; set; }
         public decimal Price { get; set; }
