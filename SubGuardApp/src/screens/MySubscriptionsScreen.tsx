@@ -28,7 +28,6 @@ export default function MySubscriptionsScreen() {
   // State Yönetimi
   const [editingSub, setEditingSub] = useState<UserSubscription | null>(null);
   const [detailSub, setDetailSub] = useState<UserSubscription | null>(null);
-  // Modal artık sadece düzenleme için açılıyor
   const [refreshing, setRefreshing] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [sortBy, setSortBy] = useState<SortType>('date');
@@ -43,7 +42,6 @@ export default function MySubscriptionsScreen() {
     setRefreshing(false);
   }, []);
 
-  // --- Yardımcı Fonksiyonlar ---
   const getNextPaymentDateText = (billingDay: number) => {
     const today = new Date();
     const currentDay = today.getDate();
@@ -186,6 +184,9 @@ export default function MySubscriptionsScreen() {
     const brandColor = item.colorCode || colors.primary;
     const nextPaymentText = getNextPaymentDateText(item.billingDay);
     const isPassive = item.isActive === false;
+    
+    // PAYLAŞIM KONTROLÜ (Düzeltme Burada Yapıldı)
+    const isShared = item.sharedWith && item.sharedWith.length > 0;
 
     const renderLogo = () => (
         <View style={[styles.logoContainer, { backgroundColor: brandColor + '15' }]}> 
@@ -234,7 +235,8 @@ export default function MySubscriptionsScreen() {
           <View style={styles.currencyAndActionRow}>
              <Text style={[styles.currencyText, { color: colors.textSec }]}>{item.currency}</Text>
              
-             {!isPassive && (
+             {/* SADECE PAYLAŞIMLI VE AKTİF İSE GÖSTER */}
+             {!isPassive && isShared && (
                <TouchableOpacity 
                   style={styles.whatsappButton} 
                   onPress={() => handleShareOnWhatsApp(item)}
@@ -272,9 +274,6 @@ export default function MySubscriptionsScreen() {
           }
         />
 
-        {/* FAB (EKLEME BUTONU) KALDIRILDI */}
-
-        {/* Modal Sadece Düzenleme İçin Kullanılıyor */}
         <AddSubscriptionModal
           visible={!!editingSub}
           onClose={() => {
@@ -311,7 +310,6 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   
-  // HERO CARD
   heroCard: {
     borderRadius: 24,
     padding: 24,

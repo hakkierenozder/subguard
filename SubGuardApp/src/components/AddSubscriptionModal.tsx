@@ -60,6 +60,7 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
         if (subscriptionToEdit.contractEndDate) setEndDate(new Date(subscriptionToEdit.contractEndDate));
 
         setSharedWith(subscriptionToEdit.sharedWith || []);
+        // Eğer paylaşım listesi varsa switch'i açık başlat
         setShowShareInput((subscriptionToEdit.sharedWith?.length || 0) > 0);
         setSelectedPlanId(null);
       } else if (selectedCatalogItem) {
@@ -121,7 +122,12 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
       billingDay: day,
       category,
       colorCode: colorToSave,
-      sharedWith: sharedWith,
+      
+      // --- DÜZELTME BURADA ---
+      // Switch kapalıysa (showShareInput === false), boş dizi gönderiyoruz.
+      // Switch açık ama liste boşsa yine boş dizi gider.
+      sharedWith: showShareInput ? sharedWith : [],
+      
       hasContract,
       contractStartDate: hasContract ? startDate.toISOString() : undefined,
       contractEndDate: hasContract ? endDate.toISOString() : undefined,
@@ -175,7 +181,6 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
         
         <View style={[styles.modalContainer, { backgroundColor: colors.cardBg }]}>
           
-          {/* HEADER ROW */}
           <View style={styles.headerRow}>
               <View style={styles.headerSpacer} />
               
@@ -183,7 +188,6 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
                   {renderLogoSection()}
               </View>
 
-              {/* Çarpı butonu zIndex düzeltmesi */}
               <TouchableOpacity 
                   onPress={onClose} 
                   style={[styles.closeBtn, { backgroundColor: colors.inputBg }]}
@@ -454,7 +458,7 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       paddingHorizontal: 20,
       marginBottom: 10,
-      zIndex: 100, // Header'ı üstte tut
+      zIndex: 100, 
   },
   headerSpacer: { width: 40 }, 
   headerCenter: { alignItems: 'center' },
@@ -464,7 +468,7 @@ const styles = StyleSheet.create({
       borderRadius: 20,
       justifyContent: 'center',
       alignItems: 'center',
-      zIndex: 999, // Kesinlikle en üstte
+      zIndex: 999, 
       elevation: 10,
   },
   
