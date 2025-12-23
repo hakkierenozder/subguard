@@ -1,9 +1,11 @@
 import React, { useMemo } from 'react';
-import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView, Alert, Dimensions, StatusBar, Switch } from 'react-native';
+import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView, Alert, Dimensions, StatusBar, Switch, Platform, DimensionValue } from 'react-native';
 import { UserSubscription } from '../types';
 import { Ionicons } from '@expo/vector-icons';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
+import { useSettingsStore } from '../store/useSettingsStore'; 
 import { LinearGradient } from 'expo-linear-gradient';
+import { useThemeColors } from '../constants/theme'; 
 
 interface Props {
     visible: boolean;
@@ -14,34 +16,14 @@ interface Props {
 
 const { width } = Dimensions.get('window');
 
-// --- RENK PALETİ ---
-const COLORS = {
-    primaryDark: '#1E293B',
-    primary: '#334155',
-    primaryLight: '#475569',
-    
-    background: '#FFFFFF',
-    surface: '#F8FAFC',
-    surfaceHighlight: '#F1F5F9',
-    
-    textMain: '#0F172A',
-    textBody: '#334155',
-    textMuted: '#94A3B8',
-    
-    white: '#FFFFFF',
-    border: '#E2E8F0',
-    
-    // Semantik Renkler
-    success: '#10B981', // Yeşil (Aktif)
-    warning: '#F59E0B', // Turuncu (Seyrek)
-    inactive: '#CBD5E1', // Gri (Veri Yok)
-    error: '#EF4444',   // Kırmızı (Hiç Kullanılmadı - ZARAR)
-};
-
 export default function SubscriptionDetailModal({ visible, subscription: initialSubscription, onClose, onEdit }: Props) {
-    const { removeSubscription, updateSubscription, subscriptions } = useUserSubscriptionStore();
+    // --- TEMA VE STORE ---
+    const colors = useThemeColors();
+    const isDarkMode = useSettingsStore((state) => state.isDarkMode);
+    
+    const { removeSubscription, updateSubscription } = useUserSubscriptionStore();
 
-    // Store'dan canlı veri (Switch değişimi anlık yansısın diye)
+    // Store'dan canlı veri
     const liveSubscription = useUserSubscriptionStore((state) => 
         state.subscriptions.find((s) => s.id === initialSubscription?.id)
     );
@@ -57,7 +39,7 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
         // Son 6 ay
         for (let i = 5; i >= 0; i--) {
             const d = new Date();
-            d.setDate(1); // Ay atlama sorununu çözmek için günü 1'e sabitle
+            d.setDate(1); 
             d.setMonth(d.getMonth() - i);
             
             const key = d.toISOString().slice(0, 7);
@@ -65,7 +47,7 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
             
             months.push({
                 label: d.toLocaleDateString('tr-TR', { month: 'short' }).toUpperCase(),
-                status: log ? log.status : 'missing', // 'active' | 'low' | 'none' | 'missing'
+                status: log ? log.status : 'missing',
             });
         }
         return months;
@@ -98,7 +80,9 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
     const getBillingData = () => {
         const today = new Date();
         const billingDay = subscription.billingDay;
-        let nextDate = new Date(today.getFullYear(), today.getMonth(), billingDay);
+        const safeDay = (billingDay > 0 && billingDay <= 31) ? billingDay : 1;
+        
+        let nextDate = new Date(today.getFullYear(), today.getMonth(), safeDay);
         
         if (nextDate < today) {
             nextDate.setMonth(nextDate.getMonth() + 1);
@@ -111,22 +95,75 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
     };
     const { nextDate, daysLeft } = getBillingData();
 
+    // Dinamik Marka Rengi
+    const brandColor = subscription.colorCode || colors.primary;
+
+    // --- TAAHHÜT HESAPLAMASI ---
+    const renderContractInfo = () => {
+        if (!subscription.hasContract) return null;
+
+        const start = subscription.contractStartDate ? new Date(subscription.contractStartDate) : null;
+        const end = subscription.contractEndDate ? new Date(subscription.contractEndDate) : null;
+
+        return (
+            <View style={[styles.sectionContainer, { backgroundColor: colors.cardBg, borderColor: colors.border, marginTop: 20 }]}>
+                <View style={styles.sectionHeader}>
+                    <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Taahhüt Bilgisi</Text>
+                    <Ionicons name="document-text-outline" size={18} color={colors.textSec} />
+                </View>
+                
+                <View style={styles.contractRow}>
+                    <View style={styles.contractItem}>
+                        <Text style={[styles.contractLabel, { color: colors.textSec }]}>BAŞLANGIÇ</Text>
+                        <Text style={[styles.contractValue, { color: colors.textMain }]}>
+                            {start ? start.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'}
+                        </Text>
+                    </View>
+                    
+                    <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+                    <View style={styles.contractItem}>
+                        <Text style={[styles.contractLabel, { color: colors.textSec }]}>BİTİŞ</Text>
+                        <Text style={[styles.contractValue, { color: colors.textMain }]}>
+                            {end ? end.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'}
+                        </Text>
+                    </View>
+                </View>
+            </View>
+        );
+    };
+
     return (
-        <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
-            <View style={styles.container}>
-                <StatusBar barStyle="dark-content" />
+        <Modal 
+            visible={visible} 
+            animationType="slide" 
+            presentationStyle="pageSheet" 
+            onRequestClose={onClose}
+        >
+            <View style={[styles.container, { backgroundColor: colors.bg }]}>
+                <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
 
                 {/* --- HEADER --- */}
                 <View style={styles.topBar}>
-                    <TouchableOpacity onPress={onClose} style={styles.iconBtn}>
-                        <Ionicons name="chevron-down" size={28} color={COLORS.textMain} />
+                    <TouchableOpacity 
+                        onPress={onClose} 
+                        style={[styles.iconBtn, { backgroundColor: colors.inputBg }]}
+                    >
+                        <Ionicons name="chevron-down" size={24} color={colors.textMain} />
                     </TouchableOpacity>
+                    
                     <View style={styles.topBarActions}>
-                        <TouchableOpacity onPress={() => { onClose(); onEdit(subscription); }} style={styles.iconBtn}>
-                            <Ionicons name="pencil-outline" size={22} color={COLORS.textMain} />
+                        <TouchableOpacity 
+                            onPress={() => { onClose(); onEdit(subscription); }} 
+                            style={[styles.iconBtn, { backgroundColor: colors.inputBg, marginRight: 10 }]}
+                        >
+                            <Ionicons name="pencil" size={20} color={colors.textMain} />
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={handleDelete} style={[styles.iconBtn, { marginLeft: 8 }]}>
-                            <Ionicons name="trash-outline" size={22} color={COLORS.error} />
+                        <TouchableOpacity 
+                            onPress={handleDelete} 
+                            style={[styles.iconBtn, { backgroundColor: colors.error + '20' }]} 
+                        >
+                            <Ionicons name="trash-outline" size={20} color={colors.error} />
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -135,153 +172,160 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                     
                     {/* 1. HERO BÖLÜMÜ */}
                     <View style={[styles.heroSection, !subscription.isActive && styles.heroDisabled]}>
-                        <View style={[styles.logoPlaceholder, { backgroundColor: subscription.isActive ? (subscription.colorCode || COLORS.primary) : COLORS.inactive }]}>
+                        <View style={[styles.logoContainer, { backgroundColor: subscription.isActive ? brandColor : colors.inactive, shadowColor: brandColor }]}>
                             <Text style={styles.logoText}>{subscription.name.charAt(0).toUpperCase()}</Text>
                         </View>
-                        <Text style={styles.heroTitle}>{subscription.name}</Text>
                         
-                        <View style={styles.priceRow}>
-                            <Text style={styles.heroCurrency}>{subscription.currency}</Text>
-                            <Text style={styles.heroPrice}>{subscription.price}</Text>
-                            <Text style={styles.heroPeriod}>/ay</Text>
+                        <Text style={[styles.heroTitle, { color: colors.textMain }]}>{subscription.name}</Text>
+                        
+                        <View style={styles.priceContainer}>
+                            <Text style={[styles.heroCurrency, { color: colors.textSec }]}>{subscription.currency}</Text>
+                            <Text style={[styles.heroPrice, { color: colors.textMain }]}>{subscription.price}</Text>
+                            <Text style={[styles.heroPeriod, { color: colors.textSec }]}>/ay</Text>
                         </View>
-                    </View>
 
-                    {/* 2. DURUM YÖNETİMİ */}
-                    <View style={styles.statusCard}>
-                        <View style={styles.statusInfo}>
-                            <Text style={styles.statusTitle}>Abonelik Durumu</Text>
-                            <Text style={styles.statusDesc}>
-                                {subscription.isActive 
-                                    ? "Şu an aktif. Takvimde ve raporlarda görünür." 
-                                    : "Donduruldu. Ödemeler ve hatırlatmalar kapalı."}
-                            </Text>
-                        </View>
-                        <Switch
-                            trackColor={{ false: COLORS.border, true: COLORS.success }}
-                            thumbColor={COLORS.white}
-                            ios_backgroundColor={COLORS.border}
-                            onValueChange={toggleStatus}
-                            value={subscription.isActive}
-                            style={{ transform: [{ scaleX: .8 }, { scaleY: .8 }] }}
-                        />
-                    </View>
-
-                    {/* 3. ÖDEME KARTI */}
-                    <LinearGradient
-                        colors={subscription.isActive ? [COLORS.primary, COLORS.primaryDark] : [COLORS.inactive, '#94A3B8']}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                        style={styles.billingCard}
-                    >
-                        <View style={styles.billingRow}>
-                            <View>
-                                <Text style={styles.billingLabel}>SIRADAKİ ÖDEME</Text>
-                                <Text style={styles.billingDate}>
-                                    {subscription.isActive 
-                                        ? nextDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })
-                                        : 'Donduruldu'}
-                                </Text>
+                        {!subscription.isActive && (
+                            <View style={[styles.badge, { backgroundColor: colors.inactive }]}>
+                                <Text style={styles.badgeText}>PASİF</Text>
                             </View>
-                            {subscription.isActive && (
-                                <View style={styles.daysLeftBadge}>
-                                    <Text style={styles.daysLeftText}>{daysLeft} gün kaldı</Text>
-                                </View>
-                            )}
-                        </View>
-                    </LinearGradient>
+                        )}
+                    </View>
 
-                    {/* 4. KULLANIM GEÇMİŞİ (GÜNCELLENDİ) */}
-                    <View style={styles.section}>
-                        <View style={styles.sectionHeaderRow}>
-                            <Text style={styles.sectionTitle}>KULLANIM SIKLIĞI</Text>
-                            <Text style={styles.sectionBadge}>Son 6 Ay</Text>
+                    {/* 2. BİLGİ KARTLARI */}
+                    <View style={styles.gridContainer}>
+                        {/* Durum Kartı */}
+                        <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border, flex: 1, marginRight: 8 }]}>
+                            <View style={styles.cardHeader}>
+                                <Ionicons name={subscription.isActive ? "power" : "power-outline"} size={18} color={colors.textSec} />
+                                <Text style={[styles.cardLabel, { color: colors.textSec }]}>DURUM</Text>
+                            </View>
+                            <View style={styles.switchRow}>
+                                <Text style={[styles.cardValue, { color: colors.textMain, fontSize: 13 }]}>
+                                    {subscription.isActive ? 'Aktif' : 'Donduruldu'}
+                                </Text>
+                                <Switch
+                                    trackColor={{ false: colors.border, true: colors.success }}
+                                    thumbColor={colors.white}
+                                    ios_backgroundColor={colors.border}
+                                    onValueChange={toggleStatus}
+                                    value={subscription.isActive}
+                                    style={{ transform: [{ scaleX: .7 }, { scaleY: .7 }] }}
+                                />
+                            </View>
                         </View>
 
-                        <View style={styles.usageContainer}>
+                        {/* Tarih Kartı */}
+                        <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border, flex: 1, marginLeft: 8 }]}>
+                            <View style={styles.cardHeader}>
+                                <Ionicons name="calendar-outline" size={18} color={colors.textSec} />
+                                <Text style={[styles.cardLabel, { color: colors.textSec }]}>SONRAKİ</Text>
+                            </View>
+                            <View style={{marginTop: 6}}>
+                                <Text style={[styles.cardValue, { color: colors.textMain }]}>
+                                    {subscription.isActive 
+                                        ? nextDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })
+                                        : '-'}
+                                </Text>
+                                {subscription.isActive && (
+                                    <Text style={[styles.subValue, { color: daysLeft <= 3 ? colors.error : colors.success }]}>
+                                        {daysLeft} gün kaldı
+                                    </Text>
+                                )}
+                            </View>
+                        </View>
+                    </View>
+
+                    {/* 3. KULLANIM GEÇMİŞİ GRAFİĞİ */}
+                    <View style={[styles.sectionContainer, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+                        <View style={styles.sectionHeader}>
+                            <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Kullanım Sıklığı</Text>
+                            <Text style={[styles.sectionSubtitle, { color: colors.textSec }]}>Son 6 Ay</Text>
+                        </View>
+
+                        <View style={[styles.chartContainer, { backgroundColor: colors.inputBg }]}>
                             <View style={styles.chartRow}>
                                 {usageData.map((m, i) => {
-                                    // GÖRSEL AYARLAR
-                                    let height = 4;        // Varsayılan (missing)
-                                    let color = '#E2E8F0'; // Çok silik gri
-                                    let labelColor = COLORS.textMuted;
+                                    let height: DimensionValue = '10%';        
+                                    let bgColor = colors.border; 
+                                    let labelColor = colors.textSec;
 
                                     if (m.status === 'active') {
-                                        height = 60; 
-                                        color = COLORS.success; // YEŞİL
-                                        labelColor = COLORS.success;
+                                        height = '80%'; 
+                                        bgColor = colors.success; 
+                                        labelColor = colors.success;
                                     } else if (m.status === 'low') {
-                                        height = 32; 
-                                        color = COLORS.warning; // TURUNCU
-                                        labelColor = COLORS.warning;
+                                        height = '45%'; 
+                                        bgColor = colors.accent; 
+                                        labelColor = colors.accent;
                                     } else if (m.status === 'none') {
-                                        // --- BURAYI GÜNCELLEDİK ---
-                                        height = 16; // Biraz daha belirgin
-                                        color = COLORS.error; // KIRMIZI (Hiç kullanılmadı)
-                                        labelColor = COLORS.error; 
+                                        height = '20%'; 
+                                        bgColor = colors.error; 
+                                        labelColor = colors.error; 
                                     }
 
                                     return (
-                                        <View key={i} style={styles.usageItem}>
-                                            <View style={styles.barContainer}>
-                                                <View style={[styles.barFill, { height, backgroundColor: color }]} />
+                                        <View key={i} style={styles.barWrapper}>
+                                            <View style={styles.barTrack}>
+                                                <View style={[styles.barFill, { height: height, backgroundColor: bgColor }]} />
                                             </View>
-                                            <Text style={[styles.barLabel, { color: m.status !== 'missing' ? labelColor : '#CBD5E1' }]}>
-                                                {m.label}
-                                            </Text>
+                                            <Text style={[styles.barLabel, { color: labelColor }]}>{m.label}</Text>
                                         </View>
                                     );
                                 })}
                             </View>
-                            
-                            {/* LEJANT (GÜNCELLENDİ) */}
-                            <View style={styles.legendContainer}>
-                                <View style={styles.legendItem}>
-                                    <View style={[styles.legendDot, { backgroundColor: COLORS.success }]} />
-                                    <Text style={styles.legendText}>Yoğun</Text>
-                                </View>
-                                <View style={styles.legendItem}>
-                                    <View style={[styles.legendDot, { backgroundColor: COLORS.warning }]} />
-                                    <Text style={styles.legendText}>Seyrek</Text>
-                                </View>
-                                <View style={styles.legendItem}>
-                                    {/* Kırmızı Nokta */}
-                                    <View style={[styles.legendDot, { backgroundColor: COLORS.error }]} />
-                                    <Text style={styles.legendText}>Hiç</Text>
-                                </View>
-                            </View>
+                        </View>
+                        
+                        <View style={styles.legendRow}>
+                            <View style={styles.legendItem}><View style={[styles.dot, { backgroundColor: colors.success }]} /><Text style={[styles.legendText, { color: colors.textSec }]}>Yoğun</Text></View>
+                            <View style={styles.legendItem}><View style={[styles.dot, { backgroundColor: colors.accent }]} /><Text style={[styles.legendText, { color: colors.textSec }]}>Normal</Text></View>
+                            <View style={styles.legendItem}><View style={[styles.dot, { backgroundColor: colors.error }]} /><Text style={[styles.legendText, { color: colors.textSec }]}>Hiç</Text></View>
                         </View>
                     </View>
 
-                    {/* 5. DETAYLAR */}
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>DETAYLAR</Text>
-                        <View style={styles.detailRow}>
-                            <View style={styles.detailIconBox}>
-                                <Ionicons name="people-outline" size={20} color={COLORS.primary} />
+                    {/* YENİ: TAAHHÜT BİLGİSİ (Varsa Göster) */}
+                    {renderContractInfo()}
+
+                    {/* 4. DETAYLAR LİSTESİ */}
+                    <View style={[styles.sectionContainer, { backgroundColor: colors.cardBg, borderColor: colors.border, paddingVertical: 8 }]}>
+                        
+                        <View style={[styles.detailItem, { borderBottomColor: colors.border, borderBottomWidth: 1 }]}>
+                            <View style={styles.detailLeft}>
+                                <View style={[styles.iconBox, { backgroundColor: colors.inputBg }]}>
+                                    <Ionicons name="folder-open" size={18} color={colors.primary} />
+                                </View>
+                                <Text style={[styles.detailLabel, { color: colors.textMain }]}>Kategori</Text>
                             </View>
-                            <View style={styles.detailContent}>
-                                <Text style={styles.detailLabel}>Abonelik Tipi</Text>
-                                <Text style={styles.detailValue}>
-                                    {partnersCount > 0 ? `${partnersCount + 1} Kişilik Ortak Plan` : 'Bireysel Abonelik'}
+                            <Text style={[styles.detailValue, { color: colors.textSec }]}>{subscription.category}</Text>
+                        </View>
+
+                        <View style={[styles.detailItem, { borderBottomColor: colors.border, borderBottomWidth: partnersCount > 0 ? 1 : 0 }]}>
+                            <View style={styles.detailLeft}>
+                                <View style={[styles.iconBox, { backgroundColor: colors.inputBg }]}>
+                                    <Ionicons name="people" size={18} color={colors.primary} />
+                                </View>
+                                <Text style={[styles.detailLabel, { color: colors.textMain }]}>Abonelik Tipi</Text>
+                            </View>
+                            <Text style={[styles.detailValue, { color: colors.textSec }]}>
+                                {partnersCount > 0 ? 'Ortak Plan' : 'Bireysel'}
+                            </Text>
+                        </View>
+
+                        {partnersCount > 0 && (
+                            <View style={styles.detailItem}>
+                                <View style={styles.detailLeft}>
+                                    <View style={[styles.iconBox, { backgroundColor: colors.inputBg }]}>
+                                        <Ionicons name="wallet" size={18} color={colors.primary} />
+                                    </View>
+                                    <Text style={[styles.detailLabel, { color: colors.textMain }]}>Payına Düşen</Text>
+                                </View>
+                                <Text style={[styles.detailValue, { color: colors.success, fontWeight: '700' }]}>
+                                    {myShare.toFixed(2)} {subscription.currency}
                                 </Text>
                             </View>
-                            {partnersCount > 0 && (
-                                <Text style={styles.detailRightText}>-{myShare.toFixed(1)} {subscription.currency} / kişi</Text>
-                            )}
-                        </View>
-                        <View style={styles.detailRow}>
-                            <View style={styles.detailIconBox}>
-                                <Ionicons name="folder-open-outline" size={20} color={COLORS.primary} />
-                            </View>
-                            <View style={styles.detailContent}>
-                                <Text style={styles.detailLabel}>Kategori</Text>
-                                <Text style={styles.detailValue}>{subscription.category}</Text>
-                            </View>
-                        </View>
+                        )}
                     </View>
 
-                    <View style={{ height: 60 }} />
+                    <View style={{ height: 40 }} />
                 </ScrollView>
             </View>
         </Modal>
@@ -289,278 +333,83 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: COLORS.background,
-    },
+    container: { flex: 1 },
     topBar: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 20,
-        paddingTop: 20,
+        paddingTop: Platform.OS === 'android' ? 20 : 20, 
         paddingBottom: 10,
     },
-    topBarActions: {
-        flexDirection: 'row',
-    },
+    topBarActions: { flexDirection: 'row' },
     iconBtn: {
         width: 40,
         height: 40,
-        backgroundColor: COLORS.surface,
-        borderRadius: 12,
+        borderRadius: 20, 
         justifyContent: 'center',
         alignItems: 'center',
     },
     
-    // HERO
-    heroSection: {
-        alignItems: 'center',
-        marginTop: 10,
-        marginBottom: 20,
-    },
-    heroDisabled: {
-        opacity: 0.6,
-    },
-    logoPlaceholder: {
-        width: 64,
-        height: 64,
-        borderRadius: 20,
+    heroSection: { alignItems: 'center', marginTop: 20, marginBottom: 30 },
+    heroDisabled: { opacity: 0.5 },
+    logoContainer: {
+        width: 80,
+        height: 80,
+        borderRadius: 24,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 12,
-        shadowColor: COLORS.primary,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-    },
-    logoText: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: COLORS.white,
-    },
-    heroTitle: {
-        fontSize: 22,
-        fontWeight: '800',
-        color: COLORS.textMain,
-        marginBottom: 4,
-    },
-    priceRow: {
-        flexDirection: 'row',
-        alignItems: 'flex-end',
-    },
-    heroCurrency: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: COLORS.textMuted,
-        marginBottom: 6,
-        marginRight: 4,
-    },
-    heroPrice: {
-        fontSize: 36,
-        fontWeight: '900',
-        color: COLORS.textMain,
-        letterSpacing: -1,
-    },
-    heroPeriod: {
-        fontSize: 14,
-        fontWeight: '500',
-        color: COLORS.textMuted,
-        marginBottom: 8,
-        marginLeft: 2,
-    },
-
-    // STATUS CARD
-    statusCard: {
-        marginHorizontal: 20,
-        marginBottom: 20,
-        padding: 16,
-        backgroundColor: COLORS.surface,
-        borderRadius: 16,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        borderWidth: 1,
-        borderColor: COLORS.border,
-    },
-    statusInfo: {
-        flex: 1,
-        marginRight: 12,
-    },
-    statusTitle: {
-        fontSize: 14,
-        fontWeight: '700',
-        color: COLORS.textMain,
-        marginBottom: 2,
-    },
-    statusDesc: {
-        fontSize: 11,
-        color: COLORS.textMuted,
-        lineHeight: 16,
-    },
-
-    // BILLING CARD
-    billingCard: {
-        marginHorizontal: 20,
-        borderRadius: 20,
-        padding: 24,
-        marginBottom: 32,
-        shadowColor: COLORS.primary,
+        marginBottom: 16,
         shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.15,
-        shadowRadius: 16,
-        elevation: 5,
+        shadowOpacity: 0.2,
+        shadowRadius: 12,
+        elevation: 10,
     },
-    billingRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    billingLabel: {
-        color: 'rgba(255,255,255,0.7)',
-        fontSize: 11,
-        fontWeight: '700',
-        marginBottom: 4,
-        letterSpacing: 1,
-    },
-    billingDate: {
-        color: COLORS.white,
-        fontSize: 20,
-        fontWeight: '700',
-    },
-    daysLeftBadge: {
-        backgroundColor: 'rgba(255,255,255,0.2)',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 8,
-    },
-    daysLeftText: {
-        color: COLORS.white,
-        fontSize: 12,
-        fontWeight: '600',
-    },
+    logoText: { fontSize: 32, fontWeight: 'bold', color: '#FFFFFF' },
+    heroTitle: { fontSize: 24, fontWeight: '800', marginBottom: 6, textAlign: 'center' },
+    priceContainer: { flexDirection: 'row', alignItems: 'flex-end' },
+    heroCurrency: { fontSize: 18, fontWeight: '600', marginBottom: 8, marginRight: 4 },
+    heroPrice: { fontSize: 42, fontWeight: '900', letterSpacing: -1 },
+    heroPeriod: { fontSize: 14, fontWeight: '500', marginBottom: 10, marginLeft: 4 },
+    badge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12, marginTop: 8 },
+    badgeText: { color: '#FFF', fontSize: 12, fontWeight: '700' },
 
-    // SECTIONS
-    section: {
-        paddingHorizontal: 24,
-        marginBottom: 32,
-    },
-    sectionHeaderRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 16,
-    },
-    sectionTitle: {
-        fontSize: 12,
-        fontWeight: '800',
-        color: COLORS.textMuted,
-        letterSpacing: 1,
-    },
-    sectionBadge: {
-        fontSize: 11,
-        fontWeight: '600',
-        color: COLORS.primary,
-        backgroundColor: COLORS.surfaceHighlight,
-        paddingHorizontal: 8,
-        paddingVertical: 2,
-        borderRadius: 4,
-    },
+    gridContainer: { flexDirection: 'row', paddingHorizontal: 20, marginBottom: 20 },
+    card: { borderRadius: 20, padding: 16, borderWidth: 1 },
+    cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, opacity: 0.8 },
+    cardLabel: { fontSize: 11, fontWeight: '700', marginLeft: 6, letterSpacing: 0.5 },
+    switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    cardValue: { fontSize: 16, fontWeight: '700' },
+    subValue: { fontSize: 11, fontWeight: '600', marginTop: 2 },
 
-    // CHART
-    usageContainer: {
-        backgroundColor: COLORS.surface,
-        borderRadius: 20,
-        padding: 20,
-    },
-    chartRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-end',
-        height: 80, 
-        marginBottom: 16,
-    },
-    usageItem: {
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        flex: 1,
-    },
-    barContainer: {
-        height: 60,
-        justifyContent: 'flex-end',
-        marginBottom: 8,
-        width: '100%',
-        alignItems: 'center',
-    },
-    barFill: {
-        width: 12,
-        borderRadius: 6,
-    },
-    barLabel: {
-        fontSize: 10,
-        fontWeight: '600',
-        color: COLORS.textMuted,
-    },
-    legendContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        marginTop: 4,
-        gap: 16,
-        borderTopWidth: 1,
-        borderTopColor: COLORS.border,
-        paddingTop: 12,
-    },
-    legendItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    legendDot: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        marginRight: 6,
-    },
-    legendText: {
-        fontSize: 11,
-        color: COLORS.textBody,
-        fontWeight: '500',
-    },
+    sectionContainer: { marginHorizontal: 20, marginBottom: 20, borderRadius: 24, padding: 20, borderWidth: 1 },
+    sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+    sectionTitle: { fontSize: 16, fontWeight: '700' },
+    sectionSubtitle: { fontSize: 12, fontWeight: '500' },
 
-    // DETAILS
-    detailRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    detailIconBox: {
-        width: 40,
-        height: 40,
-        borderRadius: 12,
-        backgroundColor: COLORS.surface,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 14,
-    },
-    detailContent: {
-        flex: 1,
-    },
-    detailLabel: {
-        fontSize: 11,
-        color: COLORS.textMuted,
-        marginBottom: 2,
-    },
-    detailValue: {
-        fontSize: 15,
-        fontWeight: '600',
-        color: COLORS.textMain,
-    },
-    detailRightText: {
-        fontSize: 13,
-        fontWeight: '600',
-        color: COLORS.primary,
-    },
+    chartContainer: { borderRadius: 16, padding: 16, height: 140, justifyContent: 'flex-end' },
+    chartRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', height: '100%' },
+    barWrapper: { alignItems: 'center', flex: 1, height: '100%', justifyContent: 'flex-end' },
+    barTrack: { width: '100%', height: '80%', justifyContent: 'flex-end', alignItems: 'center', marginBottom: 6 },
+    barFill: { width: 10, borderRadius: 5 },
+    barLabel: { fontSize: 10, fontWeight: '600', textAlign: 'center' },
+    legendRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 16, gap: 16 },
+    legendItem: { flexDirection: 'row', alignItems: 'center' },
+    dot: { width: 8, height: 8, borderRadius: 4, marginRight: 6 },
+    legendText: { fontSize: 12, fontWeight: '500' },
 
-    scrollContent: {
-        paddingBottom: 40,
-    },
+    detailItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14 },
+    detailLeft: { flexDirection: 'row', alignItems: 'center' },
+    iconBox: { width: 32, height: 32, borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
+    detailLabel: { fontSize: 14, fontWeight: '600' },
+    detailValue: { fontSize: 14, fontWeight: '500' },
+
+    // Contract Styles
+    contractRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    contractItem: { flex: 1, alignItems: 'center' },
+    contractLabel: { fontSize: 11, fontWeight: '700', marginBottom: 4, letterSpacing: 0.5 },
+    contractValue: { fontSize: 15, fontWeight: '600' },
+    divider: { width: 1, height: 40, marginHorizontal: 10 },
+
+    scrollContent: { paddingBottom: 40 },
 });
