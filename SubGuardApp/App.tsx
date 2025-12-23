@@ -17,12 +17,13 @@ import SettingsScreen from './src/screens/SettingsScreen';
 // Utils & Components
 import { isLoggedIn } from './src/utils/AuthManager'; 
 import ErrorBoundary from './src/components/ErrorBoundary'; 
-import { THEME } from './src/constants/theme';
+import { THEME, useThemeColors } from './src/constants/theme'; // useThemeColors eklendi
+import { useSettingsStore } from './src/store/useSettingsStore'; // Store eklendi
 
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
-  Main: undefined; // Tab Menü
+  Main: undefined;
 };
 
 export type MainTabParamList = {
@@ -35,24 +36,25 @@ export type MainTabParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
-// --- TAB MENÜ YAPILANDIRMASI (DÜZELTİLDİ) ---
+// --- TAB MENÜ ---
 function AppTabs() {
+  const colors = useThemeColors(); // Dinamik renkleri çekiyoruz
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarActiveTintColor: THEME.primary,
-        tabBarInactiveTintColor: THEME.textSec,
-        // DÜZELTME BURADA: Menüyü yukarı kaldırıyoruz
+        tabBarActiveTintColor: colors.accent, // Primary yerine Accent daha hoş durabilir veya colors.primary
+        tabBarInactiveTintColor: colors.inactive, // theme.ts'deki inactive rengi
         tabBarStyle: {
-          backgroundColor: THEME.white,
+          backgroundColor: colors.cardBg, // Koyu modda darkCard, açıkta white
           borderTopWidth: 1,
-          borderTopColor: THEME.border,
-          height: Platform.OS === 'ios' ? 90 : 70, // iOS için daha yüksek
-          paddingBottom: Platform.OS === 'ios' ? 30 : 10, // Alttan boşluk bırak
+          borderTopColor: colors.border, // Dinamik border
+          height: Platform.OS === 'ios' ? 90 : 70,
+          paddingBottom: Platform.OS === 'ios' ? 30 : 10,
           paddingTop: 10,
-          elevation: 10, // Android gölge
-          shadowColor: '#000', // iOS gölge
+          elevation: 10,
+          shadowColor: '#000',
           shadowOffset: { width: 0, height: -2 },
           shadowOpacity: 0.1,
           shadowRadius: 4,
@@ -78,32 +80,18 @@ function AppTabs() {
         },
       })}
     >
-      <Tab.Screen 
-        name="Home" 
-        component={HomeScreen} 
-        options={{ title: 'Ana Sayfa' }} 
-      />
-      <Tab.Screen 
-        name="MySubscriptions" 
-        component={MySubscriptionsScreen} 
-        options={{ title: 'Abonelikler' }} 
-      />
-      <Tab.Screen 
-        name="Reports" 
-        component={ReportsScreen} 
-        options={{ title: 'Raporlar' }} 
-      />
-      <Tab.Screen 
-        name="Settings" 
-        component={SettingsScreen} 
-        options={{ title: 'Ayarlar' }} 
-      />
+      <Tab.Screen name="Home" component={HomeScreen} options={{ title: 'Ana Sayfa' }} />
+      <Tab.Screen name="MySubscriptions" component={MySubscriptionsScreen} options={{ title: 'Abonelikler' }} />
+      <Tab.Screen name="Reports" component={ReportsScreen} options={{ title: 'Raporlar' }} />
+      <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: 'Ayarlar' }} />
     </Tab.Navigator>
   );
 }
 
 export default function App() {
   const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList | null>(null);
+  const isDarkMode = useSettingsStore((state) => state.isDarkMode); // StatusBar için store'u dinle
+  const colors = useThemeColors(); // Background için
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -129,14 +117,17 @@ export default function App() {
     <SafeAreaProvider>
       <ErrorBoundary>
         <NavigationContainer>
-          <StatusBar barStyle="dark-content" backgroundColor={THEME.bg} />
+          {/* StatusBar global olarak burada yönetilebilir veya ekran bazlı override edilebilir */}
+          <StatusBar 
+            barStyle={isDarkMode ? "light-content" : "dark-content"} 
+            backgroundColor={colors.bg} 
+          />
           <Stack.Navigator 
             initialRouteName={initialRoute} 
             screenOptions={{ headerShown: false }}
           >
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Register" component={RegisterScreen} />
-            {/* Tab Menüyü Stack içine gömüyoruz */}
             <Stack.Screen name="Main" component={AppTabs} />
           </Stack.Navigator>
         </NavigationContainer>

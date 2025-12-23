@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, StatusBar } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import agent from '../api/agent';
-import { THEME } from '../constants/theme';
+import { useThemeColors } from '../constants/theme';
+import { useSettingsStore } from '../store/useSettingsStore';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -11,6 +12,9 @@ import { RootStackParamList } from '../../App';
 type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
 export default function RegisterScreen({ navigation }: Props) {
+  const colors = useThemeColors();
+  const isDarkMode = useSettingsStore((state) => state.isDarkMode);
+
   const { control, handleSubmit, formState: { errors } } = useForm({
     defaultValues: { fullName: '', email: '', password: '' }
   });
@@ -33,32 +37,32 @@ export default function RegisterScreen({ navigation }: Props) {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
       <StatusBar barStyle="light-content" />
       
       <LinearGradient
-        colors={[THEME.primary, THEME.primaryDark]}
+        colors={[colors.primary, colors.primaryDark]}
         style={styles.header}
       >
         <View style={styles.logoContainer}>
-            <Ionicons name="person-add" size={50} color="#FFF" />
+            <Ionicons name="person-add" size={50} color={colors.white} />
         </View>
-        <Text style={styles.title}>Aramıza Katıl</Text>
+        <Text style={[styles.title, { color: colors.white }]}>Aramıza Katıl</Text>
         <Text style={styles.subtitle}>Hemen ücretsiz hesap oluştur.</Text>
       </LinearGradient>
 
-      <View style={styles.formContainer}>
+      <View style={[styles.formContainer, { backgroundColor: colors.cardBg, shadowColor: isDarkMode ? '#000' : '#000' }]}>
         
-        <View style={styles.inputWrapper}>
-            <Ionicons name="person-outline" size={20} color={THEME.textSec} style={styles.inputIcon} />
+        <View style={[styles.inputWrapper, { backgroundColor: colors.inputBg, borderColor: colors.border }]}>
+            <Ionicons name="person-outline" size={20} color={colors.textSec} style={styles.inputIcon} />
             <Controller
             control={control}
             rules={{ required: 'Ad Soyad zorunludur' }}
             render={({ field: { onChange, value } }) => (
                 <TextInput
-                style={styles.input}
+                style={[styles.input, { color: colors.textMain }]}
                 placeholder="Ad Soyad"
-                placeholderTextColor={THEME.textSec}
+                placeholderTextColor={colors.textSec}
                 value={value}
                 onChangeText={onChange}
                 />
@@ -66,18 +70,18 @@ export default function RegisterScreen({ navigation }: Props) {
             name="fullName"
             />
         </View>
-        {errors.fullName && <Text style={styles.errorText}>{errors.fullName.message}</Text>}
+        {errors.fullName && <Text style={[styles.errorText, { color: colors.error }]}>{errors.fullName.message}</Text>}
 
-        <View style={styles.inputWrapper}>
-            <Ionicons name="mail-outline" size={20} color={THEME.textSec} style={styles.inputIcon} />
+        <View style={[styles.inputWrapper, { backgroundColor: colors.inputBg, borderColor: colors.border }]}>
+            <Ionicons name="mail-outline" size={20} color={colors.textSec} style={styles.inputIcon} />
             <Controller
             control={control}
             rules={{ required: 'E-posta zorunludur' }}
             render={({ field: { onChange, value } }) => (
                 <TextInput
-                style={styles.input}
+                style={[styles.input, { color: colors.textMain }]}
                 placeholder="E-posta"
-                placeholderTextColor={THEME.textSec}
+                placeholderTextColor={colors.textSec}
                 autoCapitalize="none"
                 value={value}
                 onChangeText={onChange}
@@ -86,18 +90,18 @@ export default function RegisterScreen({ navigation }: Props) {
             name="email"
             />
         </View>
-        {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
+        {errors.email && <Text style={[styles.errorText, { color: colors.error }]}>{errors.email.message}</Text>}
 
-        <View style={styles.inputWrapper}>
-            <Ionicons name="lock-closed-outline" size={20} color={THEME.textSec} style={styles.inputIcon} />
+        <View style={[styles.inputWrapper, { backgroundColor: colors.inputBg, borderColor: colors.border }]}>
+            <Ionicons name="lock-closed-outline" size={20} color={colors.textSec} style={styles.inputIcon} />
             <Controller
             control={control}
             rules={{ required: 'Şifre zorunludur', minLength: { value: 6, message: 'En az 6 karakter' } }}
             render={({ field: { onChange, value } }) => (
                 <TextInput
-                style={styles.input}
+                style={[styles.input, { color: colors.textMain }]}
                 placeholder="Şifre"
-                placeholderTextColor={THEME.textSec}
+                placeholderTextColor={colors.textSec}
                 secureTextEntry
                 value={value}
                 onChangeText={onChange}
@@ -106,20 +110,20 @@ export default function RegisterScreen({ navigation }: Props) {
             name="password"
             />
         </View>
-        {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
+        {errors.password && <Text style={[styles.errorText, { color: colors.error }]}>{errors.password.message}</Text>}
 
         <TouchableOpacity 
-            style={[styles.button, loading && { opacity: 0.7 }]} 
+            style={[styles.button, { backgroundColor: colors.primary, shadowColor: colors.primary }, loading && { opacity: 0.7 }]} 
             onPress={handleSubmit(onSubmit)}
             disabled={loading}
         >
-          <Text style={styles.buttonText}>{loading ? 'Kaydediliyor...' : 'KAYIT OL'}</Text>
+          <Text style={[styles.buttonText, { color: colors.white }]}>{loading ? 'Kaydediliyor...' : 'KAYIT OL'}</Text>
         </TouchableOpacity>
 
         <View style={styles.footer}>
-            <Text style={styles.footerText}>Zaten hesabın var mı?</Text>
+            <Text style={[styles.footerText, { color: colors.textSec }]}>Zaten hesabın var mı?</Text>
             <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                <Text style={styles.linkText}>Giriş Yap</Text>
+                <Text style={[styles.linkText, { color: colors.accent }]}>Giriş Yap</Text>
             </TouchableOpacity>
         </View>
       </View>
@@ -128,7 +132,7 @@ export default function RegisterScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: THEME.bg },
+  container: { flex: 1 },
   header: {
     height: 250,
     justifyContent: 'center',
@@ -148,16 +152,14 @@ const styles = StyleSheet.create({
       borderWidth: 1,
       borderColor: 'rgba(255,255,255,0.2)'
   },
-  title: { fontSize: 28, fontWeight: 'bold', color: '#fff' },
+  title: { fontSize: 28, fontWeight: 'bold' },
   subtitle: { fontSize: 14, color: 'rgba(255,255,255,0.8)', marginTop: 6 },
   formContainer: {
     flex: 1,
     marginTop: -30,
     marginHorizontal: 20,
-    backgroundColor: '#fff',
     borderRadius: 24,
     padding: 24,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
@@ -167,34 +169,30 @@ const styles = StyleSheet.create({
   inputWrapper: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: THEME.inputBg,
       borderRadius: 12,
       marginBottom: 16,
       paddingHorizontal: 16,
       borderWidth: 1,
-      borderColor: THEME.border
   },
   inputIcon: { marginRight: 12 },
-  input: { flex: 1, height: 50, color: THEME.textMain },
+  input: { flex: 1, height: 50 },
   button: {
-    backgroundColor: THEME.primary,
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 10,
-    shadowColor: THEME.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4
   },
-  buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-  errorText: { color: THEME.error, marginBottom: 10, fontSize: 12, marginLeft: 4 },
+  buttonText: { fontWeight: 'bold', fontSize: 16 },
+  errorText: { marginBottom: 10, fontSize: 12, marginLeft: 4 },
   footer: { 
       flexDirection: 'row', 
       justifyContent: 'center', 
       marginTop: 24 
   },
-  footerText: { color: THEME.textSec, marginRight: 6 },
-  linkText: { color: THEME.accent, fontWeight: 'bold' },
+  footerText: { marginRight: 6 },
+  linkText: { fontWeight: 'bold' },
 });

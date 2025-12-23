@@ -3,15 +3,20 @@ import { View, Text, StyleSheet, ScrollView, RefreshControl, StatusBar, Touchabl
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCatalogStore } from '../store/useCatalogStore';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
+import { useSettingsStore } from '../store/useSettingsStore'; // Eklendi
 import { CatalogItem, UserSubscription } from '../types';
 import AddSubscriptionModal from '../components/AddSubscriptionModal';
 import UsageSurveyModal from '../components/UsageSurveyModal';
 import CatalogExplore from '../components/CatalogExplore';
 import agent from '../api/agent';
-import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient'; // Eklendi
+import { LinearGradient } from 'expo-linear-gradient';
+import { useThemeColors } from '../constants/theme'; // Hook Eklendi
 
 export default function HomeScreen() {
+    // Tema Hook'u
+    const colors = useThemeColors();
+    const isDarkMode = useSettingsStore((state) => state.isDarkMode);
+
     // Store'lar
     const { fetchCatalog } = useCatalogStore();
     const {
@@ -76,34 +81,44 @@ export default function HomeScreen() {
             const dayB = b.billingDay < today ? b.billingDay + 30 : b.billingDay;
             return dayA - dayB;
         })
-        .slice(0, 3); // İlk 3 tanesi
+        .slice(0, 3);
 
     return (
-        <SafeAreaView style={styles.container}>
-            <StatusBar barStyle="dark-content" backgroundColor="#F8FAFC" />
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
+            <StatusBar 
+                barStyle={isDarkMode ? "light-content" : "dark-content"} 
+                backgroundColor={colors.bg} 
+            />
 
             <ScrollView
                 contentContainerStyle={styles.scrollContent}
-                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                refreshControl={
+                    <RefreshControl 
+                        refreshing={refreshing} 
+                        onRefresh={onRefresh} 
+                        tintColor={colors.primary} // Loading ikonu rengi
+                    />
+                }
                 showsVerticalScrollIndicator={false}
             >
                 {/* 1. HEADER */}
                 <View style={styles.header}>
                     <View>
-                        <Text style={styles.greeting}>Tekrar hoş geldin,</Text>
-                        <Text style={styles.username}>{userName.split(' ')[0] || 'Kullanıcı'}</Text>
+                        <Text style={[styles.greeting, { color: colors.textSec }]}>Tekrar hoş geldin,</Text>
+                        <Text style={[styles.username, { color: colors.textMain }]}>{userName.split(' ')[0] || 'Kullanıcı'}</Text>
                     </View>
-                    <View style={styles.avatar}>
-                        <Text style={styles.avatarText}>{userName?.charAt(0).toUpperCase()}</Text>
+                    <View style={[styles.avatar, { backgroundColor: colors.inputBg }]}>
+                        <Text style={[styles.avatarText, { color: colors.primary }]}>{userName?.charAt(0).toUpperCase()}</Text>
                     </View>
                 </View>
 
-                {/* 2. DASHBOARD CARD (Gradient Slate Blue) */}
+                {/* 2. DASHBOARD CARD */}
+                {/* Gradient renklerini tema dosyasından çekiyoruz, böylece dark mode'da uyumlu oluyor */}
                 <LinearGradient
-                    colors={['#1E293B', '#334155']} // Slate 800 -> Slate 700
+                    colors={[colors.primaryDark, colors.primary]} 
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
-                    style={styles.dashboardCard}
+                    style={[styles.dashboardCard, { shadowColor: isDarkMode ? '#000' : colors.primary }]}
                 >
                     <View style={styles.dashTopRow}>
                         <View>
@@ -121,7 +136,7 @@ export default function HomeScreen() {
                             <View style={styles.progressBarBg}>
                                 <View style={[styles.progressBarFill, { 
                                     width: `${Math.min(budgetPercentage, 100)}%`,
-                                    backgroundColor: isOverBudget ? '#EF4444' : '#10B981'
+                                    backgroundColor: isOverBudget ? colors.error : colors.success // Renkleri theme'den aldık
                                 }]} />
                             </View>
                             <Text style={styles.progressText}>
@@ -131,12 +146,12 @@ export default function HomeScreen() {
                     )}
                 </LinearGradient>
 
-                {/* 3. YAKLAŞAN ÖDEMELER (Yatay Liste) */}
+                {/* 3. YAKLAŞAN ÖDEMELER */}
                 {upcomingPayments.length > 0 && (
                     <View style={styles.section}>
                         <View style={styles.sectionHeader}>
-                            <Text style={styles.sectionTitle}>Yaklaşan Ödemeler</Text>
-                            <TouchableOpacity><Text style={styles.linkText}>Tümü</Text></TouchableOpacity>
+                            <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Yaklaşan Ödemeler</Text>
+                            <TouchableOpacity><Text style={[styles.linkText, { color: colors.accent }]}>Tümü</Text></TouchableOpacity>
                         </View>
                         
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingRight: 20 }}>
@@ -146,16 +161,16 @@ export default function HomeScreen() {
                                 if (daysLeft < 0) daysLeft += 30;
                                 
                                 return (
-                                    <View key={item.id} style={styles.upcomingCard}>
-                                        <View style={[styles.upIcon, { backgroundColor: item.colorCode || '#E2E8F0' }]}>
+                                    <View key={item.id} style={[styles.upcomingCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+                                        <View style={[styles.upIcon, { backgroundColor: item.colorCode || colors.inputBg }]}>
                                             <Text style={styles.upIconText}>{item.name.charAt(0)}</Text>
                                         </View>
                                         <View style={{ marginLeft: 12, flex: 1 }}>
-                                            <Text style={styles.upName} numberOfLines={1}>{item.name}</Text>
-                                            <Text style={styles.upPrice}>{item.price} {item.currency}</Text>
+                                            <Text style={[styles.upName, { color: colors.textMain }]} numberOfLines={1}>{item.name}</Text>
+                                            <Text style={[styles.upPrice, { color: colors.textSec }]}>{item.price} {item.currency}</Text>
                                         </View>
-                                        <View style={styles.upBadge}>
-                                            <Text style={styles.upBadgeText}>{daysLeft} gün</Text>
+                                        <View style={[styles.upBadge, { backgroundColor: colors.inputBg }]}>
+                                            <Text style={[styles.upBadgeText, { color: colors.primary }]}>{daysLeft} gün</Text>
                                         </View>
                                     </View>
                                 );
@@ -164,10 +179,9 @@ export default function HomeScreen() {
                     </View>
                 )}
 
-                {/* 4. KATALOG KEŞFET (Entegre Edildi) */}
+                {/* 4. KATALOG KEŞFET */}
                 <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { marginBottom: 10 }]}>Yeni Abonelik Ekle</Text>
-                    {/* CatalogExplore artık kendi ScrollView'ını kullanmıyor, buraya gömülüyor */}
+                    <Text style={[styles.sectionTitle, { marginBottom: 10, color: colors.textMain }]}>Yeni Abonelik Ekle</Text>
                     <CatalogExplore onSelect={(item) => setSelectedItem(item)} isEmbedded={true} />
                 </View>
 
@@ -194,22 +208,19 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#F8FAFC' },
+    container: { flex: 1 }, // background dinamik veriliyor
     scrollContent: { paddingHorizontal: 20, paddingTop: 20 },
 
-    // Header
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
-    greeting: { fontSize: 14, color: '#64748B', fontWeight: '500' },
-    username: { fontSize: 22, fontWeight: '800', color: '#0F172A' },
-    avatar: { width: 44, height: 44, borderRadius: 14, backgroundColor: '#E2E8F0', justifyContent: 'center', alignItems: 'center' },
-    avatarText: { color: '#475569', fontSize: 18, fontWeight: '700' },
+    greeting: { fontSize: 14, fontWeight: '500' }, // color dinamik
+    username: { fontSize: 22, fontWeight: '800' }, // color dinamik
+    avatar: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' }, // bg dinamik
+    avatarText: { fontSize: 18, fontWeight: '700' }, // color dinamik
 
-    // Dashboard Card
     dashboardCard: {
         borderRadius: 24,
         padding: 24,
         marginBottom: 32,
-        shadowColor: '#334155',
         shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.15,
         shadowRadius: 16,
@@ -222,34 +233,29 @@ const styles = StyleSheet.create({
     budgetLabel: { color: 'rgba(255,255,255,0.5)', fontSize: 10, fontWeight: '700' },
     budgetValue: { color: '#FFF', fontSize: 16, fontWeight: '600' },
     
-    // Progress
     progressSection: { marginTop: 24 },
     progressBarBg: { height: 6, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 3, overflow: 'hidden' },
     progressBarFill: { height: '100%', borderRadius: 3 },
     progressText: { color: 'rgba(255,255,255,0.8)', fontSize: 11, marginTop: 6, fontWeight: '600', textAlign: 'right' },
 
-    // Section Geneli
-    section: { marginBottom: 10 }, // Altındaki CatalogExplore'un kendi marginleri var
+    section: { marginBottom: 10 },
     sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-    sectionTitle: { fontSize: 18, fontWeight: '700', color: '#0F172A' },
-    linkText: { fontSize: 13, fontWeight: '600', color: '#4F46E5' },
+    sectionTitle: { fontSize: 18, fontWeight: '700' }, // color dinamik
+    linkText: { fontSize: 13, fontWeight: '600' }, // color dinamik
 
-    // Yaklaşan Ödemeler Kartı
     upcomingCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#FFF',
         padding: 12,
         borderRadius: 16,
         marginRight: 12,
         width: 200,
         borderWidth: 1,
-        borderColor: '#E2E8F0',
-    },
+    }, // bg ve border dinamik
     upIcon: { width: 40, height: 40, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
     upIconText: { fontWeight: '700', color: '#FFF' },
-    upName: { fontSize: 14, fontWeight: '700', color: '#0F172A' },
-    upPrice: { fontSize: 12, color: '#64748B', fontWeight: '500' },
-    upBadge: { backgroundColor: '#F1F5F9', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
-    upBadgeText: { fontSize: 10, fontWeight: '700', color: '#475569' },
+    upName: { fontSize: 14, fontWeight: '700' }, // color dinamik
+    upPrice: { fontSize: 12, fontWeight: '500' }, // color dinamik
+    upBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }, // bg dinamik
+    upBadgeText: { fontSize: 10, fontWeight: '700' }, // color dinamik
 });

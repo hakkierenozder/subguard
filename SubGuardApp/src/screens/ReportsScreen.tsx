@@ -1,32 +1,16 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions, StatusBar, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, StatusBar, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
+import { useSettingsStore } from '../store/useSettingsStore'; // Eklendi
 import { convertToTRY } from '../utils/CurrencyService';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-
-// --- MODERN & SADE RENK PALETİ (Global Tema) ---
-const COLORS = {
-  primary: '#334155', // Slate 700 - Fırtına Mavisi
-  primaryDark: '#1E293B', // Slate 900
-  primaryLight: '#475569', // Slate 600
-  
-  background: '#F9FAFB',
-  cardBg: '#FFFFFF',
-  
-  textDark: '#0F172A',
-  textMedium: '#334155',
-  textLight: '#64748B', // Slate 500
-  textExtraLight: '#94A3B8', // Slate 400
-  white: '#FFFFFF',
-  
-  success: '#10B981',
-  warning: '#F59E0B',
-  passive: '#E2E8F0',
-  border: '#F1F5F9',
-};
+import { useThemeColors } from '../constants/theme'; // Hook Eklendi
 
 export default function ReportsScreen() {
+  const colors = useThemeColors(); // Dinamik Renkler
+  const isDarkMode = useSettingsStore((state) => state.isDarkMode);
+  
   const { subscriptions, getTotalExpense } = useUserSubscriptionStore();
   const totalMonthlyExpense = getTotalExpense(); 
 
@@ -40,12 +24,11 @@ export default function ReportsScreen() {
     let maxCategorySpend = 0;
 
     subscriptions.forEach(sub => {
-      // Pasif abonelikleri toplama dahil etme
       if (sub.isActive === false) return; 
 
       const amountInTRY = convertToTRY(sub.price, sub.currency);
       const partnerCount = (sub.sharedWith?.length || 0);
-      const myShare =amountInTRY / (partnerCount + 1);
+      const myShare = amountInTRY / (partnerCount + 1);
 
       const catName = sub.category || 'Diğer';
       
@@ -71,32 +54,35 @@ export default function ReportsScreen() {
 
   // --- RENDER HELPERS ---
 
-  // Kategori Bar Rengi: Listenin sırasına göre Primary rengin opaklığını değiştirir
+  // Kategori Bar Rengi: Hook'tan gelen primary rengi kullan
   const getDynamicBarColor = (index: number) => {
-    const opacity = Math.max(0.3, 1 - (index * 0.15)); // Her adımda %15 daha şeffaf
-    return `rgba(51, 65, 85, ${opacity})`; // #334155 in RGB'si
+    // Burada temel renk olarak colors.primary kullanıyoruz. 
+    // Ancak opacity (şeffaflık) eklemek için RGB dönüşümü gerekebilir veya basitçe Hex opacity
+    // React Native'de Hex + Alpha (örn: #334155CC) çalışır.
+    
+    // Basit bir yaklaşım: Listedeki sıraya göre şeffaflık
+    const opacityHex = Math.floor(Math.max(0.3, 1 - (index * 0.15)) * 255).toString(16).padStart(2, '0');
+    return `${colors.primary}${opacityHex}`;
   };
 
   const renderCategoryItem = (item: any, index: number) => (
     <View key={item.name} style={styles.catContainer}>
-        {/* Üst Satır: İsim ve Tutar */}
+        {/* Üst Satır */}
         <View style={styles.catHeader}>
             <View style={styles.catTitleRow}>
-                {/* Kategori İkonu / Dot */}
                 <View style={[styles.categoryIcon, { backgroundColor: getDynamicBarColor(index) }]}>
-                    <Text style={styles.categoryIndexText}>{index + 1}</Text>
+                    <Text style={[styles.categoryIndexText, { color: colors.white }]}>{index + 1}</Text>
                 </View>
-                <Text style={styles.catName}>{item.name}</Text>
+                <Text style={[styles.catName, { color: colors.textMain }]}>{item.name}</Text>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
-                <Text style={styles.catPrice}>{item.total.toFixed(0)} ₺</Text>
-                <Text style={styles.catPercent}>%{item.percentage.toFixed(1)}</Text>
+                <Text style={[styles.catPrice, { color: colors.textMain }]}>{item.total.toFixed(0)} ₺</Text>
+                <Text style={[styles.catPercent, { color: colors.textSec }]}>%{item.percentage.toFixed(1)}</Text>
             </View>
         </View>
 
-        {/* Progress Bar Arkaplanı */}
-        <View style={styles.barBackground}>
-            {/* Doluluk Oranı */}
+        {/* Progress Bar */}
+        <View style={[styles.barBackground, { backgroundColor: colors.inputBg }]}>
             <View 
                 style={[
                     styles.barFill, 
@@ -111,14 +97,14 @@ export default function ReportsScreen() {
   );
 
   return (
-    <View style={styles.mainContainer}>
-      <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
+    <View style={[styles.mainContainer, { backgroundColor: colors.bg }]}>
+      <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={colors.bg} />
       <SafeAreaView edges={['top']} style={styles.safeArea}>
         
         {/* HEADER */}
         <View style={styles.header}>
-            <Text style={styles.headerTitle}>Harcama Analizi</Text>
-            <Text style={styles.headerSubtitle}>Giderlerinizin detaylı dökümü</Text>
+            <Text style={[styles.headerTitle, { color: colors.textMain }]}>Harcama Analizi</Text>
+            <Text style={[styles.headerSubtitle, { color: colors.textSec }]}>Giderlerinizin detaylı dökümü</Text>
         </View>
 
         <ScrollView 
@@ -126,8 +112,8 @@ export default function ReportsScreen() {
             showsVerticalScrollIndicator={false}
         >
             
-            {/* 1. ÖZET KARTI (HERO CARD) */}
-            <View style={styles.heroCard}>
+            {/* 1. ÖZET KARTI */}
+            <View style={[styles.heroCard, { backgroundColor: colors.primary, shadowColor: isDarkMode ? '#000' : colors.primaryDark }]}>
                 <View style={styles.heroTop}>
                     <View>
                         <Text style={styles.heroLabel}>Yıllık Projeksiyon</Text>
@@ -137,7 +123,7 @@ export default function ReportsScreen() {
                         </View>
                     </View>
                     <View style={styles.heroIconContainer}>
-                        <MaterialCommunityIcons name="chart-box-outline" size={32} color={COLORS.white} />
+                        <MaterialCommunityIcons name="chart-box-outline" size={32} color={colors.white} />
                     </View>
                 </View>
                 
@@ -159,7 +145,7 @@ export default function ReportsScreen() {
                             <View style={styles.verticalLine} />
                             <View style={styles.statItem}>
                                 <Text style={styles.statLabel}>Pasif</Text>
-                                <Text style={[styles.statValue, { color: '#CBD5E1' }]}>{passiveSubsCount}</Text>
+                                <Text style={[styles.statValue, { color: 'rgba(255,255,255,0.5)' }]}>{passiveSubsCount}</Text>
                             </View>
                         </>
                     )}
@@ -168,21 +154,21 @@ export default function ReportsScreen() {
 
             {/* 2. HARCAMA DAĞILIMI */}
             <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Kategori Dağılımı</Text>
+                <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Kategori Dağılımı</Text>
                 <TouchableOpacity>
-                    <Ionicons name="filter" size={20} color={COLORS.textLight} />
+                    <Ionicons name="filter" size={20} color={colors.textSec} />
                 </TouchableOpacity>
             </View>
             
             {statistics.sortedCategories.length > 0 ? (
-                <View style={styles.chartCard}>
+                <View style={[styles.chartCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
                     {statistics.sortedCategories.map((item, index) => renderCategoryItem(item, index))}
                 </View>
             ) : (
                 <View style={styles.emptyState}>
-                    <MaterialCommunityIcons name="chart-pie" size={64} color={COLORS.passive} />
-                    <Text style={styles.emptyText}>Henüz analiz edilecek veri yok.</Text>
-                    <Text style={styles.emptySubText}>Abonelik ekledikçe grafikler burada belirecek.</Text>
+                    <MaterialCommunityIcons name="chart-pie" size={64} color={colors.inactive} />
+                    <Text style={[styles.emptyText, { color: colors.textSec }]}>Henüz analiz edilecek veri yok.</Text>
+                    <Text style={[styles.emptySubText, { color: colors.textSec }]}>Abonelik ekledikçe grafikler burada belirecek.</Text>
                 </View>
             )}
 
@@ -195,7 +181,6 @@ export default function ReportsScreen() {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: COLORS.background,
   },
   safeArea: {
     flex: 1,
@@ -204,8 +189,6 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 100,
   },
-
-  // HEADER
   header: {
     paddingHorizontal: 20,
     paddingTop: 10,
@@ -214,24 +197,19 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: '800',
-    color: COLORS.textDark,
     letterSpacing: -0.5,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: COLORS.textLight,
     marginTop: 4,
     fontWeight: '500',
   },
   
-  // HERO CARD (Slate Blue Theme)
+  // HERO CARD
   heroCard: {
-    backgroundColor: COLORS.primary, // #334155
     borderRadius: 24,
     padding: 24,
     marginBottom: 30,
-    // 3D Gölge Efekti
-    shadowColor: COLORS.primaryDark,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.3,
     shadowRadius: 20,
@@ -243,7 +221,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   heroLabel: {
-    color: '#94A3B8', // Slate 400
+    color: 'rgba(255,255,255,0.6)',
     fontSize: 13,
     fontWeight: '600',
     textTransform: 'uppercase',
@@ -255,14 +233,14 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   heroCurrency: {
-    color: COLORS.white,
+    color: '#FFF',
     fontSize: 24,
     fontWeight: '600',
     marginTop: 4,
     marginRight: 4,
   },
   heroAmount: {
-    color: COLORS.white,
+    color: '#FFF',
     fontSize: 40,
     fontWeight: '800',
     letterSpacing: -1,
@@ -287,13 +265,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statLabel: {
-    color: '#94A3B8', // Slate 400
+    color: 'rgba(255,255,255,0.6)',
     fontSize: 12,
     marginBottom: 4,
     fontWeight: '500',
   },
   statValue: {
-    color: COLORS.white,
+    color: '#FFF',
     fontSize: 16,
     fontWeight: '700',
   },
@@ -303,7 +281,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.1)',
   },
 
-  // SECTION
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -313,22 +290,17 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: COLORS.textDark,
   },
 
-  // CHART CARD (Kategori Listesi)
   chartCard: {
-    backgroundColor: COLORS.cardBg,
     borderRadius: 24,
     padding: 20,
-    // Hafif gölge
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
     shadowRadius: 12,
     elevation: 3,
     borderWidth: 1,
-    borderColor: COLORS.border,
   },
   catContainer: {
     marginBottom: 24,
@@ -352,30 +324,24 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   categoryIndexText: {
-    color: COLORS.white,
     fontSize: 12,
     fontWeight: 'bold',
   },
   catName: {
     fontSize: 15,
-    color: COLORS.textDark,
     fontWeight: '600',
   },
   catPrice: {
     fontSize: 15,
-    color: COLORS.textDark,
     fontWeight: '700',
   },
   catPercent: {
     fontSize: 12,
-    color: COLORS.textLight,
     marginTop: 2,
   },
   
-  // Progress Bar
   barBackground: {
-    height: 10, // Biraz daha kalın
-    backgroundColor: COLORS.border,
+    height: 10,
     borderRadius: 5,
     overflow: 'hidden',
   },
@@ -384,7 +350,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
 
-  // EMPTY STATE
   emptyState: {
     alignItems: 'center',
     marginTop: 40,
@@ -393,13 +358,11 @@ const styles = StyleSheet.create({
   emptyText: {
     marginTop: 16,
     fontSize: 16,
-    color: COLORS.textMedium,
     fontWeight: '600',
   },
   emptySubText: {
     marginTop: 8,
     fontSize: 14,
-    color: COLORS.textLight,
     textAlign: 'center',
   },
 });
