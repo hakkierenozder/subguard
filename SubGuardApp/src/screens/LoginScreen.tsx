@@ -18,7 +18,7 @@ export default function LoginScreen({ navigation }: Props) {
   });
   const [loading, setLoading] = useState(false);
 
-  const onSubmit = async (data: any) => {
+const onSubmit = async (data: any) => {
     setLoading(true);
     try {
       const response = await agent.Auth.login(data);
@@ -27,8 +27,8 @@ export default function LoginScreen({ navigation }: Props) {
         if (response.data.userId) {
             await saveUserId(response.data.userId);
         }
-        // Başarılı giriş -> Home'a yönlendir (Geri gelinemez şekilde)
-        navigation.replace('Home'); 
+        // DÜZELTME: 'Home' yerine 'Main' ekranına (Tab'lara) git
+        navigation.replace('Main'); 
       } else {
         Alert.alert('Hata', 'Giriş yapılamadı.');
       }

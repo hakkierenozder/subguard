@@ -1,3 +1,4 @@
+// src/constants/theme.ts
 export const THEME = {
     primary: '#334155',    // Slate 700 - Fırtına Mavisi
     primaryDark: '#1E293B',// Slate 800

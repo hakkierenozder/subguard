@@ -42,7 +42,7 @@ export const removeToken = async () => {
   }
 };
 
-// KRİTİK DÜZELTME: Fonksiyon adı App.tsx ile uyumlu hale getirildi
+// KRİTİK: App.tsx bu ismi bekliyor
 export const isLoggedIn = async () => {
   const token = await getToken();
   return !!token;
