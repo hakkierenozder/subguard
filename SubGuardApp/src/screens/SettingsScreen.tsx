@@ -1,23 +1,43 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, Image, StatusBar, Switch } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, Switch, StatusBar, Linking } from 'react-native';
 import { THEME } from '../constants/theme';
 import { logout, getUserId } from '../utils/AuthManager';
+import agent from '../api/agent';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import EditProfileModal from '../components/EditProfileModal';
+import ChangePasswordModal from '../components/ChangePasswordModal';
 
 export default function SettingsScreen() {
   const navigation = useNavigation<any>();
-  const [userId, setUserId] = useState<string | null>('');
+  
+  // State'ler
+  const [userProfile, setUserProfile] = useState<{ fullName: string; email: string; monthlyBudget: number } | null>(null);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  
+  // Modallar
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
 
-  useEffect(() => {
-      const loadUser = async () => {
-          const id = await getUserId();
-          setUserId(id);
-      };
-      loadUser();
-  }, []);
+  // Veri Çekme
+  const loadProfile = async () => {
+    try {
+      const response = await agent.Auth.getProfile();
+      if (response && response.data) {
+        setUserProfile(response.data);
+      }
+    } catch (error) {
+      console.error("Profil yüklenemedi");
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      loadProfile();
+    }, [])
+  );
 
   const handleLogout = () => {
     Alert.alert('Çıkış Yap', 'Hesabınızdan çıkış yapmak istiyor musunuz?', [
@@ -27,14 +47,14 @@ export default function SettingsScreen() {
         style: 'destructive',
         onPress: async () => {
           await logout();
-          // Ana Stack'e erişip Login'e dön
-          navigation.getParent()?.reset({
-              index: 0,
-              routes: [{ name: 'Login' }],
-          });
+          navigation.getParent()?.reset({ index: 0, routes: [{ name: 'Login' }] });
         },
       },
     ]);
+  };
+
+  const handleSupport = () => {
+      Linking.openURL('mailto:support@subguard.app');
   };
 
   const MenuItem = ({ icon, title, isDestructive = false, hasSwitch = false, value = false, onToggle = () => {}, onPress = () => {} }: any) => (
@@ -64,23 +84,30 @@ export default function SettingsScreen() {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       
-      {/* HEADER SECTION */}
+      {/* HEADER */}
       <LinearGradient
         colors={[THEME.primary, THEME.primaryDark]}
         style={styles.header}
       >
         <Text style={styles.headerTitle}>Ayarlar</Text>
         
-        {/* PROFİL KARTI */}
         <View style={styles.profileCard}>
             <View style={styles.avatar}>
-                <Text style={styles.avatarText}>U</Text>
+                <Text style={styles.avatarText}>
+                    {userProfile?.fullName ? userProfile.fullName.charAt(0).toUpperCase() : 'U'}
+                </Text>
             </View>
-            <View>
-                <Text style={styles.userName}>Kullanıcı</Text>
-                <Text style={styles.userEmail}>{userId || 'ID Yükleniyor...'}</Text>
+            <View style={{flex: 1}}>
+                <Text style={styles.userName}>{userProfile?.fullName || 'Yükleniyor...'}</Text>
+                <Text style={styles.userEmail}>{userProfile?.email || ''}</Text>
+                {/* DÜZELTME: Güvenli Kontrol */}
+                {(userProfile?.monthlyBudget ?? 0) > 0 && (
+                    <Text style={styles.budgetBadge}>
+                        Hedef: {userProfile?.monthlyBudget} TRY
+                    </Text>
+                )}
             </View>
-            <TouchableOpacity style={styles.editBtn}>
+            <TouchableOpacity style={styles.editBtn} onPress={() => setShowEditProfile(true)}>
                 <Ionicons name="create-outline" size={20} color={THEME.textSec} />
             </TouchableOpacity>
         </View>
@@ -88,14 +115,20 @@ export default function SettingsScreen() {
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         
-        {/* HESAP AYARLARI */}
         <Text style={styles.sectionHeader}>HESAP</Text>
         <View style={styles.section}>
-            <MenuItem icon="person-outline" title="Profil Bilgileri" />
-            <MenuItem icon="lock-closed-outline" title="Şifre Değiştir" />
+            <MenuItem 
+                icon="person-outline" 
+                title="Profil ve Bütçe Düzenle" 
+                onPress={() => setShowEditProfile(true)} 
+            />
+            <MenuItem 
+                icon="lock-closed-outline" 
+                title="Şifre Değiştir" 
+                onPress={() => setShowChangePassword(true)} 
+            />
         </View>
 
-        {/* UYGULAMA AYARLARI */}
         <Text style={styles.sectionHeader}>UYGULAMA</Text>
         <View style={styles.section}>
             <MenuItem 
@@ -105,21 +138,38 @@ export default function SettingsScreen() {
                 value={notificationsEnabled}
                 onToggle={setNotificationsEnabled}
             />
-            <MenuItem icon="globe-outline" title="Para Birimi (TRY)" />
-            <MenuItem icon="moon-outline" title="Tema Görünümü" />
+            <MenuItem 
+                icon="moon-outline" 
+                title="Karanlık Mod (Yakında)" 
+                hasSwitch 
+                value={isDarkMode}
+                onToggle={setIsDarkMode}
+            />
         </View>
 
-        {/* DİĞER */}
         <Text style={styles.sectionHeader}>DİĞER</Text>
         <View style={styles.section}>
-            <MenuItem icon="help-circle-outline" title="Yardım & Destek" />
-            <MenuItem icon="document-text-outline" title="Gizlilik Politikası" />
+            <MenuItem icon="help-circle-outline" title="Yardım & Destek" onPress={handleSupport} />
             <MenuItem icon="log-out-outline" title="Çıkış Yap" isDestructive onPress={handleLogout} />
         </View>
 
-        <Text style={styles.versionText}>SubGuard v1.0.2 (Beta)</Text>
+        <Text style={styles.versionText}>SubGuard v1.0.2</Text>
         <View style={{height: 40}} /> 
       </ScrollView>
+
+      {/* MODALLAR */}
+      <EditProfileModal 
+        visible={showEditProfile} 
+        onClose={() => setShowEditProfile(false)} 
+        currentUser={userProfile}
+        onUpdateSuccess={loadProfile}
+      />
+      
+      <ChangePasswordModal 
+        visible={showChangePassword} 
+        onClose={() => setShowChangePassword(false)} 
+      />
+
     </View>
   );
 }
@@ -173,12 +223,24 @@ const styles = StyleSheet.create({
   userEmail: {
       fontSize: 13,
       color: THEME.textSec,
+      marginBottom: 4,
+  },
+  budgetBadge: {
+      fontSize: 12,
+      fontWeight: '600',
+      color: THEME.success,
+      backgroundColor: '#ECFDF5',
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      borderRadius: 8,
+      alignSelf: 'flex-start',
+      overflow: 'hidden',
+      marginTop: 4
   },
   editBtn: {
       marginLeft: 'auto',
       padding: 8,
   },
-  
   content: {
       padding: 20,
   },
