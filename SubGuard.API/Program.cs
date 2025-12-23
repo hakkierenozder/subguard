@@ -86,6 +86,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// ---> YENÝ EKLENEN KISIM BAÞLANGIÇ
+// Kendi yazdýðýmýz Global Exception Middleware'i devreye alýyoruz.
+// Artýk try-catch yazmana gerek yok, burasý tüm hatalarý yakalar.
+app.UseMiddleware<SubGuard.API.Middlewares.GlobalExceptionMiddleware>();
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication(); // <-- Kimlik Kontrolü

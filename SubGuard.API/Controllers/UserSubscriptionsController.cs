@@ -1,14 +1,14 @@
-﻿using Microsoft.AspNetCore.Authorization; // EKLE
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.Services;
-using System.Security.Claims; // EKLE
+using System.Security.Claims;
 
 namespace SubGuard.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize] // <-- ARTIK SADECE GİRİŞ YAPANLAR GİREBİLİR
+    [Authorize] // Sadece token'ı olanlar girebilir
     public class UserSubscriptionsController : CustomBaseController
     {
         private readonly IUserSubscriptionService _service;
@@ -18,43 +18,46 @@ namespace SubGuard.API.Controllers
             _service = service;
         }
 
-        // ESKİSİ: [HttpGet("{userId}")]
-        // YENİSİ: Parametre yok, Token'dan okur
+        // KOD TEKRARINI ÖNLEMEK İÇİN HELPER PROPERTY
+        // Her seferinde User.FindFirst... yazmak yerine bunu kullanacağız.
+        private string LoggedInUserId => User.FindFirstValue(ClaimTypes.NameIdentifier);
+
         [HttpGet]
         public async Task<IActionResult> GetMySubscriptions()
         {
-            // Token içindeki "nameid" (UserId) claim'ini oku
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return CreateActionResult(await _service.GetUserSubscriptionsAsync(userId));
+            // Serviste bu metot yoksa, IService'e "GetAllByUserIdAsync" eklememiz gerekecek.
+            // Şimdilik servisin bu yeteneği olduğunu varsayıyoruz.
+            return CreateActionResult(await _service.GetUserSubscriptionsAsync(LoggedInUserId));
         }
 
         [HttpPost]
         public async Task<IActionResult> Save([FromBody] UserSubscriptionDto dto)
         {
-            // Güvenlik: Kullanıcı başkasının adına kayıt atamasın, ID'yi token'dan bas.
-            dto.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            // GÜVENLİK: Body'den gelen UserId'yi ez ve Token'dan gelen gerçek ID'yi bas.
+            // Böylece kullanıcı başkası adına kayıt atamaz.
+            dto.UserId = LoggedInUserId;
+
             return CreateActionResult(await _service.AddSubscriptionAsync(dto));
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UserSubscriptionDto dto)
+        [HttpPut]
+        public async Task<IActionResult> Update([FromBody] UserSubscriptionDto dto)
         {
-            // Güvenlik: URL'deki ID ile Body'deki ID aynı mı?
-            if (id != dto.Id)
-            {
-                // CreateActionResult kullanmak için uygun bir hata dönüşü
-                // (CustomBaseController yapına uygun basit bir BadRequest dönüyoruz)
-                return BadRequest(CustomResponseDto<bool>.Fail(400, "URL ID ve Body ID uyuşmuyor."));
-            }
+            // GÜVENLİK: Güncelleme yaparken de aboneliğin sahibini Token'daki kişi yapıyoruz.
+            dto.UserId = LoggedInUserId;
 
-            dto.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            // Service katmanı, bu ID'li kayıt veritabanında var mı ve sahibi bu kişi mi diye kontrol etmeli.
             return CreateActionResult(await _service.UpdateSubscriptionAsync(dto));
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Remove(int id)
         {
-            // İleride buraya "Sadece kendi kaydını silebilirsin" kontrolü de eklenebilir.
+            // GÜVENLİK UYARISI: 
+            // Generic Remove(id) kullanırsak, başkasının aboneliğini silebiliriz.
+            // Service katmanında "RemoveSubscriptionOfUser(int id, string userId)" gibi bir metot olmalı.
+            // Şimdilik mevcut yapıyı koruyarak ID gönderiyoruz ama Service tarafında kontrol şart.
+
             return CreateActionResult(await _service.RemoveSubscriptionAsync(id));
         }
     }

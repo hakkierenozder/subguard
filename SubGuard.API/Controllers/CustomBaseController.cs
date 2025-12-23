@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SubGuard.Core.DTOs;
 
 namespace SubGuard.API.Controllers
@@ -8,9 +7,9 @@ namespace SubGuard.API.Controllers
     [ApiController]
     public class CustomBaseController : ControllerBase
     {
-        // Bu metod generic bir cevap döner. 
-        // Response içindeki StatusCode 204 ise NoContent, 200 ise Ok döner.
-        [NonAction] // Bu bir endpoint değildir.
+        // Bu metod, Service katmanından gelen CustomResponseDto'yu 
+        // HTTP Status Code'a (200, 201, 404, 400 vb.) çevirir.
+        [NonAction] // Endpoint olmadığı için işaretliyoruz
         public IActionResult CreateActionResult<T>(CustomResponseDto<T> response)
         {
             if (response.StatusCode == 204)

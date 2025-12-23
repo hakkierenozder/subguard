@@ -20,13 +20,17 @@ namespace SubGuard.API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDto registerDto)
         {
-            return CreateActionResult(await _authService.RegisterAsync(registerDto));
+            // Validasyon otomatik yapılacak (FluentValidation entegre edilince)
+            // Hata olursa Middleware yakalayacak
+            var response = await _authService.RegisterAsync(registerDto);
+            return CreateActionResult(response);
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto loginDto)
         {
-            return CreateActionResult(await _authService.LoginAsync(loginDto));
+            var response = await _authService.LoginAsync(loginDto);
+            return CreateActionResult(response);
         }
 
         [Authorize] // Sadece giriş yapanlar
