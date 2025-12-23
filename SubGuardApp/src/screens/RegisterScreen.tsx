@@ -1,74 +1,200 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, StatusBar } from 'react-native';
+import { useForm, Controller } from 'react-hook-form';
 import agent from '../api/agent';
-import { saveAuthData } from '../utils/AuthManager';
+import { THEME } from '../constants/theme';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../App';
 
-interface Props {
-  onLoginSuccess: () => void;
-  onGoToLogin: () => void;
-}
+type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
-export default function RegisterScreen({ onLoginSuccess, onGoToLogin }: Props) {
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export default function RegisterScreen({ navigation }: Props) {
+  const { control, handleSubmit, formState: { errors } } = useForm({
+    defaultValues: { fullName: '', email: '', password: '' }
+  });
   const [loading, setLoading] = useState(false);
 
-  const handleRegister = async () => {
-    if (!fullName || !email || !password) {
-      Alert.alert("Hata", "Lütfen tüm alanları doldurun.");
-      return;
-    }
-
+  const onSubmit = async (data: any) => {
     setLoading(true);
     try {
-      const response = await agent.Auth.register({ fullName, email, password });
-      
-      if (response && response.data) {
-        const { accessToken, userId, fullName: serverName } = response.data;
-        // Token'ı kaydet ve direkt giriş yap
-        await saveAuthData(accessToken, userId, serverName);
-        onLoginSuccess();
+      const response = await agent.Auth.register(data);
+      if (response) {
+        Alert.alert('Başarılı', 'Kayıt olundu! Giriş yapabilirsiniz.', [
+            { text: 'Tamam', onPress: () => navigation.navigate('Login') }
+        ]);
       }
-    } catch (error: any) {
-      console.error(error);
-      Alert.alert("Hata", "Kayıt olunamadı. E-posta kullanımda olabilir.");
+    } catch (error) {
+      Alert.alert('Hata', 'Kayıt başarısız.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>Kayıt Ol</Text>
-        <Text style={styles.subtitle}>Hemen başla, paran cebinde kalsın.</Text>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
+      
+      <LinearGradient
+        colors={[THEME.primary, THEME.primaryDark]}
+        style={styles.header}
+      >
+        <View style={styles.logoContainer}>
+            <Ionicons name="person-add" size={50} color="#FFF" />
+        </View>
+        <Text style={styles.title}>Aramıza Katıl</Text>
+        <Text style={styles.subtitle}>Hemen ücretsiz hesap oluştur.</Text>
+      </LinearGradient>
 
-        <TextInput style={styles.input} placeholder="Adın Soyadın" value={fullName} onChangeText={setFullName} />
-        <TextInput style={styles.input} placeholder="E-posta Adresi" autoCapitalize="none" keyboardType="email-address" value={email} onChangeText={setEmail} />
-        <TextInput style={styles.input} placeholder="Şifre" secureTextEntry value={password} onChangeText={setPassword} />
+      <View style={styles.formContainer}>
+        
+        <View style={styles.inputWrapper}>
+            <Ionicons name="person-outline" size={20} color={THEME.textSec} style={styles.inputIcon} />
+            <Controller
+            control={control}
+            rules={{ required: 'Ad Soyad zorunludur' }}
+            render={({ field: { onChange, value } }) => (
+                <TextInput
+                style={styles.input}
+                placeholder="Ad Soyad"
+                placeholderTextColor={THEME.textSec}
+                value={value}
+                onChangeText={onChange}
+                />
+            )}
+            name="fullName"
+            />
+        </View>
+        {errors.fullName && <Text style={styles.errorText}>{errors.fullName.message}</Text>}
 
-        <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={loading}>
-          {loading ? <ActivityIndicator color="white" /> : <Text style={styles.buttonText}>Hesap Oluştur</Text>}
+        <View style={styles.inputWrapper}>
+            <Ionicons name="mail-outline" size={20} color={THEME.textSec} style={styles.inputIcon} />
+            <Controller
+            control={control}
+            rules={{ required: 'E-posta zorunludur' }}
+            render={({ field: { onChange, value } }) => (
+                <TextInput
+                style={styles.input}
+                placeholder="E-posta"
+                placeholderTextColor={THEME.textSec}
+                autoCapitalize="none"
+                value={value}
+                onChangeText={onChange}
+                />
+            )}
+            name="email"
+            />
+        </View>
+        {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
+
+        <View style={styles.inputWrapper}>
+            <Ionicons name="lock-closed-outline" size={20} color={THEME.textSec} style={styles.inputIcon} />
+            <Controller
+            control={control}
+            rules={{ required: 'Şifre zorunludur', minLength: { value: 6, message: 'En az 6 karakter' } }}
+            render={({ field: { onChange, value } }) => (
+                <TextInput
+                style={styles.input}
+                placeholder="Şifre"
+                placeholderTextColor={THEME.textSec}
+                secureTextEntry
+                value={value}
+                onChangeText={onChange}
+                />
+            )}
+            name="password"
+            />
+        </View>
+        {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
+
+        <TouchableOpacity 
+            style={[styles.button, loading && { opacity: 0.7 }]} 
+            onPress={handleSubmit(onSubmit)}
+            disabled={loading}
+        >
+          <Text style={styles.buttonText}>{loading ? 'Kaydediliyor...' : 'KAYIT OL'}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={onGoToLogin} style={{marginTop: 20}}>
-            <Text style={styles.linkText}>Zaten hesabın var mı? <Text style={{fontWeight:'bold'}}>Giriş Yap</Text></Text>
-        </TouchableOpacity>
+        <View style={styles.footer}>
+            <Text style={styles.footerText}>Zaten hesabın var mı?</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                <Text style={styles.linkText}>Giriş Yap</Text>
+            </TouchableOpacity>
+        </View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
-// Stiller LoginScreen ile aynı (tekrar kopyalamana gerek yok, yukarıdakiyle aynı css)
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa', justifyContent: 'center' },
-  content: { padding: 30 },
-  title: { fontSize: 32, fontWeight: 'bold', color: '#333', textAlign: 'center', marginBottom: 5 },
-  subtitle: { fontSize: 16, color: '#666', textAlign: 'center', marginBottom: 40 },
-  input: { backgroundColor: 'white', padding: 15, borderRadius: 10, marginBottom: 15, borderWidth: 1, borderColor: '#ddd' },
-  button: { backgroundColor: '#333', padding: 15, borderRadius: 10, alignItems: 'center', marginTop: 10 },
-  buttonText: { color: 'white', fontWeight: 'bold', fontSize: 16 },
-  linkText: { textAlign: 'center', color: '#666' }
+  container: { flex: 1, backgroundColor: THEME.bg },
+  header: {
+    height: 250,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    paddingBottom: 30
+  },
+  logoContainer: {
+      width: 80,
+      height: 80,
+      backgroundColor: 'rgba(255,255,255,0.1)',
+      borderRadius: 25,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 16,
+      borderWidth: 1,
+      borderColor: 'rgba(255,255,255,0.2)'
+  },
+  title: { fontSize: 28, fontWeight: 'bold', color: '#fff' },
+  subtitle: { fontSize: 14, color: 'rgba(255,255,255,0.8)', marginTop: 6 },
+  formContainer: {
+    flex: 1,
+    marginTop: -30,
+    marginHorizontal: 20,
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
+    marginBottom: 20
+  },
+  inputWrapper: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: THEME.inputBg,
+      borderRadius: 12,
+      marginBottom: 16,
+      paddingHorizontal: 16,
+      borderWidth: 1,
+      borderColor: THEME.border
+  },
+  inputIcon: { marginRight: 12 },
+  input: { flex: 1, height: 50, color: THEME.textMain },
+  button: {
+    backgroundColor: THEME.primary,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 10,
+    shadowColor: THEME.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4
+  },
+  buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  errorText: { color: THEME.error, marginBottom: 10, fontSize: 12, marginLeft: 4 },
+  footer: { 
+      flexDirection: 'row', 
+      justifyContent: 'center', 
+      marginTop: 24 
+  },
+  footerText: { color: THEME.textSec, marginRight: 6 },
+  linkText: { color: THEME.accent, fontWeight: 'bold' },
 });

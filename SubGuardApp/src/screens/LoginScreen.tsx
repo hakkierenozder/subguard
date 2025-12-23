@@ -1,87 +1,198 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, StatusBar } from 'react-native';
+import { useForm, Controller } from 'react-hook-form';
 import agent from '../api/agent';
-import { saveAuthData } from '../utils/AuthManager';
+import { saveToken, saveUserId } from '../utils/AuthManager';
+import { THEME } from '../constants/theme';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../App'; // App.tsx'den tipi alacağız
 
-interface Props {
-  onLoginSuccess: () => void;
-  onGoToRegister: () => void;
-}
+// Navigation Prop Tipi
+type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
-export default function LoginScreen({ onLoginSuccess, onGoToRegister }: Props) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export default function LoginScreen({ navigation }: Props) {
+  const { control, handleSubmit, formState: { errors } } = useForm({
+    defaultValues: { email: '', password: '' }
+  });
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert("Hata", "Lütfen tüm alanları doldurun.");
-      return;
-    }
-
+  const onSubmit = async (data: any) => {
     setLoading(true);
     try {
-      const response = await agent.Auth.login({ email, password });
-      
-      if (response && response.data) {
-        const { accessToken, userId, fullName } = response.data;
-        // Token'ı kaydet
-        await saveAuthData(accessToken, userId, fullName);
-        // Ana ekrana geç
-        onLoginSuccess();
+      const response = await agent.Auth.login(data);
+      if (response && response.data && response.data.accessToken) {
+        await saveToken(response.data.accessToken);
+        if (response.data.userId) {
+            await saveUserId(response.data.userId);
+        }
+        // Başarılı giriş -> Home'a yönlendir (Geri gelinemez şekilde)
+        navigation.replace('Home'); 
       } else {
-          Alert.alert("Giriş Başarısız", "Bilgileri kontrol edin.");
+        Alert.alert('Hata', 'Giriş yapılamadı.');
       }
-    } catch (error: any) {
-      console.error(error);
-      Alert.alert("Hata", "Giriş yapılamadı. Şifre veya e-posta hatalı.");
+    } catch (error) {
+      Alert.alert('Hata', 'Kullanıcı adı veya şifre hatalı.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
+      
+      {/* Üst Dekoratif Alan */}
+      <LinearGradient
+        colors={[THEME.primary, THEME.primaryDark]}
+        style={styles.header}
+      >
+        <View style={styles.logoContainer}>
+            <Ionicons name="shield-checkmark" size={60} color="#FFF" />
+        </View>
         <Text style={styles.title}>SubGuard</Text>
-        <Text style={styles.subtitle}>Aboneliklerini Yönet, Tasarruf Et 🚀</Text>
+        <Text style={styles.subtitle}>Aboneliklerini yönet, tasarruf et.</Text>
+      </LinearGradient>
 
-        <TextInput 
-          style={styles.input} 
-          placeholder="E-posta Adresi" 
-          autoCapitalize="none"
-          keyboardType="email-address"
-          value={email}
-          onChangeText={setEmail}
-        />
-        <TextInput 
-          style={styles.input} 
-          placeholder="Şifre" 
-          secureTextEntry 
-          value={password}
-          onChangeText={setPassword}
-        />
+      {/* Form Alanı */}
+      <View style={styles.formContainer}>
+        <Text style={styles.welcomeText}>Tekrar Hoşgeldin!</Text>
 
-        <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
-          {loading ? <ActivityIndicator color="white" /> : <Text style={styles.buttonText}>Giriş Yap</Text>}
+        <View style={styles.inputWrapper}>
+            <Ionicons name="mail-outline" size={20} color={THEME.textSec} style={styles.inputIcon} />
+            <Controller
+            control={control}
+            rules={{ required: 'E-posta zorunludur' }}
+            render={({ field: { onChange, value } }) => (
+                <TextInput
+                style={styles.input}
+                placeholder="E-posta"
+                placeholderTextColor={THEME.textSec}
+                autoCapitalize="none"
+                value={value}
+                onChangeText={onChange}
+                />
+            )}
+            name="email"
+            />
+        </View>
+        {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
+
+        <View style={styles.inputWrapper}>
+            <Ionicons name="lock-closed-outline" size={20} color={THEME.textSec} style={styles.inputIcon} />
+            <Controller
+            control={control}
+            rules={{ required: 'Şifre zorunludur' }}
+            render={({ field: { onChange, value } }) => (
+                <TextInput
+                style={styles.input}
+                placeholder="Şifre"
+                placeholderTextColor={THEME.textSec}
+                secureTextEntry
+                value={value}
+                onChangeText={onChange}
+                />
+            )}
+            name="password"
+            />
+        </View>
+        {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
+
+        <TouchableOpacity 
+            style={[styles.button, loading && { opacity: 0.7 }]} 
+            onPress={handleSubmit(onSubmit)}
+            disabled={loading}
+        >
+          <Text style={styles.buttonText}>{loading ? 'Giriş Yapılıyor...' : 'GİRİŞ YAP'}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={onGoToRegister} style={{marginTop: 20}}>
-            <Text style={styles.linkText}>Hesabın yok mu? <Text style={{fontWeight:'bold'}}>Kayıt Ol</Text></Text>
-        </TouchableOpacity>
+        <View style={styles.footer}>
+            <Text style={styles.footerText}>Hesabın yok mu?</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                <Text style={styles.linkText}>Kayıt Ol</Text>
+            </TouchableOpacity>
+        </View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa', justifyContent: 'center' },
-  content: { padding: 30 },
-  title: { fontSize: 32, fontWeight: 'bold', color: '#333', textAlign: 'center', marginBottom: 5 },
-  subtitle: { fontSize: 16, color: '#666', textAlign: 'center', marginBottom: 40 },
-  input: { backgroundColor: 'white', padding: 15, borderRadius: 10, marginBottom: 15, borderWidth: 1, borderColor: '#ddd' },
-  button: { backgroundColor: '#333', padding: 15, borderRadius: 10, alignItems: 'center', marginTop: 10 },
-  buttonText: { color: 'white', fontWeight: 'bold', fontSize: 16 },
-  linkText: { textAlign: 'center', color: '#666' }
+  container: { flex: 1, backgroundColor: THEME.bg },
+  header: {
+    height: 280,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    paddingBottom: 40
+  },
+  logoContainer: {
+      width: 100,
+      height: 100,
+      backgroundColor: 'rgba(255,255,255,0.1)',
+      borderRadius: 30,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 16,
+      borderWidth: 1,
+      borderColor: 'rgba(255,255,255,0.2)'
+  },
+  title: { fontSize: 32, fontWeight: 'bold', color: '#fff', letterSpacing: 1 },
+  subtitle: { fontSize: 14, color: 'rgba(255,255,255,0.8)', marginTop: 8 },
+  formContainer: {
+    flex: 1,
+    marginTop: -40,
+    marginHorizontal: 20,
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
+    marginBottom: 20
+  },
+  welcomeText: {
+      fontSize: 22,
+      fontWeight: '700',
+      color: THEME.textMain,
+      textAlign: 'center',
+      marginBottom: 30,
+  },
+  inputWrapper: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: THEME.inputBg,
+      borderRadius: 12,
+      marginBottom: 16,
+      paddingHorizontal: 16,
+      borderWidth: 1,
+      borderColor: THEME.border
+  },
+  inputIcon: { marginRight: 12 },
+  input: { flex: 1, height: 50, color: THEME.textMain },
+  button: {
+    backgroundColor: THEME.primary,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 10,
+    shadowColor: THEME.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4
+  },
+  buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  errorText: { color: THEME.error, marginBottom: 10, fontSize: 12, marginLeft: 4 },
+  footer: { 
+      flexDirection: 'row', 
+      justifyContent: 'center', 
+      marginTop: 24 
+  },
+  footerText: { color: THEME.textSec, marginRight: 6 },
+  linkText: { color: THEME.accent, fontWeight: 'bold' },
 });

@@ -1,37 +1,53 @@
+// src/utils/AuthManager.ts
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const TOKEN_KEY = 'SUBGUARD_TOKEN';
-const USER_ID_KEY = 'SUBGUARD_USER_ID';
-const USER_NAME_KEY = 'SUBGUARD_USER_NAME';
-
-// Giriş Başarılıysa Verileri Kaydet
-export const saveAuthData = async (token: string, userId: string, fullName: string) => {
-  await AsyncStorage.multiSet([
-    [TOKEN_KEY, token],
-    [USER_ID_KEY, userId],
-    [USER_NAME_KEY, fullName]
-  ]);
+export const saveToken = async (token: string) => {
+  try {
+    await AsyncStorage.setItem('SUBGUARD_TOKEN', token);
+  } catch (e) {
+    console.error('Token kaydedilemedi', e);
+  }
 };
 
-// Çıkış Yap (Verileri Sil)
-export const logoutUser = async () => {
-  await AsyncStorage.multiRemove([TOKEN_KEY, USER_ID_KEY, USER_NAME_KEY]);
+export const getToken = async () => {
+  try {
+    return await AsyncStorage.getItem('SUBGUARD_TOKEN');
+  } catch (e) {
+    return null;
+  }
 };
 
-// Token Var mı? (Giriş yapılmış mı?)
-export const isAuthenticated = async () => {
-  const token = await AsyncStorage.getItem(TOKEN_KEY);
+export const saveUserId = async (id: string) => {
+    try {
+      await AsyncStorage.setItem('SUBGUARD_USER_ID', id);
+    } catch (e) {
+      console.error('User ID kaydedilemedi', e);
+    }
+};
+
+export const getUserId = async () => {
+    try {
+      return await AsyncStorage.getItem('SUBGUARD_USER_ID');
+    } catch (e) {
+      return null;
+    }
+};
+
+export const removeToken = async () => {
+  try {
+    await AsyncStorage.removeItem('SUBGUARD_TOKEN');
+    await AsyncStorage.removeItem('SUBGUARD_USER_ID');
+  } catch (e) {
+    console.error('Token silinemedi', e);
+  }
+};
+
+// KRİTİK DÜZELTME: Fonksiyon adı App.tsx ile uyumlu hale getirildi
+export const isLoggedIn = async () => {
+  const token = await getToken();
   return !!token;
 };
 
-// Aktif Kullanıcı ID'sini Getir
-export const getUserId = async () => {
-  const id = await AsyncStorage.getItem(USER_ID_KEY);
-  return id || '';
-};
-
-// Aktif Kullanıcı Adını Getir
-export const getUserName = async () => {
-    const name = await AsyncStorage.getItem(USER_NAME_KEY);
-    return name || 'Kullanıcı';
+export const logout = async () => {
+    await removeToken();
 };
