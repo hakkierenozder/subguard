@@ -5,16 +5,16 @@ import { UserSubscription } from '../types';
 import AddSubscriptionModal from '../components/AddSubscriptionModal';
 import SubscriptionDetailModal from '../components/SubscriptionDetailModal';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
-import { useSettingsStore } from '../store/useSettingsStore'; // Eklendi
+import { useSettingsStore } from '../store/useSettingsStore'; 
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { convertToTRY } from '../utils/CurrencyService';
-import { useThemeColors } from '../constants/theme'; // Hook Eklendi
+import { useThemeColors } from '../constants/theme'; 
 
 // Tip tanımları
 type SortType = 'date' | 'price_desc' | 'name';
 
 export default function MySubscriptionsScreen() {
-  const colors = useThemeColors(); // Dinamik Renkler
+  const colors = useThemeColors(); 
   const isDarkMode = useSettingsStore((state) => state.isDarkMode);
 
   const {
@@ -28,7 +28,7 @@ export default function MySubscriptionsScreen() {
   // State Yönetimi
   const [editingSub, setEditingSub] = useState<UserSubscription | null>(null);
   const [detailSub, setDetailSub] = useState<UserSubscription | null>(null);
-  const [isModalVisible, setModalVisible] = useState(false);
+  // Modal artık sadece düzenleme için açılıyor
   const [refreshing, setRefreshing] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [sortBy, setSortBy] = useState<SortType>('date');
@@ -44,7 +44,6 @@ export default function MySubscriptionsScreen() {
   }, []);
 
   // --- Yardımcı Fonksiyonlar ---
-
   const getNextPaymentDateText = (billingDay: number) => {
     const today = new Date();
     const currentDay = today.getDate();
@@ -273,22 +272,12 @@ export default function MySubscriptionsScreen() {
           }
         />
 
-        {/* FAB (Ekleme Butonu) */}
-        <TouchableOpacity
-          style={[styles.fab, { backgroundColor: colors.primary, shadowColor: colors.primaryDark }]}
-          activeOpacity={0.9}
-          onPress={() => {
-            setEditingSub(null);
-            setModalVisible(true);
-          }}
-        >
-          <Ionicons name="add" size={30} color={colors.white} />
-        </TouchableOpacity>
+        {/* FAB (EKLEME BUTONU) KALDIRILDI */}
 
+        {/* Modal Sadece Düzenleme İçin Kullanılıyor */}
         <AddSubscriptionModal
-          visible={isModalVisible || !!editingSub}
+          visible={!!editingSub}
           onClose={() => {
-            setModalVisible(false);
             setEditingSub(null);
           }}
           selectedCatalogItem={null}
@@ -314,7 +303,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listContent: {
-    paddingBottom: 100,
+    paddingBottom: 50,
   },
   headerContainer: {
     paddingHorizontal: 20,
@@ -499,20 +488,4 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
   },
-  
-  fab: {
-    position: 'absolute',
-    bottom: 30,
-    right: 20,
-    width: 58,
-    height: 58,
-    borderRadius: 29,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
-    zIndex: 100,
-  }
 });

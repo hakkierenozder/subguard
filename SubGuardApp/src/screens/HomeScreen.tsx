@@ -3,18 +3,18 @@ import { View, Text, StyleSheet, ScrollView, RefreshControl, StatusBar, Touchabl
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCatalogStore } from '../store/useCatalogStore';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
-import { useSettingsStore } from '../store/useSettingsStore'; // Eklendi
+import { useSettingsStore } from '../store/useSettingsStore'; // Tema için
 import { CatalogItem, UserSubscription } from '../types';
 import AddSubscriptionModal from '../components/AddSubscriptionModal';
 import UsageSurveyModal from '../components/UsageSurveyModal';
 import CatalogExplore from '../components/CatalogExplore';
 import agent from '../api/agent';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useThemeColors } from '../constants/theme'; // Hook Eklendi
+import { useThemeColors } from '../constants/theme'; // Tema Hook
 
 export default function HomeScreen() {
-    // Tema Hook'u
-    const colors = useThemeColors();
+    const colors = useThemeColors(); // Dinamik Renkler
     const isDarkMode = useSettingsStore((state) => state.isDarkMode);
 
     // Store'lar
@@ -29,7 +29,11 @@ export default function HomeScreen() {
 
     // State'ler
     const [userName, setUserName] = useState('');
-    const [selectedItem, setSelectedItem] = useState<CatalogItem | null>(null);
+    
+    // MODAL YÖNETİMİ (Tek merkezden)
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedCatalogItem, setSelectedCatalogItem] = useState<CatalogItem | null>(null);
+
     const [refreshing, setRefreshing] = useState(false);
     const [surveySub, setSurveySub] = useState<UserSubscription | null>(null);
     const [monthlyBudget, setMonthlyBudget] = useState(0);
@@ -67,12 +71,25 @@ export default function HomeScreen() {
         }
     };
 
+    // --- Abonelik Ekleme Fonksiyonları ---
+    
+    // 1. Katalogdan Seçilince
+    const handleSelectFromCatalog = (item: CatalogItem) => {
+        setSelectedCatalogItem(item);
+        setModalVisible(true);
+    };
+
+    // 2. Manuel (Özel) Ekleme Butonuna Basılınca
+    const handleCreateCustom = () => {
+        setSelectedCatalogItem(null); // Katalog öğesi yok, yani Custom mod
+        setModalVisible(true);
+    };
+
     // Hesaplamalar
     const totalExpense = getTotalExpense();
     const budgetPercentage = monthlyBudget > 0 ? (totalExpense / monthlyBudget) * 100 : 0;
     const isOverBudget = totalExpense > monthlyBudget;
 
-    // Yaklaşan Ödemeler
     const upcomingPayments = [...subscriptions]
         .filter(sub => sub.isActive !== false)
         .sort((a, b) => {
@@ -92,13 +109,7 @@ export default function HomeScreen() {
 
             <ScrollView
                 contentContainerStyle={styles.scrollContent}
-                refreshControl={
-                    <RefreshControl 
-                        refreshing={refreshing} 
-                        onRefresh={onRefresh} 
-                        tintColor={colors.primary} // Loading ikonu rengi
-                    />
-                }
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
                 showsVerticalScrollIndicator={false}
             >
                 {/* 1. HEADER */}
@@ -113,7 +124,6 @@ export default function HomeScreen() {
                 </View>
 
                 {/* 2. DASHBOARD CARD */}
-                {/* Gradient renklerini tema dosyasından çekiyoruz, böylece dark mode'da uyumlu oluyor */}
                 <LinearGradient
                     colors={[colors.primaryDark, colors.primary]} 
                     start={{ x: 0, y: 0 }}
@@ -136,7 +146,7 @@ export default function HomeScreen() {
                             <View style={styles.progressBarBg}>
                                 <View style={[styles.progressBarFill, { 
                                     width: `${Math.min(budgetPercentage, 100)}%`,
-                                    backgroundColor: isOverBudget ? colors.error : colors.success // Renkleri theme'den aldık
+                                    backgroundColor: isOverBudget ? colors.error : colors.success
                                 }]} />
                             </View>
                             <Text style={styles.progressText}>
@@ -151,9 +161,7 @@ export default function HomeScreen() {
                     <View style={styles.section}>
                         <View style={styles.sectionHeader}>
                             <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Yaklaşan Ödemeler</Text>
-                            <TouchableOpacity><Text style={[styles.linkText, { color: colors.accent }]}>Tümü</Text></TouchableOpacity>
                         </View>
-                        
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingRight: 20 }}>
                             {upcomingPayments.map((item) => {
                                 const today = new Date().getDate();
@@ -179,19 +187,43 @@ export default function HomeScreen() {
                     </View>
                 )}
 
-                {/* 4. KATALOG KEŞFET */}
+                {/* 4. YENİ ABONELİK EKLEME ALANI (BÜTÜNLEŞİK TASARIM) */}
                 <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { marginBottom: 10, color: colors.textMain }]}>Yeni Abonelik Ekle</Text>
-                    <CatalogExplore onSelect={(item) => setSelectedItem(item)} isEmbedded={true} />
+                    <Text style={[styles.sectionTitle, { marginBottom: 12, color: colors.textMain }]}>Yeni Abonelik Ekle</Text>
+                    
+                    {/* ÖZEL ABONELİK (MANUEL) BUTONU - YENİ TASARIM */}
+                    <TouchableOpacity 
+                        style={[styles.createCustomCard, { borderColor: colors.border, backgroundColor: colors.cardBg }]} 
+                        onPress={handleCreateCustom}
+                        activeOpacity={0.7}
+                    >
+                        <View style={[styles.createIconCircle, { backgroundColor: colors.inputBg }]}>
+                            <Ionicons name="add" size={24} color={colors.primary} />
+                        </View>
+                        <View style={{flex: 1}}>
+                            <Text style={[styles.createCustomTitle, { color: colors.textMain }]}>Kendin Oluştur</Text>
+                            <Text style={[styles.createCustomSub, { color: colors.textSec }]}>Listede olmayan bir servisi ekle</Text>
+                        </View>
+                        <Ionicons name="chevron-forward" size={20} color={colors.inactive} />
+                    </TouchableOpacity>
+
+                    {/* KATALOG LİSTESİ */}
+                    <Text style={[styles.subSectionTitle, { color: colors.textSec }]}>veya popüler servislerden seç</Text>
+                    <CatalogExplore onSelect={handleSelectFromCatalog} isEmbedded={true} />
                 </View>
 
             </ScrollView>
 
             {/* MODALS */}
+            {/* Tek Bir Modal, hem manuel hem katalog için */}
             <AddSubscriptionModal
-                visible={!!selectedItem}
-                onClose={() => setSelectedItem(null)}
-                selectedCatalogItem={selectedItem}
+                visible={modalVisible}
+                onClose={() => {
+                    setModalVisible(false);
+                    setSelectedCatalogItem(null);
+                }}
+                selectedCatalogItem={selectedCatalogItem}
+                // subscriptionToEdit prop'u boş, çünkü yeni ekleme yapıyoruz
             />
 
             <UsageSurveyModal
@@ -208,14 +240,14 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 }, // background dinamik veriliyor
-    scrollContent: { paddingHorizontal: 20, paddingTop: 20 },
+    container: { flex: 1 }, 
+    scrollContent: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 50 },
 
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
-    greeting: { fontSize: 14, fontWeight: '500' }, // color dinamik
-    username: { fontSize: 22, fontWeight: '800' }, // color dinamik
-    avatar: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' }, // bg dinamik
-    avatarText: { fontSize: 18, fontWeight: '700' }, // color dinamik
+    greeting: { fontSize: 14, fontWeight: '500' },
+    username: { fontSize: 22, fontWeight: '800' },
+    avatar: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
+    avatarText: { fontSize: 18, fontWeight: '700' },
 
     dashboardCard: {
         borderRadius: 24,
@@ -238,10 +270,30 @@ const styles = StyleSheet.create({
     progressBarFill: { height: '100%', borderRadius: 3 },
     progressText: { color: 'rgba(255,255,255,0.8)', fontSize: 11, marginTop: 6, fontWeight: '600', textAlign: 'right' },
 
-    section: { marginBottom: 10 },
+    section: { marginBottom: 24 },
     sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-    sectionTitle: { fontSize: 18, fontWeight: '700' }, // color dinamik
-    linkText: { fontSize: 13, fontWeight: '600' }, // color dinamik
+    sectionTitle: { fontSize: 18, fontWeight: '700' },
+    subSectionTitle: { fontSize: 13, fontWeight: '500', marginTop: 16, marginBottom: 10, marginLeft: 4 },
+
+    // YENİ "KENDİN OLUŞTUR" KARTI
+    createCustomCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderStyle: 'dashed', // Kesik çizgili kenarlık
+    },
+    createIconCircle: {
+        width: 48,
+        height: 48,
+        borderRadius: 16,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 16,
+    },
+    createCustomTitle: { fontSize: 16, fontWeight: '700', marginBottom: 2 },
+    createCustomSub: { fontSize: 13 },
 
     upcomingCard: {
         flexDirection: 'row',
@@ -251,11 +303,11 @@ const styles = StyleSheet.create({
         marginRight: 12,
         width: 200,
         borderWidth: 1,
-    }, // bg ve border dinamik
+    },
     upIcon: { width: 40, height: 40, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
     upIconText: { fontWeight: '700', color: '#FFF' },
-    upName: { fontSize: 14, fontWeight: '700' }, // color dinamik
-    upPrice: { fontSize: 12, fontWeight: '500' }, // color dinamik
-    upBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }, // bg dinamik
-    upBadgeText: { fontSize: 10, fontWeight: '700' }, // color dinamik
+    upName: { fontSize: 14, fontWeight: '700' },
+    upPrice: { fontSize: 12, fontWeight: '500' },
+    upBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
+    upBadgeText: { fontSize: 10, fontWeight: '700' },
 });
