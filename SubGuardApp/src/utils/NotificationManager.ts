@@ -1,5 +1,5 @@
 import * as Notifications from 'expo-notifications';
-import { Platform } from 'react-native';
+import { Alert, Platform } from 'react-native';
 
 // 1. DÜZELTME: shouldShowBanner ve shouldShowList eklendi.
 // TypeScript artık bu alanları zorunlu tutuyor.
@@ -13,8 +13,7 @@ Notifications.setNotificationHandler({
   }),
 });
 
-export async function registerForPushNotificationsAsync() {
-  // Android için Kanal Ayarı (Emülatörde ve Telefonda Şarttır)
+export async function registerForPushNotificationsAsync(): Promise<boolean> {
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('default', {
       name: 'default',
@@ -24,64 +23,46 @@ export async function registerForPushNotificationsAsync() {
     });
   }
 
-  // 2. DÜZELTME: "Device.isDevice" kontrolünü kaldırdık.
-  // Artık Emülatörde de izin isteyecek.
-  
   const { status: existingStatus } = await Notifications.getPermissionsAsync();
   let finalStatus = existingStatus;
-  
+
   if (existingStatus !== 'granted') {
     const { status } = await Notifications.requestPermissionsAsync();
     finalStatus = status;
   }
-  
+
   if (finalStatus !== 'granted') {
-    console.log('Bildirim izni verilmedi!');
-    return;
+    Alert.alert('Hata', 'Bildirim izni verilmedi!');
+    return false; // DÜZELTME: Mutlaka boolean dön
   }
-  
-  console.log("Bildirim izinleri alındı.");
+
+  return true; // DÜZELTME: Mutlaka boolean dön
 }
 
-export async function scheduleSubscriptionNotification(
-  title: string, 
-  body: string, 
-  dayOfMonth: number
-) {
-  // 3. DÜZELTME: 'type' özelliği eklendi.
-  // Takvim tabanlı bildirim olduğu belirtilmeli.
-  const trigger: Notifications.CalendarTriggerInput = {
-    type: Notifications.SchedulableTriggerInputTypes.CALENDAR, // EKLENDİ
-    day: dayOfMonth,
-    hour: 10, 
-    minute: 0,
-    repeats: true, 
-  };
-
+// Bildirim Planla
+export async function scheduleSubscriptionNotification(title: string, body: string, triggerDate: Date) {
   try {
+    // DÜZELTME 2: triggerDate'i doğrudan vermek yerine { date: ... } veya cast işlemi
+    // Expo Notifications 'trigger' olarak Date kabul eder ama TS bazen bunu tanımaz.
+    // 'as any' kullanarak bu tip çakışmasını aşıyoruz çünkü çalışma zamanında Date geçerlidir.
     const id = await Notifications.scheduleNotificationAsync({
-      content: {
-        title: title,
-        body: body,
-        sound: true,
-      },
-      trigger,
+      content: { title, body, sound: 'default' },
+      trigger: { date: triggerDate } as unknown as Notifications.NotificationTriggerInput, 
     });
-    console.log(`Bildirim kuruldu! ID: ${id}`);
     return id;
   } catch (error) {
-    console.log("Bildirim hatası:", error);
+    console.log("Bildirim planlama hatası:", error);
     return null;
   }
 }
 
 export async function cancelNotification(notificationId: string) {
   await Notifications.cancelScheduledNotificationAsync(notificationId);
-  console.log(`Bildirim iptal edildi: ${notificationId}`);
 }
 
+// Tüm bildirimleri iptal et (Ayarlardan kapatınca)
 export async function cancelAllNotifications() {
-  await Notifications.cancelAllScheduledNotificationsAsync();
+    await Notifications.cancelAllScheduledNotificationsAsync();
 }
 
 // 2. Toplu Senkronizasyon (Buluttan gelen verilerle alarmları kurar)

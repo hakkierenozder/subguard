@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, Switch, StatusBar, Linking } from 'react-native';
-import { THEME } from '../constants/theme';
+import { useThemeColors } from '../constants/theme'; // Yeni Hook
+import { useSettingsStore } from '../store/useSettingsStore'; // Yeni Store
 import { logout, getUserId } from '../utils/AuthManager';
+import { registerForPushNotificationsAsync, cancelAllNotifications } from '../utils/NotificationManager';
 import agent from '../api/agent';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -11,11 +13,11 @@ import ChangePasswordModal from '../components/ChangePasswordModal';
 
 export default function SettingsScreen() {
   const navigation = useNavigation<any>();
+  const colors = useThemeColors(); // Dinamik Renkler
+  const { isDarkMode, toggleDarkMode, notificationsEnabled, toggleNotifications } = useSettingsStore();
   
   // State'ler
   const [userProfile, setUserProfile] = useState<{ fullName: string; email: string; monthlyBudget: number } | null>(null);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [isDarkMode, setIsDarkMode] = useState(false);
   
   // Modallar
   const [showEditProfile, setShowEditProfile] = useState(false);
@@ -39,6 +41,26 @@ export default function SettingsScreen() {
     }, [])
   );
 
+  // --- HANDLERS ---
+
+  const handleNotificationToggle = async (value: boolean) => {
+      if (value) {
+          // Açmaya çalışıyor -> İzin iste
+          const hasPermission = await registerForPushNotificationsAsync();
+          if (hasPermission) {
+              toggleNotifications(true);
+              Alert.alert("Bilgi", "Bildirimler açıldı. Ödeme günlerinde hatırlatma alacaksınız.");
+          } else {
+              // İzin vermediyse açma
+              toggleNotifications(false);
+          }
+      } else {
+          // Kapatmaya çalışıyor -> Hepsini iptal et
+          await cancelAllNotifications();
+          toggleNotifications(false);
+      }
+  };
+
   const handleLogout = () => {
     Alert.alert('Çıkış Yap', 'Hesabınızdan çıkış yapmak istiyor musunuz?', [
       { text: 'Vazgeç', style: 'cancel' },
@@ -57,66 +79,69 @@ export default function SettingsScreen() {
       Linking.openURL('mailto:support@subguard.app');
   };
 
+  // --- COMPONENTS ---
+
   const MenuItem = ({ icon, title, isDestructive = false, hasSwitch = false, value = false, onToggle = () => {}, onPress = () => {} }: any) => (
       <TouchableOpacity 
-        style={styles.menuItem} 
+        style={[styles.menuItem, { backgroundColor: colors.cardBg, borderColor: colors.border, borderBottomColor: colors.inputBg }]} 
         onPress={hasSwitch ? undefined : onPress}
         activeOpacity={hasSwitch ? 1 : 0.7}
       >
-          <View style={[styles.iconBox, isDestructive && { backgroundColor: '#FEF2F2' }]}>
-              <Ionicons name={icon} size={20} color={isDestructive ? THEME.error : THEME.primary} />
+          <View style={[styles.iconBox, { backgroundColor: isDestructive ? '#FEF2F2' : colors.inputBg }]}>
+              <Ionicons name={icon} size={20} color={isDestructive ? colors.error : colors.primary} />
           </View>
-          <Text style={[styles.menuText, isDestructive && { color: THEME.error }]}>{title}</Text>
+          <Text style={[styles.menuText, { color: isDestructive ? colors.error : colors.textMain }]}>{title}</Text>
           
           {hasSwitch ? (
               <Switch 
                 value={value} 
                 onValueChange={onToggle}
-                trackColor={{ false: THEME.border, true: THEME.primary }}
+                trackColor={{ false: colors.border, true: colors.primary }}
+                thumbColor={colors.white}
               />
           ) : (
-              <Ionicons name="chevron-forward" size={20} color={THEME.textSec} />
+              <Ionicons name="chevron-forward" size={20} color={colors.textSec} />
           )}
       </TouchableOpacity>
   );
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+      <StatusBar barStyle={isDarkMode ? "light-content" : "light-content"} />
       
       {/* HEADER */}
       <LinearGradient
-        colors={[THEME.primary, THEME.primaryDark]}
+        colors={[colors.primary, colors.primaryDark]}
         style={styles.header}
       >
-        <Text style={styles.headerTitle}>Ayarlar</Text>
+        <Text style={[styles.headerTitle, { color: colors.white }]}>Ayarlar</Text>
         
-        <View style={styles.profileCard}>
-            <View style={styles.avatar}>
-                <Text style={styles.avatarText}>
+        <View style={[styles.profileCard, { backgroundColor: colors.cardBg, shadowColor: isDarkMode ? '#000' : '#000' }]}>
+            <View style={[styles.avatar, { backgroundColor: colors.inputBg }]}>
+                <Text style={[styles.avatarText, { color: colors.primary }]}>
                     {userProfile?.fullName ? userProfile.fullName.charAt(0).toUpperCase() : 'U'}
                 </Text>
             </View>
             <View style={{flex: 1}}>
-                <Text style={styles.userName}>{userProfile?.fullName || 'Yükleniyor...'}</Text>
-                <Text style={styles.userEmail}>{userProfile?.email || ''}</Text>
-                {/* DÜZELTME: Güvenli Kontrol */}
+                <Text style={[styles.userName, { color: colors.textMain }]}>{userProfile?.fullName || 'Yükleniyor...'}</Text>
+                <Text style={[styles.userEmail, { color: colors.textSec }]}>{userProfile?.email || ''}</Text>
+                
                 {(userProfile?.monthlyBudget ?? 0) > 0 && (
-                    <Text style={styles.budgetBadge}>
+                    <Text style={[styles.budgetBadge, { color: colors.success, backgroundColor: isDarkMode ? 'rgba(16,185,129,0.2)' : '#ECFDF5' }]}>
                         Hedef: {userProfile?.monthlyBudget} TRY
                     </Text>
                 )}
             </View>
             <TouchableOpacity style={styles.editBtn} onPress={() => setShowEditProfile(true)}>
-                <Ionicons name="create-outline" size={20} color={THEME.textSec} />
+                <Ionicons name="create-outline" size={20} color={colors.textSec} />
             </TouchableOpacity>
         </View>
       </LinearGradient>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         
-        <Text style={styles.sectionHeader}>HESAP</Text>
-        <View style={styles.section}>
+        <Text style={[styles.sectionHeader, { color: colors.textSec }]}>HESAP</Text>
+        <View style={[styles.section, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
             <MenuItem 
                 icon="person-outline" 
                 title="Profil ve Bütçe Düzenle" 
@@ -129,31 +154,31 @@ export default function SettingsScreen() {
             />
         </View>
 
-        <Text style={styles.sectionHeader}>UYGULAMA</Text>
-        <View style={styles.section}>
+        <Text style={[styles.sectionHeader, { color: colors.textSec }]}>UYGULAMA</Text>
+        <View style={[styles.section, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
             <MenuItem 
                 icon="notifications-outline" 
                 title="Bildirimler" 
                 hasSwitch 
                 value={notificationsEnabled}
-                onToggle={setNotificationsEnabled}
+                onToggle={handleNotificationToggle}
             />
             <MenuItem 
-                icon="moon-outline" 
-                title="Karanlık Mod (Yakında)" 
+                icon={isDarkMode ? "moon" : "moon-outline"}
+                title="Karanlık Mod" 
                 hasSwitch 
                 value={isDarkMode}
-                onToggle={setIsDarkMode}
+                onToggle={toggleDarkMode}
             />
         </View>
 
-        <Text style={styles.sectionHeader}>DİĞER</Text>
-        <View style={styles.section}>
+        <Text style={[styles.sectionHeader, { color: colors.textSec }]}>DİĞER</Text>
+        <View style={[styles.section, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
             <MenuItem icon="help-circle-outline" title="Yardım & Destek" onPress={handleSupport} />
             <MenuItem icon="log-out-outline" title="Çıkış Yap" isDestructive onPress={handleLogout} />
         </View>
 
-        <Text style={styles.versionText}>SubGuard v1.0.2</Text>
+        <Text style={[styles.versionText, { color: colors.textSec }]}>SubGuard v1.0.3</Text>
         <View style={{height: 40}} /> 
       </ScrollView>
 
@@ -175,7 +200,7 @@ export default function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: THEME.bg },
+  container: { flex: 1 },
   header: {
     paddingTop: 60,
     paddingBottom: 30,
@@ -186,16 +211,13 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#FFF',
     marginBottom: 20,
   },
   profileCard: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: '#FFF',
       padding: 16,
       borderRadius: 20,
-      shadowColor: '#000',
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.1,
       shadowRadius: 8,
@@ -205,7 +227,6 @@ const styles = StyleSheet.create({
       width: 50,
       height: 50,
       borderRadius: 25,
-      backgroundColor: THEME.inputBg,
       justifyContent: 'center',
       alignItems: 'center',
       marginRight: 16,
@@ -213,23 +234,18 @@ const styles = StyleSheet.create({
   avatarText: {
       fontSize: 20,
       fontWeight: 'bold',
-      color: THEME.primary,
   },
   userName: {
       fontSize: 18,
       fontWeight: '700',
-      color: THEME.textMain,
   },
   userEmail: {
       fontSize: 13,
-      color: THEME.textSec,
       marginBottom: 4,
   },
   budgetBadge: {
       fontSize: 12,
       fontWeight: '600',
-      color: THEME.success,
-      backgroundColor: '#ECFDF5',
       paddingHorizontal: 8,
       paddingVertical: 2,
       borderRadius: 8,
@@ -247,31 +263,26 @@ const styles = StyleSheet.create({
   sectionHeader: {
       fontSize: 12,
       fontWeight: '700',
-      color: THEME.textSec,
       marginBottom: 10,
       marginLeft: 4,
       letterSpacing: 1,
   },
   section: {
-      backgroundColor: '#FFF',
       borderRadius: 16,
       marginBottom: 24,
       overflow: 'hidden',
       borderWidth: 1,
-      borderColor: THEME.border,
   },
   menuItem: {
       flexDirection: 'row',
       alignItems: 'center',
       padding: 16,
       borderBottomWidth: 1,
-      borderBottomColor: THEME.inputBg,
   },
   iconBox: {
       width: 36,
       height: 36,
       borderRadius: 10,
-      backgroundColor: THEME.inputBg,
       justifyContent: 'center',
       alignItems: 'center',
       marginRight: 12,
@@ -280,11 +291,9 @@ const styles = StyleSheet.create({
       flex: 1,
       fontSize: 15,
       fontWeight: '600',
-      color: THEME.textMain,
   },
   versionText: {
       textAlign: 'center',
-      color: THEME.textSec,
       fontSize: 12,
       marginTop: 10,
   },
