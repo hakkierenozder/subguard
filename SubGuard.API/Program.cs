@@ -1,15 +1,20 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SabGuard.Data.Repositories;
 using SabGuard.Data.UnitOfWork;
+using SubGuard.Core.DTOs;
 using SubGuard.Core.Entities;
 using SubGuard.Core.Repositories;
 using SubGuard.Core.Services;
 using SubGuard.Core.UnitOfWork;
 using SubGuard.Service.Mapping;
 using SubGuard.Service.Services;
+using SubGuard.Service.Validations;
 using System.Reflection;
 using System.Text;
 
@@ -17,7 +22,27 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterDtoValidator>();
+
+builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
+{
+    // Varsayýlan Filter davranýþýný (otomatik 400 dönüþü) özelleþtiriyoruz.
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        // Validasyon hatalarýný topla
+        var errors = context.ModelState.Values
+            .Where(v => v.Errors.Count > 0)
+            .SelectMany(v => v.Errors)
+            .Select(v => v.ErrorMessage)
+            .ToList();
+
+        // Kendi DTO formatýmýza çevir
+        var responseDto = CustomResponseDto<bool>.Fail(400, errors);
+
+        return new BadRequestObjectResult(responseDto);
+    };
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
