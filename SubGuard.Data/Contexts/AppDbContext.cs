@@ -13,7 +13,6 @@ public class AppDbContext : IdentityDbContext<AppUser>
     public DbSet<Plan> Plans { get; set; }
     public DbSet<UserSubscription> UserSubscriptions { get; set; }
 
-    // Otomatik Tarih Atama Mekanizması (Interceptor Mantığı)
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         foreach (var item in ChangeTracker.Entries())
@@ -24,11 +23,12 @@ public class AppDbContext : IdentityDbContext<AppUser>
                 {
                     case EntityState.Added:
                         entityReference.CreatedDate = DateTime.UtcNow;
-                        // Yeni eklenen veri silinmiş olamaz
                         entityReference.IsDeleted = false;
                         break;
 
                     case EntityState.Modified:
+                        // Remove metodu Update olarak çalıştığı için buraya düşecek 
+                        // ve UpdatedDate otomatik set edilecek.
                         entityReference.UpdatedDate = DateTime.UtcNow;
                         break;
                 }
@@ -41,15 +41,16 @@ public class AppDbContext : IdentityDbContext<AppUser>
     {
         base.OnModelCreating(modelBuilder);
 
-        // Configurations klasöründeki tüm ayarları (ServiceConfiguration vb.) otomatik bul ve uygula.
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
-        // GLOBAL QUERY FILTER (Çok Önemli!)
-        // "IsDeleted = true" olan kayıtları asla getirme. Select * from Services dediğimizde
-        // EF Core arkada otomatik olarak "... WHERE IsDeleted = false" ekler.
+        // GLOBAL QUERY FILTER GÜNCELLEMESİ
+        // Mevcut olanlar:
         modelBuilder.Entity<Catalog>().HasQueryFilter(x => !x.IsDeleted);
         modelBuilder.Entity<Plan>().HasQueryFilter(x => !x.IsDeleted);
 
-        base.OnModelCreating(modelBuilder);
+        // EKLENEN: UserSubscription için de filtre uyguluyoruz.
+        modelBuilder.Entity<UserSubscription>().HasQueryFilter(x => !x.IsDeleted);
+
+        // Gelecekte eklenecek BaseEntity türevleri için de buraya ekleme yapılmalı.
     }
 }
