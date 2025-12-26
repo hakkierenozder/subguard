@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar, View, ActivityIndicator, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Toast from 'react-native-toast-message'; // <--- EKLENDİ
 
 // Ekranlar
 import LoginScreen from './src/screens/LoginScreen';
@@ -17,8 +18,8 @@ import SettingsScreen from './src/screens/SettingsScreen';
 // Utils & Components
 import { isLoggedIn } from './src/utils/AuthManager'; 
 import ErrorBoundary from './src/components/ErrorBoundary'; 
-import { THEME, useThemeColors } from './src/constants/theme'; // useThemeColors eklendi
-import { useSettingsStore } from './src/store/useSettingsStore'; // Store eklendi
+import { THEME, useThemeColors } from './src/constants/theme'; 
+import { useSettingsStore } from './src/store/useSettingsStore'; 
 
 export type RootStackParamList = {
   Login: undefined;
@@ -36,20 +37,20 @@ export type MainTabParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
-// --- TAB MENÜ ---
+// --- TAB MENÜ (AYNEN KORUNDU) ---
 function AppTabs() {
-  const colors = useThemeColors(); // Dinamik renkleri çekiyoruz
+  const colors = useThemeColors(); 
 
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarActiveTintColor: colors.accent, // Primary yerine Accent daha hoş durabilir veya colors.primary
-        tabBarInactiveTintColor: colors.inactive, // theme.ts'deki inactive rengi
+        tabBarActiveTintColor: colors.accent,
+        tabBarInactiveTintColor: colors.inactive,
         tabBarStyle: {
-          backgroundColor: colors.cardBg, // Koyu modda darkCard, açıkta white
+          backgroundColor: colors.cardBg,
           borderTopWidth: 1,
-          borderTopColor: colors.border, // Dinamik border
+          borderTopColor: colors.border,
           height: Platform.OS === 'ios' ? 90 : 70,
           paddingBottom: Platform.OS === 'ios' ? 30 : 10,
           paddingTop: 10,
@@ -59,23 +60,13 @@ function AppTabs() {
           shadowOpacity: 0.1,
           shadowRadius: 4,
         },
-        tabBarLabelStyle: {
-            fontSize: 11,
-            fontWeight: '600',
-        },
+        tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
         tabBarIcon: ({ focused, color, size }) => {
           let iconName: any;
-
-          if (route.name === 'Home') {
-            iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'MySubscriptions') {
-            iconName = focused ? 'card' : 'card-outline';
-          } else if (route.name === 'Reports') {
-            iconName = focused ? 'pie-chart' : 'pie-chart-outline';
-          } else if (route.name === 'Settings') {
-            iconName = focused ? 'settings' : 'settings-outline';
-          }
-
+          if (route.name === 'Home') iconName = focused ? 'home' : 'home-outline';
+          else if (route.name === 'MySubscriptions') iconName = focused ? 'card' : 'card-outline';
+          else if (route.name === 'Reports') iconName = focused ? 'pie-chart' : 'pie-chart-outline';
+          else if (route.name === 'Settings') iconName = focused ? 'settings' : 'settings-outline';
           return <Ionicons name={iconName} size={size} color={color} />;
         },
       })}
@@ -90,8 +81,8 @@ function AppTabs() {
 
 export default function App() {
   const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList | null>(null);
-  const isDarkMode = useSettingsStore((state) => state.isDarkMode); // StatusBar için store'u dinle
-  const colors = useThemeColors(); // Background için
+  const isDarkMode = useSettingsStore((state) => state.isDarkMode);
+  const colors = useThemeColors();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -117,20 +108,19 @@ export default function App() {
     <SafeAreaProvider>
       <ErrorBoundary>
         <NavigationContainer>
-          {/* StatusBar global olarak burada yönetilebilir veya ekran bazlı override edilebilir */}
           <StatusBar 
             barStyle={isDarkMode ? "light-content" : "dark-content"} 
             backgroundColor={colors.bg} 
           />
-          <Stack.Navigator 
-            initialRouteName={initialRoute} 
-            screenOptions={{ headerShown: false }}
-          >
+          <Stack.Navigator initialRouteName={initialRoute} screenOptions={{ headerShown: false }}>
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Register" component={RegisterScreen} />
             <Stack.Screen name="Main" component={AppTabs} />
           </Stack.Navigator>
         </NavigationContainer>
+        
+        {/* TOAST EKLENTİSİ BURADA */}
+        <Toast /> 
       </ErrorBoundary>
     </SafeAreaProvider>
   );

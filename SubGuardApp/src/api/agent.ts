@@ -1,9 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import Toast from 'react-native-toast-message'; // <--- EKLENDİ
 import { getToken, getRefreshToken, saveToken, saveRefreshToken, removeToken } from '../utils/AuthManager';
 
-// Android Emülatör: 10.0.2.2, iOS: localhost, Fiziksel Cihaz: Yerel IP
-const MY_IP_ADDRESS = '192.168.1.4'; // Kendi IP'ni kontrol et
+const MY_IP_ADDRESS = '192.168.1.4'; // IP'ni kontrol et
 const API_PORT = '5252';
 
 export const API_URL = `http://${MY_IP_ADDRESS}:${API_PORT}/api`;
@@ -13,7 +13,6 @@ const axiosInstance = axios.create({
   timeout: 10000,
 });
 
-// Request Interceptor: Her isteğe token ekle
 axiosInstance.interceptors.request.use(async (config) => {
   const token = await getToken();
   if (token) {
@@ -23,7 +22,6 @@ axiosInstance.interceptors.request.use(async (config) => {
 }, (error) => Promise.reject(error));
 
 
-// Response Interceptor: 401 yönetimi
 let isRefreshing = false;
 let failedQueue: any[] = [];
 
@@ -43,11 +41,9 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Eğer hata 401 ise ve bu istek zaten yenilenmiş bir istek değilse
+    // --- 1. TOKEN YENİLEME MANTIĞI (MEVCUT KOD) ---
     if (error.response?.status === 401 && !originalRequest._retry) {
-      
       if (isRefreshing) {
-        // Eğer zaten yenileme işlemi sürüyorsa, bu isteği kuyruğa ekle
         return new Promise(function(resolve, reject) {
           failedQueue.push({resolve, reject});
         }).then(token => {
@@ -65,11 +61,9 @@ axiosInstance.interceptors.response.use(
         const refreshToken = await getRefreshToken();
         
         if (!refreshToken) {
-            // Refresh token yoksa direkt çıkış yap
             throw new Error('Refresh token not found');
         }
 
-        // Token yenileme isteği at (Axios instance kullanmıyoruz döngüye girmesin diye)
         const response = await axios.post(`${API_URL}/auth/create-token-by-refresh-token`, {
             token: refreshToken
         });
@@ -88,12 +82,48 @@ axiosInstance.interceptors.response.use(
         }
       } catch (refreshError) {
         processQueue(refreshError, null);
-        await removeToken(); // Her şeyi sil
-        // İsteğe bağlı: Kullanıcıyı login ekranına yönlendirecek bir global event tetiklenebilir
+        await removeToken(); 
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }
+    }
+
+    // --- 2. MERKEZİ HATA GÖSTERİMİ (YENİ EKLENEN KISIM) ---
+    if (error.response) {
+        const { data, status } = error.response;
+        let message = 'Bir hata oluştu.';
+
+        // Backend'deki CustomResponseDto formatına göre: { statusCode, errors: ["..."], ... }
+        if (data.errors && Array.isArray(data.errors) && data.errors.length > 0) {
+            message = data.errors[0]; // İlk hatayı göster
+        } else if (data.errors && typeof data.errors === 'string') {
+            message = data.errors;
+        } else if (status === 500) {
+            message = 'Sunucu tarafında bir hata oluştu.';
+        } else if (status === 404) {
+            message = 'İstenilen kaynak bulunamadı.';
+        }
+
+        // 401 hatası zaten yukarıda refresh deneniyor, eğer refresh de başarısızsa logout oluyor.
+        // Tekrar hata basmaya gerek yok, ancak diğer durumlar için basıyoruz.
+        // Retry edilen istek (originalRequest._retry) tekrar 401 yerse (refresh token fail) o zaman hata basabiliriz.
+        if (status !== 401 || (status === 401 && originalRequest._retry)) {
+            Toast.show({
+                type: 'error',
+                text1: 'Hata',
+                text2: message,
+                position: 'bottom',
+                visibilityTime: 4000,
+            });
+        }
+    } else if (error.message === 'Network Error') {
+        Toast.show({
+            type: 'error',
+            text1: 'Bağlantı Hatası',
+            text2: 'Sunucuya erişilemiyor. İnternetinizi kontrol edin.',
+            position: 'bottom',
+        });
     }
 
     return Promise.reject(error);

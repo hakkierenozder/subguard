@@ -1,0 +1,21 @@
+2025-12-26 16:39:53.337 +03:00 [INF] Uygulama başlatılıyor...
+2025-12-26 16:39:54.993 +03:00 [INF] HTTP GET /swagger responded 301 in 5.7565 ms
+2025-12-26 16:39:55.079 +03:00 [INF] HTTP GET /swagger/index.html responded 200 in 67.9873 ms
+2025-12-26 16:39:55.110 +03:00 [INF] HTTP GET /swagger/swagger-ui.css responded 200 in 28.1861 ms
+2025-12-26 16:39:55.113 +03:00 [INF] HTTP GET /swagger/swagger-ui-standalone-preset.js responded 200 in 30.7895 ms
+2025-12-26 16:39:55.125 +03:00 [INF] HTTP GET /swagger/swagger-ui-bundle.js responded 200 in 43.4363 ms
+2025-12-26 16:39:55.325 +03:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 7.2356 ms
+2025-12-26 16:39:55.375 +03:00 [INF] HTTP GET /swagger/favicon-32x32.png responded 200 in 0.4218 ms
+2025-12-26 16:40:29.414 +03:00 [INF] Uygulama başlatılıyor...
+2025-12-26 16:41:23.776 +03:00 [INF] HTTP GET /swagger responded 301 in 9.3994 ms
+2025-12-26 16:41:23.835 +03:00 [INF] HTTP GET /swagger/index.html responded 200 in 45.4189 ms
+2025-12-26 16:41:23.868 +03:00 [INF] HTTP GET /swagger/swagger-ui.css responded 200 in 14.3200 ms
+2025-12-26 16:41:23.869 +03:00 [INF] HTTP GET /swagger/swagger-ui-bundle.js responded 200 in 12.5319 ms
+2025-12-26 16:41:23.873 +03:00 [INF] HTTP GET /swagger/swagger-ui-standalone-preset.js responded 200 in 2.1125 ms
+2025-12-26 16:41:24.045 +03:00 [INF] HTTP GET /swagger/favicon-32x32.png responded 200 in 0.2049 ms
+2025-12-26 16:41:24.105 +03:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 71.0282 ms
+2025-12-26 16:42:54.119 +03:00 [WRN] Failed to determine the https port for redirect.
+2025-12-26 16:42:55.972 +03:00 [INF] HTTP GET /api/catalogs responded 200 in 1847.9799 ms
+2025-12-26 16:42:55.985 +03:00 [INF] HTTP GET /api/auth/profile responded 200 in 1871.5636 ms
+2025-12-26 16:42:56.440 +03:00 [INF] HTTP GET /api/catalogs responded 200 in 45.0829 ms
+2025-12-26 16:42:56.460 +03:00 [INF] HTTP GET /api/usersubscriptions responded 200 in 64.9674 ms
