@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore; // <-- BUNU MUTLAKA EKLE (Include ve ToListAsync için)
+using Microsoft.EntityFrameworkCore;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.Entities;
 using SubGuard.Core.Repositories;
@@ -11,63 +11,76 @@ namespace SubGuard.Service.Services
     public class UserSubscriptionService : IUserSubscriptionService
     {
         private readonly IGenericRepository<UserSubscription> _repo;
-        private readonly IGenericRepository<Catalog> _catalogRepo; // <-- YENİ: Katalog Reposunu buraya ekledik
+        private readonly IGenericRepository<Catalog> _catalogRepo;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        // Constructor'da catalogRepo'yu istiyoruz (Dependency Injection)
         public UserSubscriptionService(
             IGenericRepository<UserSubscription> repo,
-            IGenericRepository<Catalog> catalogRepo, // <-- EKLENDİ
+            IGenericRepository<Catalog> catalogRepo,
             IUnitOfWork unitOfWork,
             IMapper mapper)
         {
             _repo = repo;
-            _catalogRepo = catalogRepo; // <-- ATANDI
+            _catalogRepo = catalogRepo;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
         public async Task<CustomResponseDto<UserSubscriptionDto>> AddSubscriptionAsync(UserSubscriptionDto dto)
         {
-            var entity = _mapper.Map<UserSubscription>(dto);
+            // Transaction Başlat
+            await _unitOfWork.BeginTransactionAsync();
 
-            // Renk ve Katalog kontrolü
-            if (string.IsNullOrEmpty(entity.ColorCode) && entity.CatalogId.HasValue)
+            try
             {
-                // Artık _unitOfWork üzerinden değil, direkt _catalogRepo üzerinden çekiyoruz
-                var catalogItem = await _catalogRepo.GetByIdAsync(entity.CatalogId.Value);
+                var entity = _mapper.Map<UserSubscription>(dto);
 
-                if (catalogItem != null)
+                // Renk ve Katalog kontrolü
+                if (string.IsNullOrEmpty(entity.ColorCode) && entity.CatalogId.HasValue)
                 {
-                    entity.ColorCode = catalogItem.ColorCode;
+                    var catalogItem = await _catalogRepo.GetByIdAsync(entity.CatalogId.Value);
+
+                    if (catalogItem != null)
+                    {
+                        entity.ColorCode = catalogItem.ColorCode;
+                    }
                 }
-            }
 
-            // Varsayılan renk
-            if (string.IsNullOrEmpty(entity.ColorCode))
+                // Varsayılan renk
+                if (string.IsNullOrEmpty(entity.ColorCode))
+                {
+                    entity.ColorCode = "#333333";
+                }
+
+                await _repo.AddAsync(entity);
+
+                // Önce veritabanına SaveChanges yapıyoruz (ID oluşması vs. için gerekebilir)
+                await _unitOfWork.CommitAsync();
+
+                // Her şey yolundaysa Transaction'ı onayla
+                await _unitOfWork.CommitTransactionAsync();
+
+                var newDto = _mapper.Map<UserSubscriptionDto>(entity);
+                return CustomResponseDto<UserSubscriptionDto>.Success(200, newDto);
+            }
+            catch (Exception)
             {
-                entity.ColorCode = "#333333";
+                // Hata durumunda işlemleri geri al
+                await _unitOfWork.RollbackTransactionAsync();
+                throw; // Hatayı middleware yakalaması için fırlatıyoruz
             }
-
-            await _repo.AddAsync(entity);
-            await _unitOfWork.CommitAsync();
-
-            var newDto = _mapper.Map<UserSubscriptionDto>(entity);
-            return CustomResponseDto<UserSubscriptionDto>.Success(200, newDto);
         }
 
         public async Task<CustomResponseDto<List<UserSubscriptionDto>>> GetUserSubscriptionsAsync(string userId)
         {
-            // SENİN INTERFACE YAPINA UYGUN SORGULAMA:
-            // _repo.Where IQueryable döner, üzerine Include ve ToListAsync ekleyebiliriz.
+            // Read işlemlerinde genellikle Transaction gerekmez, mevcut yapıyı koruyoruz.
             var subscriptions = await _repo.Where(x => x.UserId == userId)
-                                           .Include(x => x.Catalog) // Catalog tablosunu birleştir
-                                           .ToListAsync();          // Veritabanına git ve çek
+                                           .Include(x => x.Catalog)
+                                           .ToListAsync();
 
             var subscriptionDtos = _mapper.Map<List<UserSubscriptionDto>>(subscriptions);
 
-            // --- RENK KURTARMA OPERASYONU ---
             foreach (var dto in subscriptionDtos)
             {
                 if (string.IsNullOrEmpty(dto.ColorCode))
@@ -90,61 +103,95 @@ namespace SubGuard.Service.Services
 
         public async Task<CustomResponseDto<bool>> RemoveSubscriptionAsync(int id)
         {
-            var entity = await _repo.GetByIdAsync(id);
-            if (entity == null) return CustomResponseDto<bool>.Fail(404, "Kayıt bulunamadı");
+            // Silme işlemi de kritik olduğu için Transaction içine alabiliriz, 
+            // ancak talep create/update içindi. Tutarlılık adına buraya da ekliyorum.
+            await _unitOfWork.BeginTransactionAsync();
 
-            _repo.Remove(entity);
-            await _unitOfWork.CommitAsync();
-            return CustomResponseDto<bool>.Success(204);
+            try
+            {
+                var entity = await _repo.GetByIdAsync(id);
+                if (entity == null)
+                {
+                    // Kayıt yoksa transaction rollback yapmaya gerek yok ama temiz kapatmak iyidir.
+                    await _unitOfWork.RollbackTransactionAsync();
+                    return CustomResponseDto<bool>.Fail(404, "Kayıt bulunamadı");
+                }
+
+                _repo.Remove(entity);
+                await _unitOfWork.CommitAsync();
+                await _unitOfWork.CommitTransactionAsync();
+
+                return CustomResponseDto<bool>.Success(204);
+            }
+            catch (Exception)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
 
         public async Task<CustomResponseDto<bool>> UpdateSubscriptionAsync(UserSubscriptionDto dto)
         {
-            // 1. Mevcut kaydı çek
-            var entity = await _repo.GetByIdAsync(dto.Id);
+            // Güncelleme öncesi kaydın varlığını kontrol etmek mantıklıdır.
+            // Bu sorguyu Transaction dışında yapabiliriz (Dirty Read önemsizse), 
+            // ama tam tutarlılık için içeri alıyorum.
 
-            if (entity == null)
+            await _unitOfWork.BeginTransactionAsync();
+
+            try
             {
-                return CustomResponseDto<bool>.Fail(404, "Abonelik bulunamadı.");
-            }
+                // 1. Mevcut kaydı çek
+                var entity = await _repo.GetByIdAsync(dto.Id);
 
-            // 2. Mevcut rengi yedekle (Mapper ezebilir)
-            var oldColor = entity.ColorCode;
-
-            // 3. DTO verisini Entity üzerine yaz
-            _mapper.Map(dto, entity);
-
-            // --- DÜZELTME BAŞLANGIÇ ---
-
-            // Eğer güncelleme sonrası renk boş kaldıysa (DTO'dan null geldiyse)
-            if (string.IsNullOrEmpty(entity.ColorCode))
-            {
-                // A) Önce eski rengi geri yüklemeyi dene
-                if (!string.IsNullOrEmpty(oldColor))
+                if (entity == null)
                 {
-                    entity.ColorCode = oldColor;
+                    await _unitOfWork.RollbackTransactionAsync();
+                    return CustomResponseDto<bool>.Fail(404, "Abonelik bulunamadı.");
                 }
-                // B) Eski renk de yoksa ve Katalog bağlantısı varsa, Katalog rengini çek
-                else if (entity.CatalogId.HasValue)
+
+                // 2. Mevcut rengi yedekle
+                var oldColor = entity.ColorCode;
+
+                // 3. DTO verisini Entity üzerine yaz
+                _mapper.Map(dto, entity);
+
+                // --- RENK KONTROL MANTIĞI (Aynen Korundu) ---
+                if (string.IsNullOrEmpty(entity.ColorCode))
                 {
-                    var catalogItem = await _catalogRepo.GetByIdAsync(entity.CatalogId.Value);
-                    if (catalogItem != null)
+                    if (!string.IsNullOrEmpty(oldColor))
                     {
-                        entity.ColorCode = catalogItem.ColorCode;
+                        entity.ColorCode = oldColor;
+                    }
+                    else if (entity.CatalogId.HasValue)
+                    {
+                        var catalogItem = await _catalogRepo.GetByIdAsync(entity.CatalogId.Value);
+                        if (catalogItem != null)
+                        {
+                            entity.ColorCode = catalogItem.ColorCode;
+                        }
+                    }
+                    else
+                    {
+                        entity.ColorCode = "#333333";
                     }
                 }
-                // C) Hala renk yoksa varsayılan yap
-                else
-                {
-                    entity.ColorCode = "#333333";
-                }
+                // --- RENK KONTROL BİTİŞ ---
+
+                _repo.Update(entity);
+
+                // DB'ye yansıt
+                await _unitOfWork.CommitAsync();
+
+                // Transaction'ı onayla
+                await _unitOfWork.CommitTransactionAsync();
+
+                return CustomResponseDto<bool>.Success(204);
             }
-            // --- DÜZELTME BİTİŞ ---
-
-            _repo.Update(entity);
-            await _unitOfWork.CommitAsync();
-
-            return CustomResponseDto<bool>.Success(204);
+            catch (Exception)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
     }
 }

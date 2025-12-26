@@ -10,5 +10,9 @@ namespace SubGuard.Core.UnitOfWork
     {
         Task CommitAsync(); // SaveChangesAsync() tetikler.
         void Commit();      // SaveChanges() tetikler.
+
+        Task BeginTransactionAsync();
+        Task CommitTransactionAsync();
+        Task RollbackTransactionAsync();
     }
 }
