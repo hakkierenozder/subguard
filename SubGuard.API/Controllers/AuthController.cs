@@ -56,5 +56,19 @@ namespace SubGuard.API.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return CreateActionResult(await _authService.ChangePasswordAsync(userId, dto));
         }
+
+        [HttpPost("create-token-by-refresh-token")]
+        public async Task<IActionResult> CreateTokenByRefreshToken(RefreshTokenDto refreshTokenDto)
+        {
+            var result = await _authService.CreateTokenByRefreshTokenAsync(refreshTokenDto);
+            return CreateActionResult(result);
+        }
+
+        [HttpPost("revoke-refresh-token")]
+        public async Task<IActionResult> RevokeRefreshToken([FromBody] RefreshTokenDto refreshTokenDto)
+        {
+            var result = await _authService.RevokeRefreshTokenAsync(refreshTokenDto.Token);
+            return CreateActionResult(result);
+        }
     }
 }

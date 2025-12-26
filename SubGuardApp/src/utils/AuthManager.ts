@@ -17,6 +17,14 @@ export const getToken = async () => {
   }
 };
 
+// Refresh Token (YENİ)
+export const saveRefreshToken = async (token: string) => {
+    try { await AsyncStorage.setItem('SUBGUARD_REFRESH_TOKEN', token); } catch (e) { console.error('Refresh Token kaydedilemedi', e); }
+};
+export const getRefreshToken = async () => {
+    try { return await AsyncStorage.getItem('SUBGUARD_REFRESH_TOKEN'); } catch (e) { return null; }
+};
+
 export const saveUserId = async (id: string) => {
     try {
       await AsyncStorage.setItem('SUBGUARD_USER_ID', id);
@@ -36,6 +44,7 @@ export const getUserId = async () => {
 export const removeToken = async () => {
   try {
     await AsyncStorage.removeItem('SUBGUARD_TOKEN');
+    await AsyncStorage.removeItem('SUBGUARD_REFRESH_TOKEN');
     await AsyncStorage.removeItem('SUBGUARD_USER_ID');
   } catch (e) {
     console.error('Token silinemedi', e);

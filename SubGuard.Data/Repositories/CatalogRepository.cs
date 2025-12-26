@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SubGuard.Core.Entities;
 using SubGuard.Core.Repositories;
+using SubGuard.Data.Repositories;
 
 namespace SabGuard.Data.Repositories
 {

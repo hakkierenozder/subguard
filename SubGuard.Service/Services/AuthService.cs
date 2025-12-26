@@ -1,13 +1,17 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using SabGuard.Data.UnitOfWork;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.DTOs.Auth;
 using SubGuard.Core.Entities;
 using SubGuard.Core.Repositories;
 using SubGuard.Core.Services;
+using SubGuard.Core.UnitOfWork;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 
 namespace SubGuard.Service.Services
 {
@@ -16,12 +20,16 @@ namespace SubGuard.Service.Services
         private readonly UserManager<AppUser> _userManager;
         private readonly IGenericRepository<UserSubscription> _subRepo;
         private readonly IConfiguration _configuration;
+        private readonly IGenericRepository<RefreshToken> _refreshTokenRepo; // EKLENDİ
+        private readonly IUnitOfWork _unitOfWork; // EKLENDİ
 
-        public AuthService(UserManager<AppUser> userManager, IConfiguration configuration, IGenericRepository<UserSubscription> subRepo)
+        public AuthService(UserManager<AppUser> userManager, IConfiguration configuration, IGenericRepository<UserSubscription> subRepo, IGenericRepository<RefreshToken> refreshTokenRepo, IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _configuration = configuration;
             _subRepo = subRepo; // Bunu ekle
+            _refreshTokenRepo = refreshTokenRepo;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<CustomResponseDto<TokenDto>> RegisterAsync(RegisterDto registerDto)
@@ -113,8 +121,51 @@ namespace SubGuard.Service.Services
             return await GenerateToken(user);
         }
 
+        public async Task<CustomResponseDto<TokenDto>> CreateTokenByRefreshTokenAsync(RefreshTokenDto refreshTokenDto)
+        {
+            // Veritabanında bu token var mı?
+            var existToken = await _refreshTokenRepo.Where(x => x.Code == refreshTokenDto.Token).FirstOrDefaultAsync();
+
+            if (existToken == null)
+            {
+                return CustomResponseDto<TokenDto>.Fail(404, "Refresh token bulunamadı.");
+            }
+
+            if (existToken.Expiration < DateTime.UtcNow)
+            {
+                // Süresi dolmuşsa sil
+                _refreshTokenRepo.Remove(existToken);
+                await _unitOfWork.CommitAsync();
+                return CustomResponseDto<TokenDto>.Fail(401, "Refresh token süresi dolmuş. Lütfen tekrar giriş yapın.");
+            }
+
+            var user = await _userManager.FindByIdAsync(existToken.UserId);
+            if (user == null) return CustomResponseDto<TokenDto>.Fail(404, "Kullanıcı bulunamadı.");
+
+            // Yeni token üret (Hem Access hem Refresh yenilenir - Rotation mantığı)
+            var tokenDto = await GenerateToken(user);
+
+            // Eski refresh token'ı siliyoruz (Security Best Practice: Refresh Token Rotation)
+            _refreshTokenRepo.Remove(existToken);
+            await _unitOfWork.CommitAsync();
+
+            return tokenDto;
+        }
+
+        public async Task<CustomResponseDto<bool>> RevokeRefreshTokenAsync(string refreshToken)
+        {
+            var existToken = await _refreshTokenRepo.Where(x => x.Code == refreshToken).FirstOrDefaultAsync();
+            if (existToken != null)
+            {
+                _refreshTokenRepo.Remove(existToken);
+                await _unitOfWork.CommitAsync();
+            }
+            return CustomResponseDto<bool>.Success(204);
+        }
+
         private async Task<CustomResponseDto<TokenDto>> GenerateToken(AppUser user)
         {
+            // 1. Access Token Üretimi
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
@@ -123,30 +174,46 @@ namespace SubGuard.Service.Services
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
-            // Key'i appsettings'den al
             var keyString = _configuration["JwtSettings:SecretKey"];
             var key = new SymmetricSecurityKey(Convert.FromBase64String(keyString));
-
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expiry = DateTime.Now.AddDays(30);
 
-            var token = new JwtSecurityToken(
+            // Access Token ömrünü kısa tutalım (Örn: 15 dakika)
+            var accessTokenExpiration = DateTime.UtcNow.AddMinutes(15);
+
+            var jwtSecurityToken = new JwtSecurityToken(
                 issuer: _configuration["JwtSettings:Issuer"],
                 audience: _configuration["JwtSettings:Audience"],
                 claims: claims,
-                expires: expiry,
+                expires: accessTokenExpiration,
                 signingCredentials: creds
             );
 
-            var tokenDto = new TokenDto
+            var accessToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+
+            // 2. Refresh Token Üretimi
+            var refreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+            var refreshTokenExpiration = DateTime.UtcNow.AddDays(30); // 30 Günlük ömür
+
+            // 3. Veritabanına Kayıt
+            await _refreshTokenRepo.AddAsync(new RefreshToken
             {
-                AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
-                Expiration = expiry,
+                Code = refreshToken,
+                UserId = user.Id,
+                Expiration = refreshTokenExpiration
+            });
+
+            await _unitOfWork.CommitAsync();
+
+            return CustomResponseDto<TokenDto>.Success(200, new TokenDto
+            {
+                AccessToken = accessToken,
+                AccessTokenExpiration = accessTokenExpiration,
+                RefreshToken = refreshToken,
+                RefreshTokenExpiration = refreshTokenExpiration,
                 UserId = user.Id,
                 FullName = user.FullName
-            };
-
-            return CustomResponseDto<TokenDto>.Success(200, tokenDto);
+            });
         }
     }
 }

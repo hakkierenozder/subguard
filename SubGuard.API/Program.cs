@@ -12,6 +12,7 @@ using SubGuard.Core.Entities;
 using SubGuard.Core.Repositories;
 using SubGuard.Core.Services;
 using SubGuard.Core.UnitOfWork;
+using SubGuard.Data.Repositories;
 using SubGuard.Service.Mapping;
 using SubGuard.Service.Services;
 using SubGuard.Service.Validations;

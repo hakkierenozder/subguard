@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, StatusBar } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import agent from '../api/agent';
-import { saveToken, saveUserId } from '../utils/AuthManager';
+import { saveRefreshToken, saveToken, saveUserId } from '../utils/AuthManager';
 import { useThemeColors } from '../constants/theme'; // Hook
 import { useSettingsStore } from '../store/useSettingsStore'; // Store
 import { LinearGradient } from 'expo-linear-gradient';
@@ -30,6 +30,7 @@ const onSubmit = async (data: any) => {
         if (response.data.userId) {
             await saveUserId(response.data.userId);
         }
+        await saveRefreshToken(response.data.refreshToken);
         navigation.replace('Main'); 
       } else {
         Alert.alert('Hata', 'Giriş yapılamadı.');

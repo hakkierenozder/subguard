@@ -12,6 +12,7 @@ public class AppDbContext : IdentityDbContext<AppUser>
     public DbSet<Catalog> Catalogs { get; set; }
     public DbSet<Plan> Plans { get; set; }
     public DbSet<UserSubscription> UserSubscriptions { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; } // EKLENDİ
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
