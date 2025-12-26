@@ -1,5 +1,7 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -106,6 +108,16 @@ try
     builder.Services.AddScoped<ICatalogService, CatalogService>();
     builder.Services.AddScoped<IUserSubscriptionService, UserSubscriptionService>();
     builder.Services.AddScoped<IAuthService, AuthService>();
+    builder.Services.AddScoped<INotificationService, NotificationService>();
+    // 1. HANGFIRE KONFÝGÜRASYONU
+    builder.Services.AddHangfire(config => config
+        .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+        .UseSimpleAssemblyNameTypeSerializer()
+        .UseRecommendedSerializerSettings()
+        .UsePostgreSqlStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+    // Hangfire Server'ý ekle (Arka planda iþleri yürütecek sunucu)
+    builder.Services.AddHangfireServer();
     builder.Services.AddAutoMapper(typeof(MapProfile));
 
     var app = builder.Build();
@@ -118,6 +130,19 @@ try
         app.UseSwagger();
         app.UseSwaggerUI();
     }
+
+    // 2. HANGFIRE DASHBOARD VE JOB TANIMI
+    app.UseHangfireDashboard("/hangfire"); // Dashboard'a /hangfire adresinden eriþilebilir
+
+    // Recurring Job Tanýmý
+    // ServiceProvider üzerinden servisi çaðýrmamýz gerekebilir veya Hangfire Activator kullanýr.
+    // Basitçe RecurringJob.AddOrUpdate metodu generic tip desteði ile DI container'ý kullanýr.
+
+    RecurringJob.AddOrUpdate<INotificationService>(
+        "daily-payment-check",
+        service => service.CheckAndQueueUpcomingPaymentsAsync(3), // 3 gün öncesi
+        Cron.Daily // Her gece 00:00 (UTC)
+    );
 
     // Global Exception Middleware (Mevcut yapýn korunuyor)
     // Serilog ILogger implemente ettiði için Middleware içindeki _logger.LogError otomatik olarak Serilog'a yazar.

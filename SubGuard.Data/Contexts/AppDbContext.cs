@@ -13,6 +13,7 @@ public class AppDbContext : IdentityDbContext<AppUser>
     public DbSet<Plan> Plans { get; set; }
     public DbSet<UserSubscription> UserSubscriptions { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; } // EKLENDİ
+    public DbSet<NotificationQueue> NotificationQueues { get; set; } // <--- EKLENDİ
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -53,5 +54,7 @@ public class AppDbContext : IdentityDbContext<AppUser>
         modelBuilder.Entity<UserSubscription>().HasQueryFilter(x => !x.IsDeleted);
 
         // Gelecekte eklenecek BaseEntity türevleri için de buraya ekleme yapılmalı.
+
+        modelBuilder.Entity<NotificationQueue>().HasQueryFilter(x => !x.IsDeleted);
     }
 }
