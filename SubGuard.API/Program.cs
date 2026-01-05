@@ -6,7 +6,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
+using Polly;
+using Polly.Extensions.Http;
 using SabGuard.Data.Repositories;
 using SabGuard.Data.UnitOfWork;
 using Serilog; // <--- EKLENDÝ
@@ -34,6 +37,25 @@ try
     Log.Information("Uygulama baþlatýlýyor...");
 
     var builder = WebApplication.CreateBuilder(args);
+
+    // --- POLLY POLICY TANIMLARI ---
+    // 1. Retry Policy: Hata alýrsa 3 kez, 2'þer saniye arayla dene.
+    var retryPolicy = HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(2));
+
+    // 2. Circuit Breaker: Ardýþýk 5 hatadan sonra 30 saniye sistemi kapat (devreyi kes).
+    var circuitBreakerPolicy = HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .CircuitBreakerAsync(5, TimeSpan.FromSeconds(30));
+
+    // CurrencyService'i HttpClient ile baðla ve Policy'leri ekle
+    builder.Services.AddHttpClient<ICurrencyService, CurrencyService>(client =>
+    {
+        client.BaseAddress = new Uri("https://api.frankfurter.app/");
+    })
+    .AddPolicyHandler(retryPolicy)
+    .AddPolicyHandler(circuitBreakerPolicy);
 
     // 2. Host'a Serilog'u baðla
     builder.Host.UseSerilog();
@@ -105,7 +127,23 @@ try
     builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
     builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
     builder.Services.AddScoped<ICatalogRepository, CatalogRepository>();
-    builder.Services.AddScoped<ICatalogService, CatalogService>();
+    builder.Services.AddMemoryCache();
+
+    // 2. Decorator Pattern Uygulamasý
+    // Önce asýl servisi (Concrete) kaydediyoruz.
+    builder.Services.AddScoped<CatalogService>();
+
+    // Sonra Interface istendiðinde Decorator dönecek þekilde ayarlýyoruz.
+    builder.Services.AddScoped<ICatalogService>(provider =>
+    {
+        // Asýl servisin instance'ýný al
+        var actualService = provider.GetRequiredService<CatalogService>();
+        // Cache mekanizmasýný al
+        var memoryCache = provider.GetRequiredService<IMemoryCache>();
+
+        // Decorator içine asýl servisi ve cache'i vererek instance oluþtur
+        return new SubGuard.Service.Services.Decorators.CachedCatalogService(actualService, memoryCache);
+    });
     builder.Services.AddScoped<IUserSubscriptionService, UserSubscriptionService>();
     builder.Services.AddScoped<IAuthService, AuthService>();
     builder.Services.AddScoped<INotificationService, NotificationService>();
@@ -122,6 +160,8 @@ try
 
     var app = builder.Build();
 
+
+
     // 3. HTTP Ýstek Loglama (Request Logging)
     app.UseSerilogRequestLogging();
 
@@ -133,6 +173,16 @@ try
 
     // 2. HANGFIRE DASHBOARD VE JOB TANIMI
     app.UseHangfireDashboard("/hangfire"); // Dashboard'a /hangfire adresinden eriþilebilir
+
+
+
+    // --- RECURRING JOB: GÜNLÜK KUR GÜNCELLEME ---
+    // Her sabah 08:00'de kurlarý güncelle
+    RecurringJob.AddOrUpdate<ICurrencyService>(
+        "daily-currency-update",
+        service => service.UpdateRatesAsync(),
+        "0 8 * * *" // Cron: Her gün saat 08:00
+    );
 
     // Recurring Job Tanýmý
     // ServiceProvider üzerinden servisi çaðýrmamýz gerekebilir veya Hangfire Activator kullanýr.

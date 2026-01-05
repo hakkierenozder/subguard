@@ -9,6 +9,7 @@ import { scheduleSubscriptionNotification, cancelNotification, syncLocalNotifica
 interface UserSubscriptionState {
   subscriptions: UserSubscription[];
   loading: boolean;
+  exchangeRates: Record<string, number>; // YENİ: Kurları tutacak
 
   fetchUserSubscriptions: () => Promise<void>;
   addSubscription: (sub: UserSubscription) => Promise<void>;
@@ -19,6 +20,7 @@ interface UserSubscriptionState {
   getPendingSurvey: () => UserSubscription | null;
   getTotalExpense: () => number;
   getNextPayment: () => UserSubscription | null;
+  fetchExchangeRates: () => Promise<void>; // YENİ: Kurları çekecek
 }
 
 // Güvenli JSON Parse Yardımcısı
@@ -34,6 +36,13 @@ const safeJsonParse = (jsonString: string | null | undefined, fallback: any) => 
 export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get) => ({
   subscriptions: [],
   loading: false,
+
+  exchangeRates: {
+      USD: 34.50,
+      EUR: 37.20,
+      GBP: 43.10,
+      TRY: 1.0
+  },
 
   // 1. VERİLERİ ÇEK (Güvenli Mod)
   fetchUserSubscriptions: async () => {
@@ -56,6 +65,20 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
     } finally {
       set({ loading: false });
     }
+  },
+
+  // YENİ FONKSİYON
+  fetchExchangeRates: async () => {
+      try {
+          const response = await agent.Currencies.list();
+          if (response && response.data) {
+              set(state => ({
+                  exchangeRates: { ...state.exchangeRates, ...response.data, TRY: 1.0 }
+              }));
+          }
+      } catch (error) {
+          console.error("Kurlar çekilemedi, varsayılanlar kullanılacak.", error);
+      }
   },
 
   // 2. ABONELİK EKLE
@@ -212,13 +235,16 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
   },
 
   getTotalExpense: () => {
-    const { subscriptions } = get();
+    const { subscriptions, exchangeRates } = get(); // Store'daki kurları kullan
     return subscriptions
-      .filter(sub => sub.isActive !== false) // Sadece aktifleri topla
+      .filter(sub => sub.isActive !== false)
       .reduce((total, sub) => {
-        const price = convertToTRY(sub.price, sub.currency);
+        // Dinamik kur çevirimi
+        const rate = exchangeRates[sub.currency] || 1;
+        const priceInTry = sub.price * rate;
+        
         const partnerCount = (sub.sharedWith?.length || 0);
-        const myShare = price / (partnerCount + 1);
+        const myShare = priceInTry / (partnerCount + 1);
         return total + myShare;
       }, 0);
   },

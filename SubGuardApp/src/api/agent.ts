@@ -139,6 +139,10 @@ const requests = {
   put: (url: string, body: {}) => axiosInstance.put(url, body).then(responseBody),
 };
 
+const Currencies = {
+    list: () => requests.get('/currencies'),
+};
+
 const Catalogs = {
   list: () => requests.get('/catalogs'),
   details: (id: number) => requests.get(`/catalogs/${id}`),
@@ -162,5 +166,6 @@ const Auth = {
 export default {
   Catalogs,
   UserSubscriptions,
+  Currencies,
   Auth,
 };

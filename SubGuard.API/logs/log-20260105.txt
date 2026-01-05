@@ -1,0 +1,27 @@
+2026-01-05 18:36:57.983 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-01-05 18:36:58.920 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-01-05 18:36:59.124 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-01-05 18:36:59.585 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-01-05 18:36:59.586 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-01-05 18:36:59.588 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-01-05 18:36:59.589 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-01-05 18:36:59.590 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-01-05 18:36:59.591 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-01-05 18:36:59.622 +03:00 [INF] [User: ] Server desktop-25vqrpg:31432:db711bb2 successfully announced in 11,8251 ms
+2026-01-05 18:36:59.625 +03:00 [INF] [User: ] Server desktop-25vqrpg:31432:db711bb2 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-01-05 18:36:59.635 +03:00 [INF] [User: ] Server desktop-25vqrpg:31432:db711bb2 all the dispatchers started
+2026-01-05 18:39:43.288 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-01-05 18:39:44.964 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1696.0546 ms
+2026-01-05 18:39:44.964 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 1696.0502 ms
+2026-01-05 18:39:45.531 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 47.3002 ms
+2026-01-05 18:39:45.568 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 84.3669 ms
+2026-01-05 18:39:54.363 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 9.1371 ms
+2026-01-05 18:39:56.414 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.5041 ms
+2026-01-05 18:55:52.288 +03:00 [INF] [User: ] Server desktop-25vqrpg:31432:db711bb2 caught stopping signal...
+2026-01-05 18:55:52.291 +03:00 [INF] [User: ] Server desktop-25vqrpg:31432:db711bb2 All dispatchers stopped
+2026-01-05 18:55:52.299 +03:00 [INF] [User: ] Server desktop-25vqrpg:31432:db711bb2 successfully reported itself as stopped in 4,6894 ms
+2026-01-05 18:55:52.300 +03:00 [INF] [User: ] Server desktop-25vqrpg:31432:db711bb2 has been stopped in total 10,1715 ms

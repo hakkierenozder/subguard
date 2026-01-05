@@ -21,7 +21,14 @@ export default function MySubscriptionsScreen() {
     subscriptions,
     getTotalExpense,
     fetchUserSubscriptions,
+    fetchExchangeRates, // Store'dan çek
+    exchangeRates // Store'dan kurları al
   } = useUserSubscriptionStore();
+
+  React.useEffect(() => {
+    fetchUserSubscriptions();
+    fetchExchangeRates(); // Ekran açılınca kurları güncelle
+  }, []);
 
   const totalExpense = getTotalExpense();
 
@@ -184,6 +191,10 @@ export default function MySubscriptionsScreen() {
     const brandColor = item.colorCode || colors.primary;
     const nextPaymentText = getNextPaymentDateText(item.billingDay);
     const isPassive = item.isActive === false;
+
+    const currentRate = exchangeRates[item.currency] || 1;
+    const priceInTry = item.price * currentRate;
+    const isForeignCurrency = item.currency !== 'TRY';
     
     // PAYLAŞIM KONTROLÜ (Düzeltme Burada Yapıldı)
     const isShared = item.sharedWith && item.sharedWith.length > 0;
@@ -234,6 +245,22 @@ export default function MySubscriptionsScreen() {
           </Text>
           <View style={styles.currencyAndActionRow}>
              <Text style={[styles.currencyText, { color: colors.textSec }]}>{item.currency}</Text>
+
+             {/* YENİ: Live Currency Badge (#334155 Slate Blue) */}
+             {isForeignCurrency && !isPassive && (
+                 <View style={{
+                     backgroundColor: '#334155', // İSTENEN RENK
+                     paddingHorizontal: 6,
+                     paddingVertical: 2,
+                     borderRadius: 6,
+                     marginLeft: 6,
+                     marginRight: 6
+                 }}>
+                     <Text style={{ color: '#fff', fontSize: 10, fontWeight: 'bold' }}>
+                        ≈ ₺{priceInTry.toFixed(0)}
+                     </Text>
+                 </View>
+             )}
              
              {/* SADECE PAYLAŞIMLI VE AKTİF İSE GÖSTER */}
              {!isPassive && isShared && (
