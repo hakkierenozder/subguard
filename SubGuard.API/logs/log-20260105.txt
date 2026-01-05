@@ -25,3 +25,41 @@
 2026-01-05 18:55:52.291 +03:00 [INF] [User: ] Server desktop-25vqrpg:31432:db711bb2 All dispatchers stopped
 2026-01-05 18:55:52.299 +03:00 [INF] [User: ] Server desktop-25vqrpg:31432:db711bb2 successfully reported itself as stopped in 4,6894 ms
 2026-01-05 18:55:52.300 +03:00 [INF] [User: ] Server desktop-25vqrpg:31432:db711bb2 has been stopped in total 10,1715 ms
+2026-01-05 19:01:25.673 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-01-05 19:01:25.991 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-01-05 19:01:26.035 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-01-05 19:01:26.393 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-01-05 19:01:26.395 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-01-05 19:01:26.396 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-01-05 19:01:26.397 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-01-05 19:01:26.398 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-01-05 19:01:26.400 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-01-05 19:01:26.425 +03:00 [INF] [User: ] Server desktop-25vqrpg:21996:93e032f4 successfully announced in 14,1066 ms
+2026-01-05 19:01:26.429 +03:00 [INF] [User: ] Server desktop-25vqrpg:21996:93e032f4 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-01-05 19:01:26.447 +03:00 [INF] [User: ] Server desktop-25vqrpg:21996:93e032f4 all the dispatchers started
+2026-01-05 19:02:15.400 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-01-05 19:02:16.626 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1238.2300 ms
+2026-01-05 19:02:16.626 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 1238.2261 ms
+2026-01-05 19:02:17.162 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 44.8077 ms
+2026-01-05 19:02:17.195 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 78.2661 ms
+2026-01-05 19:02:19.319 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.2007 ms
+2026-01-05 19:02:19.329 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.6471 ms
+2026-01-05 19:02:19.347 +03:00 [INF] [User: Baran Dogan] Güncel kurlar çekiliyor...
+2026-01-05 19:02:19.791 +03:00 [INF] [User: Baran Dogan] Kurlar güncellendi: {"USD":43.042,"EUR":50.204,"GBP":57.865}
+2026-01-05 19:02:19.800 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 488.7781 ms
+2026-01-05 19:02:43.316 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions responded 200 in 239.3288 ms
+2026-01-05 19:03:20.581 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions responded 200 in 13.8098 ms
+2026-01-05 19:04:17.414 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions responded 200 in 13.7062 ms
+2026-01-05 19:04:46.376 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions responded 200 in 7.3843 ms
+2026-01-05 19:21:30.568 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.2115 ms
+2026-01-05 19:21:30.574 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.6594 ms
+2026-01-05 19:21:30.688 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.9675 ms
+2026-01-05 19:21:30.704 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 17.3772 ms
+2026-01-05 19:21:32.270 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 10.6851 ms
+2026-01-05 19:21:57.797 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 1.4889 ms
+2026-01-05 19:21:57.801 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.5930 ms
+2026-01-05 19:21:57.802 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 2.5284 ms

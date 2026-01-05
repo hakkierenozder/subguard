@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, Switch, StatusBar, Linking } from 'react-native';
-import { useThemeColors } from '../constants/theme'; // Yeni Hook
-import { useSettingsStore } from '../store/useSettingsStore'; // Yeni Store
-import { logout, getUserId } from '../utils/AuthManager';
-import { registerForPushNotificationsAsync, cancelAllNotifications } from '../utils/NotificationManager';
+import { useThemeColors } from '../constants/theme';
+import { useSettingsStore } from '../store/useSettingsStore';
+import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
+import { logout } from '../utils/AuthManager';
+import { registerForPushNotificationsAsync, cancelAllNotifications, syncSubscriptionsToCalendar } from '../utils/NotificationManager';
 import agent from '../api/agent';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -13,10 +14,12 @@ import ChangePasswordModal from '../components/ChangePasswordModal';
 
 export default function SettingsScreen() {
   const navigation = useNavigation<any>();
-  const colors = useThemeColors(); // Dinamik Renkler
+  const colors = useThemeColors();
   const { isDarkMode, toggleDarkMode, notificationsEnabled, toggleNotifications } = useSettingsStore();
+  const { subscriptions } = useUserSubscriptionStore();
   
   // State'ler
+  const [calendarSyncEnabled, setCalendarSyncEnabled] = useState(false);
   const [userProfile, setUserProfile] = useState<{ fullName: string; email: string; monthlyBudget: number } | null>(null);
   
   // Modallar
@@ -43,19 +46,27 @@ export default function SettingsScreen() {
 
   // --- HANDLERS ---
 
+  const handleCalendarToggle = async (value: boolean) => {
+    setCalendarSyncEnabled(value);
+    if (value) {
+      // Açıldığında senkronize et
+      await syncSubscriptionsToCalendar(subscriptions);
+    } else {
+      // Kapatıldığında kullanıcıya bilgi ver
+      Alert.alert("Bilgi", "Otomatik senkronizasyon durduruldu. Takviminizdeki mevcut etkinlikler silinmez.");
+    }
+  };
+
   const handleNotificationToggle = async (value: boolean) => {
       if (value) {
-          // Açmaya çalışıyor -> İzin iste
           const hasPermission = await registerForPushNotificationsAsync();
           if (hasPermission) {
               toggleNotifications(true);
               Alert.alert("Bilgi", "Bildirimler açıldı. Ödeme günlerinde hatırlatma alacaksınız.");
           } else {
-              // İzin vermediyse açma
               toggleNotifications(false);
           }
       } else {
-          // Kapatmaya çalışıyor -> Hepsini iptal et
           await cancelAllNotifications();
           toggleNotifications(false);
       }
@@ -107,7 +118,7 @@ export default function SettingsScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.bg }]}>
-      <StatusBar barStyle={isDarkMode ? "light-content" : "light-content"} />
+      <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
       
       {/* HEADER */}
       <LinearGradient
@@ -162,6 +173,13 @@ export default function SettingsScreen() {
                 hasSwitch 
                 value={notificationsEnabled}
                 onToggle={handleNotificationToggle}
+            />
+            <MenuItem 
+                icon="calendar-outline" 
+                title="Takvim Entegrasyonu" 
+                hasSwitch 
+                value={calendarSyncEnabled}
+                onToggle={handleCalendarToggle}
             />
             <MenuItem 
                 icon={isDarkMode ? "moon" : "moon-outline"}
