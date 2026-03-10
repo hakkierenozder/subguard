@@ -10,6 +10,10 @@ obj/
 *.user
 *.suo
 
+# Yerel geliştirme ayarları (hassas veri içerir, commit edilmemeli)
+appsettings.Development.json
+appsettings.Local.json
+
 # Mobile Ignores
 node_modules/
 .expo/

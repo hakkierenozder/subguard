@@ -20,6 +20,12 @@ namespace SubGuard.Service.Validations
             RuleFor(x => x.Currency)
                 .NotEmpty().WithMessage("Para birimi seçilmelidir.")
                 .Length(1, 5).WithMessage("Geçersiz para birimi kodu.");
+
+            // Kontrat tarihleri girilmişse başlangıç < bitiş olmalı
+            RuleFor(x => x.ContractEndDate)
+                .GreaterThan(x => x.ContractStartDate)
+                .WithMessage("Sözleşme bitiş tarihi, başlangıç tarihinden sonra olmalıdır.")
+                .When(x => x.ContractStartDate.HasValue && x.ContractEndDate.HasValue);
         }
     }
 }

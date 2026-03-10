@@ -29,6 +29,11 @@ namespace SubGuard.Service.Services
 
         public async Task<CustomResponseDto<UserSubscriptionDto>> AddSubscriptionAsync(UserSubscriptionDto dto)
         {
+            // Aynı kullanıcıya ait aynı isimde abonelik var mı?
+            var duplicate = await _repo.Where(x => x.UserId == dto.UserId && x.Name == dto.Name).AnyAsync();
+            if (duplicate)
+                return CustomResponseDto<UserSubscriptionDto>.Fail(409, $"'{dto.Name}' adında bir aboneliğiniz zaten mevcut.");
+
             // Transaction Başlat
             await _unitOfWork.BeginTransactionAsync();
 
@@ -150,6 +155,14 @@ namespace SubGuard.Service.Services
                 {
                     await _unitOfWork.RollbackTransactionAsync();
                     return CustomResponseDto<bool>.Fail(404, "Abonelik bulunamadı.");
+                }
+
+                // Farklı bir abonelikte aynı isim var mı?
+                var duplicate = await _repo.Where(x => x.UserId == dto.UserId && x.Name == dto.Name && x.Id != dto.Id).AnyAsync();
+                if (duplicate)
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    return CustomResponseDto<bool>.Fail(409, $"'{dto.Name}' adında bir aboneliğiniz zaten mevcut.");
                 }
 
                 // 2. Mevcut rengi yedekle
