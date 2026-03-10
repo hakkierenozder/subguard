@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using SabGuard.Data.UnitOfWork;
+using SubGuard.Data.UnitOfWork;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.DTOs.Auth;
 using SubGuard.Core.Entities;
@@ -113,11 +113,18 @@ namespace SubGuard.Service.Services
             if (user == null)
                 return CustomResponseDto<TokenDto>.Fail(404, "Kullanıcı bulunamadı.");
 
+            if (await _userManager.IsLockedOutAsync(user))
+                return CustomResponseDto<TokenDto>.Fail(423, "Çok fazla hatalı giriş denemesi yapıldı. Hesabınız 15 dakika süreyle kilitlenmiştir.");
+
             var checkPassword = await _userManager.CheckPasswordAsync(user, loginDto.Password);
 
             if (!checkPassword)
+            {
+                await _userManager.AccessFailedAsync(user);
                 return CustomResponseDto<TokenDto>.Fail(400, "E-posta veya şifre hatalı.");
+            }
 
+            await _userManager.ResetAccessFailedCountAsync(user);
             return await GenerateToken(user);
         }
 

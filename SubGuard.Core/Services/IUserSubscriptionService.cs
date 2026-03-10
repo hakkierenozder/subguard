@@ -9,6 +9,6 @@ namespace SubGuard.Core.Services
         Task<CustomResponseDto<List<UserSubscriptionDto>>> GetUserSubscriptionsAsync(string userId);
         Task<CustomResponseDto<UserSubscriptionDto>> AddSubscriptionAsync(UserSubscriptionDto dto);
         Task<CustomResponseDto<bool>> UpdateSubscriptionAsync(UserSubscriptionDto dto);
-        Task<CustomResponseDto<bool>> RemoveSubscriptionAsync(int id);
+        Task<CustomResponseDto<bool>> RemoveSubscriptionAsync(int id, string userId);
     }
 }

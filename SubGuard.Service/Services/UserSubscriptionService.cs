@@ -101,10 +101,8 @@ namespace SubGuard.Service.Services
             return CustomResponseDto<List<UserSubscriptionDto>>.Success(200, subscriptionDtos);
         }
 
-        public async Task<CustomResponseDto<bool>> RemoveSubscriptionAsync(int id)
+        public async Task<CustomResponseDto<bool>> RemoveSubscriptionAsync(int id, string userId)
         {
-            // Silme işlemi de kritik olduğu için Transaction içine alabiliriz, 
-            // ancak talep create/update içindi. Tutarlılık adına buraya da ekliyorum.
             await _unitOfWork.BeginTransactionAsync();
 
             try
@@ -112,9 +110,14 @@ namespace SubGuard.Service.Services
                 var entity = await _repo.GetByIdAsync(id);
                 if (entity == null)
                 {
-                    // Kayıt yoksa transaction rollback yapmaya gerek yok ama temiz kapatmak iyidir.
                     await _unitOfWork.RollbackTransactionAsync();
-                    return CustomResponseDto<bool>.Fail(404, "Kayıt bulunamadı");
+                    return CustomResponseDto<bool>.Fail(404, "Kayıt bulunamadı.");
+                }
+
+                if (entity.UserId != userId)
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    return CustomResponseDto<bool>.Fail(403, "Bu aboneliği silme yetkiniz yok.");
                 }
 
                 _repo.Remove(entity);

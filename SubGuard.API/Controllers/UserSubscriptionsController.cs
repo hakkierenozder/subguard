@@ -53,12 +53,7 @@ namespace SubGuard.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Remove(int id)
         {
-            // GÜVENLİK UYARISI: 
-            // Generic Remove(id) kullanırsak, başkasının aboneliğini silebiliriz.
-            // Service katmanında "RemoveSubscriptionOfUser(int id, string userId)" gibi bir metot olmalı.
-            // Şimdilik mevcut yapıyı koruyarak ID gönderiyoruz ama Service tarafında kontrol şart.
-
-            return CreateActionResult(await _service.RemoveSubscriptionAsync(id));
+            return CreateActionResult(await _service.RemoveSubscriptionAsync(id, LoggedInUserId));
         }
     }
 }

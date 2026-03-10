@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet user-secrets init)",
+      "Bash(dotnet user-secrets set \"ConnectionStrings:DefaultConnection\" \"Host=localhost;Port=5432;Database=SubGuardDb;Username=postgres;Password=mysecretpassword;\")",
+      "Bash(dotnet user-secrets set \"JwtSettings:SecretKey\" \"5VOpjMpf3mBKEAAQ+dkJe6KFDL8gTa9zftVKXwv6czA=\")",
+      "Bash(dotnet build --no-restore -v q)"
+    ]
+  }
+}

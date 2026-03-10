@@ -8,7 +8,7 @@ using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SabGuard.Data.Configurations
+namespace SubGuard.Data.Configurations
 {
     public class CatalogConfiguration : IEntityTypeConfiguration<Catalog>
     {

@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SubGuard.Core.DTOs.Auth;
 using SubGuard.Core.Services;
-using System.Security.Claims; // Bunu eklemeyi unutma
-using Microsoft.AspNetCore.Authorization; // Bunu eklemeyi unutma
+using System.Security.Claims;
 
 namespace SubGuard.API.Controllers
 {
@@ -18,15 +19,15 @@ namespace SubGuard.API.Controllers
         }
 
         [HttpPost("register")]
+        [EnableRateLimiting("auth")]
         public async Task<IActionResult> Register(RegisterDto registerDto)
         {
-            // Validasyon otomatik yapılacak (FluentValidation entegre edilince)
-            // Hata olursa Middleware yakalayacak
             var response = await _authService.RegisterAsync(registerDto);
             return CreateActionResult(response);
         }
 
         [HttpPost("login")]
+        [EnableRateLimiting("auth")]
         public async Task<IActionResult> Login(LoginDto loginDto)
         {
             var response = await _authService.LoginAsync(loginDto);

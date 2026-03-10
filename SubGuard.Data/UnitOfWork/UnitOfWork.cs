@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
 using SubGuard.Core.UnitOfWork;
 
-namespace SabGuard.Data.UnitOfWork
+namespace SubGuard.Data.UnitOfWork
 {
     public class UnitOfWork : IUnitOfWork
     {

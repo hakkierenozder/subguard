@@ -5,26 +5,27 @@ using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
 using Polly;
 using Polly.Extensions.Http;
-using SabGuard.Data.Repositories;
-using SabGuard.Data.UnitOfWork;
-using Serilog; // <--- EKLENDÝ
+using SubGuard.Data.Repositories;
+using SubGuard.Data.UnitOfWork;
+using Serilog;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.Entities;
 using SubGuard.Core.Repositories;
 using SubGuard.Core.Services;
 using SubGuard.Core.UnitOfWork;
-using SubGuard.Data.Repositories;
 using SubGuard.Service.Mapping;
 using SubGuard.Service.Services;
 using SubGuard.Service.Validations;
 using System.Reflection;
+using System.Threading.RateLimiting;
 
-// 1. Serilog Kurulumu (Builder'dan önce)
+// 1. Serilog Kurulumu (Builder'dan ï¿½nce)
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(new ConfigurationBuilder()
         .AddJsonFile("appsettings.json")
@@ -34,22 +35,22 @@ Log.Logger = new LoggerConfiguration()
 
 try
 {
-    Log.Information("Uygulama baþlatýlýyor...");
+    Log.Information("Uygulama baï¿½latï¿½lï¿½yor...");
 
     var builder = WebApplication.CreateBuilder(args);
 
     // --- POLLY POLICY TANIMLARI ---
-    // 1. Retry Policy: Hata alýrsa 3 kez, 2'þer saniye arayla dene.
+    // 1. Retry Policy: Hata alï¿½rsa 3 kez, 2'ï¿½er saniye arayla dene.
     var retryPolicy = HttpPolicyExtensions
         .HandleTransientHttpError()
         .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(2));
 
-    // 2. Circuit Breaker: Ardýþýk 5 hatadan sonra 30 saniye sistemi kapat (devreyi kes).
+    // 2. Circuit Breaker: Ardï¿½ï¿½ï¿½k 5 hatadan sonra 30 saniye sistemi kapat (devreyi kes).
     var circuitBreakerPolicy = HttpPolicyExtensions
         .HandleTransientHttpError()
         .CircuitBreakerAsync(5, TimeSpan.FromSeconds(30));
 
-    // CurrencyService'i HttpClient ile baðla ve Policy'leri ekle
+    // CurrencyService'i HttpClient ile baï¿½la ve Policy'leri ekle
     builder.Services.AddHttpClient<ICurrencyService, CurrencyService>(client =>
     {
         client.BaseAddress = new Uri("https://api.frankfurter.app/");
@@ -57,10 +58,10 @@ try
     .AddPolicyHandler(retryPolicy)
     .AddPolicyHandler(circuitBreakerPolicy);
 
-    // 2. Host'a Serilog'u baðla
+    // 2. Host'a Serilog'u baï¿½la
     builder.Host.UseSerilog();
 
-    // --- MEVCUT SERVÝS KAYITLARI (Deðiþiklik Yok) ---
+    // --- MEVCUT SERVï¿½S KAYITLARI (Deï¿½iï¿½iklik Yok) ---
     builder.Services.AddFluentValidationAutoValidation();
     builder.Services.AddValidatorsFromAssemblyContaining<RegisterDtoValidator>();
 
@@ -93,11 +94,16 @@ try
     builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
     {
         options.User.RequireUniqueEmail = true;
-        options.Password.RequireNonAlphanumeric = false;
-        options.Password.RequireDigit = false;
-        options.Password.RequireLowercase = false;
-        options.Password.RequireUppercase = false;
-        options.Password.RequiredLength = 6;
+        options.Password.RequireNonAlphanumeric = true;
+        options.Password.RequireDigit = true;
+        options.Password.RequireLowercase = true;
+        options.Password.RequireUppercase = true;
+        options.Password.RequiredLength = 8;
+
+        // Account Lockout: 5 hatalÄ± denemede 15 dakika kilitle
+        options.Lockout.MaxFailedAccessAttempts = 5;
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+        options.Lockout.AllowedForNewUsers = true;
     })
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
@@ -124,37 +130,62 @@ try
         };
     });
 
+    // CORS
+    var allowedOrigins = builder.Configuration.GetSection("AllowedCorsOrigins").Get<string[]>() ?? Array.Empty<string>();
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("SubGuardCorsPolicy", policy =>
+        {
+            policy.WithOrigins(allowedOrigins)
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+    });
+
+    // Rate Limiting: auth endpoint'leri iÃ§in dakikada 10 istek
+    builder.Services.AddRateLimiter(options =>
+    {
+        options.AddFixedWindowLimiter("auth", limiterOptions =>
+        {
+            limiterOptions.PermitLimit = 10;
+            limiterOptions.Window = TimeSpan.FromMinutes(1);
+            limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+            limiterOptions.QueueLimit = 0;
+        });
+        options.RejectionStatusCode = 429;
+    });
+
     builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
     builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
     builder.Services.AddScoped<ICatalogRepository, CatalogRepository>();
     builder.Services.AddMemoryCache();
 
-    // 2. Decorator Pattern Uygulamasý
-    // Önce asýl servisi (Concrete) kaydediyoruz.
+    // 2. Decorator Pattern Uygulamasï¿½
+    // ï¿½nce asï¿½l servisi (Concrete) kaydediyoruz.
     builder.Services.AddScoped<CatalogService>();
 
-    // Sonra Interface istendiðinde Decorator dönecek þekilde ayarlýyoruz.
+    // Sonra Interface istendiï¿½inde Decorator dï¿½necek ï¿½ekilde ayarlï¿½yoruz.
     builder.Services.AddScoped<ICatalogService>(provider =>
     {
-        // Asýl servisin instance'ýný al
+        // Asï¿½l servisin instance'ï¿½nï¿½ al
         var actualService = provider.GetRequiredService<CatalogService>();
-        // Cache mekanizmasýný al
+        // Cache mekanizmasï¿½nï¿½ al
         var memoryCache = provider.GetRequiredService<IMemoryCache>();
 
-        // Decorator içine asýl servisi ve cache'i vererek instance oluþtur
+        // Decorator iï¿½ine asï¿½l servisi ve cache'i vererek instance oluï¿½tur
         return new SubGuard.Service.Services.Decorators.CachedCatalogService(actualService, memoryCache);
     });
     builder.Services.AddScoped<IUserSubscriptionService, UserSubscriptionService>();
     builder.Services.AddScoped<IAuthService, AuthService>();
     builder.Services.AddScoped<INotificationService, NotificationService>();
-    // 1. HANGFIRE KONFÝGÜRASYONU
+    // 1. HANGFIRE KONFï¿½Gï¿½RASYONU
     builder.Services.AddHangfire(config => config
         .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
         .UseSimpleAssemblyNameTypeSerializer()
         .UseRecommendedSerializerSettings()
         .UsePostgreSqlStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-    // Hangfire Server'ý ekle (Arka planda iþleri yürütecek sunucu)
+    // Hangfire Server'ï¿½ ekle (Arka planda iï¿½leri yï¿½rï¿½tecek sunucu)
     builder.Services.AddHangfireServer();
     builder.Services.AddAutoMapper(typeof(MapProfile));
 
@@ -162,7 +193,7 @@ try
 
 
 
-    // 3. HTTP Ýstek Loglama (Request Logging)
+    // 3. HTTP ï¿½stek Loglama (Request Logging)
     app.UseSerilogRequestLogging();
 
     if (app.Environment.IsDevelopment())
@@ -172,42 +203,44 @@ try
     }
 
     // 2. HANGFIRE DASHBOARD VE JOB TANIMI
-    app.UseHangfireDashboard("/hangfire"); // Dashboard'a /hangfire adresinden eriþilebilir
+    app.UseHangfireDashboard("/hangfire"); // Dashboard'a /hangfire adresinden eriï¿½ilebilir
 
 
 
-    // --- RECURRING JOB: GÜNLÜK KUR GÜNCELLEME ---
-    // Her sabah 08:00'de kurlarý güncelle
+    // --- RECURRING JOB: Gï¿½NLï¿½K KUR Gï¿½NCELLEME ---
+    // Her sabah 08:00'de kurlarï¿½ gï¿½ncelle
     RecurringJob.AddOrUpdate<ICurrencyService>(
         "daily-currency-update",
         service => service.UpdateRatesAsync(),
-        "0 8 * * *" // Cron: Her gün saat 08:00
+        "0 8 * * *" // Cron: Her gï¿½n saat 08:00
     );
 
-    // Recurring Job Tanýmý
-    // ServiceProvider üzerinden servisi çaðýrmamýz gerekebilir veya Hangfire Activator kullanýr.
-    // Basitçe RecurringJob.AddOrUpdate metodu generic tip desteði ile DI container'ý kullanýr.
+    // Recurring Job Tanï¿½mï¿½
+    // ServiceProvider ï¿½zerinden servisi ï¿½aï¿½ï¿½rmamï¿½z gerekebilir veya Hangfire Activator kullanï¿½r.
+    // Basitï¿½e RecurringJob.AddOrUpdate metodu generic tip desteï¿½i ile DI container'ï¿½ kullanï¿½r.
 
     RecurringJob.AddOrUpdate<INotificationService>(
         "daily-payment-check",
-        service => service.CheckAndQueueUpcomingPaymentsAsync(3), // 3 gün öncesi
+        service => service.CheckAndQueueUpcomingPaymentsAsync(3), // 3 gï¿½n ï¿½ncesi
         Cron.Daily // Her gece 00:00 (UTC)
     );
 
-    // Global Exception Middleware (Mevcut yapýn korunuyor)
-    // Serilog ILogger implemente ettiði için Middleware içindeki _logger.LogError otomatik olarak Serilog'a yazar.
+    // Global Exception Middleware (Mevcut yapï¿½n korunuyor)
+    // Serilog ILogger implemente ettiï¿½i iï¿½in Middleware iï¿½indeki _logger.LogError otomatik olarak Serilog'a yazar.
     app.UseMiddleware<SubGuard.API.Middlewares.GlobalExceptionMiddleware>();
 
     app.UseHttpsRedirection();
+    app.UseRateLimiter();
+    app.UseCors("SubGuardCorsPolicy");
     app.UseAuthentication();
-    // ---> YENÝ EKLENECEK BLOK BAÞLANGIÇ (UserName Enrichment)
+    // ---> YENï¿½ EKLENECEK BLOK BAï¿½LANGIï¿½ (UserName Enrichment)
     app.Use(async (context, next) =>
     {
         var username = context.User?.Identity?.IsAuthenticated == true
             ? context.User.Identity.Name
-            : "Anonymous"; // Giriþ yapmamýþsa Anonim yazsýn
+            : "Anonymous"; // Giriï¿½ yapmamï¿½ï¿½sa Anonim yazsï¿½n
 
-        // LogContext'e "UserName" özelliðini itiyoruz
+        // LogContext'e "UserName" ï¿½zelliï¿½ini itiyoruz
         using (Serilog.Context.LogContext.PushProperty("UserName", username))
         {
             await next();
@@ -220,7 +253,7 @@ try
 }
 catch (Exception ex)
 {
-    Log.Fatal(ex, "Uygulama beklenmedik bir hatayla sonlandý (Host Terminated).");
+    Log.Fatal(ex, "Uygulama beklenmedik bir hatayla sonlandï¿½ (Host Terminated).");
 }
 finally
 {

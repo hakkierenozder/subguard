@@ -63,3 +63,41 @@
 2026-01-05 19:21:57.797 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 1.4889 ms
 2026-01-05 19:21:57.801 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.5930 ms
 2026-01-05 19:21:57.802 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 2.5284 ms
+2026-01-05 19:22:22.068 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.1964 ms
+2026-01-05 19:22:22.074 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.9663 ms
+2026-01-05 19:22:22.530 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.5339 ms
+2026-01-05 19:22:22.536 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.6410 ms
+2026-01-05 19:22:27.270 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.4596 ms
+2026-01-05 19:30:10.003 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.2330 ms
+2026-01-05 19:30:10.009 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.6795 ms
+2026-01-05 19:30:10.426 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.2106 ms
+2026-01-05 19:30:10.431 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.2243 ms
+2026-01-05 19:30:15.258 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.7942 ms
+2026-01-05 19:33:43.836 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.4660 ms
+2026-01-05 19:33:43.841 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.8423 ms
+2026-01-05 19:33:44.251 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.3238 ms
+2026-01-05 19:33:44.256 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.6696 ms
+2026-01-05 19:33:56.476 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.8205 ms
+2026-01-05 19:40:45.430 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.5826 ms
+2026-01-05 19:40:45.433 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.9460 ms
+2026-01-05 19:40:45.433 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.7934 ms
+2026-01-05 19:40:47.061 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.3081 ms
+2026-01-05 19:40:49.312 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.2786 ms
+2026-01-05 20:03:29.418 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.5970 ms
+2026-01-05 20:03:29.423 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.2090 ms
+2026-01-05 20:03:29.536 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.1997 ms
+2026-01-05 20:03:29.540 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.2045 ms
+2026-01-05 20:03:30.847 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.3412 ms
+2026-01-05 20:05:17.259 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 102.0697 ms
+2026-01-05 20:05:17.458 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.3063 ms
+2026-01-05 20:05:17.465 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.9027 ms
+2026-01-05 20:05:17.555 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.1704 ms
+2026-01-05 20:05:17.558 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.0423 ms
+2026-01-05 20:05:22.319 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.3439 ms
+2026-01-05 20:06:52.314 +03:00 [WRN] [User: ] Stopping the server due to DomainUnload or ProcessExit event...
+2026-01-05 20:06:52.315 +03:00 [INF] [User: ] Server desktop-25vqrpg:21996:93e032f4 caught stopping signal...
+2026-01-05 20:06:52.316 +03:00 [INF] [User: ] Server desktop-25vqrpg:21996:93e032f4 caught stopped signal...
+2026-01-05 20:06:52.317 +03:00 [WRN] [User: ] Server desktop-25vqrpg:21996:93e032f4 caught shutdown signal...
+2026-01-05 20:06:52.319 +03:00 [INF] [User: ] Server desktop-25vqrpg:21996:93e032f4 All dispatchers stopped
+2026-01-05 20:06:52.332 +03:00 [INF] [User: ] Server desktop-25vqrpg:21996:93e032f4 successfully reported itself as stopped in 10,4415 ms
+2026-01-05 20:06:52.332 +03:00 [INF] [User: ] Server desktop-25vqrpg:21996:93e032f4 has been stopped in total 16,2341 ms
