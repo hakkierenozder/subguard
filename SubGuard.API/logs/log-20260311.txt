@@ -1,0 +1,132 @@
+2026-03-11 14:39:58.222 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-11 14:39:58.409 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 192
+2026-03-11 14:40:14.982 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-11 14:40:15.101 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 192
+2026-03-11 14:41:24.868 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-11 14:41:25.049 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 192
+2026-03-11 14:43:22.923 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-11 14:43:23.106 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 192
+2026-03-11 14:46:20.967 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-11 14:46:21.080 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 193
+2026-03-11 14:46:29.792 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-11 14:46:29.894 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 193
+2026-03-11 14:47:03.855 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-11 14:47:03.964 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 193
+2026-03-11 14:51:38.385 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-11 14:52:00.263 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-11 14:53:02.492 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+System.InvalidOperationException: The ConnectionString property has not been initialized.
+   at Npgsql.NpgsqlConnection.Open(Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.Open()
+   at Hangfire.PostgreSql.PostgreSqlStorage.CreateAndOpenConnection()
+   at Hangfire.PostgreSql.PostgreSqlConnection.AcquireLock(String resource, TimeSpan timeout)
+   at Hangfire.PostgreSql.PostgreSqlConnection.AcquireDistributedLock(String resource, TimeSpan timeout)
+   at Hangfire.RecurringJobExtensions.AcquireDistributedRecurringJobLock(IStorageConnection connection, String recurringJobId, TimeSpan timeout) in C:\projects\hangfire-525\src\Hangfire.Core\RecurringJobExtensions.cs:line 39
+   at Hangfire.RecurringJobManager.AddOrUpdate(String recurringJobId, Job job, String cronExpression, RecurringJobOptions options) in C:\projects\hangfire-525\src\Hangfire.Core\RecurringJobManager.cs:line 112
+   at Hangfire.RecurringJob.AddOrUpdate[T](String recurringJobId, Expression`1 methodCall, String cronExpression, RecurringJobOptions options) in C:\projects\hangfire-525\src\Hangfire.Core\RecurringJob.cs:line 618
+   at Hangfire.RecurringJob.AddOrUpdate[T](String recurringJobId, Expression`1 methodCall, String cronExpression) in C:\projects\hangfire-525\src\Hangfire.Core\RecurringJob.cs:line 608
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 213
+2026-03-11 14:53:43.209 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-11 14:54:48.188 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-11 14:55:50.435 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+System.InvalidOperationException: The ConnectionString property has not been initialized.
+   at Npgsql.NpgsqlConnection.Open(Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.Open()
+   at Hangfire.PostgreSql.PostgreSqlStorage.CreateAndOpenConnection()
+   at Hangfire.PostgreSql.PostgreSqlConnection.AcquireLock(String resource, TimeSpan timeout)
+   at Hangfire.PostgreSql.PostgreSqlConnection.AcquireDistributedLock(String resource, TimeSpan timeout)
+   at Hangfire.RecurringJobExtensions.AcquireDistributedRecurringJobLock(IStorageConnection connection, String recurringJobId, TimeSpan timeout) in C:\projects\hangfire-525\src\Hangfire.Core\RecurringJobExtensions.cs:line 39
+   at Hangfire.RecurringJobManager.AddOrUpdate(String recurringJobId, Job job, String cronExpression, RecurringJobOptions options) in C:\projects\hangfire-525\src\Hangfire.Core\RecurringJobManager.cs:line 112
+   at Hangfire.RecurringJob.AddOrUpdate[T](String recurringJobId, Expression`1 methodCall, String cronExpression, RecurringJobOptions options) in C:\projects\hangfire-525\src\Hangfire.Core\RecurringJob.cs:line 618
+   at Hangfire.RecurringJob.AddOrUpdate[T](String recurringJobId, Expression`1 methodCall, String cronExpression) in C:\projects\hangfire-525\src\Hangfire.Core\RecurringJob.cs:line 608
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 213
+2026-03-11 14:57:06.030 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-11 14:57:06.262 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-11 14:57:06.294 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-11 14:57:06.748 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-11 14:57:06.749 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-11 14:57:06.750 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-11 14:57:06.751 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-11 14:57:06.752 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-11 14:57:06.753 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-11 14:57:06.776 +03:00 [INF] [User: ] Server desktop-25vqrpg:30580:3a967943 successfully announced in 10,7969 ms
+2026-03-11 14:57:06.779 +03:00 [INF] [User: ] Server desktop-25vqrpg:30580:3a967943 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-11 14:57:06.784 +03:00 [INF] [User: ] Server desktop-25vqrpg:30580:3a967943 all the dispatchers started
+2026-03-11 14:57:06.911 +03:00 [INF] [User: ] Güncel kurlar çekiliyor...
+2026-03-11 14:57:07.310 +03:00 [INF] [User: ] Kurlar güncellendi: {"USD":44.045,"EUR":51.273,"GBP":59.244}
+2026-03-11 14:59:50.177 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-11 14:59:50.435 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: hako19071@gmail.com
+2026-03-11 14:59:50.600 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 436.0542 ms
+2026-03-11 14:59:51.012 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 98.6023 ms
+2026-03-11 14:59:51.151 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 238.7940 ms
+2026-03-11 14:59:51.151 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 96.3534 ms
+2026-03-11 14:59:51.158 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 107.9554 ms
+2026-03-11 14:59:58.287 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 13.2977 ms
+2026-03-11 14:59:58.422 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.9131 ms
+2026-03-11 14:59:58.424 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.7607 ms
+2026-03-11 15:00:06.133 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.3801 ms
+2026-03-11 15:00:06.134 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 6.6349 ms
+2026-03-11 15:00:06.140 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.6258 ms
+2026-03-11 15:00:16.025 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.3014 ms
+2026-03-11 15:00:20.159 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.3830 ms
+2026-03-11 15:00:26.056 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.8489 ms

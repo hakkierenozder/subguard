@@ -1,12 +1,17 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SubGuard.Core.Entities;
 using System.Reflection;
+using System.Security.Claims;
 
 public class AppDbContext : IdentityDbContext<AppUser>
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAccessor httpContextAccessor) : base(options)
     {
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public DbSet<Catalog> Catalogs { get; set; }
@@ -17,6 +22,9 @@ public class AppDbContext : IdentityDbContext<AppUser>
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
+        var currentUserId = _httpContextAccessor.HttpContext?
+            .User.FindFirstValue(ClaimTypes.NameIdentifier);
+
         foreach (var item in ChangeTracker.Entries())
         {
             if (item.Entity is BaseEntity entityReference)
@@ -26,12 +34,12 @@ public class AppDbContext : IdentityDbContext<AppUser>
                     case EntityState.Added:
                         entityReference.CreatedDate = DateTime.UtcNow;
                         entityReference.IsDeleted = false;
+                        entityReference.CreatedBy = currentUserId;
                         break;
 
                     case EntityState.Modified:
-                        // Remove metodu Update olarak çalıştığı için buraya düşecek 
-                        // ve UpdatedDate otomatik set edilecek.
                         entityReference.UpdatedDate = DateTime.UtcNow;
+                        entityReference.UpdatedBy = currentUserId;
                         break;
                 }
             }

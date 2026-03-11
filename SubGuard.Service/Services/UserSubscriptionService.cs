@@ -1,5 +1,7 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using SubGuard.Core.Constants;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.Entities;
 using SubGuard.Core.Repositories;
@@ -14,72 +16,76 @@ namespace SubGuard.Service.Services
         private readonly IGenericRepository<Catalog> _catalogRepo;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ILogger<UserSubscriptionService> _logger;
 
         public UserSubscriptionService(
             IGenericRepository<UserSubscription> repo,
             IGenericRepository<Catalog> catalogRepo,
             IUnitOfWork unitOfWork,
-            IMapper mapper)
+            IMapper mapper,
+            ILogger<UserSubscriptionService> logger)
         {
             _repo = repo;
             _catalogRepo = catalogRepo;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _logger = logger;
         }
+
+        // --- RENK KODU YARDIMCILARI ---
+
+        private static string ResolveColorCode(string? entityColor, string? catalogColor) =>
+            !string.IsNullOrEmpty(entityColor) ? entityColor :
+            !string.IsNullOrEmpty(catalogColor) ? catalogColor :
+            AppConstants.Subscription.DefaultColorCode;
+
+        private async Task<string> ResolveColorCodeAsync(UserSubscription entity, string? precedingColor = null)
+        {
+            if (!string.IsNullOrEmpty(entity.ColorCode)) return entity.ColorCode;
+            if (!string.IsNullOrEmpty(precedingColor)) return precedingColor;
+            if (entity.CatalogId.HasValue)
+            {
+                var catalog = await _catalogRepo.GetByIdAsync(entity.CatalogId.Value);
+                if (!string.IsNullOrEmpty(catalog?.ColorCode)) return catalog.ColorCode;
+            }
+            return AppConstants.Subscription.DefaultColorCode;
+        }
+
+        // --- CRUD ---
 
         public async Task<CustomResponseDto<UserSubscriptionDto>> AddSubscriptionAsync(UserSubscriptionDto dto)
         {
-            // Aynı kullanıcıya ait aynı isimde abonelik var mı?
             var duplicate = await _repo.Where(x => x.UserId == dto.UserId && x.Name == dto.Name).AnyAsync();
             if (duplicate)
+            {
+                _logger.LogWarning("Mükerrer abonelik ekleme denemesi. UserId: {UserId}, Name: {Name}", dto.UserId, dto.Name);
                 return CustomResponseDto<UserSubscriptionDto>.Fail(409, $"'{dto.Name}' adında bir aboneliğiniz zaten mevcut.");
+            }
 
-            // Transaction Başlat
             await _unitOfWork.BeginTransactionAsync();
 
             try
             {
                 var entity = _mapper.Map<UserSubscription>(dto);
-
-                // Renk ve Katalog kontrolü
-                if (string.IsNullOrEmpty(entity.ColorCode) && entity.CatalogId.HasValue)
-                {
-                    var catalogItem = await _catalogRepo.GetByIdAsync(entity.CatalogId.Value);
-
-                    if (catalogItem != null)
-                    {
-                        entity.ColorCode = catalogItem.ColorCode;
-                    }
-                }
-
-                // Varsayılan renk
-                if (string.IsNullOrEmpty(entity.ColorCode))
-                {
-                    entity.ColorCode = "#333333";
-                }
+                entity.ColorCode = await ResolveColorCodeAsync(entity);
 
                 await _repo.AddAsync(entity);
-
-                // Önce veritabanına SaveChanges yapıyoruz (ID oluşması vs. için gerekebilir)
                 await _unitOfWork.CommitAsync();
-
-                // Her şey yolundaysa Transaction'ı onayla
                 await _unitOfWork.CommitTransactionAsync();
 
-                var newDto = _mapper.Map<UserSubscriptionDto>(entity);
-                return CustomResponseDto<UserSubscriptionDto>.Success(200, newDto);
+                _logger.LogInformation("Abonelik eklendi. UserId: {UserId}, Name: {Name}", dto.UserId, entity.Name);
+                return CustomResponseDto<UserSubscriptionDto>.Success(200, _mapper.Map<UserSubscriptionDto>(entity));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Hata durumunda işlemleri geri al
+                _logger.LogError(ex, "Abonelik ekleme hatası. UserId: {UserId}", dto.UserId);
                 await _unitOfWork.RollbackTransactionAsync();
-                throw; // Hatayı middleware yakalaması için fırlatıyoruz
+                throw;
             }
         }
 
         public async Task<CustomResponseDto<List<UserSubscriptionDto>>> GetUserSubscriptionsAsync(string userId)
         {
-            // Read işlemlerinde genellikle Transaction gerekmez, mevcut yapıyı koruyoruz.
             var subscriptions = await _repo.Where(x => x.UserId == userId)
                                            .Include(x => x.Catalog)
                                            .ToListAsync();
@@ -88,19 +94,8 @@ namespace SubGuard.Service.Services
 
             foreach (var dto in subscriptionDtos)
             {
-                if (string.IsNullOrEmpty(dto.ColorCode))
-                {
-                    var entity = subscriptions.FirstOrDefault(x => x.Id == dto.Id);
-
-                    if (entity?.Catalog != null)
-                    {
-                        dto.ColorCode = entity.Catalog.ColorCode;
-                    }
-                    else
-                    {
-                        dto.ColorCode = "#333333";
-                    }
-                }
+                var entity = subscriptions.FirstOrDefault(x => x.Id == dto.Id);
+                dto.ColorCode = ResolveColorCode(dto.ColorCode, entity?.Catalog?.ColorCode);
             }
 
             return CustomResponseDto<List<UserSubscriptionDto>>.Success(200, subscriptionDtos);
@@ -121,6 +116,7 @@ namespace SubGuard.Service.Services
 
                 if (entity.UserId != userId)
                 {
+                    _logger.LogWarning("Yetkisiz abonelik silme denemesi. UserId: {UserId}, SubscriptionId: {Id}", userId, id);
                     await _unitOfWork.RollbackTransactionAsync();
                     return CustomResponseDto<bool>.Fail(403, "Bu aboneliği silme yetkiniz yok.");
                 }
@@ -129,10 +125,12 @@ namespace SubGuard.Service.Services
                 await _unitOfWork.CommitAsync();
                 await _unitOfWork.CommitTransactionAsync();
 
+                _logger.LogInformation("Abonelik silindi. UserId: {UserId}, SubscriptionId: {Id}", userId, id);
                 return CustomResponseDto<bool>.Success(204);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Abonelik silme hatası. Id: {Id}", id);
                 await _unitOfWork.RollbackTransactionAsync();
                 throw;
             }
@@ -140,71 +138,39 @@ namespace SubGuard.Service.Services
 
         public async Task<CustomResponseDto<bool>> UpdateSubscriptionAsync(UserSubscriptionDto dto)
         {
-            // Güncelleme öncesi kaydın varlığını kontrol etmek mantıklıdır.
-            // Bu sorguyu Transaction dışında yapabiliriz (Dirty Read önemsizse), 
-            // ama tam tutarlılık için içeri alıyorum.
-
             await _unitOfWork.BeginTransactionAsync();
 
             try
             {
-                // 1. Mevcut kaydı çek
                 var entity = await _repo.GetByIdAsync(dto.Id);
-
                 if (entity == null)
                 {
                     await _unitOfWork.RollbackTransactionAsync();
                     return CustomResponseDto<bool>.Fail(404, "Abonelik bulunamadı.");
                 }
 
-                // Farklı bir abonelikte aynı isim var mı?
                 var duplicate = await _repo.Where(x => x.UserId == dto.UserId && x.Name == dto.Name && x.Id != dto.Id).AnyAsync();
                 if (duplicate)
                 {
+                    _logger.LogWarning("Mükerrer abonelik güncelleme denemesi. UserId: {UserId}, Name: {Name}", dto.UserId, dto.Name);
                     await _unitOfWork.RollbackTransactionAsync();
                     return CustomResponseDto<bool>.Fail(409, $"'{dto.Name}' adında bir aboneliğiniz zaten mevcut.");
                 }
 
-                // 2. Mevcut rengi yedekle
                 var oldColor = entity.ColorCode;
-
-                // 3. DTO verisini Entity üzerine yaz
                 _mapper.Map(dto, entity);
-
-                // --- RENK KONTROL MANTIĞI (Aynen Korundu) ---
-                if (string.IsNullOrEmpty(entity.ColorCode))
-                {
-                    if (!string.IsNullOrEmpty(oldColor))
-                    {
-                        entity.ColorCode = oldColor;
-                    }
-                    else if (entity.CatalogId.HasValue)
-                    {
-                        var catalogItem = await _catalogRepo.GetByIdAsync(entity.CatalogId.Value);
-                        if (catalogItem != null)
-                        {
-                            entity.ColorCode = catalogItem.ColorCode;
-                        }
-                    }
-                    else
-                    {
-                        entity.ColorCode = "#333333";
-                    }
-                }
-                // --- RENK KONTROL BİTİŞ ---
+                entity.ColorCode = await ResolveColorCodeAsync(entity, oldColor);
 
                 _repo.Update(entity);
-
-                // DB'ye yansıt
                 await _unitOfWork.CommitAsync();
-
-                // Transaction'ı onayla
                 await _unitOfWork.CommitTransactionAsync();
 
+                _logger.LogInformation("Abonelik güncellendi. UserId: {UserId}, SubscriptionId: {Id}", dto.UserId, dto.Id);
                 return CustomResponseDto<bool>.Success(204);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Abonelik güncelleme hatası. Id: {Id}", dto.Id);
                 await _unitOfWork.RollbackTransactionAsync();
                 throw;
             }

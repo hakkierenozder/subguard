@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using SubGuard.Data.UnitOfWork;
+using SubGuard.Core.Constants;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.DTOs.Auth;
 using SubGuard.Core.Entities;
@@ -20,16 +22,18 @@ namespace SubGuard.Service.Services
         private readonly UserManager<AppUser> _userManager;
         private readonly IGenericRepository<UserSubscription> _subRepo;
         private readonly IConfiguration _configuration;
-        private readonly IGenericRepository<RefreshToken> _refreshTokenRepo; // EKLENDİ
-        private readonly IUnitOfWork _unitOfWork; // EKLENDİ
+        private readonly IGenericRepository<RefreshToken> _refreshTokenRepo;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<AuthService> _logger;
 
-        public AuthService(UserManager<AppUser> userManager, IConfiguration configuration, IGenericRepository<UserSubscription> subRepo, IGenericRepository<RefreshToken> refreshTokenRepo, IUnitOfWork unitOfWork)
+        public AuthService(UserManager<AppUser> userManager, IConfiguration configuration, IGenericRepository<UserSubscription> subRepo, IGenericRepository<RefreshToken> refreshTokenRepo, IUnitOfWork unitOfWork, ILogger<AuthService> logger)
         {
             _userManager = userManager;
             _configuration = configuration;
-            _subRepo = subRepo; // Bunu ekle
+            _subRepo = subRepo;
             _refreshTokenRepo = refreshTokenRepo;
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         public async Task<CustomResponseDto<TokenDto>> RegisterAsync(RegisterDto registerDto)
@@ -46,10 +50,11 @@ namespace SubGuard.Service.Services
             if (!result.Succeeded)
             {
                 var errors = result.Errors.Select(x => x.Description).ToList();
+                _logger.LogWarning("Kayıt başarısız. Email: {Email}. Hatalar: {Errors}", registerDto.Email, string.Join(", ", errors));
                 return CustomResponseDto<TokenDto>.Fail(400, errors);
             }
 
-            // Kayıt başarılı, direkt token dönelim
+            _logger.LogInformation("Yeni kullanıcı kaydı: {Email}", user.Email);
             return await GenerateToken(user);
         }
 
@@ -100,9 +105,11 @@ namespace SubGuard.Service.Services
             if (!result.Succeeded)
             {
                 var errors = result.Errors.Select(x => x.Description).ToList();
+                _logger.LogWarning("Şifre değiştirme başarısız. UserId: {UserId}. Hatalar: {Errors}", userId, string.Join(", ", errors));
                 return CustomResponseDto<bool>.Fail(400, errors);
             }
 
+            _logger.LogInformation("Şifre değiştirildi. UserId: {UserId}", userId);
             return CustomResponseDto<bool>.Success(204);
         }
 
@@ -114,33 +121,38 @@ namespace SubGuard.Service.Services
                 return CustomResponseDto<TokenDto>.Fail(404, "Kullanıcı bulunamadı.");
 
             if (await _userManager.IsLockedOutAsync(user))
+            {
+                _logger.LogWarning("Kilitli hesaba giriş denemesi. Email: {Email}", loginDto.Email);
                 return CustomResponseDto<TokenDto>.Fail(423, "Çok fazla hatalı giriş denemesi yapıldı. Hesabınız 15 dakika süreyle kilitlenmiştir.");
+            }
 
             var checkPassword = await _userManager.CheckPasswordAsync(user, loginDto.Password);
 
             if (!checkPassword)
             {
                 await _userManager.AccessFailedAsync(user);
+                _logger.LogWarning("Başarısız giriş denemesi. Email: {Email}", loginDto.Email);
                 return CustomResponseDto<TokenDto>.Fail(400, "E-posta veya şifre hatalı.");
             }
 
+            _logger.LogInformation("Kullanıcı giriş yaptı. Email: {Email}", user.Email);
             await _userManager.ResetAccessFailedCountAsync(user);
             return await GenerateToken(user);
         }
 
+        private Task<RefreshToken?> FindRefreshTokenAsync(string code)
+            => _refreshTokenRepo.Where(x => x.Code == code).FirstOrDefaultAsync();
+
         public async Task<CustomResponseDto<TokenDto>> CreateTokenByRefreshTokenAsync(RefreshTokenDto refreshTokenDto)
         {
-            // Veritabanında bu token var mı?
-            var existToken = await _refreshTokenRepo.Where(x => x.Code == refreshTokenDto.Token).FirstOrDefaultAsync();
+            var existToken = await FindRefreshTokenAsync(refreshTokenDto.Token);
 
             if (existToken == null)
-            {
                 return CustomResponseDto<TokenDto>.Fail(404, "Refresh token bulunamadı.");
-            }
 
             if (existToken.Expiration < DateTime.UtcNow)
             {
-                // Süresi dolmuşsa sil
+                _logger.LogWarning("Süresi dolmuş refresh token kullanım denemesi. UserId: {UserId}", existToken.UserId);
                 _refreshTokenRepo.Remove(existToken);
                 await _unitOfWork.CommitAsync();
                 return CustomResponseDto<TokenDto>.Fail(401, "Refresh token süresi dolmuş. Lütfen tekrar giriş yapın.");
@@ -149,25 +161,36 @@ namespace SubGuard.Service.Services
             var user = await _userManager.FindByIdAsync(existToken.UserId);
             if (user == null) return CustomResponseDto<TokenDto>.Fail(404, "Kullanıcı bulunamadı.");
 
-            // Yeni token üret (Hem Access hem Refresh yenilenir - Rotation mantığı)
             var tokenDto = await GenerateToken(user);
 
-            // Eski refresh token'ı siliyoruz (Security Best Practice: Refresh Token Rotation)
             _refreshTokenRepo.Remove(existToken);
             await _unitOfWork.CommitAsync();
 
+            _logger.LogInformation("Token yenilendi. UserId: {UserId}", user.Id);
             return tokenDto;
         }
 
         public async Task<CustomResponseDto<bool>> RevokeRefreshTokenAsync(string refreshToken)
         {
-            var existToken = await _refreshTokenRepo.Where(x => x.Code == refreshToken).FirstOrDefaultAsync();
+            var existToken = await FindRefreshTokenAsync(refreshToken);
             if (existToken != null)
             {
                 _refreshTokenRepo.Remove(existToken);
                 await _unitOfWork.CommitAsync();
             }
             return CustomResponseDto<bool>.Success(204);
+        }
+
+        public async Task PurgeExpiredRefreshTokensAsync()
+        {
+            var expired = await _refreshTokenRepo.Where(x => x.Expiration < DateTime.UtcNow).ToListAsync();
+            if (expired.Count == 0) return;
+
+            foreach (var token in expired)
+                _refreshTokenRepo.Remove(token);
+
+            await _unitOfWork.CommitAsync();
+            _logger.LogInformation("Süresi dolmuş {Count} refresh token temizlendi.", expired.Count);
         }
 
         private async Task<CustomResponseDto<TokenDto>> GenerateToken(AppUser user)
@@ -185,8 +208,7 @@ namespace SubGuard.Service.Services
             var key = new SymmetricSecurityKey(Convert.FromBase64String(keyString));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            // Access Token ömrünü kısa tutalım (Örn: 15 dakika)
-            var accessTokenExpiration = DateTime.UtcNow.AddMinutes(15);
+            var accessTokenExpiration = DateTime.UtcNow.AddMinutes(AppConstants.Token.AccessTokenExpirationMinutes);
 
             var jwtSecurityToken = new JwtSecurityToken(
                 issuer: _configuration["JwtSettings:Issuer"],
@@ -200,7 +222,7 @@ namespace SubGuard.Service.Services
 
             // 2. Refresh Token Üretimi
             var refreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
-            var refreshTokenExpiration = DateTime.UtcNow.AddDays(30); // 30 Günlük ömür
+            var refreshTokenExpiration = DateTime.UtcNow.AddDays(AppConstants.Token.RefreshTokenExpirationDays);
 
             // 3. Veritabanına Kayıt
             await _refreshTokenRepo.AddAsync(new RefreshToken

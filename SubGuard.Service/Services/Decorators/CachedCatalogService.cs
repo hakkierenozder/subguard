@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using SubGuard.Core.Constants;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.Services;
 
@@ -36,7 +37,7 @@ namespace SubGuard.Service.Services.Decorators
                 var cacheOptions = new MemoryCacheEntryOptions
                 {
                     // Catalog verisi nadir değişir, ömrü uzun tutabiliriz (örn: 24 saat)
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24),
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(AppConstants.Cache.CatalogExpirationHours),
                     // Bellek baskısı olursa öncelikli silinmesin
                     Priority = CacheItemPriority.High
                 };
@@ -67,7 +68,7 @@ namespace SubGuard.Service.Services.Decorators
             {
                 var cacheOptions = new MemoryCacheEntryOptions
                 {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24)
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(AppConstants.Cache.CatalogExpirationHours)
                 };
                 _memoryCache.Set(key, response.Data, cacheOptions);
             }

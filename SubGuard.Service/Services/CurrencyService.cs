@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using SubGuard.Core.Constants;
 using SubGuard.Core.Services;
 using System.Net.Http.Json;
 using Microsoft.Extensions.Logging;
@@ -32,9 +33,9 @@ namespace SubGuard.Service.Services
             // Eğer servis çalışmazsa fallback (SubGuard varsayılanları)
             return rates ?? new Dictionary<string, decimal>
             {
-                { "USD", 34.50m },
-                { "EUR", 37.20m },
-                { "GBP", 43.10m }
+                { "USD", AppConstants.Currency.FallbackUsd },
+                { "EUR", AppConstants.Currency.FallbackEur },
+                { "GBP", AppConstants.Currency.FallbackGbp }
             };
         }
 
@@ -63,8 +64,7 @@ namespace SubGuard.Service.Services
 
                 if (newRates.Count > 0)
                 {
-                    // Cache süresi: 24 saat (Bir sonraki Job'a kadar)
-                    _memoryCache.Set(CACHE_KEY, newRates, TimeSpan.FromHours(24));
+                    _memoryCache.Set(CACHE_KEY, newRates, TimeSpan.FromHours(AppConstants.Cache.CurrencyRatesExpirationHours));
                     _logger.LogInformation("Kurlar güncellendi: {@Rates}", newRates);
                 }
             }

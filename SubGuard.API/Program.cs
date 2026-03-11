@@ -155,6 +155,7 @@ try
         options.RejectionStatusCode = 429;
     });
 
+    builder.Services.AddHttpContextAccessor();
     builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
     builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
     builder.Services.AddScoped<ICatalogRepository, CatalogRepository>();
@@ -222,6 +223,12 @@ try
     RecurringJob.AddOrUpdate<INotificationService>(
         "daily-payment-check",
         service => service.CheckAndQueueUpcomingPaymentsAsync(3), // 3 g�n �ncesi
+        Cron.Daily // Her gece 00:00 (UTC)
+    );
+
+    RecurringJob.AddOrUpdate<IAuthService>(
+        "purge-expired-refresh-tokens",
+        service => service.PurgeExpiredRefreshTokensAsync(),
         Cron.Daily // Her gece 00:00 (UTC)
     );
 
