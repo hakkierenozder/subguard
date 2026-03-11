@@ -17,6 +17,7 @@ using Serilog;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.Entities;
 using SubGuard.Core.Repositories;
+using SubGuard.Core.Models;
 using SubGuard.Core.Services;
 using SubGuard.Core.UnitOfWork;
 using SubGuard.Service.Mapping;
@@ -179,6 +180,11 @@ try
     builder.Services.AddScoped<IUserSubscriptionService, UserSubscriptionService>();
     builder.Services.AddScoped<IAuthService, AuthService>();
     builder.Services.AddScoped<INotificationService, NotificationService>();
+    builder.Services.AddScoped<IDashboardService, DashboardService>();
+    builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+    builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
+    builder.Services.AddHttpClient("expo");
+    builder.Services.AddScoped<IPushNotificationSender, ExpoPushNotificationSender>();
     // 1. HANGFIRE KONF�G�RASYONU
     builder.Services.AddHangfire(config => config
         .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
@@ -192,6 +198,13 @@ try
 
     var app = builder.Build();
 
+    // Admin rolünü seed et
+    using (var scope = app.Services.CreateScope())
+    {
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        if (!await roleManager.RoleExistsAsync("Admin"))
+            await roleManager.CreateAsync(new IdentityRole("Admin"));
+    }
 
 
     // 3. HTTP �stek Loglama (Request Logging)
@@ -224,6 +237,12 @@ try
         "daily-payment-check",
         service => service.CheckAndQueueUpcomingPaymentsAsync(3), // 3 g�n �ncesi
         Cron.Daily // Her gece 00:00 (UTC)
+    );
+
+    RecurringJob.AddOrUpdate<INotificationService>(
+        "process-notification-queue",
+        service => service.ProcessNotificationQueueAsync(),
+        "0 9 * * *" // Her sabah 09:00 (UTC)
     );
 
     RecurringJob.AddOrUpdate<IAuthService>(

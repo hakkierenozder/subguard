@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace SubGuard.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260311122429_AddBudgetCurrency")]
+    partial class AddBudgetCurrency
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -172,9 +175,6 @@ namespace SubGuard.Data.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("ExpoPushToken")
-                        .HasColumnType("text");
-
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -282,7 +282,7 @@ namespace SubGuard.Data.Migrations
                             Id = 101,
                             Category = "Streaming",
                             ColorCode = "#E50914",
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 637, DateTimeKind.Utc).AddTicks(6850),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(2362),
                             IsDeleted = false,
                             LogoUrl = "netflix_logo",
                             Name = "Netflix",
@@ -293,7 +293,7 @@ namespace SubGuard.Data.Migrations
                             Id = 102,
                             Category = "Streaming",
                             ColorCode = "#113CCF",
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 637, DateTimeKind.Utc).AddTicks(6856),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(2368),
                             IsDeleted = false,
                             LogoUrl = "disney_logo",
                             Name = "Disney+",
@@ -304,7 +304,7 @@ namespace SubGuard.Data.Migrations
                             Id = 103,
                             Category = "Streaming",
                             ColorCode = "#11D6D4",
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 637, DateTimeKind.Utc).AddTicks(6857),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(2370),
                             IsDeleted = false,
                             LogoUrl = "blutv_logo",
                             Name = "BluTV",
@@ -315,7 +315,7 @@ namespace SubGuard.Data.Migrations
                             Id = 104,
                             Category = "Streaming",
                             ColorCode = "#00A8E1",
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 637, DateTimeKind.Utc).AddTicks(6859),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(2371),
                             IsDeleted = false,
                             LogoUrl = "prime_logo",
                             Name = "Amazon Prime",
@@ -326,7 +326,7 @@ namespace SubGuard.Data.Migrations
                             Id = 105,
                             Category = "Streaming",
                             ColorCode = "#FFD600",
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 637, DateTimeKind.Utc).AddTicks(6860),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(2372),
                             IsDeleted = false,
                             LogoUrl = "exxen_logo",
                             Name = "Exxen",
@@ -337,7 +337,7 @@ namespace SubGuard.Data.Migrations
                             Id = 106,
                             Category = "Streaming",
                             ColorCode = "#191919",
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 637, DateTimeKind.Utc).AddTicks(6861),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(2373),
                             IsDeleted = false,
                             LogoUrl = "mubi_logo",
                             Name = "MUBI",
@@ -348,7 +348,7 @@ namespace SubGuard.Data.Migrations
                             Id = 107,
                             Category = "Streaming",
                             ColorCode = "#592878",
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 637, DateTimeKind.Utc).AddTicks(6862),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(2374),
                             IsDeleted = false,
                             LogoUrl = "tod_logo",
                             Name = "TOD (beIN)",
@@ -359,7 +359,7 @@ namespace SubGuard.Data.Migrations
                             Id = 108,
                             Category = "Streaming",
                             ColorCode = "#FF0000",
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 637, DateTimeKind.Utc).AddTicks(6863),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(2376),
                             IsDeleted = false,
                             LogoUrl = "youtube_logo",
                             Name = "YouTube Premium",
@@ -370,7 +370,7 @@ namespace SubGuard.Data.Migrations
                             Id = 109,
                             Category = "Streaming",
                             ColorCode = "#FF0000",
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 637, DateTimeKind.Utc).AddTicks(6864),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(2377),
                             IsDeleted = false,
                             LogoUrl = "gain_logo",
                             Name = "Gain",
@@ -381,7 +381,7 @@ namespace SubGuard.Data.Migrations
                             Id = 201,
                             Category = "Music",
                             ColorCode = "#1DB954",
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 637, DateTimeKind.Utc).AddTicks(6889),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(2398),
                             IsDeleted = false,
                             LogoUrl = "spotify_logo",
                             Name = "Spotify",
@@ -392,7 +392,7 @@ namespace SubGuard.Data.Migrations
                             Id = 202,
                             Category = "Music",
                             ColorCode = "#FA243C",
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 637, DateTimeKind.Utc).AddTicks(6890),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(2400),
                             IsDeleted = false,
                             LogoUrl = "applemusic_logo",
                             Name = "Apple Music",
@@ -403,7 +403,7 @@ namespace SubGuard.Data.Migrations
                             Id = 203,
                             Category = "Music",
                             ColorCode = "#F39200",
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 637, DateTimeKind.Utc).AddTicks(6891),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(2401),
                             IsDeleted = false,
                             LogoUrl = "fizy_logo",
                             Name = "Fizy",
@@ -414,7 +414,7 @@ namespace SubGuard.Data.Migrations
                             Id = 204,
                             Category = "Music",
                             ColorCode = "#EF5466",
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 637, DateTimeKind.Utc).AddTicks(6892),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(2402),
                             IsDeleted = false,
                             LogoUrl = "deezer_logo",
                             Name = "Deezer",
@@ -425,7 +425,7 @@ namespace SubGuard.Data.Migrations
                             Id = 301,
                             Category = "Gaming",
                             ColorCode = "#00439C",
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 637, DateTimeKind.Utc).AddTicks(6895),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(2406),
                             IsDeleted = false,
                             LogoUrl = "psplus_logo",
                             Name = "PlayStation Plus",
@@ -436,7 +436,7 @@ namespace SubGuard.Data.Migrations
                             Id = 302,
                             Category = "Gaming",
                             ColorCode = "#107C10",
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 637, DateTimeKind.Utc).AddTicks(6896),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(2407),
                             IsDeleted = false,
                             LogoUrl = "gamepass_logo",
                             Name = "Xbox Game Pass",
@@ -447,7 +447,7 @@ namespace SubGuard.Data.Migrations
                             Id = 303,
                             Category = "Gaming",
                             ColorCode = "#76B900",
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 637, DateTimeKind.Utc).AddTicks(6897),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(2461),
                             IsDeleted = false,
                             LogoUrl = "gfn_logo",
                             Name = "GeForce Now",
@@ -458,7 +458,7 @@ namespace SubGuard.Data.Migrations
                             Id = 304,
                             Category = "Gaming",
                             ColorCode = "#5865F2",
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 637, DateTimeKind.Utc).AddTicks(6898),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(2463),
                             IsDeleted = false,
                             LogoUrl = "discord_logo",
                             Name = "Discord Nitro",
@@ -469,7 +469,7 @@ namespace SubGuard.Data.Migrations
                             Id = 401,
                             Category = "Shopping",
                             ColorCode = "#FF6000",
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 637, DateTimeKind.Utc).AddTicks(6940),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(2469),
                             IsDeleted = false,
                             LogoUrl = "hepsiburada_logo",
                             Name = "Hepsiburada Premium",
@@ -480,7 +480,7 @@ namespace SubGuard.Data.Migrations
                             Id = 402,
                             Category = "Food",
                             ColorCode = "#EA004B",
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 637, DateTimeKind.Utc).AddTicks(6941),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(2470),
                             IsDeleted = false,
                             LogoUrl = "yemeksepeti_logo",
                             Name = "Yemeksepeti Club",
@@ -491,7 +491,7 @@ namespace SubGuard.Data.Migrations
                             Id = 403,
                             Category = "Food",
                             ColorCode = "#5D3EB2",
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 637, DateTimeKind.Utc).AddTicks(6942),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(2471),
                             IsDeleted = false,
                             LogoUrl = "getir_logo",
                             Name = "Getir",
@@ -502,7 +502,7 @@ namespace SubGuard.Data.Migrations
                             Id = 501,
                             Category = "Cloud",
                             ColorCode = "#007AFF",
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 637, DateTimeKind.Utc).AddTicks(6945),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(2475),
                             IsDeleted = false,
                             LogoUrl = "icloud_logo",
                             Name = "Apple iCloud",
@@ -513,7 +513,7 @@ namespace SubGuard.Data.Migrations
                             Id = 502,
                             Category = "Cloud",
                             ColorCode = "#4285F4",
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 637, DateTimeKind.Utc).AddTicks(6946),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(2476),
                             IsDeleted = false,
                             LogoUrl = "googleone_logo",
                             Name = "Google One",
@@ -524,7 +524,7 @@ namespace SubGuard.Data.Migrations
                             Id = 503,
                             Category = "Cloud",
                             ColorCode = "#EA3E23",
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 637, DateTimeKind.Utc).AddTicks(6947),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(2477),
                             IsDeleted = false,
                             LogoUrl = "office_logo",
                             Name = "Microsoft 365",
@@ -655,7 +655,7 @@ namespace SubGuard.Data.Migrations
                             Id = 1001,
                             BillingCycleDays = 30,
                             CatalogId = 101,
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 638, DateTimeKind.Utc).AddTicks(5035),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(9415),
                             Currency = "TRY",
                             IsDeleted = false,
                             Name = "Temel Plan",
@@ -666,7 +666,7 @@ namespace SubGuard.Data.Migrations
                             Id = 1002,
                             BillingCycleDays = 30,
                             CatalogId = 101,
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 638, DateTimeKind.Utc).AddTicks(5042),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(9422),
                             Currency = "TRY",
                             IsDeleted = false,
                             Name = "Standart Plan",
@@ -677,7 +677,7 @@ namespace SubGuard.Data.Migrations
                             Id = 1003,
                             BillingCycleDays = 30,
                             CatalogId = 101,
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 638, DateTimeKind.Utc).AddTicks(5043),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(9423),
                             Currency = "TRY",
                             IsDeleted = false,
                             Name = "Özel Plan",
@@ -688,7 +688,7 @@ namespace SubGuard.Data.Migrations
                             Id = 2001,
                             BillingCycleDays = 30,
                             CatalogId = 201,
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 638, DateTimeKind.Utc).AddTicks(5044),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(9424),
                             Currency = "TRY",
                             IsDeleted = false,
                             Name = "Bireysel",
@@ -699,7 +699,7 @@ namespace SubGuard.Data.Migrations
                             Id = 2002,
                             BillingCycleDays = 30,
                             CatalogId = 201,
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 638, DateTimeKind.Utc).AddTicks(5045),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(9425),
                             Currency = "TRY",
                             IsDeleted = false,
                             Name = "Öğrenci",
@@ -710,7 +710,7 @@ namespace SubGuard.Data.Migrations
                             Id = 2003,
                             BillingCycleDays = 30,
                             CatalogId = 201,
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 638, DateTimeKind.Utc).AddTicks(5046),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(9426),
                             Currency = "TRY",
                             IsDeleted = false,
                             Name = "Duo",
@@ -721,7 +721,7 @@ namespace SubGuard.Data.Migrations
                             Id = 2004,
                             BillingCycleDays = 30,
                             CatalogId = 201,
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 638, DateTimeKind.Utc).AddTicks(5047),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(9427),
                             Currency = "TRY",
                             IsDeleted = false,
                             Name = "Aile",
@@ -732,7 +732,7 @@ namespace SubGuard.Data.Migrations
                             Id = 3001,
                             BillingCycleDays = 30,
                             CatalogId = 108,
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 638, DateTimeKind.Utc).AddTicks(5048),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(9428),
                             Currency = "TRY",
                             IsDeleted = false,
                             Name = "Bireysel",
@@ -743,7 +743,7 @@ namespace SubGuard.Data.Migrations
                             Id = 3002,
                             BillingCycleDays = 30,
                             CatalogId = 108,
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 638, DateTimeKind.Utc).AddTicks(5049),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(9429),
                             Currency = "TRY",
                             IsDeleted = false,
                             Name = "Aile",
@@ -754,7 +754,7 @@ namespace SubGuard.Data.Migrations
                             Id = 3003,
                             BillingCycleDays = 30,
                             CatalogId = 108,
-                            CreatedDate = new DateTime(2026, 3, 11, 12, 36, 39, 638, DateTimeKind.Utc).AddTicks(5050),
+                            CreatedDate = new DateTime(2026, 3, 11, 12, 24, 29, 638, DateTimeKind.Utc).AddTicks(9430),
                             Currency = "TRY",
                             IsDeleted = false,
                             Name = "Öğrenci",

@@ -25,8 +25,9 @@ namespace SubGuard.Service.Services
         private readonly IGenericRepository<RefreshToken> _refreshTokenRepo;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<AuthService> _logger;
+        private readonly AppDbContext _db;
 
-        public AuthService(UserManager<AppUser> userManager, IConfiguration configuration, IGenericRepository<UserSubscription> subRepo, IGenericRepository<RefreshToken> refreshTokenRepo, IUnitOfWork unitOfWork, ILogger<AuthService> logger)
+        public AuthService(UserManager<AppUser> userManager, IConfiguration configuration, IGenericRepository<UserSubscription> subRepo, IGenericRepository<RefreshToken> refreshTokenRepo, IUnitOfWork unitOfWork, ILogger<AuthService> logger, AppDbContext db)
         {
             _userManager = userManager;
             _configuration = configuration;
@@ -34,6 +35,7 @@ namespace SubGuard.Service.Services
             _refreshTokenRepo = refreshTokenRepo;
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _db = db;
         }
 
         public async Task<CustomResponseDto<TokenDto>> RegisterAsync(RegisterDto registerDto)
@@ -71,7 +73,8 @@ namespace SubGuard.Service.Services
                 Email = user.Email,
                 FullName = user.FullName,
                 TotalSubscriptions = subCount,
-                MonthlyBudget = user.MonthlyBudget // <--- BU SATIRI EKLEMEN GEREKİYOR!
+                MonthlyBudget = user.MonthlyBudget,
+                MonthlyBudgetCurrency = user.MonthlyBudgetCurrency
             });
         }
 
@@ -86,9 +89,10 @@ namespace SubGuard.Service.Services
             }
 
             if (dto.MonthlyBudget.HasValue)
-            {
                 user.MonthlyBudget = dto.MonthlyBudget.Value;
-            }
+
+            if (dto.MonthlyBudgetCurrency != null)
+                user.MonthlyBudgetCurrency = dto.MonthlyBudgetCurrency;
 
             await _userManager.UpdateAsync(user);
 
@@ -191,6 +195,46 @@ namespace SubGuard.Service.Services
 
             await _unitOfWork.CommitAsync();
             _logger.LogInformation("Süresi dolmuş {Count} refresh token temizlendi.", expired.Count);
+        }
+
+        public async Task<CustomResponseDto<bool>> DeleteAccountAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return CustomResponseDto<bool>.Fail(404, "Kullanıcı bulunamadı.");
+
+            // Hard-delete subscriptions (bypass soft delete filter)
+            var subscriptions = await _db.UserSubscriptions
+                .IgnoreQueryFilters()
+                .Where(x => x.UserId == userId)
+                .ToListAsync();
+            _db.UserSubscriptions.RemoveRange(subscriptions);
+
+            // Hard-delete notification queue entries
+            var notifications = await _db.NotificationQueues
+                .IgnoreQueryFilters()
+                .Where(x => x.UserId == userId)
+                .ToListAsync();
+            _db.NotificationQueues.RemoveRange(notifications);
+
+            // Hard-delete refresh tokens
+            var refreshTokens = await _db.RefreshTokens
+                .Where(x => x.UserId == userId)
+                .ToListAsync();
+            _db.RefreshTokens.RemoveRange(refreshTokens);
+
+            await _db.SaveChangesAsync();
+
+            // Delete the Identity user account
+            var result = await _userManager.DeleteAsync(user);
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors.Select(x => x.Description).ToList();
+                _logger.LogError("Hesap silme başarısız. UserId: {UserId}. Hatalar: {Errors}", userId, string.Join(", ", errors));
+                return CustomResponseDto<bool>.Fail(500, errors);
+            }
+
+            _logger.LogInformation("Kullanıcı hesabı kalıcı olarak silindi (GDPR). UserId: {UserId}", userId);
+            return CustomResponseDto<bool>.Success(204);
         }
 
         private async Task<CustomResponseDto<TokenDto>> GenerateToken(AppUser user)

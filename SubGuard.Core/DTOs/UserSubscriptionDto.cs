@@ -1,4 +1,5 @@
 ﻿using SubGuard.Core.DTOs.Base;
+using SubGuard.Core.Enums;
 
 namespace SubGuard.Core.DTOs
 {
@@ -22,6 +23,9 @@ namespace SubGuard.Core.DTOs
         public string? SharedWithJson { get; set; }
         public string? UsageHistoryJson { get; set; }
 
-        public bool IsActive { get; set; } // <--- Bunu ekle
+        public bool IsActive { get; set; }
+        public SubscriptionStatus Status { get; set; }
+        public DateTime? PausedDate { get; set; }
+        public DateTime? CancelledDate { get; set; }
     }
 }

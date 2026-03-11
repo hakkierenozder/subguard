@@ -23,11 +23,9 @@ namespace SubGuard.API.Controllers
         private string LoggedInUserId => User.FindFirstValue(ClaimTypes.NameIdentifier);
 
         [HttpGet]
-        public async Task<IActionResult> GetMySubscriptions()
+        public async Task<IActionResult> GetMySubscriptions([FromQuery] PagedRequestDto paged)
         {
-            // Serviste bu metot yoksa, IService'e "GetAllByUserIdAsync" eklememiz gerekecek.
-            // Şimdilik servisin bu yeteneği olduğunu varsayıyoruz.
-            return CreateActionResult(await _service.GetUserSubscriptionsAsync(LoggedInUserId));
+            return CreateActionResult(await _service.GetUserSubscriptionsAsync(LoggedInUserId, paged.Page, paged.PageSize));
         }
 
         [HttpPost]
@@ -54,6 +52,55 @@ namespace SubGuard.API.Controllers
         public async Task<IActionResult> Remove(int id)
         {
             return CreateActionResult(await _service.RemoveSubscriptionAsync(id, LoggedInUserId));
+        }
+
+        // PATCH api/usersubscriptions/5/status
+        [HttpPatch("{id}/status")]
+        public async Task<IActionResult> ChangeStatus(int id, [FromBody] ChangeSubscriptionStatusDto dto)
+        {
+            return CreateActionResult(await _service.ChangeStatusAsync(id, LoggedInUserId, dto.Status));
+        }
+
+        // GET api/usersubscriptions/shared-with-me
+        [HttpGet("shared-with-me")]
+        public async Task<IActionResult> GetSharedWithMe([FromQuery] PagedRequestDto paged)
+        {
+            return CreateActionResult(await _service.GetSharedWithMeAsync(LoggedInUserId, paged.Page, paged.PageSize));
+        }
+
+        // POST api/usersubscriptions/5/share
+        [HttpPost("{id}/share")]
+        public async Task<IActionResult> Share(int id, [FromBody] ShareSubscriptionDto dto)
+        {
+            return CreateActionResult(await _service.ShareSubscriptionAsync(id, LoggedInUserId, dto.Email));
+        }
+
+        // DELETE api/usersubscriptions/5/share/userId123
+        [HttpDelete("{id}/share/{targetUserId}")]
+        public async Task<IActionResult> RemoveShare(int id, string targetUserId)
+        {
+            return CreateActionResult(await _service.RemoveShareAsync(id, LoggedInUserId, targetUserId));
+        }
+
+        // GET api/usersubscriptions/5/usage
+        [HttpGet("{id}/usage")]
+        public async Task<IActionResult> GetUsageHistory(int id)
+        {
+            return CreateActionResult(await _service.GetUsageHistoryAsync(id, LoggedInUserId));
+        }
+
+        // POST api/usersubscriptions/5/usage
+        [HttpPost("{id}/usage")]
+        public async Task<IActionResult> AddUsageLog(int id, [FromBody] AddUsageLogDto dto)
+        {
+            return CreateActionResult(await _service.AddUsageLogAsync(id, LoggedInUserId, dto));
+        }
+
+        // DELETE api/usersubscriptions/5/usage/a1b2c3d4
+        [HttpDelete("{id}/usage/{logId}")]
+        public async Task<IActionResult> DeleteUsageLog(int id, string logId)
+        {
+            return CreateActionResult(await _service.DeleteUsageLogAsync(id, LoggedInUserId, logId));
         }
     }
 }

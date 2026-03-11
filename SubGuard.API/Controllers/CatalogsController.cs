@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using SubGuard.Core.DTOs;
 using SubGuard.Core.Services;
 
 namespace SubGuard.API.Controllers
@@ -17,12 +17,9 @@ namespace SubGuard.API.Controllers
 
         // GET api/catalogs
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] PagedRequestDto paged)
         {
-            // Servis katmanına git, veriyi al (Plans dahil)
-            var response = await _catalogService.GetAllCatalogsWithPlansAsync();
-
-            // BaseController sayesinde tek satırda dön
+            var response = await _catalogService.GetAllCatalogsWithPlansAsync(paged.Page, paged.PageSize);
             return CreateActionResult(response);
         }
 

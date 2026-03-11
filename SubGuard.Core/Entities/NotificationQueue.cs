@@ -25,6 +25,10 @@ namespace SubGuard.Core.Entities
         public bool IsSent { get; set; } = false;
         public DateTime? SentDate { get; set; }
 
+        // Kullanıcı tarafından okundu mu?
+        public bool IsRead { get; set; } = false;
+        public DateTime? ReadDate { get; set; }
+
         // Hata durumunda
         public string? ErrorMessage { get; set; }
     }

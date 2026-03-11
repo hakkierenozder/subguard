@@ -1,17 +1,20 @@
-﻿using SubGuard.Core.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SubGuard.Core.DTOs;
 
 namespace SubGuard.Core.Services
 {
     public interface ICatalogService
     {
-        // API Controller bu metodu çağıracak.
-        Task<CustomResponseDto<List<ServiceDto>>> GetAllCatalogsWithPlansAsync();
-
+        Task<CustomResponseDto<PagedResponseDto<ServiceDto>>> GetAllCatalogsWithPlansAsync(int page, int pageSize);
         Task<CustomResponseDto<ServiceDto>> GetCatalogByIdAsync(int id);
+
+        // Admin CRUD - Catalog
+        Task<CustomResponseDto<ServiceDto>> CreateCatalogAsync(ServiceDto dto);
+        Task<CustomResponseDto<bool>> UpdateCatalogAsync(int id, ServiceDto dto);
+        Task<CustomResponseDto<bool>> DeleteCatalogAsync(int id);
+
+        // Admin CRUD - Plan
+        Task<CustomResponseDto<PlanDto>> CreatePlanAsync(int catalogId, PlanDto dto);
+        Task<CustomResponseDto<bool>> UpdatePlanAsync(int id, PlanDto dto);
+        Task<CustomResponseDto<bool>> DeletePlanAsync(int id);
     }
 }

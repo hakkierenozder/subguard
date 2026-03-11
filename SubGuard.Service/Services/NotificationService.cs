@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore; // ToListAsync için gerekli
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using SubGuard.Core.DTOs;
 using SubGuard.Core.Entities;
 using SubGuard.Core.Repositories;
 using SubGuard.Core.Services;
 using SubGuard.Core.UnitOfWork;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace SubGuard.Service.Services
 {
@@ -14,15 +15,30 @@ namespace SubGuard.Service.Services
         private readonly IGenericRepository<UserSubscription> _subscriptionRepo;
         private readonly IGenericRepository<NotificationQueue> _queueRepo;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
+        private readonly IEmailSender _emailSender;
+        private readonly IPushNotificationSender _pushSender;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly ILogger<NotificationService> _logger;
 
         public NotificationService(
             IGenericRepository<UserSubscription> subscriptionRepo,
             IGenericRepository<NotificationQueue> queueRepo,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            IMapper mapper,
+            IEmailSender emailSender,
+            IPushNotificationSender pushSender,
+            UserManager<AppUser> userManager,
+            ILogger<NotificationService> logger)
         {
             _subscriptionRepo = subscriptionRepo;
             _queueRepo = queueRepo;
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
+            _emailSender = emailSender;
+            _pushSender = pushSender;
+            _userManager = userManager;
+            _logger = logger;
         }
 
         public async Task CheckAndQueueUpcomingPaymentsAsync(int daysBefore)
@@ -62,6 +78,136 @@ namespace SubGuard.Service.Services
             }
 
             await _unitOfWork.CommitAsync();
+        }
+
+        public async Task<CustomResponseDto<PagedResponseDto<NotificationDto>>> GetUserNotificationsAsync(string userId, int page, int pageSize)
+        {
+            var query = _queueRepo.Where(x => x.UserId == userId);
+            var totalCount = await query.CountAsync();
+
+            var notifications = await query
+                .OrderByDescending(x => x.CreatedDate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var result = new PagedResponseDto<NotificationDto>
+            {
+                Items = _mapper.Map<List<NotificationDto>>(notifications),
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
+
+            return CustomResponseDto<PagedResponseDto<NotificationDto>>.Success(200, result);
+        }
+
+        public async Task<CustomResponseDto<bool>> MarkAsReadAsync(int id, string userId)
+        {
+            var notification = await _queueRepo.GetByIdAsync(id);
+
+            if (notification == null)
+                return CustomResponseDto<bool>.Fail(404, "Bildirim bulunamadı.");
+
+            if (notification.UserId != userId)
+                return CustomResponseDto<bool>.Fail(403, "Bu bildirime erişim yetkiniz yok.");
+
+            notification.IsRead = true;
+            notification.ReadDate = DateTime.UtcNow;
+            _queueRepo.Update(notification);
+            await _unitOfWork.CommitAsync();
+
+            return CustomResponseDto<bool>.Success(200, true);
+        }
+
+        public async Task<CustomResponseDto<bool>> DeleteNotificationAsync(int id, string userId)
+        {
+            var notification = await _queueRepo.GetByIdAsync(id);
+
+            if (notification == null)
+                return CustomResponseDto<bool>.Fail(404, "Bildirim bulunamadı.");
+
+            if (notification.UserId != userId)
+                return CustomResponseDto<bool>.Fail(403, "Bu bildirime erişim yetkiniz yok.");
+
+            _queueRepo.Remove(notification);
+            await _unitOfWork.CommitAsync();
+
+            return CustomResponseDto<bool>.Success(200, true);
+        }
+
+        public async Task ProcessNotificationQueueAsync()
+        {
+            var pending = await _queueRepo
+                .Where(x => !x.IsSent)
+                .ToListAsync();
+
+            if (!pending.Any()) return;
+
+            int sent = 0;
+            int failed = 0;
+
+            foreach (var notification in pending)
+            {
+                var user = await _userManager.FindByIdAsync(notification.UserId);
+                if (user == null) continue;
+
+                try
+                {
+                    var sub = await _subscriptionRepo.GetByIdAsync(notification.UserSubscriptionId);
+                    int daysUntil = sub != null
+                        ? Math.Max(0, (int)(notification.ScheduledDate.Date - DateTime.UtcNow.Date).TotalDays)
+                        : 0;
+
+                    var htmlBody = EmailTemplates.PaymentReminder(
+                        userName: user.FullName ?? user.Email!,
+                        subscriptionName: notification.Title.Replace("Ödeme Hatırlatması", sub?.Name ?? "Abonelik").Trim(),
+                        price: sub?.Price ?? 0,
+                        currency: sub?.Currency ?? "",
+                        daysUntil: daysUntil
+                    );
+
+                    await _emailSender.SendAsync(user.Email!, user.FullName ?? user.Email!, notification.Title, htmlBody);
+
+                    if (!string.IsNullOrEmpty(user.ExpoPushToken))
+                        await _pushSender.SendAsync(
+                            user.ExpoPushToken,
+                            notification.Title,
+                            notification.Message,
+                            new { subscriptionId = notification.UserSubscriptionId }
+                        );
+
+                    notification.IsSent = true;
+                    notification.SentDate = DateTime.UtcNow;
+                    notification.ErrorMessage = null;
+                    sent++;
+                }
+                catch (Exception ex)
+                {
+                    notification.ErrorMessage = ex.Message;
+                    failed++;
+                    _logger.LogError(ex, "Bildirim gönderilemedi. NotificationId: {Id}, UserId: {UserId}",
+                        notification.Id, notification.UserId);
+                }
+
+                _queueRepo.Update(notification);
+            }
+
+            await _unitOfWork.CommitAsync();
+            _logger.LogInformation("Bildirim kuyruğu işlendi. Gönderilen: {Sent}, Başarısız: {Failed}", sent, failed);
+        }
+
+        public async Task<CustomResponseDto<bool>> RegisterPushTokenAsync(string userId, string token)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return CustomResponseDto<bool>.Fail(404, "Kullanıcı bulunamadı.");
+
+            user.ExpoPushToken = token;
+            await _userManager.UpdateAsync(user);
+
+            _logger.LogInformation("Push token kaydedildi. UserId: {UserId}", userId);
+            return CustomResponseDto<bool>.Success(200, true);
         }
     }
 }

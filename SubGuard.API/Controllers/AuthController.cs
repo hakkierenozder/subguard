@@ -73,5 +73,14 @@ namespace SubGuard.API.Controllers
             var result = await _authService.RevokeRefreshTokenAsync(refreshTokenDto.Token);
             return CreateActionResult(result);
         }
+
+        [Authorize]
+        [HttpDelete("me")]
+        public async Task<IActionResult> DeleteAccount()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _authService.DeleteAccountAsync(userId);
+            return CreateActionResult(result);
+        }
     }
 }

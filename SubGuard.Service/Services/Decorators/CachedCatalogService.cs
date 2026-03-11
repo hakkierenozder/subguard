@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Caching.Memory;
 using SubGuard.Core.Constants;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.Services;
@@ -10,7 +10,6 @@ namespace SubGuard.Service.Services.Decorators
         private readonly ICatalogService _innerService;
         private readonly IMemoryCache _memoryCache;
 
-        // Cache Key'leri sabit ve yönetilebilir olmalı
         private const string CATALOGS_KEY = "catalogs_with_plans";
 
         public CachedCatalogService(ICatalogService innerService, IMemoryCache memoryCache)
@@ -19,61 +18,114 @@ namespace SubGuard.Service.Services.Decorators
             _memoryCache = memoryCache;
         }
 
-        public async Task<CustomResponseDto<List<ServiceDto>>> GetAllCatalogsWithPlansAsync()
+        private void InvalidateCache()
         {
-            // Cache kontrolü
-            if (_memoryCache.TryGetValue(CATALOGS_KEY, out List<ServiceDto> cachedCatalogs))
-            {
-                // Cache'den geldiğini loglayabilirsin (Opsiyonel)
-                return CustomResponseDto<List<ServiceDto>>.Success(200, cachedCatalogs);
-            }
+            _memoryCache.Remove(CATALOGS_KEY);
+        }
 
-            // Cache'de yoksa asıl servise git
-            var response = await _innerService.GetAllCatalogsWithPlansAsync();
-
-            // Sadece başarılı cevapları cache'le
-            if (response.StatusCode == 200 && response.Data != null)
+        public async Task<CustomResponseDto<PagedResponseDto<ServiceDto>>> GetAllCatalogsWithPlansAsync(int page, int pageSize)
+        {
+            if (!_memoryCache.TryGetValue(CATALOGS_KEY, out List<ServiceDto> allCatalogs))
             {
-                var cacheOptions = new MemoryCacheEntryOptions
+                var response = await _innerService.GetAllCatalogsWithPlansAsync(1, int.MaxValue);
+
+                if (response.StatusCode != 200 || response.Data == null)
+                    return response;
+
+                allCatalogs = response.Data.Items;
+
+                _memoryCache.Set(CATALOGS_KEY, allCatalogs, new MemoryCacheEntryOptions
                 {
-                    // Catalog verisi nadir değişir, ömrü uzun tutabiliriz (örn: 24 saat)
                     AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(AppConstants.Cache.CatalogExpirationHours),
-                    // Bellek baskısı olursa öncelikli silinmesin
                     Priority = CacheItemPriority.High
-                };
-
-                _memoryCache.Set(CATALOGS_KEY, response.Data, cacheOptions);
+                });
             }
 
-            return response;
+            var result = new PagedResponseDto<ServiceDto>
+            {
+                Items = allCatalogs.Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                TotalCount = allCatalogs.Count,
+                Page = page,
+                PageSize = pageSize
+            };
+
+            return CustomResponseDto<PagedResponseDto<ServiceDto>>.Success(200, result);
         }
 
         public async Task<CustomResponseDto<ServiceDto>> GetCatalogByIdAsync(int id)
         {
-            // Tekil çekimlerde genellikle Full List cache'inden süzmek daha performanslıdır
-            // Ancak şimdilik basit tutup ID bazlı cache yapabiliriz veya direkt DB'ye sorabiliriz.
-            // Catalog detayları çok sık çağrılmıyorsa cache gerekmeyebilir.
-            // Tutarlılık için burada da cache kullanıyorum:
-
             string key = $"catalog_{id}";
 
             if (_memoryCache.TryGetValue(key, out ServiceDto cachedCatalog))
-            {
                 return CustomResponseDto<ServiceDto>.Success(200, cachedCatalog);
-            }
 
             var response = await _innerService.GetCatalogByIdAsync(id);
 
             if (response.StatusCode == 200 && response.Data != null)
             {
-                var cacheOptions = new MemoryCacheEntryOptions
+                _memoryCache.Set(key, response.Data, new MemoryCacheEntryOptions
                 {
                     AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(AppConstants.Cache.CatalogExpirationHours)
-                };
-                _memoryCache.Set(key, response.Data, cacheOptions);
+                });
             }
 
             return response;
+        }
+
+        // --- Admin yazma işlemleri: cache'i temizle ---
+
+        public async Task<CustomResponseDto<ServiceDto>> CreateCatalogAsync(ServiceDto dto)
+        {
+            var result = await _innerService.CreateCatalogAsync(dto);
+            if (result.StatusCode == 201) InvalidateCache();
+            return result;
+        }
+
+        public async Task<CustomResponseDto<bool>> UpdateCatalogAsync(int id, ServiceDto dto)
+        {
+            var result = await _innerService.UpdateCatalogAsync(id, dto);
+            if (result.StatusCode == 204)
+            {
+                InvalidateCache();
+                _memoryCache.Remove($"catalog_{id}");
+            }
+            return result;
+        }
+
+        public async Task<CustomResponseDto<bool>> DeleteCatalogAsync(int id)
+        {
+            var result = await _innerService.DeleteCatalogAsync(id);
+            if (result.StatusCode == 204)
+            {
+                InvalidateCache();
+                _memoryCache.Remove($"catalog_{id}");
+            }
+            return result;
+        }
+
+        public async Task<CustomResponseDto<PlanDto>> CreatePlanAsync(int catalogId, PlanDto dto)
+        {
+            var result = await _innerService.CreatePlanAsync(catalogId, dto);
+            if (result.StatusCode == 201)
+            {
+                InvalidateCache();
+                _memoryCache.Remove($"catalog_{catalogId}");
+            }
+            return result;
+        }
+
+        public async Task<CustomResponseDto<bool>> UpdatePlanAsync(int id, PlanDto dto)
+        {
+            var result = await _innerService.UpdatePlanAsync(id, dto);
+            if (result.StatusCode == 204) InvalidateCache();
+            return result;
+        }
+
+        public async Task<CustomResponseDto<bool>> DeletePlanAsync(int id)
+        {
+            var result = await _innerService.DeletePlanAsync(id);
+            if (result.StatusCode == 204) InvalidateCache();
+            return result;
         }
     }
 }

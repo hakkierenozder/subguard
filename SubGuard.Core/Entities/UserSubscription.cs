@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using SubGuard.Core.Enums;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SubGuard.Core.Entities
 {
@@ -38,6 +34,10 @@ namespace SubGuard.Core.Entities
         public string? UsageHistoryJson { get; set; }
 
         public bool IsActive { get; set; } = true;
+
+        public SubscriptionStatus Status { get; set; } = SubscriptionStatus.Active;
+        public DateTime? PausedDate { get; set; }
+        public DateTime? CancelledDate { get; set; }
 
     }
 }

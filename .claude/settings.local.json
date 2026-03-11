@@ -25,7 +25,16 @@
       "Bash(powershell -Command \"docker cp ''C:\\\\Projects\\\\SubGuard\\\\SubGuard\\\\cleanup_duplicates.sql'' ''subguard-db:/tmp/cleanup.sql''\")",
       "Bash(powershell -Command \"docker exec subguard-db psql -U postgres -d SubGuardDb -f /tmp/cleanup.sql\")",
       "Bash(dotnet ef migrations add AddAuditFieldsJsonbAndNotificationConstraint --project SubGuard.Data --startup-project SubGuard.API)",
-      "Bash(dotnet build SubGuard.Data)"
+      "Bash(dotnet build SubGuard.Data)",
+      "Bash(dotnet build SubGuard.Core SubGuard.Service)",
+      "Bash(dotnet build SubGuard.Service/SubGuard.Service.csproj)",
+      "Bash(dotnet ef migrations add AddNotificationIsRead --project SubGuard.Data --startup-project SubGuard.API)",
+      "Bash(dotnet build SubGuard.API/SubGuard.API.csproj)",
+      "Bash(powershell -Command \"Stop-Process -Id 30580 -Force -ErrorAction SilentlyContinue; Write-Host ''done''\")",
+      "Bash(dotnet ef migrations add AddSubscriptionStatus --project SubGuard.Data --startup-project SubGuard.API)",
+      "Bash(dotnet ef database update AddNotificationIsRead --project SubGuard.Data --startup-project SubGuard.API)",
+      "Bash(dotnet ef migrations add AddExpoPushToken --project SubGuard.Data --startup-project SubGuard.API)",
+      "Bash(dotnet build --no-restore)"
     ]
   }
 }

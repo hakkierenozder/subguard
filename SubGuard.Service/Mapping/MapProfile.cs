@@ -12,6 +12,7 @@ namespace SubGuard.Service.Mapping
             CreateMap<Catalog, ServiceDto>().ReverseMap();
             CreateMap<Plan, PlanDto>().ReverseMap();
             CreateMap<UserSubscription, UserSubscriptionDto>().ReverseMap();
+            CreateMap<NotificationQueue, NotificationDto>();
         }
     }
 }

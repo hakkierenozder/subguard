@@ -1,14 +1,24 @@
-﻿using SubGuard.Core.DTOs;
-using SubGuard.Core.Entities;
+using SubGuard.Core.DTOs;
+using SubGuard.Core.Enums;
 
 namespace SubGuard.Core.Services
 {
-    // Generic Service kullanmıyorsak custom tanımlayalım
     public interface IUserSubscriptionService
     {
-        Task<CustomResponseDto<List<UserSubscriptionDto>>> GetUserSubscriptionsAsync(string userId);
+        Task<CustomResponseDto<PagedResponseDto<UserSubscriptionDto>>> GetUserSubscriptionsAsync(string userId, int page, int pageSize);
         Task<CustomResponseDto<UserSubscriptionDto>> AddSubscriptionAsync(UserSubscriptionDto dto);
         Task<CustomResponseDto<bool>> UpdateSubscriptionAsync(UserSubscriptionDto dto);
         Task<CustomResponseDto<bool>> RemoveSubscriptionAsync(int id, string userId);
+        Task<CustomResponseDto<bool>> ChangeStatusAsync(int id, string userId, SubscriptionStatus newStatus);
+
+        // Paylaşım
+        Task<CustomResponseDto<bool>> ShareSubscriptionAsync(int id, string ownerId, string targetEmail);
+        Task<CustomResponseDto<bool>> RemoveShareAsync(int id, string ownerId, string targetUserId);
+        Task<CustomResponseDto<PagedResponseDto<UserSubscriptionDto>>> GetSharedWithMeAsync(string userId, int page, int pageSize);
+
+        // Kullanım Geçmişi
+        Task<CustomResponseDto<List<UsageLogDto>>> GetUsageHistoryAsync(int id, string userId);
+        Task<CustomResponseDto<UsageLogDto>> AddUsageLogAsync(int id, string userId, AddUsageLogDto dto);
+        Task<CustomResponseDto<bool>> DeleteUsageLogAsync(int id, string userId, string logId);
     }
 }

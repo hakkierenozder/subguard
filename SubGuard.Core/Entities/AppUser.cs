@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +11,8 @@ namespace SubGuard.Core.Entities
     public class AppUser : IdentityUser
     {
         public string FullName { get; set; }
-        public decimal MonthlyBudget { get; set; } = 0; // Yeni Alan (Varsayılan 0)
+        public decimal MonthlyBudget { get; set; } = 0;
+        public string? MonthlyBudgetCurrency { get; set; }
+        public string? ExpoPushToken { get; set; }
     }
 }

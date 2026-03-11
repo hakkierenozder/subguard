@@ -15,5 +15,7 @@ namespace SubGuard.Core.Services
         Task<CustomResponseDto<TokenDto>> CreateTokenByRefreshTokenAsync(RefreshTokenDto refreshTokenDto);
         Task<CustomResponseDto<bool>> RevokeRefreshTokenAsync(string refreshToken);
         Task PurgeExpiredRefreshTokensAsync();
+
+        Task<CustomResponseDto<bool>> DeleteAccountAsync(string userId);
     }
 }
