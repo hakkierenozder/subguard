@@ -3,8 +3,8 @@ import axios from 'axios';
 import Toast from 'react-native-toast-message'; // <--- EKLENDİ
 import { getToken, getRefreshToken, saveToken, saveRefreshToken, removeToken } from '../utils/AuthManager';
 
-const MY_IP_ADDRESS = '192.168.1.4'; // IP'ni kontrol et
-const API_PORT = '5252';
+const MY_IP_ADDRESS = '192.168.1.4';
+const API_PORT = '5046';
 
 export const API_URL = `http://${MY_IP_ADDRESS}:${API_PORT}/api`;
 

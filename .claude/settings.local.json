@@ -4,7 +4,28 @@
       "Bash(dotnet user-secrets init)",
       "Bash(dotnet user-secrets set \"ConnectionStrings:DefaultConnection\" \"Host=localhost;Port=5432;Database=SubGuardDb;Username=postgres;Password=mysecretpassword;\")",
       "Bash(dotnet user-secrets set \"JwtSettings:SecretKey\" \"5VOpjMpf3mBKEAAQ+dkJe6KFDL8gTa9zftVKXwv6czA=\")",
-      "Bash(dotnet build --no-restore -v q)"
+      "Bash(dotnet build --no-restore -v q)",
+      "Bash(dotnet user-secrets list)",
+      "Bash(dotnet build SubGuard.sln -c Release --no-restore)",
+      "Bash(dotnet build)",
+      "Bash(head -5 /c/Projects/SubGuard/SubGuard/SubGuard.Data/Repositories/*.cs)",
+      "Bash(dotnet ef migrations add AddIndexesAndUniqueConstraints --project SubGuard.Data --startup-project SubGuard.API)",
+      "Bash(dotnet ef database update --project SubGuard.Data --startup-project SubGuard.API)",
+      "Bash(dotnet ef database update 20251226140329_AddedNotificationQueueTable --project SubGuard.Data --startup-project SubGuard.API)",
+      "Bash(PGPASSWORD=mysecretpassword psql -h localhost -p 5432 -U postgres -d SubGuardDb -c \":*)",
+      "Bash(where psql)",
+      "Bash(PGPASSWORD=mysecretpassword \"/c/Program Files/PostgreSQL/18/bin/psql\" -h localhost -p 5432 -U postgres -d SubGuardDb -c \":*)",
+      "Bash(PGPASSWORD=mysecretpassword \"C:/Program Files/PostgreSQL/18/bin/psql.exe\" -h localhost -p 5432 -U postgres -d SubGuardDb -c \"DELETE FROM \"\"UserSubscriptions\"\" WHERE \"\"Id\"\" NOT IN \\(SELECT MIN\\(\"\"Id\"\"\\) FROM \"\"UserSubscriptions\"\" GROUP BY \"\"UserId\"\", \"\"Name\"\"\\);\")",
+      "Bash(powershell -Command \"& ''C:\\\\Program Files\\\\PostgreSQL\\\\18\\\\bin\\\\psql.exe'' -V\")",
+      "Bash(powershell -Command \"Get-ChildItem ''C:\\\\Program Files\\\\PostgreSQL\\\\18\\\\bin\\\\'' -Filter ''psql*''\")",
+      "Bash(powershell -Command \"Get-ChildItem ''C:\\\\Program Files\\\\PostgreSQL\\\\'' -Recurse -Filter ''psql.exe'' | Select-Object FullName\")",
+      "Bash(powershell -Command \"docker ps --format ''table {{.Names}}\\\\t{{.Ports}}'' 2>&1\")",
+      "Bash(powershell -Command \"docker exec subguard-db psql -U postgres -d SubGuardDb -c \"\"DELETE FROM \\\\\"\"UserSubscriptions\\\\\"\" WHERE \\\\\"\"Id\\\\\"\" NOT IN \\(SELECT MIN\\(\\\\\"\"Id\\\\\"\"\\) FROM \\\\\"\"UserSubscriptions\\\\\"\" GROUP BY \\\\\"\"UserId\\\\\"\", \\\\\"\"Name\\\\\"\"\\);\"\"\")",
+      "Bash(powershell -Command \"docker cp ''C:\\\\Projects\\\\SubGuard\\\\SubGuard\\\\cleanup_duplicates.sql'' ''subguard-db:/tmp/cleanup.sql'' && docker exec subguard-db psql -U postgres -d SubGuardDb -f /tmp/cleanup.sql\")",
+      "Bash(powershell -Command \"docker cp ''C:\\\\Projects\\\\SubGuard\\\\SubGuard\\\\cleanup_duplicates.sql'' ''subguard-db:/tmp/cleanup.sql''\")",
+      "Bash(powershell -Command \"docker exec subguard-db psql -U postgres -d SubGuardDb -f /tmp/cleanup.sql\")",
+      "Bash(dotnet ef migrations add AddAuditFieldsJsonbAndNotificationConstraint --project SubGuard.Data --startup-project SubGuard.API)",
+      "Bash(dotnet build SubGuard.Data)"
     ]
   }
 }
