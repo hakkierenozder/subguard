@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using SubGuard.Core.DTOs.Auth;
@@ -12,34 +12,45 @@ namespace SubGuard.API.Controllers
     public class AuthController : CustomBaseController
     {
         private readonly IAuthService _authService;
+        private readonly ITokenService _tokenService;
+        private readonly IUserProfileService _profileService;
 
-        public AuthController(IAuthService authService)
+        public AuthController(
+            IAuthService authService,
+            ITokenService tokenService,
+            IUserProfileService profileService)
         {
             _authService = authService;
+            _tokenService = tokenService;
+            _profileService = profileService;
         }
 
         [HttpPost("register")]
         [EnableRateLimiting("auth")]
         public async Task<IActionResult> Register(RegisterDto registerDto)
-        {
-            var response = await _authService.RegisterAsync(registerDto);
-            return CreateActionResult(response);
-        }
+            => CreateActionResult(await _authService.RegisterAsync(registerDto));
 
         [HttpPost("login")]
         [EnableRateLimiting("auth")]
         public async Task<IActionResult> Login(LoginDto loginDto)
-        {
-            var response = await _authService.LoginAsync(loginDto);
-            return CreateActionResult(response);
-        }
+            => CreateActionResult(await _authService.LoginAsync(loginDto));
 
-        [Authorize] // Sadece giriş yapanlar
+        [HttpPost("create-token-by-refresh-token")]
+        [EnableRateLimiting("auth")]
+        public async Task<IActionResult> CreateTokenByRefreshToken(RefreshTokenDto refreshTokenDto)
+            => CreateActionResult(await _tokenService.CreateTokenByRefreshTokenAsync(refreshTokenDto));
+
+        [HttpPost("revoke-refresh-token")]
+        [EnableRateLimiting("auth")]
+        public async Task<IActionResult> RevokeRefreshToken([FromBody] RefreshTokenDto refreshTokenDto)
+            => CreateActionResult(await _tokenService.RevokeRefreshTokenAsync(refreshTokenDto.Token));
+
+        [Authorize]
         [HttpGet("profile")]
         public async Task<IActionResult> GetProfile()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return CreateActionResult(await _authService.GetUserProfileAsync(userId));
+            return CreateActionResult(await _profileService.GetUserProfileAsync(userId!));
         }
 
         [Authorize]
@@ -47,7 +58,7 @@ namespace SubGuard.API.Controllers
         public async Task<IActionResult> UpdateProfile(UpdateProfileDto dto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return CreateActionResult(await _authService.UpdateProfileAsync(userId, dto));
+            return CreateActionResult(await _profileService.UpdateProfileAsync(userId!, dto));
         }
 
         [Authorize]
@@ -55,23 +66,7 @@ namespace SubGuard.API.Controllers
         public async Task<IActionResult> ChangePassword(ChangePasswordDto dto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return CreateActionResult(await _authService.ChangePasswordAsync(userId, dto));
-        }
-
-        [HttpPost("create-token-by-refresh-token")]
-        [EnableRateLimiting("auth")]
-        public async Task<IActionResult> CreateTokenByRefreshToken(RefreshTokenDto refreshTokenDto)
-        {
-            var result = await _authService.CreateTokenByRefreshTokenAsync(refreshTokenDto);
-            return CreateActionResult(result);
-        }
-
-        [HttpPost("revoke-refresh-token")]
-        [EnableRateLimiting("auth")]
-        public async Task<IActionResult> RevokeRefreshToken([FromBody] RefreshTokenDto refreshTokenDto)
-        {
-            var result = await _authService.RevokeRefreshTokenAsync(refreshTokenDto.Token);
-            return CreateActionResult(result);
+            return CreateActionResult(await _profileService.ChangePasswordAsync(userId!, dto));
         }
 
         [Authorize]
@@ -79,8 +74,7 @@ namespace SubGuard.API.Controllers
         public async Task<IActionResult> DeleteAccount()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result = await _authService.DeleteAccountAsync(userId);
-            return CreateActionResult(result);
+            return CreateActionResult(await _profileService.DeleteAccountAsync(userId!));
         }
     }
 }

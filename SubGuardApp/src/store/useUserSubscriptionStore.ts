@@ -50,7 +50,10 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
     try {
       const response = await agent.UserSubscriptions.list();
       if (response && response.data) {
-        const formattedData = response.data.map((item: any) => ({
+        // Backend PagedResponseDto döndürüyor: { items: [...], totalCount: N }
+        const raw = response.data;
+        const rawItems: any[] = Array.isArray(raw) ? raw : (raw?.items ?? []);
+        const formattedData = rawItems.map((item: any) => ({
           ...item,
           id: item.id.toString(),
           contractStartDate: item.contractStartDate,

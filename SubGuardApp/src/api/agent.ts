@@ -163,9 +163,17 @@ const Auth = {
   changePassword: (body: any) => requests.post('/auth/change-password', body),
 };
 
+const Notifications = {
+  list: (page = 1, pageSize = 20) =>
+    requests.get(`/notifications?page=${page}&pageSize=${pageSize}`),
+  markAsRead: (id: number) => requests.put(`/notifications/${id}/read`, {}),
+  delete: (id: number) => requests.del(`/notifications/${id}`),
+};
+
 export default {
   Catalogs,
   UserSubscriptions,
   Currencies,
   Auth,
+  Notifications,
 };

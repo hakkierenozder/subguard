@@ -34,7 +34,21 @@
       "Bash(dotnet ef migrations add AddSubscriptionStatus --project SubGuard.Data --startup-project SubGuard.API)",
       "Bash(dotnet ef database update AddNotificationIsRead --project SubGuard.Data --startup-project SubGuard.API)",
       "Bash(dotnet ef migrations add AddExpoPushToken --project SubGuard.Data --startup-project SubGuard.API)",
-      "Bash(dotnet build --no-restore)"
+      "Bash(dotnet build --no-restore)",
+      "Bash(xargs grep -l \"class\\\\|record\")",
+      "Bash(grep -n \"TODO\\\\|FIXME\\\\|HACK\\\\|XXX\\\\|BUG\" /c/Projects/SubGuard/SubGuard/SubGuard.Service/Services/*.cs /c/Projects/SubGuard/SubGuard/SubGuard.API/Controllers/*.cs)",
+      "Bash(xargs basename:*)",
+      "Bash(ls -lt /c/Projects/SubGuard/SubGuard/SubGuard.Data/Migrations/*.cs)",
+      "Bash(find /c/Projects/SubGuard/SubGuard/SubGuard.Core/Interfaces -type f -name *.cs)",
+      "Bash(grep -E \"\\\\.cs$\")",
+      "Bash(find /c/Projects/SubGuard/SubGuard/SubGuard.Core -name *Interface* -o -name *Service* -type f)",
+      "Bash(dotnet build:*)",
+      "Bash(del \"C:\\\\Projects\\\\SubGuard\\\\SubGuard\\\\SubGuard.Core\\\\Specifications\\\\SpecificationEvaluator.cs\")",
+      "Bash(grep -r \"api\\\\|fetch\\\\|http\" /c/Projects/SubGuard/SubGuard/SubGuardApp --include=*.ts --include=*.tsx -l)",
+      "Bash(grep -r \"TODO\\\\|FIXME\\\\|BUG\\\\|HACK\" /c/Projects/SubGuard/SubGuard --include=*.cs)",
+      "Bash(find /c/Projects/SubGuard/SubGuard/SubGuardApp/src -type f \\\\\\(-name *.ts -o -name *.tsx -o -name *.json -o -name *.js -o -name *.jsx \\\\\\))",
+      "Bash(python3 -c \":*)",
+      "Bash(grep -o \"6\\\\. Abonelik Keşfet.\\\\{0,800\\\\}\" \"C:/Users/hakki/.claude/projects/C--Projects-SubGuard-SubGuard/7d3c059c-05bb-4c2e-9de1-1a3b014b135c.jsonl\")"
     ]
   }
 }

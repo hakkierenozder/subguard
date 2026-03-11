@@ -10,9 +10,9 @@ export const useCatalogStore = create<CatalogState>((set) => ({
     set({ loading: true });
     try {
       const response = await agent.Catalogs.list();
-      // Backend yapına göre response.data veya response.data.data kontrolü
-      const items = response?.data || [];
-      
+      // Backend PagedResponseDto döndürüyor: { items: [...], totalCount: N }
+      const raw = response?.data;
+      const items: CatalogItem[] = Array.isArray(raw) ? raw : (raw?.items ?? []);
       set({ catalogItems: items, loading: false });
     } catch (error) {
       console.error('Katalog çekilemedi:', error);

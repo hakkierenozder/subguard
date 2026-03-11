@@ -4,8 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.Entities;
+using SubGuard.Core.Models;
 using SubGuard.Core.Repositories;
 using SubGuard.Core.Services;
+using SubGuard.Core.Specifications.Notifications;
+using SubGuard.Core.Specifications.Subscriptions;
 using SubGuard.Core.UnitOfWork;
 
 namespace SubGuard.Service.Services
@@ -16,8 +19,7 @@ namespace SubGuard.Service.Services
         private readonly IGenericRepository<NotificationQueue> _queueRepo;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly IEmailSender _emailSender;
-        private readonly IPushNotificationSender _pushSender;
+        private readonly IEnumerable<INotificationSender> _senders;
         private readonly UserManager<AppUser> _userManager;
         private readonly ILogger<NotificationService> _logger;
 
@@ -26,8 +28,7 @@ namespace SubGuard.Service.Services
             IGenericRepository<NotificationQueue> queueRepo,
             IUnitOfWork unitOfWork,
             IMapper mapper,
-            IEmailSender emailSender,
-            IPushNotificationSender pushSender,
+            IEnumerable<INotificationSender> senders,
             UserManager<AppUser> userManager,
             ILogger<NotificationService> logger)
         {
@@ -35,8 +36,7 @@ namespace SubGuard.Service.Services
             _queueRepo = queueRepo;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
-            _emailSender = emailSender;
-            _pushSender = pushSender;
+            _senders = senders;
             _userManager = userManager;
             _logger = logger;
         }
@@ -46,13 +46,9 @@ namespace SubGuard.Service.Services
             var targetDate = DateTime.UtcNow.AddDays(daysBefore);
             var targetDay = targetDate.Day;
 
-            // DÜZELTME: Repo'daki 'Where' metodu IQueryable döner. 
-            // Veritabanı sorgusunu gerçekleştirmek için ToListAsync kullanıyoruz.
-            var upcomingSubscriptions = await _subscriptionRepo.Where(x =>
-                x.IsActive &&
-                !x.IsDeleted &&
-                x.BillingDay == targetDay
-            ).ToListAsync();
+            var upcomingSubscriptions = await _subscriptionRepo
+                .ApplySpecification(new UpcomingPaymentSubscriptionsSpec(targetDay))
+                .ToListAsync();
 
             // Liste boşsa işlem yapma
             if (upcomingSubscriptions == null || !upcomingSubscriptions.Any())
@@ -139,7 +135,7 @@ namespace SubGuard.Service.Services
         public async Task ProcessNotificationQueueAsync()
         {
             var pending = await _queueRepo
-                .Where(x => !x.IsSent)
+                .ApplySpecification(new UnsentNotificationsSpec())
                 .ToListAsync();
 
             if (!pending.Any()) return;
@@ -167,15 +163,19 @@ namespace SubGuard.Service.Services
                         daysUntil: daysUntil
                     );
 
-                    await _emailSender.SendAsync(user.Email!, user.FullName ?? user.Email!, notification.Title, htmlBody);
+                    var message = new NotificationMessage
+                    {
+                        ToEmail   = user.Email!,
+                        ToName    = user.FullName ?? user.Email!,
+                        PushToken = user.ExpoPushToken,
+                        Title     = notification.Title,
+                        Body      = notification.Message,
+                        HtmlBody  = htmlBody,
+                        Data      = new { subscriptionId = notification.UserSubscriptionId }
+                    };
 
-                    if (!string.IsNullOrEmpty(user.ExpoPushToken))
-                        await _pushSender.SendAsync(
-                            user.ExpoPushToken,
-                            notification.Title,
-                            notification.Message,
-                            new { subscriptionId = notification.UserSubscriptionId }
-                        );
+                    foreach (var sender in _senders)
+                        await sender.SendAsync(message);
 
                     notification.IsSent = true;
                     notification.SentDate = DateTime.UtcNow;

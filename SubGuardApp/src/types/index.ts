@@ -65,3 +65,14 @@ export interface CatalogState {
     loading: boolean;
     fetchCatalog: () => Promise<void>;
 }
+
+export interface NotificationDto {
+  id: number;
+  title: string;
+  message: string;
+  isRead: boolean;
+  isSent: boolean;
+  createdDate: string;
+  scheduledDate: string;
+  readDate?: string | null;
+}

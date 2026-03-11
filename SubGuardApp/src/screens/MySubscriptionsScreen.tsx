@@ -1,21 +1,28 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, Linking, TextInput, RefreshControl, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { UserSubscription } from '../types';
 import AddSubscriptionModal from '../components/AddSubscriptionModal';
 import SubscriptionDetailModal from '../components/SubscriptionDetailModal';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
-import { useSettingsStore } from '../store/useSettingsStore'; 
+import { useSettingsStore } from '../store/useSettingsStore';
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { convertToTRY } from '../utils/CurrencyService';
-import { useThemeColors } from '../constants/theme'; 
+import { useThemeColors } from '../constants/theme';
+
+type RootStackParamList = {
+  SharedSubscriptions: undefined;
+};
 
 // Tip tanımları
 type SortType = 'date' | 'price_desc' | 'name';
 
 export default function MySubscriptionsScreen() {
-  const colors = useThemeColors(); 
+  const colors = useThemeColors();
   const isDarkMode = useSettingsStore((state) => state.isDarkMode);
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const {
     subscriptions,
@@ -136,6 +143,14 @@ export default function MySubscriptionsScreen() {
               <Text style={styles.heroSubText}>
                   {activeSubsCount} aktif abonelik yönetiliyor
               </Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('SharedSubscriptions')}
+                style={styles.sharedBtn}
+              >
+                <Ionicons name="people-outline" size={14} color="rgba(255,255,255,0.9)" />
+                <Text style={styles.sharedBtnText}>Paylaşımlı Abonelikler</Text>
+                <Ionicons name="chevron-forward" size={14} color="rgba(255,255,255,0.7)" />
+              </TouchableOpacity>
           </View>
         </View>
 
@@ -391,6 +406,22 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.9)',
     fontSize: 13,
     fontWeight: '500',
+    marginBottom: 12,
+  },
+  sharedBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 12,
+    alignSelf: 'flex-start',
+  },
+  sharedBtnText: {
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: 12,
+    fontWeight: '700',
   },
 
   searchAndFilterContainer: {

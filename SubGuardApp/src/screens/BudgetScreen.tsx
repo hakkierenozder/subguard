@@ -1,0 +1,550 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  StatusBar,
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { ProgressChart } from 'react-native-chart-kit';
+import { useThemeColors } from '../constants/theme';
+import { useSettingsStore } from '../store/useSettingsStore';
+import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
+import agent from '../api/agent';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const RING_SIZE = 180;
+
+const ALERT_THRESHOLDS = [70, 80, 90, 100];
+
+// Sabit kategori renkleri
+const CATEGORY_COLORS: Record<string, string> = {
+  Streaming: '#6366F1',
+  Müzik: '#EC4899',
+  Oyun: '#F59E0B',
+  Yazılım: '#10B981',
+  Eğitim: '#3B82F6',
+  Fitness: '#EF4444',
+  Haber: '#8B5CF6',
+  Diğer: '#64748B',
+};
+
+function getCategoryColor(category: string): string {
+  return CATEGORY_COLORS[category] || '#64748B';
+}
+
+export default function BudgetScreen() {
+  const colors = useThemeColors();
+  const isDarkMode = useSettingsStore((s) => s.isDarkMode);
+  const { budgetAlertThreshold, setBudgetAlertThreshold } = useSettingsStore();
+  const { subscriptions, exchangeRates } = useUserSubscriptionStore();
+
+  const [monthlyBudget, setMonthlyBudget] = useState(0);
+  const [budgetInput, setBudgetInput] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [editMode, setEditMode] = useState(false);
+
+  useEffect(() => {
+    agent.Auth.getProfile()
+      .then((res) => {
+        const budget = res?.data?.monthlyBudget ?? 0;
+        setMonthlyBudget(budget);
+        setBudgetInput(budget > 0 ? budget.toString() : '');
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const activeSubs = useMemo(
+    () => subscriptions.filter((s) => s.isActive !== false),
+    [subscriptions],
+  );
+
+  // Toplam harcama (TRY)
+  const totalExpense = useMemo(() => {
+    return activeSubs.reduce((total, sub) => {
+      const rate = exchangeRates[sub.currency] ?? 1;
+      const priceInTry = sub.price * rate;
+      const partnerCount = sub.sharedWith?.length ?? 0;
+      return total + priceInTry / (partnerCount + 1);
+    }, 0);
+  }, [activeSubs, exchangeRates]);
+
+  // Kategori bazlı harcama
+  const categoryBreakdown = useMemo(() => {
+    const map: Record<string, number> = {};
+    activeSubs.forEach((sub) => {
+      const rate = exchangeRates[sub.currency] ?? 1;
+      const myShare = (sub.price * rate) / ((sub.sharedWith?.length ?? 0) + 1);
+      map[sub.category] = (map[sub.category] ?? 0) + myShare;
+    });
+    return Object.entries(map)
+      .map(([category, amount]) => ({ category, amount }))
+      .sort((a, b) => b.amount - a.amount);
+  }, [activeSubs, exchangeRates]);
+
+  const budgetPercentage = monthlyBudget > 0 ? Math.min(totalExpense / monthlyBudget, 1) : 0;
+  const percentDisplay = (budgetPercentage * 100).toFixed(0);
+  const isOverBudget = totalExpense > monthlyBudget && monthlyBudget > 0;
+  const isNearLimit = !isOverBudget && budgetPercentage * 100 >= budgetAlertThreshold;
+
+  const ringColor =
+    isOverBudget ? '#EF4444' : isNearLimit ? '#F59E0B' : '#4F46E5';
+
+  const handleSaveBudget = async () => {
+    const parsed = parseFloat(budgetInput.replace(',', '.'));
+    if (isNaN(parsed) || parsed < 0) {
+      Alert.alert('Hatalı Değer', 'Geçerli bir bütçe miktarı girin.');
+      return;
+    }
+    setSaving(true);
+    try {
+      await agent.Auth.updateProfile({ monthlyBudget: parsed });
+      setMonthlyBudget(parsed);
+      setEditMode(false);
+    } catch {
+      Alert.alert('Hata', 'Bütçe kaydedilemedi.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]} edges={['top']}>
+        <ActivityIndicator style={{ flex: 1 }} color={colors.accent} />
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]} edges={['top']}>
+      <StatusBar
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+        backgroundColor="transparent"
+        translucent
+      />
+
+      {/* HEADER */}
+      <LinearGradient
+        colors={[colors.primary, colors.primaryDark]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.header}
+      >
+        <Text style={styles.headerTitle}>Bütçe Yönetimi</Text>
+        <Text style={styles.headerSub}>
+          {monthlyBudget > 0
+            ? `Hedef: ₺${monthlyBudget.toLocaleString('tr-TR')}`
+            : 'Henüz bütçe belirlenmedi'}
+        </Text>
+      </LinearGradient>
+
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+
+        {/* RING CHART */}
+        <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+          {monthlyBudget > 0 ? (
+            <View style={styles.ringWrap}>
+              <ProgressChart
+                data={{ data: [budgetPercentage] }}
+                width={RING_SIZE + 32}
+                height={RING_SIZE}
+                strokeWidth={18}
+                radius={68}
+                chartConfig={{
+                  backgroundColor: 'transparent',
+                  backgroundGradientFrom: colors.cardBg,
+                  backgroundGradientTo: colors.cardBg,
+                  color: (opacity = 1) => {
+                    const hex = ringColor.replace('#', '');
+                    const r = parseInt(hex.substring(0, 2), 16);
+                    const g = parseInt(hex.substring(2, 4), 16);
+                    const b = parseInt(hex.substring(4, 6), 16);
+                    return `rgba(${r},${g},${b},${opacity})`;
+                  },
+                }}
+                hideLegend
+              />
+              {/* Merkez yazı */}
+              <View style={styles.ringCenter} pointerEvents="none">
+                <Text style={[styles.ringPercent, { color: ringColor }]}>{percentDisplay}%</Text>
+                <Text style={[styles.ringLabel, { color: colors.textSec }]}>kullanıldı</Text>
+              </View>
+            </View>
+          ) : (
+            <View style={styles.noBudgetWrap}>
+              <Ionicons name="wallet-outline" size={48} color={colors.textSec} />
+              <Text style={[styles.noBudgetText, { color: colors.textSec }]}>
+                Bütçe hedefi belirlenmedi
+              </Text>
+            </View>
+          )}
+
+          {/* Harcama / Hedef bilgisi */}
+          <View style={styles.statsRow}>
+            <View style={styles.statBox}>
+              <Text style={[styles.statLabel, { color: colors.textSec }]}>Bu Ay Harcama</Text>
+              <Text style={[styles.statValue, { color: colors.textMain }]}>
+                ₺{totalExpense.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </Text>
+            </View>
+            <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
+            <View style={styles.statBox}>
+              <Text style={[styles.statLabel, { color: colors.textSec }]}>Bütçe Hedefi</Text>
+              <Text style={[styles.statValue, { color: colors.textMain }]}>
+                {monthlyBudget > 0
+                  ? `₺${monthlyBudget.toLocaleString('tr-TR')}`
+                  : '—'}
+              </Text>
+            </View>
+            <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
+            <View style={styles.statBox}>
+              <Text style={[styles.statLabel, { color: colors.textSec }]}>
+                {isOverBudget ? 'Aşım' : 'Kalan'}
+              </Text>
+              <Text
+                style={[
+                  styles.statValue,
+                  { color: isOverBudget ? '#EF4444' : '#10B981' },
+                ]}
+              >
+                {monthlyBudget > 0
+                  ? `₺${Math.abs(monthlyBudget - totalExpense).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                  : '—'}
+              </Text>
+            </View>
+          </View>
+
+          {/* Uyarı mesajı */}
+          {(isOverBudget || isNearLimit) && (
+            <View
+              style={[
+                styles.warningBanner,
+                { backgroundColor: isOverBudget ? '#FEF2F2' : '#FFFBEB', borderColor: isOverBudget ? '#EF4444' : '#F59E0B' },
+              ]}
+            >
+              <Ionicons
+                name={isOverBudget ? 'alert-circle-outline' : 'warning-outline'}
+                size={16}
+                color={isOverBudget ? '#EF4444' : '#F59E0B'}
+              />
+              <Text style={[styles.warningText, { color: isOverBudget ? '#EF4444' : '#B45309' }]}>
+                {isOverBudget
+                  ? `Bütçen ₺${(totalExpense - monthlyBudget).toFixed(2)} aşıldı!`
+                  : `Bütçenin %${percentDisplay}'ini kullandın.`}
+              </Text>
+            </View>
+          )}
+        </View>
+
+        {/* BÜTÇE HEDEF DÜZENLE */}
+        <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+          <View style={styles.cardHeader}>
+            <Ionicons name="create-outline" size={18} color={colors.accent} />
+            <Text style={[styles.cardTitle, { color: colors.textMain }]}>Aylık Bütçe Hedefi</Text>
+            {!editMode && (
+              <TouchableOpacity
+                onPress={() => {
+                  setBudgetInput(monthlyBudget > 0 ? monthlyBudget.toString() : '');
+                  setEditMode(true);
+                }}
+                style={[styles.editBtn, { backgroundColor: colors.inputBg }]}
+              >
+                <Text style={[styles.editBtnText, { color: colors.accent }]}>Düzenle</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {editMode ? (
+            <View style={styles.editRow}>
+              <View style={[styles.inputWrap, { backgroundColor: colors.inputBg, borderColor: colors.border }]}>
+                <Text style={[styles.inputPrefix, { color: colors.textSec }]}>₺</Text>
+                <TextInput
+                  style={[styles.budgetInput, { color: colors.textMain }]}
+                  value={budgetInput}
+                  onChangeText={setBudgetInput}
+                  keyboardType="numeric"
+                  placeholder="0"
+                  placeholderTextColor={colors.textSec}
+                  autoFocus
+                />
+              </View>
+              <TouchableOpacity
+                style={[styles.saveBtn, { backgroundColor: colors.accent, opacity: saving ? 0.7 : 1 }]}
+                onPress={handleSaveBudget}
+                disabled={saving}
+              >
+                {saving ? (
+                  <ActivityIndicator size="small" color="#FFF" />
+                ) : (
+                  <Text style={styles.saveBtnText}>Kaydet</Text>
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.cancelBtn, { borderColor: colors.border }]}
+                onPress={() => setEditMode(false)}
+              >
+                <Text style={[styles.cancelBtnText, { color: colors.textSec }]}>İptal</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <Text style={[styles.currentBudgetText, { color: monthlyBudget > 0 ? colors.accent : colors.textSec }]}>
+              {monthlyBudget > 0 ? `₺${monthlyBudget.toLocaleString('tr-TR')} / ay` : 'Henüz belirlenmedi'}
+            </Text>
+          )}
+        </View>
+
+        {/* UYARI EŞİĞİ */}
+        <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+          <View style={styles.cardHeader}>
+            <Ionicons name="notifications-outline" size={18} color={colors.accent} />
+            <Text style={[styles.cardTitle, { color: colors.textMain }]}>Uyarı Eşiği</Text>
+          </View>
+          <Text style={[styles.cardDesc, { color: colors.textSec }]}>
+            Bütçenin kaçta kaçı kullanıldığında uyarı gösterilsin?
+          </Text>
+          <View style={styles.thresholdRow}>
+            {ALERT_THRESHOLDS.map((t) => (
+              <TouchableOpacity
+                key={t}
+                style={[
+                  styles.thresholdBtn,
+                  {
+                    backgroundColor:
+                      budgetAlertThreshold === t ? colors.accent : colors.inputBg,
+                    borderColor:
+                      budgetAlertThreshold === t ? colors.accent : colors.border,
+                  },
+                ]}
+                onPress={() => setBudgetAlertThreshold(t)}
+              >
+                <Text
+                  style={[
+                    styles.thresholdBtnText,
+                    { color: budgetAlertThreshold === t ? '#FFF' : colors.textMain },
+                  ]}
+                >
+                  %{t}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* KATEGORİ DAĞILIMI */}
+        <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+          <View style={styles.cardHeader}>
+            <Ionicons name="pie-chart-outline" size={18} color={colors.accent} />
+            <Text style={[styles.cardTitle, { color: colors.textMain }]}>Kategori Dağılımı</Text>
+          </View>
+
+          {categoryBreakdown.length === 0 ? (
+            <Text style={[styles.cardDesc, { color: colors.textSec }]}>Aktif abonelik yok.</Text>
+          ) : (
+            categoryBreakdown.map(({ category, amount }) => {
+              const pct = totalExpense > 0 ? amount / totalExpense : 0;
+              const color = getCategoryColor(category);
+              return (
+                <View key={category} style={styles.catRow}>
+                  <View style={styles.catLabelRow}>
+                    <View style={[styles.catDot, { backgroundColor: color }]} />
+                    <Text style={[styles.catName, { color: colors.textMain }]} numberOfLines={1}>
+                      {category}
+                    </Text>
+                    <Text style={[styles.catPct, { color: colors.textSec }]}>
+                      %{(pct * 100).toFixed(0)}
+                    </Text>
+                    <Text style={[styles.catAmount, { color: color }]}>
+                      ₺{amount.toFixed(2)}
+                    </Text>
+                  </View>
+                  <View style={[styles.catBarBg, { backgroundColor: colors.inputBg }]}>
+                    <View
+                      style={[
+                        styles.catBarFill,
+                        { width: `${pct * 100}%`, backgroundColor: color },
+                      ]}
+                    />
+                  </View>
+                </View>
+              );
+            })
+          )}
+        </View>
+
+        {/* ABONELİK SAYISI */}
+        <View style={[styles.statsCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+          <View style={styles.quickStat}>
+            <Text style={[styles.quickStatNum, { color: colors.accent }]}>{activeSubs.length}</Text>
+            <Text style={[styles.quickStatLabel, { color: colors.textSec }]}>Aktif Abonelik</Text>
+          </View>
+          <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
+          <View style={styles.quickStat}>
+            <Text style={[styles.quickStatNum, { color: '#10B981' }]}>{categoryBreakdown.length}</Text>
+            <Text style={[styles.quickStatLabel, { color: colors.textSec }]}>Kategori</Text>
+          </View>
+          <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
+          <View style={styles.quickStat}>
+            <Text style={[styles.quickStatNum, { color: '#F59E0B' }]}>
+              {subscriptions.filter((s) => s.isActive === false).length}
+            </Text>
+            <Text style={[styles.quickStatLabel, { color: colors.textSec }]}>Dondurulmuş</Text>
+          </View>
+        </View>
+
+        <View style={{ height: 40 }} />
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+
+  header: {
+    paddingTop: 16,
+    paddingBottom: 28,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
+  },
+  headerTitle: { fontSize: 26, fontWeight: '800', color: '#FFF' },
+  headerSub: { fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 4, fontWeight: '500' },
+
+  scrollContent: { padding: 16, gap: 14 },
+
+  card: {
+    borderRadius: 20,
+    borderWidth: 1,
+    padding: 18,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
+  cardTitle: { fontSize: 15, fontWeight: '700', flex: 1 },
+  cardDesc: { fontSize: 13, lineHeight: 19, marginBottom: 12 },
+
+  // Ring chart
+  ringWrap: { alignItems: 'center', position: 'relative' },
+  ringCenter: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  ringPercent: { fontSize: 28, fontWeight: '800' },
+  ringLabel: { fontSize: 12, fontWeight: '600', marginTop: 2 },
+
+  noBudgetWrap: { alignItems: 'center', paddingVertical: 24, gap: 12 },
+  noBudgetText: { fontSize: 14 },
+
+  // Stats row
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: 'transparent',
+  },
+  statBox: { flex: 1, alignItems: 'center' },
+  statDivider: { width: 1, marginVertical: 4 },
+  statLabel: { fontSize: 10, fontWeight: '600', textAlign: 'center', marginBottom: 4 },
+  statValue: { fontSize: 14, fontWeight: '800', textAlign: 'center' },
+
+  // Warning
+  warningBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 14,
+    padding: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  warningText: { fontSize: 13, fontWeight: '600', flex: 1 },
+
+  // Edit budget
+  editBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10 },
+  editBtnText: { fontSize: 13, fontWeight: '700' },
+  editRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  inputWrap: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    height: 44,
+  },
+  inputPrefix: { fontSize: 16, fontWeight: '600', marginRight: 4 },
+  budgetInput: { flex: 1, fontSize: 16, fontWeight: '700' },
+  saveBtn: {
+    paddingHorizontal: 16,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  saveBtnText: { color: '#FFF', fontWeight: '700', fontSize: 14 },
+  cancelBtn: {
+    paddingHorizontal: 12,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+  },
+  cancelBtnText: { fontSize: 14, fontWeight: '600' },
+  currentBudgetText: { fontSize: 20, fontWeight: '800', marginTop: 4 },
+
+  // Threshold
+  thresholdRow: { flexDirection: 'row', gap: 10 },
+  thresholdBtn: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: 'center',
+  },
+  thresholdBtnText: { fontSize: 15, fontWeight: '700' },
+
+  // Category
+  catRow: { marginBottom: 12 },
+  catLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
+  catDot: { width: 10, height: 10, borderRadius: 5 },
+  catName: { flex: 1, fontSize: 13, fontWeight: '600' },
+  catPct: { fontSize: 12 },
+  catAmount: { fontSize: 13, fontWeight: '700', minWidth: 70, textAlign: 'right' },
+  catBarBg: { height: 6, borderRadius: 3, overflow: 'hidden' },
+  catBarFill: { height: '100%', borderRadius: 3 },
+
+  // Quick stats card
+  statsCard: {
+    borderRadius: 20,
+    borderWidth: 1,
+    padding: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  quickStat: { flex: 1, alignItems: 'center' },
+  quickStatNum: { fontSize: 26, fontWeight: '800' },
+  quickStatLabel: { fontSize: 11, fontWeight: '600', marginTop: 2, textAlign: 'center' },
+});

@@ -51,13 +51,15 @@ try
         .HandleTransientHttpError()
         .CircuitBreakerAsync(5, TimeSpan.FromSeconds(30));
 
-    // CurrencyService'i HttpClient ile ba�la ve Policy'leri ekle
-    builder.Services.AddHttpClient<ICurrencyService, CurrencyService>(client =>
+    // FrankfurterExchangeRateProvider'ı HttpClient + Polly politikalarıyla kaydet
+    builder.Services.AddHttpClient<IExchangeRateProvider, FrankfurterExchangeRateProvider>(client =>
     {
         client.BaseAddress = new Uri("https://api.frankfurter.app/");
     })
     .AddPolicyHandler(retryPolicy)
     .AddPolicyHandler(circuitBreakerPolicy);
+
+    builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 
     // 2. Host'a Serilog'u ba�la
     builder.Host.UseSerilog();
@@ -179,12 +181,18 @@ try
     });
     builder.Services.AddScoped<IUserSubscriptionService, UserSubscriptionService>();
     builder.Services.AddScoped<IAuthService, AuthService>();
+    builder.Services.AddScoped<ITokenService, TokenService>();
+    builder.Services.AddScoped<IUserProfileService, UserProfileService>();
     builder.Services.AddScoped<INotificationService, NotificationService>();
     builder.Services.AddScoped<IDashboardService, DashboardService>();
     builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
     builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
     builder.Services.AddHttpClient("expo");
     builder.Services.AddScoped<IPushNotificationSender, ExpoPushNotificationSender>();
+
+    // INotificationSender adaptörleri — NotificationService IEnumerable<INotificationSender> ile tüm kanalları tetikler
+    builder.Services.AddScoped<INotificationSender, EmailNotificationSender>();
+    builder.Services.AddScoped<INotificationSender, PushNotificationSender>();
     // 1. HANGFIRE KONF�G�RASYONU
     builder.Services.AddHangfire(config => config
         .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
@@ -245,7 +253,7 @@ try
         "0 9 * * *" // Her sabah 09:00 (UTC)
     );
 
-    RecurringJob.AddOrUpdate<IAuthService>(
+    RecurringJob.AddOrUpdate<ITokenService>(
         "purge-expired-refresh-tokens",
         service => service.PurgeExpiredRefreshTokensAsync(),
         Cron.Daily // Her gece 00:00 (UTC)

@@ -14,32 +14,53 @@ import HomeScreen from './src/screens/HomeScreen';
 import ReportsScreen from './src/screens/ReportsScreen';
 import MySubscriptionsScreen from './src/screens/MySubscriptionsScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
+import NotificationsScreen from './src/screens/NotificationsScreen';
+import CalendarScreen from './src/screens/CalendarScreen';
+import BudgetScreen from './src/screens/BudgetScreen';
+import SharedSubscriptionsScreen from './src/screens/SharedSubscriptionsScreen';
+import OnboardingScreen from './src/screens/OnboardingScreen';
+import DiscoverScreen from './src/screens/DiscoverScreen';
 
 // Utils & Components
-import { isLoggedIn } from './src/utils/AuthManager'; 
-import ErrorBoundary from './src/components/ErrorBoundary'; 
-import { THEME, useThemeColors } from './src/constants/theme'; 
-import { useSettingsStore } from './src/store/useSettingsStore'; 
+import { isLoggedIn } from './src/utils/AuthManager';
+import ErrorBoundary from './src/components/ErrorBoundary';
+import { THEME, useThemeColors } from './src/constants/theme';
+import { useSettingsStore } from './src/store/useSettingsStore';
+import { useNotificationStore } from './src/store/useNotificationStore';
 
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
+  Onboarding: undefined;
   Main: undefined;
+  SharedSubscriptions: undefined;
+  Discover: undefined;
 };
 
 export type MainTabParamList = {
   Home: undefined;
   MySubscriptions: undefined;
+  Calendar: undefined;
+  Budget: undefined;
   Reports: undefined;
+  Notifications: undefined;
   Settings: undefined;
 };
+
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
-// --- TAB MENÜ (AYNEN KORUNDU) ---
+// --- TAB MENÜ ---
 function AppTabs() {
-  const colors = useThemeColors(); 
+  const colors = useThemeColors();
+  const unreadCount = useNotificationStore((s) => s.unreadCount);
+  const fetchNotifications = useNotificationStore((s) => s.fetchNotifications);
+
+  // Uygulama açılınca bildirimleri çek (badge için)
+  useEffect(() => {
+    fetchNotifications(true);
+  }, []);
 
   return (
     <Tab.Navigator
@@ -65,7 +86,10 @@ function AppTabs() {
           let iconName: any;
           if (route.name === 'Home') iconName = focused ? 'home' : 'home-outline';
           else if (route.name === 'MySubscriptions') iconName = focused ? 'card' : 'card-outline';
+          else if (route.name === 'Calendar') iconName = focused ? 'calendar' : 'calendar-outline';
+          else if (route.name === 'Budget') iconName = focused ? 'wallet' : 'wallet-outline';
           else if (route.name === 'Reports') iconName = focused ? 'pie-chart' : 'pie-chart-outline';
+          else if (route.name === 'Notifications') iconName = focused ? 'notifications' : 'notifications-outline';
           else if (route.name === 'Settings') iconName = focused ? 'settings' : 'settings-outline';
           return <Ionicons name={iconName} size={size} color={color} />;
         },
@@ -73,7 +97,26 @@ function AppTabs() {
     >
       <Tab.Screen name="Home" component={HomeScreen} options={{ title: 'Ana Sayfa' }} />
       <Tab.Screen name="MySubscriptions" component={MySubscriptionsScreen} options={{ title: 'Abonelikler' }} />
+      <Tab.Screen name="Calendar" component={CalendarScreen} options={{ title: 'Takvim' }} />
+      <Tab.Screen name="Budget" component={BudgetScreen} options={{ title: 'Bütçe' }} />
       <Tab.Screen name="Reports" component={ReportsScreen} options={{ title: 'Raporlar' }} />
+      <Tab.Screen
+        name="Notifications"
+        component={NotificationsScreen}
+        options={{
+          title: 'Bildirimler',
+          tabBarBadge: unreadCount > 0 ? (unreadCount > 99 ? '99+' : unreadCount) : undefined,
+          tabBarBadgeStyle: {
+            backgroundColor: '#EF4444',
+            fontSize: 10,
+            fontWeight: '700',
+            minWidth: 18,
+            height: 18,
+            borderRadius: 9,
+            lineHeight: 18,
+          },
+        }}
+      />
       <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: 'Ayarlar' }} />
     </Tab.Navigator>
   );
@@ -82,13 +125,18 @@ function AppTabs() {
 export default function App() {
   const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList | null>(null);
   const isDarkMode = useSettingsStore((state) => state.isDarkMode);
+  const onboardingCompleted = useSettingsStore((state) => state.onboardingCompleted);
   const colors = useThemeColors();
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const loggedIn = await isLoggedIn(); 
-        setInitialRoute(loggedIn ? 'Main' : 'Login'); 
+        const loggedIn = await isLoggedIn();
+        if (loggedIn) {
+          setInitialRoute(onboardingCompleted ? 'Main' : 'Onboarding');
+        } else {
+          setInitialRoute('Login');
+        }
       } catch (e) {
         setInitialRoute('Login');
       }
@@ -115,7 +163,18 @@ export default function App() {
           <Stack.Navigator initialRouteName={initialRoute} screenOptions={{ headerShown: false }}>
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Register" component={RegisterScreen} />
+            <Stack.Screen name="Onboarding" component={OnboardingScreen} />
             <Stack.Screen name="Main" component={AppTabs} />
+            <Stack.Screen
+              name="SharedSubscriptions"
+              component={SharedSubscriptionsScreen}
+              options={{ headerShown: false, presentation: 'modal' }}
+            />
+            <Stack.Screen
+              name="Discover"
+              component={DiscoverScreen}
+              options={{ headerShown: false, presentation: 'modal' }}
+            />
           </Stack.Navigator>
         </NavigationContainer>
         

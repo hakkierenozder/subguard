@@ -1,13 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SubGuard.Core.Entities; // BaseEntity'i tanıması için gerekli
+using Microsoft.EntityFrameworkCore;
+using SubGuard.Core.Entities;
 using SubGuard.Core.Repositories;
+using SubGuard.Core.Specifications;
+using SubGuard.Data.Specifications;
 using System.Linq.Expressions;
 
-namespace SubGuard.Data.Repositories // Namespace'i orijinal dosyadaki gibi koruyorum (SabGuard yazılmış, SubGuard olmalı ama dosyada SabGuard ise düzeltiyorum)
+namespace SubGuard.Data.Repositories
 {
-    // Not: Orijinal dosyada namespace 'SabGuard' olarak görünüyor, proje genelinde 'SubGuard' kullanılıyor. 
-    // Tutarlılık için SubGuard olarak düzeltilmesi önerilir ancak mevcut yapıyı bozmamak adına dosya içeriğine sadık kalarak mantığı uyguluyorum.
-
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         protected readonly AppDbContext _context;
@@ -19,44 +18,31 @@ namespace SubGuard.Data.Repositories // Namespace'i orijinal dosyadaki gibi koru
             _dbSet = _context.Set<T>();
         }
 
-        public async Task AddAsync(T entity)
-        {
-            await _dbSet.AddAsync(entity);
-        }
+        public async Task AddAsync(T entity) => await _dbSet.AddAsync(entity);
 
-        public async Task AddRangeAsync(IEnumerable<T> entities)
-        {
-            await _dbSet.AddRangeAsync(entities);
-        }
+        public async Task AddRangeAsync(IEnumerable<T> entities) => await _dbSet.AddRangeAsync(entities);
 
-        public async Task<bool> AnyAsync(Expression<Func<T, bool>> expression)
-        {
-            return await _dbSet.AnyAsync(expression);
-        }
+        public async Task<bool> AnyAsync(Expression<Func<T, bool>> expression) => await _dbSet.AnyAsync(expression);
 
-        public IQueryable<T> GetAll()
-        {
-            return _dbSet.AsNoTracking().AsQueryable();
-        }
+        public IQueryable<T> GetAll() => _dbSet.AsNoTracking().AsQueryable();
 
-        public async Task<T> GetByIdAsync(int id)
-        {
-            return await _dbSet.FindAsync(id);
-        }
+        public async Task<T> GetByIdAsync(int id) => await _dbSet.FindAsync(id);
 
-        // --- SOFT DELETE IMPLEMENTATION START ---
+        public IQueryable<T> Where(Expression<Func<T, bool>> expression) => _dbSet.Where(expression);
+
+        public IQueryable<T> ApplySpecification(ISpecification<T> spec)
+            => SpecificationEvaluator<T>.GetQuery(_dbSet.AsQueryable(), spec);
+
         public void Remove(T entity)
         {
-            // Eğer entity BaseEntity'den türetilmişse Soft Delete yap
             if (entity is BaseEntity baseEntity)
             {
                 baseEntity.IsDeleted = true;
-                baseEntity.UpdatedDate = DateTime.UtcNow; // Silinme anını güncelleme tarihi olarak işleyelim
+                baseEntity.UpdatedDate = DateTime.UtcNow;
                 _dbSet.Update(entity);
             }
             else
             {
-                // BaseEntity değilse (örneğin çoka-çok ilişki tablosu vb.) normal sil
                 _dbSet.Remove(entity);
             }
         }
@@ -64,20 +50,9 @@ namespace SubGuard.Data.Repositories // Namespace'i orijinal dosyadaki gibi koru
         public void RemoveRange(IEnumerable<T> entities)
         {
             foreach (var entity in entities)
-            {
-                Remove(entity); // Yukarıdaki mantığı her biri için uygula
-            }
-        }
-        // --- SOFT DELETE IMPLEMENTATION END ---
-
-        public void Update(T entity)
-        {
-            _dbSet.Update(entity);
+                Remove(entity);
         }
 
-        public IQueryable<T> Where(Expression<Func<T, bool>> expression)
-        {
-            return _dbSet.Where(expression);
-        }
+        public void Update(T entity) => _dbSet.Update(entity);
     }
 }

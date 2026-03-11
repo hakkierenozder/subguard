@@ -1,21 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, RefreshControl, StatusBar, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCatalogStore } from '../store/useCatalogStore';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
-import { useSettingsStore } from '../store/useSettingsStore'; // Tema için
+import { useSettingsStore } from '../store/useSettingsStore';
 import { CatalogItem, UserSubscription } from '../types';
+import { RootStackParamList } from '../../App';
 import AddSubscriptionModal from '../components/AddSubscriptionModal';
 import UsageSurveyModal from '../components/UsageSurveyModal';
 import CatalogExplore from '../components/CatalogExplore';
 import agent from '../api/agent';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useThemeColors } from '../constants/theme'; // Tema Hook
+import { useThemeColors } from '../constants/theme';
 
 export default function HomeScreen() {
-    const colors = useThemeColors(); // Dinamik Renkler
+    const colors = useThemeColors();
     const isDarkMode = useSettingsStore((state) => state.isDarkMode);
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
     // Store'lar
     const { fetchCatalog } = useCatalogStore();
@@ -189,7 +193,16 @@ export default function HomeScreen() {
 
                 {/* 4. YENİ ABONELİK EKLEME ALANI (BÜTÜNLEŞİK TASARIM) */}
                 <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { marginBottom: 12, color: colors.textMain }]}>Yeni Abonelik Ekle</Text>
+                    <View style={styles.sectionHeaderRow}>
+                        <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Yeni Abonelik Ekle</Text>
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate('Discover')}
+                            style={[styles.discoverBtn, { backgroundColor: colors.inputBg, borderColor: colors.border }]}
+                        >
+                            <Ionicons name="compass-outline" size={14} color={colors.accent} />
+                            <Text style={[styles.discoverBtnText, { color: colors.accent }]}>Keşfet</Text>
+                        </TouchableOpacity>
+                    </View>
                     
                     {/* ÖZEL ABONELİK (MANUEL) BUTONU - YENİ TASARIM */}
                     <TouchableOpacity 
@@ -272,8 +285,19 @@ const styles = StyleSheet.create({
 
     section: { marginBottom: 24 },
     sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+    sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
     sectionTitle: { fontSize: 18, fontWeight: '700' },
     subSectionTitle: { fontSize: 13, fontWeight: '500', marginTop: 16, marginBottom: 10, marginLeft: 4 },
+    discoverBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 10,
+        borderWidth: 1,
+    },
+    discoverBtnText: { fontSize: 12, fontWeight: '700' },
 
     // YENİ "KENDİN OLUŞTUR" KARTI
     createCustomCard: {

@@ -15,6 +15,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 export default function LoginScreen({ navigation }: Props) {
   const colors = useThemeColors();
   const isDarkMode = useSettingsStore((state) => state.isDarkMode);
+  const onboardingCompleted = useSettingsStore((state) => state.onboardingCompleted);
 
   const { control, handleSubmit, formState: { errors } } = useForm({
     defaultValues: { email: '', password: '' }
@@ -31,7 +32,7 @@ const onSubmit = async (data: any) => {
             await saveUserId(response.data.userId);
         }
         await saveRefreshToken(response.data.refreshToken);
-        navigation.replace('Main'); 
+        navigation.replace(onboardingCompleted ? 'Main' : 'Onboarding');
       } else {
         Alert.alert('Hata', 'Giriş yapılamadı.');
       }

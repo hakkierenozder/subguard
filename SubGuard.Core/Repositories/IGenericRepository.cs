@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using SubGuard.Core.Specifications;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SubGuard.Core.Repositories
 {
@@ -11,17 +7,20 @@ namespace SubGuard.Core.Repositories
     {
         Task<T> GetByIdAsync(int id);
 
-        // IQueryable dönüyoruz ki sorguyu DB'ye atmadan önce "Where", "OrderBy" ekleyebilelim.
-        // Performans için kritik.
         IQueryable<T> GetAll();
 
         IQueryable<T> Where(Expression<Func<T, bool>> expression);
         Task<bool> AnyAsync(Expression<Func<T, bool>> expression);
 
+        /// <summary>
+        /// Specification pattern: filtre, include, siralama ve sayfalama ifadelerini
+        /// tek bir spec nesnesiyle uygulayarak IQueryable doner.
+        /// </summary>
+        IQueryable<T> ApplySpecification(ISpecification<T> spec);
+
         Task AddAsync(T entity);
         Task AddRangeAsync(IEnumerable<T> entities);
 
-        // Update ve Remove asenkron olmak zorunda değil, EF Core'da state değişimidir.
         void Update(T entity);
         void Remove(T entity);
         void RemoveRange(IEnumerable<T> entities);
