@@ -21,6 +21,7 @@ namespace SubGuard.Core.Entities
 
         public string Currency { get; set; }
         public int BillingDay { get; set; } // Fatura Günü (1-31)
+        public BillingPeriod BillingPeriod { get; set; } = BillingPeriod.Monthly;
         public string Category { get; set; }
 
         // Sözleşme Bilgileri

@@ -33,31 +33,92 @@ export interface UserSubscription {
   currency: string;
   category: string;
 
-  billingPeriod: 'monthly' | 'yearly';
-  billingDay: number; // Fatura kesim günü (örn: Her ayın 15'i)
+  // Backend BillingPeriod enum → JsonStringEnumConverter → "Monthly" | "Yearly"
+  billingPeriod?: 'Monthly' | 'Yearly';
+  billingDay: number;
 
-  // YENİ EKLENENLER (Taahhüt Sayacı İçin)
-  hasContract: boolean;        // Sözleşmeli mi?
-  contractStartDate?: string;  // Başlangıç (ISO String)
-  contractEndDate?: string;    // Bitiş (Kritik Alan!)
+  hasContract: boolean;
+  contractStartDate?: string;  // ISO string
+  contractEndDate?: string;    // ISO string
 
   notificationId?: string;
-  
-  // YENİ: Ortakçı Listesi (Sadece isimleri tutuyoruz şimdilik)
+
+  // Paylaşım: backend sharedWithJson'dan parse edilir
   sharedWith?: string[];
+  sharedWithJson?: string | null;
+
+  // Survey: YEREL, AsyncStorage'da tutulur — backend'e gönderilmez
   usageHistory?: UsageLog[];
 
-  sharedWithJson?: string | null;
-  usageHistoryJson?: string | null;
+  // Backend usage log: /api/usersubscriptions/{id}/usage endpoint'i (backend UsageLogDto[])
+  usageLogs?: ApiUsageLog[];
 
   isActive: boolean;
+  // Backend'de CancelledDate (PascalCase) → camelCase'de cancelledDate
+  // cancelledAt alias olarak da desteklenir (geçiş dönemi uyumu)
+  cancelledDate?: string | null;
+  cancelledAt?: string | null;
+  pausedDate?: string | null;
+  status?: 'Active' | 'Paused' | 'Cancelled';
 }
 
-export type UsageStatus = 'active' | 'low' | 'none'; // Aktif, Az, Hiç
+// ─── SURVEY (yerel, AsyncStorage tabanlı) ───────────────────────────────────
+// "Bu ay bu aboneliği kullandın mı?" sorusunun cevabı — backend'e gönderilmez
+export type UsageStatus = 'active' | 'low' | 'none';
 
 export interface UsageLog {
-  month: string; // Örn: "2023-10" (Yıl-Ay formatında)
+  month: string;  // "2024-03"
   status: UsageStatus;
+}
+
+// ─── BACKEND USAGE LOG (SubGuard.Core.DTOs.UsageLogDto ile birebir) ─────────
+// GET/POST /api/usersubscriptions/{id}/usage endpoint'lerinden dönen kayıt
+export interface ApiUsageLog {
+  id: string;
+  date: string;    // ISO datetime string
+  note?: string;
+  amount?: number;
+  unit?: string;   // "saat", "GB", "adet" vb.
+}
+
+// Abonelik oluştururken formdan gelen payload (id, isActive vb. backend tarafından atanır)
+export interface AddSubscriptionPayload {
+  catalogId?: number;
+  name: string;
+  price: number;
+  currency: string;
+  billingDay: number;
+  billingPeriod?: 'Monthly' | 'Yearly';
+  category: string;
+  colorCode?: string;
+  hasContract?: boolean;
+  contractStartDate?: string;
+  contractEndDate?: string;
+  sharedWith?: string[];
+}
+
+// Backend API'den gelen raw UserSubscription response shape
+export interface RawSubscriptionApiItem {
+  id: number | string;
+  catalogId?: number;
+  userId?: string;
+  name: string;
+  price: number;
+  currency: string;
+  category: string;
+  billingDay: number;
+  billingPeriod?: string;
+  colorCode?: string | null;
+  hasContract: boolean;
+  contractStartDate?: string | null;
+  contractEndDate?: string | null;
+  sharedWithJson?: string | null;
+  usageHistoryJson?: string | null;
+  isActive: boolean;
+  status?: string;
+  pausedDate?: string | null;
+  cancelledDate?: string | null;
+  cancelledAt?: string | null;
 }
 
 export interface CatalogState {
@@ -75,4 +136,53 @@ export interface NotificationDto {
   createdDate: string;
   scheduledDate: string;
   readDate?: string | null;
+}
+
+// ─── DASHBOARD (SubGuard.Core.DTOs.DashboardDto ile birebir) ─────────────────
+export interface DashboardDto {
+  activeSubscriptionCount: number;
+  totalByCurrency: CurrencyTotalDto[];
+  spendingByCategory: CategorySpendingDto[];
+  upcomingPayments: UpcomingPaymentDto[];
+  budgetSummary: BudgetSummaryDto | null;
+}
+
+export interface BudgetSummaryDto {
+  monthlyBudget: number;
+  currency: string;
+  totalSpent: number;
+  remaining: number;
+  isOverBudget: boolean;
+  overAmount: number;
+}
+
+export interface CurrencyTotalDto {
+  currency: string;
+  total: number;
+}
+
+export interface CategorySpendingDto {
+  category: string;
+  currency: string;
+  total: number;
+  count: number;
+}
+
+export interface UpcomingPaymentDto {
+  id: number;
+  name: string;
+  price: number;
+  currency: string;
+  billingDay: number;
+  daysUntilPayment: number;
+  colorCode?: string | null;
+}
+
+// ─── USER PROFILE (SubGuard.Core.DTOs.Auth.UserProfileDto ile birebir) ───────
+export interface UserProfileDto {
+  email: string;
+  fullName: string;
+  totalSubscriptions: number;
+  monthlyBudget: number;
+  monthlyBudgetCurrency?: string | null;
 }

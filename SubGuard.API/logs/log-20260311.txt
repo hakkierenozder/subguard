@@ -403,3 +403,5 @@ Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
 2026-03-11 20:41:32.244 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.6490 ms
 2026-03-11 20:41:32.482 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.2555 ms
 2026-03-11 20:41:32.489 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.0563 ms
+2026-03-11 23:59:41.975 +03:00 [INF] [User: ] Removed 1 outdated record(s) from 'aggregatedcounter' table.
+2026-03-11 23:59:43.013 +03:00 [INF] [User: ] Removed 2 outdated record(s) from 'job' table.

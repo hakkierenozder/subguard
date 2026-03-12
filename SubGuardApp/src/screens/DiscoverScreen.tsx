@@ -1,14 +1,16 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
+  ScrollView,
   TouchableOpacity,
   TextInput,
   StatusBar,
   Image,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -106,8 +108,12 @@ function CatalogCard({ item, isSubscribed, isRecommended, colors, onAdd }: CardP
 export default function DiscoverScreen({ navigation }: Props) {
   const colors = useThemeColors();
   const isDarkMode = useSettingsStore((s) => s.isDarkMode);
-  const { catalogItems } = useCatalogStore();
+  const { catalogItems, loading: catalogLoading, fetchCatalog } = useCatalogStore();
   const { subscriptions } = useUserSubscriptionStore();
+
+  useEffect(() => {
+    if (catalogItems.length === 0) fetchCatalog();
+  }, []);
 
   const [searchText, setSearchText] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -257,18 +263,19 @@ export default function DiscoverScreen({ navigation }: Props) {
       </LinearGradient>
 
       {/* KATEGORİ FİLTRELERİ */}
-      <FlatList
-        data={['Tümü', ...allCategories]}
+      <ScrollView
         horizontal
-        keyExtractor={(item) => item}
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.filterList}
-        renderItem={({ item }) => {
+        style={styles.filterScrollView}
+      >
+        {['Tümü', ...allCategories].map((item) => {
           const isAll = item === 'Tümü';
           const active = isAll ? selectedCategory === null : selectedCategory === item;
           const isUserCat = !isAll && userCategories.has(item);
           return (
             <TouchableOpacity
+              key={item}
               style={[
                 styles.filterChip,
                 {
@@ -286,8 +293,8 @@ export default function DiscoverScreen({ navigation }: Props) {
               </Text>
             </TouchableOpacity>
           );
-        }}
-      />
+        })}
+      </ScrollView>
 
       {/* İÇERİK */}
       <FlatList
@@ -299,13 +306,22 @@ export default function DiscoverScreen({ navigation }: Props) {
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
-          <View style={styles.emptyWrap}>
-            <Ionicons name="search-outline" size={48} color={colors.textSec} />
-            <Text style={[styles.emptyTitle, { color: colors.textMain }]}>Sonuç bulunamadı</Text>
-            <Text style={[styles.emptyDesc, { color: colors.textSec }]}>
-              Farklı bir arama terimi deneyin.
-            </Text>
-          </View>
+          catalogLoading ? (
+            <View style={styles.emptyWrap}>
+              <ActivityIndicator size="large" color={colors.accent} />
+              <Text style={[styles.emptyDesc, { color: colors.textSec, marginTop: 16 }]}>
+                Katalog yükleniyor...
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.emptyWrap}>
+              <Ionicons name="search-outline" size={48} color={colors.textSec} />
+              <Text style={[styles.emptyTitle, { color: colors.textMain }]}>Sonuç bulunamadı</Text>
+              <Text style={[styles.emptyDesc, { color: colors.textSec }]}>
+                Farklı bir arama terimi deneyin.
+              </Text>
+            </View>
+          )
         }
       />
 
@@ -328,7 +344,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderBottomLeftRadius: 28,
     borderBottomRightRadius: 28,
-    gap: 14,
   },
   headerRow: { flexDirection: 'row', alignItems: 'center' },
   backBtn: {
@@ -344,26 +359,34 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
     paddingHorizontal: 14,
     height: 42,
     borderRadius: 14,
     backgroundColor: 'rgba(255,255,255,0.15)',
+    marginTop: 14,
   },
-  searchInput: { flex: 1, color: '#FFF', fontSize: 14 },
+  searchInput: { flex: 1, color: '#FFF', fontSize: 14, marginLeft: 8 },
 
-  filterList: { paddingHorizontal: 16, paddingVertical: 12, gap: 8 },
+  filterScrollView: { flexGrow: 0, flexShrink: 0 },
+  filterList: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   filterChip: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: 14,
     paddingVertical: 7,
     borderRadius: 20,
     borderWidth: 1,
-    gap: 5,
+    marginRight: 8,
+    height: 34,
   },
-  chipDot: { width: 6, height: 6, borderRadius: 3 },
-  filterChipText: { fontSize: 13, fontWeight: '600' },
+  chipDot: { width: 6, height: 6, borderRadius: 3, marginRight: 5 },
+  filterChipText: { fontSize: 13, fontWeight: '600', lineHeight: 18 },
 
   sectionHeader: {
     flexDirection: 'row',
@@ -377,7 +400,7 @@ const styles = StyleSheet.create({
   sectionCount: { fontSize: 12 },
 
   listContent: { paddingBottom: 40 },
-  cardRow: { flexDirection: 'row', paddingHorizontal: 16, gap: 12, marginBottom: 12 },
+  cardRow: { flexDirection: 'row', paddingHorizontal: 16, marginBottom: 12, justifyContent: 'space-between' },
 
   // Kart
   card: {
@@ -386,7 +409,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 14,
     alignItems: 'center',
-    gap: 6,
     position: 'relative',
     overflow: 'hidden',
   },
@@ -410,29 +432,29 @@ const styles = StyleSheet.create({
   },
   cardImg: { width: 36, height: 36, resizeMode: 'contain' },
   cardInitial: { fontSize: 22, fontWeight: '800' },
-  cardName: { fontSize: 13, fontWeight: '700', textAlign: 'center' },
-  cardCategory: { fontSize: 11, textAlign: 'center' },
-  cardPrice: { fontSize: 14, fontWeight: '800', textAlign: 'center' },
+  cardName: { fontSize: 13, fontWeight: '700', textAlign: 'center', marginTop: 6 },
+  cardCategory: { fontSize: 11, textAlign: 'center', marginTop: 2 },
+  cardPrice: { fontSize: 14, fontWeight: '800', textAlign: 'center', marginTop: 4 },
   cardPricePer: { fontSize: 10, fontWeight: '500' },
   subscribedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
     backgroundColor: '#DCFCE7',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 10,
+    marginTop: 6,
   },
-  subscribedText: { color: '#16A34A', fontSize: 11, fontWeight: '700' },
+  subscribedText: { color: '#16A34A', fontSize: 11, fontWeight: '700', marginLeft: 4 },
   addBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
     paddingHorizontal: 14,
     paddingVertical: 7,
     borderRadius: 10,
+    marginTop: 6,
   },
-  addBtnText: { color: '#FFF', fontSize: 12, fontWeight: '700' },
+  addBtnText: { color: '#FFF', fontSize: 12, fontWeight: '700', marginLeft: 4 },
 
   emptyWrap: { alignItems: 'center', paddingTop: 60 },
   emptyTitle: { fontSize: 18, fontWeight: '800', marginTop: 14 },

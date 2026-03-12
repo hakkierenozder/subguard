@@ -43,6 +43,16 @@ export async function registerForPushNotificationsAsync(): Promise<boolean> {
   return true;
 }
 
+// Expo Push Token Al
+export async function getExpoPushToken(): Promise<string | null> {
+  try {
+    const tokenData = await Notifications.getExpoPushTokenAsync();
+    return tokenData.data;
+  } catch {
+    return null;
+  }
+}
+
 // Bildirim Planla
 export async function scheduleSubscriptionNotification(title: string, body: string, triggerDate: Date) {
   try {

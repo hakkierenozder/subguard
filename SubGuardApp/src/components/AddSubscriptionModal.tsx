@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Modal, StyleSheet, TouchableOpacity, TextInput, ScrollView, Switch, Alert, Platform, KeyboardAvoidingView, Image } from 'react-native';
-import { CatalogItem, UserSubscription, Plan } from '../types';
+import { CatalogItem, UserSubscription, Plan, AddSubscriptionPayload } from '../types';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import { useThemeColors } from '../constants/theme';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -34,6 +34,8 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
   const [endDate, setEndDate] = useState(new Date());     
   const [showContractDatePicker, setShowContractDatePicker] = useState<'start' | 'end' | null>(null);
 
+  const [billingPeriod, setBillingPeriod] = useState<'Monthly' | 'Yearly'>('Monthly');
+
   const [sharedWith, setSharedWith] = useState<string[]>([]);
   const [tempPerson, setTempPerson] = useState('');
   const [showShareInput, setShowShareInput] = useState(false);
@@ -62,6 +64,7 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
         setSharedWith(subscriptionToEdit.sharedWith || []);
         // Eğer paylaşım listesi varsa switch'i açık başlat
         setShowShareInput((subscriptionToEdit.sharedWith?.length || 0) > 0);
+        setBillingPeriod(subscriptionToEdit.billingPeriod ?? 'Monthly');
         setSelectedPlanId(null);
       } else if (selectedCatalogItem) {
         resetForm();
@@ -88,6 +91,7 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
     setEndDate(nextYear);
     setSharedWith([]);
     setShowShareInput(false);
+    setBillingPeriod('Monthly');
     setSelectedPlanId(null);
   };
 
@@ -114,20 +118,16 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
     const finalCatalogId = selectedCatalogItem?.id ?? subscriptionToEdit?.catalogId ?? undefined;
     const colorToSave = selectedCatalogItem?.colorCode || subscriptionToEdit?.colorCode || colors.primary;
 
-    const subData = {
+    const subData: AddSubscriptionPayload = {
       catalogId: finalCatalogId,
       name,
       price: parseFloat(price.replace(',', '.')),
       currency,
       billingDay: day,
+      billingPeriod,
       category,
       colorCode: colorToSave,
-      
-      // --- DÜZELTME BURADA ---
-      // Switch kapalıysa (showShareInput === false), boş dizi gönderiyoruz.
-      // Switch açık ama liste boşsa yine boş dizi gider.
       sharedWith: showShareInput ? sharedWith : [],
-      
       hasContract,
       contractStartDate: hasContract ? startDate.toISOString() : undefined,
       contractEndDate: hasContract ? endDate.toISOString() : undefined,
@@ -137,7 +137,6 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
       if (isEditing && subscriptionToEdit) {
         await updateSubscription(subscriptionToEdit.id, subData);
       } else {
-        // @ts-ignore
         await addSubscription(subData);
       }
       onClose();
@@ -298,6 +297,27 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
                         }}
                     />
                 ) : null}
+            </View>
+
+            <View style={styles.inputGroup}>
+                <Text style={[styles.label, { color: colors.textSec }]}>Fatura Dönemi</Text>
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                    {(['Monthly', 'Yearly'] as const).map((period) => (
+                        <TouchableOpacity
+                            key={period}
+                            onPress={() => setBillingPeriod(period)}
+                            style={[
+                                styles.periodBtn,
+                                { borderColor: billingPeriod === period ? colors.primary : colors.border,
+                                  backgroundColor: billingPeriod === period ? colors.primary : colors.inputBg },
+                            ]}
+                        >
+                            <Text style={{ color: billingPeriod === period ? '#fff' : colors.textSec, fontWeight: '600', fontSize: 13 }}>
+                                {period === 'Monthly' ? 'Aylık' : 'Yıllık'}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
             </View>
 
             {!isCatalogItem ? (
@@ -541,6 +561,8 @@ const styles = StyleSheet.create({
       borderRadius: 16,
       borderWidth: 1,
   },
+
+  periodBtn: { flex: 1, paddingVertical: 11, borderRadius: 12, borderWidth: 1, alignItems: 'center' },
 
   catChip: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, marginRight: 8 },
   catText: { fontSize: 13, fontWeight: '600' },

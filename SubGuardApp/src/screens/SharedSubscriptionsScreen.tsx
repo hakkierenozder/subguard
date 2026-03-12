@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -19,7 +19,7 @@ import { useSettingsStore } from '../store/useSettingsStore';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import { UserSubscription } from '../types';
 
-type Tab = 'subs' | 'people';
+type Tab = 'subs' | 'people' | 'benimle';
 
 // --- Yardımcılar ---
 
@@ -175,10 +175,14 @@ function ManagePartnersPanel({ sub, colors, onClose, onUpdate }: ManageModalProp
 export default function SharedSubscriptionsScreen() {
   const colors = useThemeColors();
   const isDarkMode = useSettingsStore((s) => s.isDarkMode);
-  const { subscriptions, exchangeRates, updateSubscription } = useUserSubscriptionStore();
+  const { subscriptions, sharedWithMe, exchangeRates, updateSubscription, fetchSharedWithMe } = useUserSubscriptionStore();
 
   const [activeTab, setActiveTab] = useState<Tab>('subs');
   const [managingSub, setManagingSub] = useState<UserSubscription | null>(null);
+
+  useEffect(() => {
+    fetchSharedWithMe();
+  }, []);
 
   // Paylaşımlı abonelikler
   const sharedSubs = useMemo(
@@ -380,7 +384,7 @@ export default function SharedSubscriptionsScreen() {
 
       {/* SEKMELER */}
       <View style={[styles.tabBar, { backgroundColor: colors.cardBg, borderBottomColor: colors.border }]}>
-        {([['subs', 'Paylaştıklarım'], ['people', 'Kişiler']] as [Tab, string][]).map(([tab, label]) => (
+        {([['subs', 'Paylaştıklarım'], ['people', 'Kişiler'], ['benimle', 'Benimle']] as [Tab, string][]).map(([tab, label]) => (
           <TouchableOpacity
             key={tab}
             style={[styles.tabBtn, activeTab === tab && { borderBottomColor: colors.accent }]}
@@ -428,7 +432,7 @@ export default function SharedSubscriptionsScreen() {
             </View>
           }
         />
-      ) : (
+      ) : activeTab === 'people' ? (
         <FlatList
           data={peopleMap}
           keyExtractor={([person]) => person}
@@ -442,6 +446,54 @@ export default function SharedSubscriptionsScreen() {
               <Text style={[styles.emptyTitle, { color: colors.textMain }]}>Kişi yok</Text>
               <Text style={[styles.emptyDesc, { color: colors.textSec }]}>
                 Paylaşım eklediğinde burada görünecek.
+              </Text>
+            </View>
+          }
+        />
+      ) : (
+        <FlatList
+          data={sharedWithMe}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={[styles.subCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+              <View style={[styles.subColorBar, { backgroundColor: item.colorCode || '#4F46E5' }]} />
+              <View style={styles.subCardBody}>
+                <View style={styles.subCardTop}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.subName, { color: colors.textMain }]} numberOfLines={1}>
+                      {item.name}
+                    </Text>
+                    <Text style={[styles.subCategory, { color: colors.textSec }]}>{item.category}</Text>
+                  </View>
+                  <View style={{ alignItems: 'flex-end' }}>
+                    <Text style={[styles.subTotalPrice, { color: colors.textMain }]}>
+                      {item.currency} {item.price.toFixed(2)}
+                    </Text>
+                    <Text style={[styles.subPerPerson, { color: colors.accent }]}>
+                      Kişi başı {item.currency} {(item.price / ((item.sharedWith?.length ?? 0) + 1)).toFixed(2)}
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.partnersRow}>
+                  <Ionicons name="person-circle-outline" size={14} color={colors.textSec} />
+                  <Text style={[styles.partnersText, { color: colors.textSec }]}>
+                    {item.sharedWith && item.sharedWith.length > 0
+                      ? `Sahip + ${item.sharedWith.join(', ')}`
+                      : 'Sahibi tarafından paylaşıldı'}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          )}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+          ListEmptyComponent={
+            <View style={styles.emptyWrap}>
+              <Ionicons name="share-social-outline" size={52} color={colors.textSec} />
+              <Text style={[styles.emptyTitle, { color: colors.textMain }]}>Paylaşım yok</Text>
+              <Text style={[styles.emptyDesc, { color: colors.textSec }]}>
+                Başka biri seninle bir abonelik paylaştığında burada görünecek.
               </Text>
             </View>
           }

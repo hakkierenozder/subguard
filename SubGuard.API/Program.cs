@@ -139,15 +139,25 @@ try
     {
         options.AddPolicy("SubGuardCorsPolicy", policy =>
         {
-            policy.WithOrigins(allowedOrigins)
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
+            if (builder.Environment.IsDevelopment() || allowedOrigins.Length == 0)
+            {
+                // Development'ta veya config eksikse tüm origin'lere izin ver
+                // Production'da AllowedCorsOrigins dolu olmalı
+                policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+            }
+            else
+            {
+                policy.WithOrigins(allowedOrigins)
+                      .AllowAnyHeader()
+                      .AllowAnyMethod();
+            }
         });
     });
 
-    // Rate Limiting: auth endpoint'leri için dakikada 10 istek
+    // Rate Limiting: auth → 10 req/dk, global API → 60 req/dk
     builder.Services.AddRateLimiter(options =>
     {
+        // Sıkı limit: login/register gibi auth endpoint'leri
         options.AddFixedWindowLimiter("auth", limiterOptions =>
         {
             limiterOptions.PermitLimit = 10;
@@ -155,6 +165,18 @@ try
             limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
             limiterOptions.QueueLimit = 0;
         });
+
+        // Global limit: tüm API endpoint'lerine uygulanır
+        options.GlobalLimiter = System.Threading.RateLimiting.PartitionedRateLimiter.Create<Microsoft.AspNetCore.Http.HttpContext, string>(ctx =>
+            System.Threading.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: ctx.User?.Identity?.Name ?? ctx.Connection.RemoteIpAddress?.ToString() ?? "anon",
+                factory: _ => new System.Threading.RateLimiting.FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 60,
+                    Window = TimeSpan.FromMinutes(1),
+                    AutoReplenishment = true
+                }));
+
         options.RejectionStatusCode = 429;
     });
 
@@ -206,6 +228,21 @@ try
 
     var app = builder.Build();
 
+    // Zorunlu yapılandırma değerlerini kontrol et — eksikse uygulama başlamadan hata ver
+    var requiredConfig = new Dictionary<string, string>
+    {
+        ["ConnectionStrings:DefaultConnection"] = "Veritabanı bağlantı dizesi",
+        ["JwtSettings:SecretKey"]              = "JWT gizli anahtarı"
+    };
+
+    foreach (var (key, label) in requiredConfig)
+    {
+        if (string.IsNullOrWhiteSpace(app.Configuration[key]))
+            throw new InvalidOperationException(
+                $"Zorunlu yapılandırma eksik: '{label}' ({key}). " +
+                "Lütfen 'dotnet user-secrets set' veya environment variable kullanın.");
+    }
+
     // Admin rolünü seed et
     using (var scope = app.Services.CreateScope())
     {
@@ -241,10 +278,16 @@ try
     // ServiceProvider �zerinden servisi �a��rmam�z gerekebilir veya Hangfire Activator kullan�r.
     // Basit�e RecurringJob.AddOrUpdate metodu generic tip deste�i ile DI container'� kullan�r.
 
+    // Türkiye saati (UTC+3). Windows: "Turkey Standard Time", Linux: "Europe/Istanbul"
+    var trTimeZone = TimeZoneInfo.GetSystemTimeZones()
+        .FirstOrDefault(tz => tz.Id == "Turkey Standard Time" || tz.Id == "Europe/Istanbul")
+        ?? TimeZoneInfo.Utc;
+
     RecurringJob.AddOrUpdate<INotificationService>(
         "daily-payment-check",
-        service => service.CheckAndQueueUpcomingPaymentsAsync(3), // 3 g�n �ncesi
-        Cron.Daily // Her gece 00:00 (UTC)
+        service => service.CheckAndQueueUpcomingPaymentsAsync(3), // 3 gün öncesi
+        "0 9 * * *", // Her gün 09:00 TRT
+        new RecurringJobOptions { TimeZone = trTimeZone }
     );
 
     RecurringJob.AddOrUpdate<INotificationService>(

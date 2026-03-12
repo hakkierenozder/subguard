@@ -11,6 +11,7 @@ namespace SubGuard.Core.DTOs
         public decimal Price { get; set; }
         public string Currency { get; set; }
         public int BillingDay { get; set; }
+        public BillingPeriod BillingPeriod { get; set; } = BillingPeriod.Monthly;
         public string Category { get; set; }
 
         public string? ColorCode { get; set; }

@@ -40,39 +40,10 @@ namespace SubGuard.Service.Services
 
         public async Task<CustomResponseDto<TokenDto>> CreateTokenAsync(AppUser user)
         {
-            var claims = new List<Claim>
-            {
-                new(ClaimTypes.NameIdentifier, user.Id),
-                new(ClaimTypes.Email, user.Email!),
-                new(ClaimTypes.Name, user.FullName!),
-                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
+            var (accessToken, accessExpiry) = BuildAccessToken(user);
+            var refreshToken = BuildRefreshTokenEntity(user.Id);
 
-            var keyString = _configuration["JwtSettings:SecretKey"];
-            var key = new SymmetricSecurityKey(Convert.FromBase64String(keyString!));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var accessExpiry = DateTime.UtcNow.AddMinutes(AppConstants.Token.AccessTokenExpirationMinutes);
-
-            var jwtToken = new JwtSecurityToken(
-                issuer: _configuration["JwtSettings:Issuer"],
-                audience: _configuration["JwtSettings:Audience"],
-                claims: claims,
-                expires: accessExpiry,
-                signingCredentials: creds);
-
-            var accessToken = new JwtSecurityTokenHandler().WriteToken(jwtToken);
-
-            var refreshCode = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
-            var refreshExpiry = DateTime.UtcNow.AddDays(AppConstants.Token.RefreshTokenExpirationDays);
-
-            await _refreshTokenRepo.AddAsync(new RefreshToken
-            {
-                Code = refreshCode,
-                UserId = user.Id,
-                Expiration = refreshExpiry
-            });
-
+            await _refreshTokenRepo.AddAsync(refreshToken);
             await _unitOfWork.CommitAsync();
 
             _logger.LogInformation("Token üretildi. UserId: {UserId}", user.Id);
@@ -81,8 +52,8 @@ namespace SubGuard.Service.Services
             {
                 AccessToken = accessToken,
                 AccessTokenExpiration = accessExpiry,
-                RefreshToken = refreshCode,
-                RefreshTokenExpiration = refreshExpiry,
+                RefreshToken = refreshToken.Code,
+                RefreshTokenExpiration = refreshToken.Expiration,
                 UserId = user.Id,
                 FullName = user.FullName
             });
@@ -107,11 +78,27 @@ namespace SubGuard.Service.Services
             if (user == null)
                 return CustomResponseDto<TokenDto>.Fail(404, "Kullanıcı bulunamadı.");
 
+            // Atomik rotasyon: eski token'ı sil + yeni token'ı ekle = tek commit
+            // Böylece iki commit arasındaki hata ihtimalinde kullanıcı tokensız kalmaz
             _refreshTokenRepo.Remove(existToken);
+            var newRefreshToken = BuildRefreshTokenEntity(user.Id);
+            await _refreshTokenRepo.AddAsync(newRefreshToken);
+
+            var (accessToken, accessExpiry) = BuildAccessToken(user);
+
             await _unitOfWork.CommitAsync();
 
-            _logger.LogInformation("Token yenilendi. UserId: {UserId}", user.Id);
-            return await CreateTokenAsync(user);
+            _logger.LogInformation("Token atomik olarak yenilendi. UserId: {UserId}", user.Id);
+
+            return CustomResponseDto<TokenDto>.Success(200, new TokenDto
+            {
+                AccessToken = accessToken,
+                AccessTokenExpiration = accessExpiry,
+                RefreshToken = newRefreshToken.Code,
+                RefreshTokenExpiration = newRefreshToken.Expiration,
+                UserId = user.Id,
+                FullName = user.FullName
+            });
         }
 
         public async Task<CustomResponseDto<bool>> RevokeRefreshTokenAsync(string refreshToken)
@@ -139,6 +126,46 @@ namespace SubGuard.Service.Services
             await _unitOfWork.CommitAsync();
             _logger.LogInformation("Süresi dolmuş {Count} refresh token temizlendi.", expired.Count);
         }
+
+        // ─── Private helpers ──────────────────────────────────────
+
+        /// <summary>
+        /// JWT access token'ı üretir. Saf in-memory işlem — DB'ye yazılmaz.
+        /// </summary>
+        private (string Token, DateTime Expiry) BuildAccessToken(AppUser user)
+        {
+            var claims = new List<Claim>
+            {
+                new(ClaimTypes.NameIdentifier, user.Id),
+                new(ClaimTypes.Email, user.Email!),
+                new(ClaimTypes.Name, user.FullName!),
+                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+
+            var keyString = _configuration["JwtSettings:SecretKey"];
+            var key = new SymmetricSecurityKey(Convert.FromBase64String(keyString!));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var expiry = DateTime.UtcNow.AddMinutes(AppConstants.Token.AccessTokenExpirationMinutes);
+
+            var jwtToken = new JwtSecurityToken(
+                issuer: _configuration["JwtSettings:Issuer"],
+                audience: _configuration["JwtSettings:Audience"],
+                claims: claims,
+                expires: expiry,
+                signingCredentials: creds);
+
+            return (new JwtSecurityTokenHandler().WriteToken(jwtToken), expiry);
+        }
+
+        /// <summary>
+        /// Yeni bir RefreshToken entity'si oluşturur. Henüz DB'ye kaydedilmez.
+        /// </summary>
+        private static RefreshToken BuildRefreshTokenEntity(string userId) => new()
+        {
+            Code = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)),
+            UserId = userId,
+            Expiration = DateTime.UtcNow.AddDays(AppConstants.Token.RefreshTokenExpirationDays)
+        };
 
         private Task<RefreshToken?> FindTokenAsync(string code)
             => _refreshTokenRepo.Where(x => x.Code == code).FirstOrDefaultAsync();

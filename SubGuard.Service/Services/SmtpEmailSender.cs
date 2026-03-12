@@ -23,8 +23,8 @@ namespace SubGuard.Service.Services
         {
             if (string.IsNullOrEmpty(_settings.Host) || string.IsNullOrEmpty(_settings.From))
             {
-                _logger.LogWarning("Email ayarları eksik. Gönderim atlandı. Alıcı: {Email}", toEmail);
-                return;
+                _logger.LogWarning("Email ayarları eksik (Host veya From boş). Gönderim yapılamadı. Alıcı: {Email}", toEmail);
+                throw new InvalidOperationException("SMTP ayarları eksik. Email gönderilemedi.");
             }
 
             var message = new MimeMessage();

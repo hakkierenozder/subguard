@@ -284,28 +284,35 @@ namespace SubGuard.Service.Services
 
         public async Task<CustomResponseDto<PagedResponseDto<UserSubscriptionDto>>> GetSharedWithMeAsync(string userId, int page, int pageSize)
         {
-            // SharedWithJson içinde userId geçen tüm aktif abonelikler
-            var query = _repo.Where(x => x.IsActive && x.SharedWithJson != null && x.SharedWithJson.Contains(userId))
+            // JSON dizisinde userId tam eşleşmeli arama: ["userId"] formatında çift tırnak ile sınırlandırılmış
+            // Contains(userId) → LIKE '%userId%' (substring, false positive verir)
+            // Contains($"\"{userId}\"") → LIKE '%"userId"%' (JSON string değeri, çok daha güvenli)
+            var quotedUserId = $"\"{userId}\"";
+            var query = _repo.Where(x => x.IsActive && x.SharedWithJson != null && x.SharedWithJson.Contains(quotedUserId))
                              .Include(x => x.Catalog);
 
-            var totalCount = await query.CountAsync();
             var subscriptions = await query
                 .OrderByDescending(x => x.CreatedDate)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
                 .ToListAsync();
 
-            // userId gerçekten listede mi doğrula (Contains substring hatasını önle)
+            // In-memory doğrulama: deserialize ederek kesin eşleşmeyi onayla
             var filtered = subscriptions.Where(x =>
             {
                 var list = DeserializeSharedWith(x.SharedWithJson);
                 return list.Contains(userId);
             }).ToList();
 
-            var items = _mapper.Map<List<UserSubscriptionDto>>(filtered);
+            // Sayfalama doğru sonuç sayısı üzerinden yapılır
+            var totalCount = filtered.Count;
+            var paged = filtered
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var items = _mapper.Map<List<UserSubscriptionDto>>(paged);
             foreach (var dto in items)
             {
-                var entity = filtered.FirstOrDefault(x => x.Id == dto.Id);
+                var entity = paged.FirstOrDefault(x => x.Id == dto.Id);
                 dto.ColorCode = ResolveColorCode(dto.ColorCode, entity?.Catalog?.ColorCode);
             }
 
@@ -318,11 +325,15 @@ namespace SubGuard.Service.Services
             });
         }
 
-        private static List<string> DeserializeSharedWith(string? json)
+        private List<string> DeserializeSharedWith(string? json)
         {
             if (string.IsNullOrEmpty(json)) return new List<string>();
             try { return JsonSerializer.Deserialize<List<string>>(json) ?? new List<string>(); }
-            catch { return new List<string>(); }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "SharedWithJson parse hatası. Ham değer: {Json}", json);
+                return new List<string>();
+            }
         }
 
         // --- Kullanım Geçmişi ---
@@ -335,11 +346,15 @@ namespace SubGuard.Service.Services
             return (entity, null);
         }
 
-        private static List<UsageLogDto> DeserializeUsageLogs(string? json)
+        private List<UsageLogDto> DeserializeUsageLogs(string? json)
         {
             if (string.IsNullOrEmpty(json)) return new List<UsageLogDto>();
             try { return JsonSerializer.Deserialize<List<UsageLogDto>>(json) ?? new List<UsageLogDto>(); }
-            catch { return new List<UsageLogDto>(); }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "UsageHistoryJson parse hatası. Ham değer: {Json}", json);
+                return new List<UsageLogDto>();
+            }
         }
 
         public async Task<CustomResponseDto<List<UsageLogDto>>> GetUsageHistoryAsync(int id, string userId)

@@ -157,7 +157,7 @@ namespace SubGuard.Service.Services
 
                     var htmlBody = EmailTemplates.PaymentReminder(
                         userName: user.FullName ?? user.Email!,
-                        subscriptionName: notification.Title.Replace("Ödeme Hatırlatması", sub?.Name ?? "Abonelik").Trim(),
+                        subscriptionName: sub?.Name ?? "Abonelik",
                         price: sub?.Price ?? 0,
                         currency: sub?.Currency ?? "",
                         daysUntil: daysUntil

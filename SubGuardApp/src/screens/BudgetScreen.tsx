@@ -48,6 +48,7 @@ export default function BudgetScreen() {
   const { subscriptions, exchangeRates } = useUserSubscriptionStore();
 
   const [monthlyBudget, setMonthlyBudget] = useState(0);
+  const [budgetCurrency, setBudgetCurrency] = useState('TRY');
   const [budgetInput, setBudgetInput] = useState('');
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -59,6 +60,7 @@ export default function BudgetScreen() {
         const budget = res?.data?.monthlyBudget ?? 0;
         setMonthlyBudget(budget);
         setBudgetInput(budget > 0 ? budget.toString() : '');
+        setBudgetCurrency(res?.data?.monthlyBudgetCurrency ?? 'TRY');
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -108,11 +110,11 @@ export default function BudgetScreen() {
     }
     setSaving(true);
     try {
-      await agent.Auth.updateProfile({ monthlyBudget: parsed });
+      await agent.Auth.updateProfile({ monthlyBudget: parsed, monthlyBudgetCurrency: budgetCurrency });
       setMonthlyBudget(parsed);
       setEditMode(false);
     } catch {
-      Alert.alert('Hata', 'Bütçe kaydedilemedi.');
+      // Hata toast'ı agent.ts interceptor tarafından gösterilir
     } finally {
       setSaving(false);
     }

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   View,
   Text,
@@ -38,7 +38,11 @@ function getFirstDayOffset(year: number, month: number): number {
 export default function CalendarScreen() {
   const colors = useThemeColors();
   const isDarkMode = useSettingsStore((s) => s.isDarkMode);
-  const { subscriptions, exchangeRates } = useUserSubscriptionStore();
+  const { subscriptions, exchangeRates, fetchUserSubscriptions } = useUserSubscriptionStore();
+
+  useEffect(() => {
+    if (subscriptions.length === 0) fetchUserSubscriptions();
+  }, []);
 
   const today = new Date();
   const [currentYear, setCurrentYear] = useState(today.getFullYear());

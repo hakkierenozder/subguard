@@ -61,9 +61,10 @@ interface NotifItemProps {
   onRead: (id: number) => void;
   onDelete: (id: number) => void;
   colors: ReturnType<typeof useThemeColors>;
+  isDarkMode: boolean;
 }
 
-function NotifItem({ item, onRead, onDelete, colors }: NotifItemProps) {
+function NotifItem({ item, onRead, onDelete, colors, isDarkMode }: NotifItemProps) {
   const { icon, color } = getNotifMeta(item.title);
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
@@ -90,7 +91,7 @@ function NotifItem({ item, onRead, onDelete, colors }: NotifItemProps) {
         style={[
           styles.notifCard,
           {
-            backgroundColor: item.isRead ? colors.cardBg : (colors.cardBg === '#FFFFFF' ? '#EEF2FF' : '#1E293B'),
+            backgroundColor: item.isRead ? colors.cardBg : (isDarkMode ? '#1E2D45' : '#EEF2FF'),
             borderColor: colors.border,
           },
         ]}
@@ -200,9 +201,10 @@ export default function NotificationsScreen() {
         onRead={markAsRead}
         onDelete={deleteNotification}
         colors={colors}
+        isDarkMode={isDarkMode}
       />
     ),
-    [colors, markAsRead, deleteNotification]
+    [colors, isDarkMode, markAsRead, deleteNotification]
   );
 
   const renderFooter = () => {

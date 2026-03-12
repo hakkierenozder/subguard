@@ -4,8 +4,9 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar, View, ActivityIndicator, Platform } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
-import Toast from 'react-native-toast-message'; // <--- EKLENDİ
+import Toast from 'react-native-toast-message';
 
 // Ekranlar
 import LoginScreen from './src/screens/LoginScreen';
@@ -24,6 +25,7 @@ import DiscoverScreen from './src/screens/DiscoverScreen';
 // Utils & Components
 import { isLoggedIn } from './src/utils/AuthManager';
 import ErrorBoundary from './src/components/ErrorBoundary';
+import OfflineBanner from './src/components/OfflineBanner';
 import { THEME, useThemeColors } from './src/constants/theme';
 import { useSettingsStore } from './src/store/useSettingsStore';
 import { useNotificationStore } from './src/store/useNotificationStore';
@@ -153,6 +155,7 @@ export default function App() {
   }
 
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <SafeAreaProvider>
       <ErrorBoundary>
         <NavigationContainer>
@@ -179,8 +182,11 @@ export default function App() {
         </NavigationContainer>
         
         {/* TOAST EKLENTİSİ BURADA */}
-        <Toast /> 
+        <Toast />
+        {/* OFFLİNE BANNER */}
+        <OfflineBanner />
       </ErrorBoundary>
     </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

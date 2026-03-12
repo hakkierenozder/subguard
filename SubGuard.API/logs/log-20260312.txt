@@ -1,0 +1,1364 @@
+2026-03-12 00:26:26.933 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 50.9376 ms
+2026-03-12 00:26:26.933 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 401 in 50.9300 ms
+2026-03-12 00:26:27.023 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 142.2137 ms
+2026-03-12 00:26:27.104 +03:00 [INF] [User: Anonymous] Token yenilendi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9
+2026-03-12 00:26:27.117 +03:00 [INF] [User: Anonymous] Token üretildi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9
+2026-03-12 00:26:27.120 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 113.0975 ms
+2026-03-12 00:26:27.196 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.8789 ms
+2026-03-12 00:26:27.199 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 12.2481 ms
+2026-03-12 00:26:27.299 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.3452 ms
+2026-03-12 00:26:27.313 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 15.8751 ms
+2026-03-12 00:28:46.519 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.1164 ms
+2026-03-12 00:28:46.520 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.8710 ms
+2026-03-12 00:28:46.520 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.9669 ms
+2026-03-12 00:28:46.781 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.4019 ms
+2026-03-12 00:28:46.785 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.0323 ms
+2026-03-12 00:29:40.307 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.7659 ms
+2026-03-12 00:29:40.471 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.8186 ms
+2026-03-12 00:29:40.476 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.5750 ms
+2026-03-12 00:29:47.882 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.1813 ms
+2026-03-12 00:29:47.884 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.1332 ms
+2026-03-12 00:29:48.186 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.0078 ms
+2026-03-12 00:29:48.191 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.9562 ms
+2026-03-12 00:30:03.894 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.1795 ms
+2026-03-12 00:30:04.066 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.0929 ms
+2026-03-12 00:30:04.070 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.7789 ms
+2026-03-12 00:30:21.121 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.3004 ms
+2026-03-12 00:30:21.283 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.6048 ms
+2026-03-12 00:30:21.287 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.7862 ms
+2026-03-12 00:30:36.639 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.7483 ms
+2026-03-12 00:30:36.990 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.8763 ms
+2026-03-12 00:30:36.996 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.0697 ms
+2026-03-12 00:30:41.543 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.0969 ms
+2026-03-12 00:30:41.794 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.1773 ms
+2026-03-12 00:30:41.799 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.4797 ms
+2026-03-12 00:30:50.041 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.1627 ms
+2026-03-12 00:30:50.266 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.4907 ms
+2026-03-12 00:30:50.287 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 23.8093 ms
+2026-03-12 00:33:40.879 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.8933 ms
+2026-03-12 00:33:40.882 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 6.4267 ms
+2026-03-12 00:33:40.885 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.6612 ms
+2026-03-12 00:33:41.173 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.2645 ms
+2026-03-12 00:33:41.181 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 12.8025 ms
+2026-03-12 00:35:40.765 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.4583 ms
+2026-03-12 00:35:40.780 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.6765 ms
+2026-03-12 00:35:40.780 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.5040 ms
+2026-03-12 00:35:41.063 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.0509 ms
+2026-03-12 00:35:41.072 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 10.5665 ms
+2026-03-12 00:35:56.602 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.1844 ms
+2026-03-12 00:35:56.778 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.6969 ms
+2026-03-12 00:35:56.779 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.1507 ms
+2026-03-12 00:36:03.108 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.5506 ms
+2026-03-12 00:36:03.234 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.4559 ms
+2026-03-12 00:36:03.239 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.0025 ms
+2026-03-12 00:36:54.344 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.6946 ms
+2026-03-12 00:36:54.345 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 3.5846 ms
+2026-03-12 00:36:54.345 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.8231 ms
+2026-03-12 00:36:54.753 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.1636 ms
+2026-03-12 00:36:54.757 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.3191 ms
+2026-03-12 00:36:58.869 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.6234 ms
+2026-03-12 00:36:59.012 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.4950 ms
+2026-03-12 00:36:59.017 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.9238 ms
+2026-03-12 00:38:25.218 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.4823 ms
+2026-03-12 00:38:25.221 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.2401 ms
+2026-03-12 00:38:25.564 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.5504 ms
+2026-03-12 00:38:25.568 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.3881 ms
+2026-03-12 00:38:35.870 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.9079 ms
+2026-03-12 00:38:35.873 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.2862 ms
+2026-03-12 00:38:36.283 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.8381 ms
+2026-03-12 00:38:36.286 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.5112 ms
+2026-03-12 00:38:40.381 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.9438 ms
+2026-03-12 00:38:40.657 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.2639 ms
+2026-03-12 00:38:40.661 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.4607 ms
+2026-03-12 00:38:48.723 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.0013 ms
+2026-03-12 00:38:49.058 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.7952 ms
+2026-03-12 00:38:49.062 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.8419 ms
+2026-03-12 00:39:04.360 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.6770 ms
+2026-03-12 00:39:04.632 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.5305 ms
+2026-03-12 00:39:04.637 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.9270 ms
+2026-03-12 00:39:10.896 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.7523 ms
+2026-03-12 00:39:11.150 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 0.8956 ms
+2026-03-12 00:39:11.161 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 12.2107 ms
+2026-03-12 00:39:42.328 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.4782 ms
+2026-03-12 00:39:42.337 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.9716 ms
+2026-03-12 00:39:42.338 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 3.3083 ms
+2026-03-12 00:39:42.685 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.3004 ms
+2026-03-12 00:39:42.703 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.3203 ms
+2026-03-12 00:39:53.026 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.4082 ms
+2026-03-12 00:39:53.034 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.1595 ms
+2026-03-12 00:39:53.034 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.5148 ms
+2026-03-12 00:39:53.386 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.7097 ms
+2026-03-12 00:39:53.389 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.4041 ms
+2026-03-12 00:39:59.493 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.4233 ms
+2026-03-12 00:39:59.665 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.6212 ms
+2026-03-12 00:39:59.668 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.9499 ms
+2026-03-12 00:43:20.326 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 23.2562 ms
+2026-03-12 00:43:20.336 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 32.9770 ms
+2026-03-12 00:43:20.336 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 32.4501 ms
+2026-03-12 00:43:20.613 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.3098 ms
+2026-03-12 00:43:20.627 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 10.4725 ms
+2026-03-12 00:43:25.504 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.1337 ms
+2026-03-12 00:43:25.505 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.5320 ms
+2026-03-12 00:43:25.513 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 8.8537 ms
+2026-03-12 00:46:23.907 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.6734 ms
+2026-03-12 00:46:23.915 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.1946 ms
+2026-03-12 00:46:23.916 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.3231 ms
+2026-03-12 00:46:24.186 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 0.8539 ms
+2026-03-12 00:46:24.192 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.4326 ms
+2026-03-12 00:46:28.315 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 2.9861 ms
+2026-03-12 00:46:28.347 +03:00 [INF] [User: Anonymous] Token yenilendi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9
+2026-03-12 00:46:28.354 +03:00 [INF] [User: Anonymous] Token üretildi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9
+2026-03-12 00:46:28.356 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 26.2843 ms
+2026-03-12 00:46:28.427 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.1916 ms
+2026-03-12 00:52:20.866 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.0309 ms
+2026-03-12 00:52:21.071 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.1911 ms
+2026-03-12 00:52:21.082 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.8308 ms
+2026-03-12 00:52:25.867 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.4665 ms
+2026-03-12 00:52:26.043 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.1482 ms
+2026-03-12 00:52:26.047 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.2581 ms
+2026-03-12 00:52:49.717 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 0.9971 ms
+2026-03-12 00:52:49.720 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.9243 ms
+2026-03-12 00:52:50.015 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.0498 ms
+2026-03-12 00:52:50.018 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.1105 ms
+2026-03-12 00:53:02.997 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.3427 ms
+2026-03-12 00:53:03.001 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.6938 ms
+2026-03-12 00:53:03.297 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.2661 ms
+2026-03-12 00:53:03.300 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.6892 ms
+2026-03-12 00:53:07.790 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.3135 ms
+2026-03-12 00:53:07.982 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.3690 ms
+2026-03-12 00:53:07.989 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.8284 ms
+2026-03-12 00:53:12.758 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.8430 ms
+2026-03-12 00:53:12.942 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.4425 ms
+2026-03-12 00:53:12.946 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.0645 ms
+2026-03-12 00:53:22.440 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.6590 ms
+2026-03-12 00:53:22.618 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.2853 ms
+2026-03-12 00:53:22.622 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.2531 ms
+2026-03-12 00:54:05.992 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.3652 ms
+2026-03-12 00:54:05.996 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.4680 ms
+2026-03-12 00:54:06.006 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 3.9122 ms
+2026-03-12 00:54:06.303 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.3531 ms
+2026-03-12 00:54:06.307 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.8625 ms
+2026-03-12 00:56:52.729 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 9.4038 ms
+2026-03-12 01:04:50.635 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.4882 ms
+2026-03-12 01:04:50.642 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.6047 ms
+2026-03-12 01:04:50.642 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.1139 ms
+2026-03-12 01:04:50.929 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.3309 ms
+2026-03-12 01:04:50.934 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.4356 ms
+2026-03-12 01:04:59.775 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.7874 ms
+2026-03-12 01:04:59.777 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.0759 ms
+2026-03-12 01:04:59.778 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.4170 ms
+2026-03-12 01:06:23.811 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.6988 ms
+2026-03-12 01:06:23.816 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.5633 ms
+2026-03-12 01:06:23.816 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.1211 ms
+2026-03-12 01:06:29.169 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 401 in 0.7680 ms
+2026-03-12 01:06:29.169 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 401 in 0.7404 ms
+2026-03-12 01:06:29.170 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.8458 ms
+2026-03-12 01:06:29.438 +03:00 [INF] [User: Anonymous] Token yenilendi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9
+2026-03-12 01:06:29.441 +03:00 [INF] [User: Anonymous] Token üretildi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9
+2026-03-12 01:06:29.443 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 11.3766 ms
+2026-03-12 01:06:29.495 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.0169 ms
+2026-03-12 01:06:29.495 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.6999 ms
+2026-03-12 01:06:36.559 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.7427 ms
+2026-03-12 01:06:36.564 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.0746 ms
+2026-03-12 01:06:36.564 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.8809 ms
+2026-03-12 01:07:01.234 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 1.0770 ms
+2026-03-12 01:07:01.239 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.1497 ms
+2026-03-12 01:07:01.239 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 3.5070 ms
+2026-03-12 01:07:16.646 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.5735 ms
+2026-03-12 01:07:16.651 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.4610 ms
+2026-03-12 01:07:16.652 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.1961 ms
+2026-03-12 01:07:50.304 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 0.7916 ms
+2026-03-12 01:07:50.306 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 3.8260 ms
+2026-03-12 01:07:50.306 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.6425 ms
+2026-03-12 01:07:50.571 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.5411 ms
+2026-03-12 01:07:50.575 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.7797 ms
+2026-03-12 01:07:53.115 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.6543 ms
+2026-03-12 01:07:53.119 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 3.4993 ms
+2026-03-12 01:07:53.119 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.5028 ms
+2026-03-12 01:09:56.762 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.5226 ms
+2026-03-12 01:09:56.765 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.6545 ms
+2026-03-12 01:09:56.765 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.7990 ms
+2026-03-12 01:10:00.611 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.5771 ms
+2026-03-12 01:10:00.615 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.3917 ms
+2026-03-12 01:10:00.615 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 3.8130 ms
+2026-03-12 01:10:09.795 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 1.2379 ms
+2026-03-12 01:10:09.800 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.5098 ms
+2026-03-12 01:10:09.800 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.3963 ms
+2026-03-12 01:10:19.984 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.6182 ms
+2026-03-12 01:10:19.988 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.0685 ms
+2026-03-12 01:10:19.988 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.4303 ms
+2026-03-12 01:10:28.085 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.7016 ms
+2026-03-12 01:10:28.090 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.6576 ms
+2026-03-12 01:10:28.090 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.1344 ms
+2026-03-12 01:10:51.776 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.3577 ms
+2026-03-12 01:10:51.781 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.7113 ms
+2026-03-12 01:10:51.785 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.3111 ms
+2026-03-12 01:11:08.492 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.3607 ms
+2026-03-12 01:11:08.495 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.7071 ms
+2026-03-12 01:11:08.495 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.7624 ms
+2026-03-12 01:11:13.294 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.5954 ms
+2026-03-12 01:11:13.299 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.8931 ms
+2026-03-12 01:11:13.299 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.6808 ms
+2026-03-12 01:11:24.693 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.8146 ms
+2026-03-12 01:11:24.696 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.9318 ms
+2026-03-12 01:11:24.698 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.5801 ms
+2026-03-12 01:12:18.196 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 0.6926 ms
+2026-03-12 01:12:18.200 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.9625 ms
+2026-03-12 01:12:18.210 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.0299 ms
+2026-03-12 01:12:18.485 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.1109 ms
+2026-03-12 01:12:18.489 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.4249 ms
+2026-03-12 01:12:23.160 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.4201 ms
+2026-03-12 01:12:23.162 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.6975 ms
+2026-03-12 01:12:23.164 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.4768 ms
+2026-03-12 01:12:50.666 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.2272 ms
+2026-03-12 01:12:53.319 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 3.5416 ms
+2026-03-12 01:18:20.069 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.5428 ms
+2026-03-12 01:18:20.074 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.5920 ms
+2026-03-12 01:18:20.080 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.6904 ms
+2026-03-12 01:18:20.093 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.4909 ms
+2026-03-12 01:18:20.093 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.8172 ms
+2026-03-12 01:18:21.255 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.3054 ms
+2026-03-12 01:18:21.259 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.1942 ms
+2026-03-12 01:18:28.566 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.4360 ms
+2026-03-12 01:18:28.571 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.9834 ms
+2026-03-12 01:18:28.572 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.2739 ms
+2026-03-12 01:18:57.096 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.0826 ms
+2026-03-12 01:18:57.101 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.2086 ms
+2026-03-12 01:18:57.105 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.8295 ms
+2026-03-12 01:18:57.321 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.1613 ms
+2026-03-12 01:18:57.333 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.8192 ms
+2026-03-12 01:19:07.118 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 0.7047 ms
+2026-03-12 01:19:07.120 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.0345 ms
+2026-03-12 01:19:07.121 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 3.5284 ms
+2026-03-12 01:19:07.421 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.1083 ms
+2026-03-12 01:19:07.424 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.1508 ms
+2026-03-12 01:19:09.981 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.3603 ms
+2026-03-12 01:19:09.985 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.0966 ms
+2026-03-12 01:19:09.985 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.6160 ms
+2026-03-12 11:07:38.466 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-12 11:07:41.188 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-12 11:07:41.209 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-12 11:07:41.722 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-12 11:07:41.723 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-12 11:07:41.725 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-12 11:07:41.726 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-12 11:07:41.727 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-12 11:07:41.728 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-12 11:07:41.750 +03:00 [INF] [User: ] Server desktop-25vqrpg:7720:a2553f12 successfully announced in 11,1735 ms
+2026-03-12 11:07:41.753 +03:00 [INF] [User: ] Server desktop-25vqrpg:7720:a2553f12 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-12 11:07:41.758 +03:00 [INF] [User: ] 1 servers were removed due to timeout
+2026-03-12 11:07:41.758 +03:00 [INF] [User: ] Server desktop-25vqrpg:7720:a2553f12 all the dispatchers started
+2026-03-12 11:07:42.067 +03:00 [INF] [User: ] Güncel kurlar çekiliyor...
+2026-03-12 11:07:42.192 +03:00 [INF] [User: ] Süresi dolmuş 1 refresh token temizlendi.
+2026-03-12 11:07:42.872 +03:00 [INF] [User: ] Kurlar güncellendi: {"USD":44.096,"EUR":51.067,"GBP":59.131}
+2026-03-12 11:10:26.424 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-12 11:10:26.535 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 401 in 126.0223 ms
+2026-03-12 11:10:26.535 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 126.0189 ms
+2026-03-12 11:10:26.673 +03:00 [INF] [User: Anonymous] Token yenilendi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9
+2026-03-12 11:10:26.700 +03:00 [INF] [User: Anonymous] Token üretildi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9
+2026-03-12 11:10:26.726 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 163.6980 ms
+2026-03-12 11:10:26.737 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 330.0448 ms
+2026-03-12 11:10:27.005 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 50.3211 ms
+2026-03-12 11:10:27.022 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 67.8093 ms
+2026-03-12 11:10:27.177 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.6132 ms
+2026-03-12 11:10:27.237 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 60.5818 ms
+2026-03-12 11:10:50.039 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 14.1645 ms
+2026-03-12 11:10:50.171 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.7365 ms
+2026-03-12 11:10:50.176 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.9646 ms
+2026-03-12 11:11:19.157 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.4024 ms
+2026-03-12 11:11:19.157 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.0466 ms
+2026-03-12 11:11:19.159 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 7.1310 ms
+2026-03-12 11:12:00.648 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.3505 ms
+2026-03-12 11:12:00.657 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.2669 ms
+2026-03-12 11:12:00.660 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 9.0564 ms
+2026-03-12 11:12:00.922 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 0.8672 ms
+2026-03-12 11:12:00.928 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.6537 ms
+2026-03-12 11:12:17.624 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.4835 ms
+2026-03-12 11:12:17.629 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.3856 ms
+2026-03-12 11:12:17.629 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.1347 ms
+2026-03-12 11:14:54.275 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.4721 ms
+2026-03-12 11:14:54.280 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 6.6340 ms
+2026-03-12 11:14:54.281 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.4776 ms
+2026-03-12 11:14:54.645 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.6165 ms
+2026-03-12 11:14:54.656 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.6676 ms
+2026-03-12 11:14:57.404 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.8680 ms
+2026-03-12 11:14:57.409 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.7701 ms
+2026-03-12 11:14:57.416 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 12.3840 ms
+2026-03-12 11:15:13.555 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions/59 responded 405 in 0.4816 ms
+2026-03-12 11:15:20.631 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions/59 responded 405 in 0.9710 ms
+2026-03-12 11:15:30.041 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions/59 responded 405 in 0.3731 ms
+2026-03-12 11:16:38.956 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.2869 ms
+2026-03-12 11:16:38.959 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.2630 ms
+2026-03-12 11:16:38.961 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.6644 ms
+2026-03-12 11:16:38.970 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.5490 ms
+2026-03-12 11:16:38.972 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.2005 ms
+2026-03-12 11:16:38.977 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.4155 ms
+2026-03-12 11:16:40.025 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.4587 ms
+2026-03-12 11:16:40.029 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.6910 ms
+2026-03-12 11:17:38.295 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.6719 ms
+2026-03-12 11:17:38.299 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.8945 ms
+2026-03-12 11:17:38.299 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 3.9994 ms
+2026-03-12 11:17:38.669 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.6862 ms
+2026-03-12 11:17:38.675 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.2863 ms
+2026-03-12 11:17:43.966 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.6146 ms
+2026-03-12 11:17:43.971 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.6510 ms
+2026-03-12 11:17:43.971 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.9302 ms
+2026-03-12 11:17:46.787 +03:00 [INF] [User: Test User] Abonelik güncellendi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9, SubscriptionId: 59
+2026-03-12 11:17:46.789 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions responded 204 in 100.4480 ms
+2026-03-12 11:17:49.566 +03:00 [INF] [User: Test User] Abonelik güncellendi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9, SubscriptionId: 59
+2026-03-12 11:17:49.568 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions responded 204 in 13.0575 ms
+2026-03-12 11:17:54.187 +03:00 [INF] [User: Test User] Abonelik güncellendi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9, SubscriptionId: 59
+2026-03-12 11:17:54.189 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions responded 204 in 18.3499 ms
+2026-03-12 11:17:55.354 +03:00 [INF] [User: Test User] Abonelik güncellendi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9, SubscriptionId: 59
+2026-03-12 11:17:55.355 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions responded 204 in 10.6007 ms
+2026-03-12 11:17:56.743 +03:00 [INF] [User: Test User] Abonelik güncellendi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9, SubscriptionId: 59
+2026-03-12 11:17:56.745 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions responded 204 in 10.8281 ms
+2026-03-12 11:17:58.157 +03:00 [INF] [User: Test User] Abonelik güncellendi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9, SubscriptionId: 59
+2026-03-12 11:17:58.158 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions responded 204 in 9.3701 ms
+2026-03-12 11:18:00.268 +03:00 [INF] [User: Test User] Abonelik güncellendi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9, SubscriptionId: 59
+2026-03-12 11:18:00.270 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions responded 204 in 10.2518 ms
+2026-03-12 11:18:17.191 +03:00 [INF] [User: Test User] Abonelik güncellendi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9, SubscriptionId: 59
+2026-03-12 11:18:17.193 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions responded 204 in 11.0229 ms
+2026-03-12 11:21:03.620 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.5072 ms
+2026-03-12 11:22:30.671 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.1829 ms
+2026-03-12 11:22:31.101 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.6724 ms
+2026-03-12 11:22:31.121 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 9.0479 ms
+2026-03-12 11:22:38.845 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.5270 ms
+2026-03-12 11:22:41.818 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.1534 ms
+2026-03-12 11:22:56.886 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.6655 ms
+2026-03-12 11:23:32.427 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.5849 ms
+2026-03-12 11:25:29.342 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.9110 ms
+2026-03-12 11:25:29.346 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.3351 ms
+2026-03-12 11:25:29.347 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.4461 ms
+2026-03-12 11:25:29.583 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.9821 ms
+2026-03-12 11:25:29.591 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 9.8304 ms
+2026-03-12 11:26:41.366 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 0.6428 ms
+2026-03-12 11:26:41.366 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.6397 ms
+2026-03-12 11:26:41.369 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 401 in 0.3932 ms
+2026-03-12 11:26:41.427 +03:00 [INF] [User: Anonymous] Token yenilendi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9
+2026-03-12 11:26:41.431 +03:00 [INF] [User: Anonymous] Token üretildi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9
+2026-03-12 11:26:41.432 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 22.6513 ms
+2026-03-12 11:26:41.446 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.6118 ms
+2026-03-12 11:26:41.448 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 3.8169 ms
+2026-03-12 11:26:41.480 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.2577 ms
+2026-03-12 11:26:41.486 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.7253 ms
+2026-03-12 11:27:59.770 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.6923 ms
+2026-03-12 11:27:59.775 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.8114 ms
+2026-03-12 11:27:59.779 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.9486 ms
+2026-03-12 11:28:34.745 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.0298 ms
+2026-03-12 11:28:38.491 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.1213 ms
+2026-03-12 11:28:40.500 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.2847 ms
+2026-03-12 11:28:50.430 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.6400 ms
+2026-03-12 11:32:03.848 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 401 in 0.4954 ms
+2026-03-12 11:32:03.848 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 0.2270 ms
+2026-03-12 11:32:03.866 +03:00 [INF] [User: Anonymous] Token yenilendi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9
+2026-03-12 11:32:03.870 +03:00 [INF] [User: Anonymous] Token üretildi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9
+2026-03-12 11:32:03.872 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 12.8649 ms
+2026-03-12 11:32:03.913 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.9122 ms
+2026-03-12 11:32:03.913 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 3.6817 ms
+2026-03-12 11:32:04.104 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.2067 ms
+2026-03-12 11:32:04.108 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.1591 ms
+2026-03-12 11:32:18.901 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.3101 ms
+2026-03-12 11:32:18.905 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.5939 ms
+2026-03-12 11:32:18.911 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.7351 ms
+2026-03-12 11:32:19.137 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.2441 ms
+2026-03-12 11:32:19.141 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.0985 ms
+2026-03-12 11:35:39.900 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.4005 ms
+2026-03-12 11:35:39.904 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.9502 ms
+2026-03-12 11:35:39.904 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.9381 ms
+2026-03-12 11:35:40.195 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.7674 ms
+2026-03-12 11:35:40.202 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.2936 ms
+2026-03-12 11:35:44.953 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.5545 ms
+2026-03-12 11:37:18.714 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.3912 ms
+2026-03-12 11:37:18.718 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.7987 ms
+2026-03-12 11:37:18.718 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 3.7611 ms
+2026-03-12 11:37:18.793 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.4081 ms
+2026-03-12 11:37:18.798 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.5838 ms
+2026-03-12 11:37:22.759 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.8711 ms
+2026-03-12 11:38:09.862 +03:00 [INF] [User: Anonymous] Kullanici giris yapti. Email: hako19071@gmail.com
+2026-03-12 11:38:09.866 +03:00 [INF] [User: Anonymous] Token üretildi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9
+2026-03-12 11:38:09.868 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 81.1609 ms
+2026-03-12 11:38:10.099 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.4620 ms
+2026-03-12 11:38:10.105 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.4559 ms
+2026-03-12 11:38:10.107 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 3.6356 ms
+2026-03-12 11:38:10.215 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.1952 ms
+2026-03-12 11:38:10.221 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.8688 ms
+2026-03-12 11:38:14.895 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.1010 ms
+2026-03-12 11:39:06.045 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.9482 ms
+2026-03-12 11:39:07.324 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.7427 ms
+2026-03-12 11:39:16.737 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.3594 ms
+2026-03-12 11:39:16.833 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.5058 ms
+2026-03-12 11:39:16.839 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.7950 ms
+2026-03-12 11:42:22.284 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 1.2497 ms
+2026-03-12 11:42:22.288 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.4061 ms
+2026-03-12 11:42:22.288 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.3862 ms
+2026-03-12 11:43:09.159 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.5319 ms
+2026-03-12 11:43:09.161 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 6.2452 ms
+2026-03-12 11:43:09.161 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.1840 ms
+2026-03-12 11:43:09.419 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.4275 ms
+2026-03-12 11:43:09.424 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.0660 ms
+2026-03-12 11:43:17.048 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.4727 ms
+2026-03-12 11:43:17.049 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.8546 ms
+2026-03-12 11:43:17.050 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.7695 ms
+2026-03-12 11:43:26.229 +03:00 [INF] [User: Test User] Abonelik güncellendi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9, SubscriptionId: 59
+2026-03-12 11:43:26.231 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions responded 204 in 10.9701 ms
+2026-03-12 11:43:28.074 +03:00 [INF] [User: Test User] Abonelik güncellendi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9, SubscriptionId: 59
+2026-03-12 11:43:28.076 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions responded 204 in 9.2561 ms
+2026-03-12 11:43:45.695 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.2777 ms
+2026-03-12 11:43:45.697 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.6940 ms
+2026-03-12 11:43:45.697 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 2.9345 ms
+2026-03-12 11:43:45.774 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.3891 ms
+2026-03-12 11:43:45.778 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.9369 ms
+2026-03-12 11:43:51.076 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.6215 ms
+2026-03-12 11:43:51.080 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.4415 ms
+2026-03-12 11:43:51.080 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.7975 ms
+2026-03-12 11:43:52.799 +03:00 [INF] [User: Test User] Abonelik güncellendi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9, SubscriptionId: 59
+2026-03-12 11:43:52.801 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions responded 204 in 8.7284 ms
+2026-03-12 11:43:53.925 +03:00 [INF] [User: Test User] Abonelik güncellendi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9, SubscriptionId: 59
+2026-03-12 11:43:53.926 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions responded 204 in 9.3979 ms
+2026-03-12 11:43:54.786 +03:00 [INF] [User: Test User] Abonelik güncellendi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9, SubscriptionId: 59
+2026-03-12 11:43:54.787 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions responded 204 in 9.9651 ms
+2026-03-12 11:44:19.167 +03:00 [INF] [User: Test User] Abonelik eklendi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9, Name: BluTV
+2026-03-12 11:44:19.170 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions responded 200 in 27.0533 ms
+2026-03-12 11:45:26.870 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.6548 ms
+2026-03-12 11:45:27.234 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 0.7902 ms
+2026-03-12 11:45:27.237 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.9342 ms
+2026-03-12 11:45:53.965 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.9341 ms
+2026-03-12 11:49:29.203 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.4135 ms
+2026-03-12 11:49:29.204 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.4125 ms
+2026-03-12 11:49:29.214 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.9431 ms
+2026-03-12 11:49:29.216 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.2595 ms
+2026-03-12 11:49:29.217 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.8410 ms
+2026-03-12 11:49:29.227 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.5396 ms
+2026-03-12 11:49:31.278 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.7378 ms
+2026-03-12 11:49:31.283 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.2707 ms
+2026-03-12 11:50:55.512 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.6166 ms
+2026-03-12 11:50:56.013 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.0142 ms
+2026-03-12 11:50:56.019 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.5195 ms
+2026-03-12 11:51:00.836 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 0.9771 ms
+2026-03-12 11:51:00.840 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.1106 ms
+2026-03-12 11:51:01.492 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.3391 ms
+2026-03-12 11:51:01.496 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.6583 ms
+2026-03-12 11:51:06.898 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.4610 ms
+2026-03-12 11:51:06.902 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.9213 ms
+2026-03-12 11:51:07.512 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.2199 ms
+2026-03-12 11:51:07.517 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.0668 ms
+2026-03-12 11:51:44.860 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 0.8704 ms
+2026-03-12 11:51:44.863 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.7105 ms
+2026-03-12 11:51:44.863 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 3.6429 ms
+2026-03-12 11:51:45.190 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.0243 ms
+2026-03-12 11:51:45.196 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.3475 ms
+2026-03-12 11:51:50.217 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.7267 ms
+2026-03-12 11:51:58.535 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.0275 ms
+2026-03-12 11:52:02.879 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.2565 ms
+2026-03-12 11:52:14.101 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 401 in 0.5743 ms
+2026-03-12 11:52:14.101 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.7770 ms
+2026-03-12 11:52:14.102 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 401 in 0.3255 ms
+2026-03-12 11:52:14.609 +03:00 [INF] [User: Anonymous] Token yenilendi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9
+2026-03-12 11:52:14.613 +03:00 [INF] [User: Anonymous] Token üretildi. UserId: 3b48a04a-e2c3-4b15-a15c-f8465ef5c2b9
+2026-03-12 11:52:14.614 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 13.3571 ms
+2026-03-12 11:52:14.678 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 3.9676 ms
+2026-03-12 11:52:14.678 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.1379 ms
+2026-03-12 11:52:29.977 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.6839 ms
+2026-03-12 14:05:56.735 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-12 14:05:59.282 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-12 14:05:59.305 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-12 14:05:59.759 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-12 14:05:59.760 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-12 14:05:59.761 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-12 14:05:59.762 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-12 14:05:59.763 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-12 14:05:59.764 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-12 14:05:59.789 +03:00 [INF] [User: ] Server desktop-25vqrpg:29516:14b53b83 successfully announced in 12,032 ms
+2026-03-12 14:05:59.793 +03:00 [INF] [User: ] Server desktop-25vqrpg:29516:14b53b83 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-12 14:05:59.798 +03:00 [INF] [User: ] 1 servers were removed due to timeout
+2026-03-12 14:05:59.798 +03:00 [INF] [User: ] Server desktop-25vqrpg:29516:14b53b83 all the dispatchers started
+2026-03-12 14:06:00.366 +03:00 [WRN] [User: ] Email ayarları eksik. Gönderim atlandı. Alıcı: eren@gmail.com
+2026-03-12 14:06:00.378 +03:00 [WRN] [User: ] Email ayarları eksik. Gönderim atlandı. Alıcı: hakkierenozder@gmail.com
+2026-03-12 14:06:00.477 +03:00 [INF] [User: ] Bildirim kuyruğu işlendi. Gönderilen: 2, Başarısız: 0
+2026-03-12 14:19:06.773 +03:00 [INF] [User: ] Server desktop-25vqrpg:29516:14b53b83 caught stopping signal...
+2026-03-12 14:19:06.776 +03:00 [INF] [User: ] Server desktop-25vqrpg:29516:14b53b83 All dispatchers stopped
+2026-03-12 14:19:06.782 +03:00 [INF] [User: ] Server desktop-25vqrpg:29516:14b53b83 successfully reported itself as stopped in 2,7416 ms
+2026-03-12 14:19:06.783 +03:00 [INF] [User: ] Server desktop-25vqrpg:29516:14b53b83 has been stopped in total 8,3275 ms
+2026-03-12 14:19:16.196 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-12 14:19:17.300 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-12 14:19:17.319 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-12 14:19:17.537 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-12 14:19:17.538 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-12 14:19:17.539 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-12 14:19:17.539 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-12 14:19:17.541 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-12 14:19:17.542 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-12 14:19:17.561 +03:00 [INF] [User: ] Server desktop-25vqrpg:30692:cd818c5f successfully announced in 9,4214 ms
+2026-03-12 14:19:17.564 +03:00 [INF] [User: ] Server desktop-25vqrpg:30692:cd818c5f is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-12 14:19:17.570 +03:00 [INF] [User: ] Server desktop-25vqrpg:30692:cd818c5f all the dispatchers started
+2026-03-12 14:22:09.114 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-12 14:22:09.446 +03:00 [INF] [User: Anonymous] Yeni kullanici kaydi: baran.dogan19007@gmail.com
+2026-03-12 14:22:09.545 +03:00 [INF] [User: Anonymous] Token üretildi. UserId: b9e6ff87-3f77-4e13-9691-13b6aab43c65
+2026-03-12 14:22:09.572 +03:00 [INF] [User: ] HTTP POST /api/auth/register responded 200 in 469.9025 ms
+2026-03-12 14:22:47.702 +03:00 [INF] [User: Anonymous] Kullanici giris yapti. Email: baran.dogan19007@gmail.com
+2026-03-12 14:22:47.708 +03:00 [INF] [User: Anonymous] Token üretildi. UserId: b9e6ff87-3f77-4e13-9691-13b6aab43c65
+2026-03-12 14:22:47.710 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 86.4690 ms
+2026-03-12 14:22:48.278 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 82.2702 ms
+2026-03-12 14:22:48.298 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 97.5631 ms
+2026-03-12 14:22:48.354 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 150.7178 ms
+2026-03-12 14:22:48.417 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 54.8137 ms
+2026-03-12 14:22:48.456 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 98.4535 ms
+2026-03-12 14:22:48.456 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 266.3642 ms
+2026-03-12 14:22:59.141 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.6007 ms
+2026-03-12 14:25:31.178 +03:00 [INF] [User: Baran Dogan] Abonelik eklendi. UserId: b9e6ff87-3f77-4e13-9691-13b6aab43c65, Name: Spotify
+2026-03-12 14:25:31.187 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions responded 200 in 139.7757 ms
+2026-03-12 14:25:38.720 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 11.9880 ms
+2026-03-12 14:25:38.723 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.6463 ms
+2026-03-12 14:25:38.731 +03:00 [INF] [User: Baran Dogan] Güncel kurlar çekiliyor...
+2026-03-12 14:25:39.106 +03:00 [INF] [User: Baran Dogan] Kurlar güncellendi: {"USD":44.096,"EUR":51.067,"GBP":59.131}
+2026-03-12 14:25:39.113 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 397.2275 ms
+2026-03-12 14:26:33.656 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.3152 ms
+2026-03-12 14:27:17.286 +03:00 [INF] [User: ] HTTP PUT /api/auth/profile responded 204 in 35.2273 ms
+2026-03-12 14:27:44.589 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.4899 ms
+2026-03-12 14:27:45.322 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.0873 ms
+2026-03-12 14:28:00.373 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.8727 ms
+2026-03-12 14:28:00.392 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 13.8903 ms
+2026-03-12 14:28:00.844 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.8101 ms
+2026-03-12 14:28:00.860 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.7569 ms
+2026-03-12 14:28:38.390 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.4098 ms
+2026-03-12 14:29:35.965 +03:00 [INF] [User: ] HTTP PATCH /api/usersubscriptions/62/status responded 400 in 10.1314 ms
+2026-03-12 14:30:33.062 +03:00 [WRN] [User: ] Stopping the server due to DomainUnload or ProcessExit event...
+2026-03-12 14:30:33.068 +03:00 [INF] [User: ] Server desktop-25vqrpg:30692:cd818c5f caught stopping signal...
+2026-03-12 14:30:33.069 +03:00 [INF] [User: ] Server desktop-25vqrpg:30692:cd818c5f caught stopped signal...
+2026-03-12 14:30:33.070 +03:00 [WRN] [User: ] Server desktop-25vqrpg:30692:cd818c5f caught shutdown signal...
+2026-03-12 14:30:33.072 +03:00 [WRN] [User: ] Server desktop-25vqrpg:30692:cd818c5f stopped non-gracefully due to Worker. Outstanding work on those dispatchers could be aborted, and there can be delays in background processing. This server instance will be incorrectly shown as active for a while. To avoid non-graceful shutdowns, investigate what prevents from stopping gracefully and add CancellationToken support for those methods.
+2026-03-12 14:30:33.084 +03:00 [INF] [User: ] Server desktop-25vqrpg:30692:cd818c5f successfully reported itself as stopped in 9,6525 ms
+2026-03-12 14:30:33.084 +03:00 [INF] [User: ] Server desktop-25vqrpg:30692:cd818c5f has been stopped in total 15,3711 ms
+2026-03-12 16:20:32.756 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-12 16:20:34.677 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-12 16:20:34.698 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-12 16:20:35.115 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-12 16:20:35.116 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-12 16:20:35.117 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-12 16:20:35.118 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-12 16:20:35.119 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-12 16:20:35.120 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-12 16:20:35.145 +03:00 [INF] [User: ] Server desktop-25vqrpg:8076:e9221b4e successfully announced in 11,9532 ms
+2026-03-12 16:20:35.148 +03:00 [INF] [User: ] Server desktop-25vqrpg:8076:e9221b4e is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-12 16:20:35.153 +03:00 [INF] [User: ] Server desktop-25vqrpg:8076:e9221b4e all the dispatchers started
+2026-03-12 16:20:35.184 +03:00 [INF] [User: ] Removed 1 outdated record(s) from 'aggregatedcounter' table.
+2026-03-12 16:20:36.208 +03:00 [INF] [User: ] Removed 2 outdated record(s) from 'job' table.
+2026-03-12 16:36:28.759 +03:00 [INF] [User: ] Server desktop-25vqrpg:8076:e9221b4e caught stopping signal...
+2026-03-12 16:36:28.761 +03:00 [INF] [User: ] Server desktop-25vqrpg:8076:e9221b4e All dispatchers stopped
+2026-03-12 16:36:28.767 +03:00 [INF] [User: ] Server desktop-25vqrpg:8076:e9221b4e successfully reported itself as stopped in 3,2215 ms
+2026-03-12 16:36:28.768 +03:00 [INF] [User: ] Server desktop-25vqrpg:8076:e9221b4e has been stopped in total 8,2007 ms
+2026-03-12 16:36:38.473 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-12 16:36:38.715 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 207
+2026-03-12 16:41:09.121 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-12 16:41:09.227 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 207
+2026-03-12 17:05:26.800 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-12 17:05:28.565 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-12 17:05:28.592 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-12 17:05:29.075 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-12 17:05:29.076 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-12 17:05:29.078 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-12 17:05:29.079 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-12 17:05:29.079 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-12 17:05:29.081 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-12 17:05:29.102 +03:00 [INF] [User: ] Server desktop-25vqrpg:10292:0941fd3a successfully announced in 10,6945 ms
+2026-03-12 17:05:29.105 +03:00 [INF] [User: ] Server desktop-25vqrpg:10292:0941fd3a is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-12 17:05:29.111 +03:00 [INF] [User: ] Server desktop-25vqrpg:10292:0941fd3a all the dispatchers started
+2026-03-12 17:07:09.443 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-12 17:07:09.564 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 401 in 137.8963 ms
+2026-03-12 17:07:09.564 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 137.9023 ms
+2026-03-12 17:07:09.564 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 401 in 137.9150 ms
+2026-03-12 17:07:09.911 +03:00 [INF] [User: Anonymous] Token yenilendi. UserId: b9e6ff87-3f77-4e13-9691-13b6aab43c65
+2026-03-12 17:07:09.913 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 488.5272 ms
+2026-03-12 17:07:09.973 +03:00 [INF] [User: Anonymous] Token üretildi. UserId: b9e6ff87-3f77-4e13-9691-13b6aab43c65
+2026-03-12 17:07:09.981 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 383.7385 ms
+2026-03-12 17:07:10.220 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 40.0348 ms
+2026-03-12 17:07:10.223 +03:00 [ERR] [User: Baran Dogan] Failed executing DbCommand (11ms) [Parameters=[@__userId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."BillingDay", u."BillingPeriod", u."CancelledDate", u."CatalogId", u."Category", u."ColorCode", u."ContractEndDate", u."ContractStartDate", u."CreatedBy", u."CreatedDate", u."Currency", u."HasContract", u."IsActive", u."IsDeleted", u."Name", u."PausedDate", u."Price", u."SharedWithJson", u."Status", u."UpdatedBy", u."UpdatedDate", u."UsageHistoryJson", u."UserId", t."Id", t."Category", t."ColorCode", t."CreatedBy", t."CreatedDate", t."IsDeleted", t."LogoUrl", t."Name", t."RequiresContract", t."UpdatedBy", t."UpdatedDate"
+FROM "UserSubscriptions" AS u
+LEFT JOIN (
+    SELECT c."Id", c."Category", c."ColorCode", c."CreatedBy", c."CreatedDate", c."IsDeleted", c."LogoUrl", c."Name", c."RequiresContract", c."UpdatedBy", c."UpdatedDate"
+    FROM "Catalogs" AS c
+    WHERE NOT (c."IsDeleted")
+) AS t ON u."CatalogId" = t."Id"
+WHERE NOT (u."IsDeleted") AND u."UserId" = @__userId_0 AND u."IsActive"
+2026-03-12 17:07:10.236 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 71.5127 ms
+2026-03-12 17:07:10.248 +03:00 [ERR] [User: Baran Dogan] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column u.BillingPeriod does not exist
+
+POSITION: 32
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.BillingPeriod does not exist
+    Position: 32
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+Npgsql.PostgresException (0x80004005): 42703: column u.BillingPeriod does not exist
+
+POSITION: 32
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.BillingPeriod does not exist
+    Position: 32
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-12 17:07:10.261 +03:00 [ERR] [User: ] Bir hata oluştu: 42703: column u.BillingPeriod does not exist
+
+POSITION: 32
+Npgsql.PostgresException (0x80004005): 42703: column u.BillingPeriod does not exist
+
+POSITION: 32
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.DashboardService.GetDashboardAsync(String userId, Int32 upcomingDays) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\DashboardService.cs:line 23
+   at SubGuard.API.Controllers.DashboardController.Get(Int32 upcomingDays) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Controllers\DashboardController.cs:line 27
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_16>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 308
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.BillingPeriod does not exist
+    Position: 32
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-12 17:07:10.307 +03:00 [ERR] [User: ] HTTP GET /api/dashboard responded 500 in 134.7675 ms
+2026-03-12 17:07:10.467 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.3357 ms
+2026-03-12 17:07:10.503 +03:00 [ERR] [User: Baran Dogan] Failed executing DbCommand (13ms) [Parameters=[@__userId_0='?', @__p_2='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT t."Id", t."BillingDay", t."BillingPeriod", t."CancelledDate", t."CatalogId", t."Category", t."ColorCode", t."ContractEndDate", t."ContractStartDate", t."CreatedBy", t."CreatedDate", t."Currency", t."HasContract", t."IsActive", t."IsDeleted", t."Name", t."PausedDate", t."Price", t."SharedWithJson", t."Status", t."UpdatedBy", t."UpdatedDate", t."UsageHistoryJson", t."UserId", t0."Id", t0."Category", t0."ColorCode", t0."CreatedBy", t0."CreatedDate", t0."IsDeleted", t0."LogoUrl", t0."Name", t0."RequiresContract", t0."UpdatedBy", t0."UpdatedDate"
+FROM (
+    SELECT u."Id", u."BillingDay", u."BillingPeriod", u."CancelledDate", u."CatalogId", u."Category", u."ColorCode", u."ContractEndDate", u."ContractStartDate", u."CreatedBy", u."CreatedDate", u."Currency", u."HasContract", u."IsActive", u."IsDeleted", u."Name", u."PausedDate", u."Price", u."SharedWithJson", u."Status", u."UpdatedBy", u."UpdatedDate", u."UsageHistoryJson", u."UserId"
+    FROM "UserSubscriptions" AS u
+    WHERE NOT (u."IsDeleted") AND u."UserId" = @__userId_0
+    ORDER BY u."CreatedDate" DESC
+    LIMIT @__p_2 OFFSET @__p_1
+) AS t
+LEFT JOIN (
+    SELECT c."Id", c."Category", c."ColorCode", c."CreatedBy", c."CreatedDate", c."IsDeleted", c."LogoUrl", c."Name", c."RequiresContract", c."UpdatedBy", c."UpdatedDate"
+    FROM "Catalogs" AS c
+    WHERE NOT (c."IsDeleted")
+) AS t0 ON t."CatalogId" = t0."Id"
+ORDER BY t."CreatedDate" DESC
+2026-03-12 17:07:10.508 +03:00 [ERR] [User: Baran Dogan] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column u.BillingPeriod does not exist
+
+POSITION: 600
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.BillingPeriod does not exist
+    Position: 600
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+Npgsql.PostgresException (0x80004005): 42703: column u.BillingPeriod does not exist
+
+POSITION: 600
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.BillingPeriod does not exist
+    Position: 600
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-12 17:07:10.516 +03:00 [ERR] [User: ] Bir hata oluştu: 42703: column u.BillingPeriod does not exist
+
+POSITION: 600
+Npgsql.PostgresException (0x80004005): 42703: column u.BillingPeriod does not exist
+
+POSITION: 600
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.UserSubscriptionService.GetUserSubscriptionsAsync(String userId, Int32 page, Int32 pageSize) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 99
+   at SubGuard.API.Controllers.UserSubscriptionsController.GetMySubscriptions(PagedRequestDto paged) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Controllers\UserSubscriptionsController.cs:line 28
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_16>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 308
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.BillingPeriod does not exist
+    Position: 600
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-12 17:07:10.529 +03:00 [ERR] [User: ] HTTP GET /api/usersubscriptions responded 500 in 48.4754 ms
+2026-03-12 17:08:06.678 +03:00 [INF] [User: ] Server desktop-25vqrpg:10292:0941fd3a caught stopping signal...
+2026-03-12 17:08:06.681 +03:00 [INF] [User: ] Server desktop-25vqrpg:10292:0941fd3a All dispatchers stopped
+2026-03-12 17:08:06.686 +03:00 [INF] [User: ] Server desktop-25vqrpg:10292:0941fd3a successfully reported itself as stopped in 2,3578 ms
+2026-03-12 17:08:06.687 +03:00 [INF] [User: ] Server desktop-25vqrpg:10292:0941fd3a has been stopped in total 7,5321 ms
+2026-03-12 17:08:48.381 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-12 17:08:49.513 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-12 17:08:49.532 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-12 17:08:49.840 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-12 17:08:49.841 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-12 17:08:49.842 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-12 17:08:49.843 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-12 17:08:49.844 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-12 17:08:49.845 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-12 17:08:49.865 +03:00 [INF] [User: ] Server desktop-25vqrpg:29460:f4c3ab57 successfully announced in 9,2292 ms
+2026-03-12 17:08:49.867 +03:00 [INF] [User: ] Server desktop-25vqrpg:29460:f4c3ab57 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-12 17:08:49.872 +03:00 [INF] [User: ] Server desktop-25vqrpg:29460:f4c3ab57 all the dispatchers started
+2026-03-12 17:09:27.114 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-12 17:09:27.375 +03:00 [ERR] [User: Baran Dogan] Failed executing DbCommand (6ms) [Parameters=[@__userId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."BillingDay", u."BillingPeriod", u."CancelledDate", u."CatalogId", u."Category", u."ColorCode", u."ContractEndDate", u."ContractStartDate", u."CreatedBy", u."CreatedDate", u."Currency", u."HasContract", u."IsActive", u."IsDeleted", u."Name", u."PausedDate", u."Price", u."SharedWithJson", u."Status", u."UpdatedBy", u."UpdatedDate", u."UsageHistoryJson", u."UserId", t."Id", t."Category", t."ColorCode", t."CreatedBy", t."CreatedDate", t."IsDeleted", t."LogoUrl", t."Name", t."RequiresContract", t."UpdatedBy", t."UpdatedDate"
+FROM "UserSubscriptions" AS u
+LEFT JOIN (
+    SELECT c."Id", c."Category", c."ColorCode", c."CreatedBy", c."CreatedDate", c."IsDeleted", c."LogoUrl", c."Name", c."RequiresContract", c."UpdatedBy", c."UpdatedDate"
+    FROM "Catalogs" AS c
+    WHERE NOT (c."IsDeleted")
+) AS t ON u."CatalogId" = t."Id"
+WHERE NOT (u."IsDeleted") AND u."UserId" = @__userId_0 AND u."IsActive"
+2026-03-12 17:09:27.396 +03:00 [ERR] [User: Baran Dogan] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column u.BillingPeriod does not exist
+
+POSITION: 32
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.BillingPeriod does not exist
+    Position: 32
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+Npgsql.PostgresException (0x80004005): 42703: column u.BillingPeriod does not exist
+
+POSITION: 32
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.BillingPeriod does not exist
+    Position: 32
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-12 17:09:27.409 +03:00 [ERR] [User: ] Bir hata oluştu: 42703: column u.BillingPeriod does not exist
+
+POSITION: 32
+Npgsql.PostgresException (0x80004005): 42703: column u.BillingPeriod does not exist
+
+POSITION: 32
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.DashboardService.GetDashboardAsync(String userId, Int32 upcomingDays) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\DashboardService.cs:line 23
+   at SubGuard.API.Controllers.DashboardController.Get(Int32 upcomingDays) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Controllers\DashboardController.cs:line 27
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_16>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 308
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.BillingPeriod does not exist
+    Position: 32
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-12 17:09:27.428 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 324.7485 ms
+2026-03-12 17:09:27.432 +03:00 [ERR] [User: ] HTTP GET /api/dashboard responded 500 in 330.4139 ms
+2026-03-12 17:09:27.433 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 331.1996 ms
+2026-03-12 17:09:27.463 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 361.4977 ms
+2026-03-12 17:09:27.633 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 5.4396 ms
+2026-03-12 17:09:27.661 +03:00 [ERR] [User: Baran Dogan] Failed executing DbCommand (14ms) [Parameters=[@__userId_0='?', @__p_2='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT t."Id", t."BillingDay", t."BillingPeriod", t."CancelledDate", t."CatalogId", t."Category", t."ColorCode", t."ContractEndDate", t."ContractStartDate", t."CreatedBy", t."CreatedDate", t."Currency", t."HasContract", t."IsActive", t."IsDeleted", t."Name", t."PausedDate", t."Price", t."SharedWithJson", t."Status", t."UpdatedBy", t."UpdatedDate", t."UsageHistoryJson", t."UserId", t0."Id", t0."Category", t0."ColorCode", t0."CreatedBy", t0."CreatedDate", t0."IsDeleted", t0."LogoUrl", t0."Name", t0."RequiresContract", t0."UpdatedBy", t0."UpdatedDate"
+FROM (
+    SELECT u."Id", u."BillingDay", u."BillingPeriod", u."CancelledDate", u."CatalogId", u."Category", u."ColorCode", u."ContractEndDate", u."ContractStartDate", u."CreatedBy", u."CreatedDate", u."Currency", u."HasContract", u."IsActive", u."IsDeleted", u."Name", u."PausedDate", u."Price", u."SharedWithJson", u."Status", u."UpdatedBy", u."UpdatedDate", u."UsageHistoryJson", u."UserId"
+    FROM "UserSubscriptions" AS u
+    WHERE NOT (u."IsDeleted") AND u."UserId" = @__userId_0
+    ORDER BY u."CreatedDate" DESC
+    LIMIT @__p_2 OFFSET @__p_1
+) AS t
+LEFT JOIN (
+    SELECT c."Id", c."Category", c."ColorCode", c."CreatedBy", c."CreatedDate", c."IsDeleted", c."LogoUrl", c."Name", c."RequiresContract", c."UpdatedBy", c."UpdatedDate"
+    FROM "Catalogs" AS c
+    WHERE NOT (c."IsDeleted")
+) AS t0 ON t."CatalogId" = t0."Id"
+ORDER BY t."CreatedDate" DESC
+2026-03-12 17:09:27.665 +03:00 [ERR] [User: Baran Dogan] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column u.BillingPeriod does not exist
+
+POSITION: 600
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.BillingPeriod does not exist
+    Position: 600
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+Npgsql.PostgresException (0x80004005): 42703: column u.BillingPeriod does not exist
+
+POSITION: 600
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.BillingPeriod does not exist
+    Position: 600
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-12 17:09:27.674 +03:00 [ERR] [User: ] Bir hata oluştu: 42703: column u.BillingPeriod does not exist
+
+POSITION: 600
+Npgsql.PostgresException (0x80004005): 42703: column u.BillingPeriod does not exist
+
+POSITION: 600
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.UserSubscriptionService.GetUserSubscriptionsAsync(String userId, Int32 page, Int32 pageSize) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 99
+   at SubGuard.API.Controllers.UserSubscriptionsController.GetMySubscriptions(PagedRequestDto paged) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Controllers\UserSubscriptionsController.cs:line 28
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_16>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 308
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.BillingPeriod does not exist
+    Position: 600
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-12 17:09:27.690 +03:00 [ERR] [User: ] HTTP GET /api/usersubscriptions responded 500 in 56.1407 ms
+2026-03-12 17:09:49.872 +03:00 [INF] [User: ] Server desktop-25vqrpg:29460:f4c3ab57 caught stopping signal...
+2026-03-12 17:09:49.875 +03:00 [INF] [User: ] Server desktop-25vqrpg:29460:f4c3ab57 All dispatchers stopped
+2026-03-12 17:09:49.881 +03:00 [INF] [User: ] Server desktop-25vqrpg:29460:f4c3ab57 successfully reported itself as stopped in 3,6882 ms
+2026-03-12 17:09:49.882 +03:00 [INF] [User: ] Server desktop-25vqrpg:29460:f4c3ab57 has been stopped in total 8,5135 ms
+2026-03-12 17:11:34.278 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-12 17:11:34.390 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 229
+2026-03-12 17:15:44.755 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-12 17:15:45.924 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-12 17:15:45.943 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-12 17:15:46.225 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-12 17:15:46.226 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-12 17:15:46.227 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-12 17:15:46.228 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-12 17:15:46.228 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-12 17:15:46.229 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-12 17:15:46.247 +03:00 [INF] [User: ] Server desktop-25vqrpg:15044:255b8d66 successfully announced in 8,5543 ms
+2026-03-12 17:15:46.249 +03:00 [INF] [User: ] Server desktop-25vqrpg:15044:255b8d66 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-12 17:15:46.255 +03:00 [INF] [User: ] Server desktop-25vqrpg:15044:255b8d66 all the dispatchers started
+2026-03-12 17:15:52.119 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-12 17:15:52.359 +03:00 [ERR] [User: Baran Dogan] Failed executing DbCommand (4ms) [Parameters=[@__userId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."BillingDay", u."BillingPeriod", u."CancelledDate", u."CatalogId", u."Category", u."ColorCode", u."ContractEndDate", u."ContractStartDate", u."CreatedBy", u."CreatedDate", u."Currency", u."HasContract", u."IsActive", u."IsDeleted", u."Name", u."PausedDate", u."Price", u."SharedWithJson", u."Status", u."UpdatedBy", u."UpdatedDate", u."UsageHistoryJson", u."UserId", t."Id", t."Category", t."ColorCode", t."CreatedBy", t."CreatedDate", t."IsDeleted", t."LogoUrl", t."Name", t."RequiresContract", t."UpdatedBy", t."UpdatedDate"
+FROM "UserSubscriptions" AS u
+LEFT JOIN (
+    SELECT c."Id", c."Category", c."ColorCode", c."CreatedBy", c."CreatedDate", c."IsDeleted", c."LogoUrl", c."Name", c."RequiresContract", c."UpdatedBy", c."UpdatedDate"
+    FROM "Catalogs" AS c
+    WHERE NOT (c."IsDeleted")
+) AS t ON u."CatalogId" = t."Id"
+WHERE NOT (u."IsDeleted") AND u."UserId" = @__userId_0 AND u."IsActive"
+2026-03-12 17:15:52.380 +03:00 [ERR] [User: Baran Dogan] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column u.BillingPeriod does not exist
+
+POSITION: 32
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.BillingPeriod does not exist
+    Position: 32
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+Npgsql.PostgresException (0x80004005): 42703: column u.BillingPeriod does not exist
+
+POSITION: 32
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.BillingPeriod does not exist
+    Position: 32
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-12 17:15:52.394 +03:00 [ERR] [User: ] Bir hata oluştu: 42703: column u.BillingPeriod does not exist
+
+POSITION: 32
+Npgsql.PostgresException (0x80004005): 42703: column u.BillingPeriod does not exist
+
+POSITION: 32
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.DashboardService.GetDashboardAsync(String userId, Int32 upcomingDays) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\DashboardService.cs:line 23
+   at SubGuard.API.Controllers.DashboardController.Get(Int32 upcomingDays) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Controllers\DashboardController.cs:line 27
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_16>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 308
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.BillingPeriod does not exist
+    Position: 32
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-12 17:15:52.413 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 304.2071 ms
+2026-03-12 17:15:52.419 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 311.2190 ms
+2026-03-12 17:15:52.421 +03:00 [ERR] [User: ] HTTP GET /api/dashboard responded 500 in 313.6597 ms
+2026-03-12 17:15:52.455 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 348.0421 ms
+2026-03-12 17:15:52.658 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 14.5293 ms
+2026-03-12 17:15:52.675 +03:00 [ERR] [User: Baran Dogan] Failed executing DbCommand (12ms) [Parameters=[@__userId_0='?', @__p_2='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT t."Id", t."BillingDay", t."BillingPeriod", t."CancelledDate", t."CatalogId", t."Category", t."ColorCode", t."ContractEndDate", t."ContractStartDate", t."CreatedBy", t."CreatedDate", t."Currency", t."HasContract", t."IsActive", t."IsDeleted", t."Name", t."PausedDate", t."Price", t."SharedWithJson", t."Status", t."UpdatedBy", t."UpdatedDate", t."UsageHistoryJson", t."UserId", t0."Id", t0."Category", t0."ColorCode", t0."CreatedBy", t0."CreatedDate", t0."IsDeleted", t0."LogoUrl", t0."Name", t0."RequiresContract", t0."UpdatedBy", t0."UpdatedDate"
+FROM (
+    SELECT u."Id", u."BillingDay", u."BillingPeriod", u."CancelledDate", u."CatalogId", u."Category", u."ColorCode", u."ContractEndDate", u."ContractStartDate", u."CreatedBy", u."CreatedDate", u."Currency", u."HasContract", u."IsActive", u."IsDeleted", u."Name", u."PausedDate", u."Price", u."SharedWithJson", u."Status", u."UpdatedBy", u."UpdatedDate", u."UsageHistoryJson", u."UserId"
+    FROM "UserSubscriptions" AS u
+    WHERE NOT (u."IsDeleted") AND u."UserId" = @__userId_0
+    ORDER BY u."CreatedDate" DESC
+    LIMIT @__p_2 OFFSET @__p_1
+) AS t
+LEFT JOIN (
+    SELECT c."Id", c."Category", c."ColorCode", c."CreatedBy", c."CreatedDate", c."IsDeleted", c."LogoUrl", c."Name", c."RequiresContract", c."UpdatedBy", c."UpdatedDate"
+    FROM "Catalogs" AS c
+    WHERE NOT (c."IsDeleted")
+) AS t0 ON t."CatalogId" = t0."Id"
+ORDER BY t."CreatedDate" DESC
+2026-03-12 17:15:52.681 +03:00 [ERR] [User: Baran Dogan] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column u.BillingPeriod does not exist
+
+POSITION: 600
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.BillingPeriod does not exist
+    Position: 600
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+Npgsql.PostgresException (0x80004005): 42703: column u.BillingPeriod does not exist
+
+POSITION: 600
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.BillingPeriod does not exist
+    Position: 600
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-12 17:15:52.691 +03:00 [ERR] [User: ] Bir hata oluştu: 42703: column u.BillingPeriod does not exist
+
+POSITION: 600
+Npgsql.PostgresException (0x80004005): 42703: column u.BillingPeriod does not exist
+
+POSITION: 600
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.UserSubscriptionService.GetUserSubscriptionsAsync(String userId, Int32 page, Int32 pageSize) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 99
+   at SubGuard.API.Controllers.UserSubscriptionsController.GetMySubscriptions(PagedRequestDto paged) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Controllers\UserSubscriptionsController.cs:line 28
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_16>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 308
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.BillingPeriod does not exist
+    Position: 600
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-12 17:15:52.705 +03:00 [ERR] [User: ] HTTP GET /api/usersubscriptions responded 500 in 56.3987 ms
+2026-03-12 22:55:19.248 +03:00 [INF] [User: ] Server desktop-25vqrpg:15044:255b8d66 caught stopping signal...
+2026-03-12 22:55:19.267 +03:00 [INF] [User: ] Server desktop-25vqrpg:15044:255b8d66 All dispatchers stopped
+2026-03-12 22:55:19.289 +03:00 [INF] [User: ] Server desktop-25vqrpg:15044:255b8d66 successfully reported itself as stopped in 13,9571 ms
+2026-03-12 22:55:19.290 +03:00 [INF] [User: ] Server desktop-25vqrpg:15044:255b8d66 has been stopped in total 33,0711 ms
+2026-03-12 22:55:26.136 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-12 22:55:28.127 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-12 22:55:28.149 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-12 22:55:28.770 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-12 22:55:28.773 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-12 22:55:28.775 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-12 22:55:28.777 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-12 22:55:28.779 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-12 22:55:28.780 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-12 22:55:28.810 +03:00 [INF] [User: ] Server desktop-25vqrpg:29588:89c0e1a1 successfully announced in 15,3744 ms
+2026-03-12 22:55:28.814 +03:00 [INF] [User: ] Server desktop-25vqrpg:29588:89c0e1a1 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-12 22:55:28.820 +03:00 [INF] [User: ] Server desktop-25vqrpg:29588:89c0e1a1 all the dispatchers started
+2026-03-12 22:56:12.483 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-12 22:56:12.533 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 64.7248 ms
+2026-03-12 22:56:34.209 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 401 in 75.6213 ms
+2026-03-12 22:56:34.209 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 401 in 61.3581 ms
+2026-03-12 22:56:34.209 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 76.9476 ms
+2026-03-12 22:56:34.534 +03:00 [INF] [User: Anonymous] Token yenilendi. UserId: b9e6ff87-3f77-4e13-9691-13b6aab43c65
+2026-03-12 22:56:34.548 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 424.7487 ms
+2026-03-12 22:56:34.595 +03:00 [INF] [User: Anonymous] Token üretildi. UserId: b9e6ff87-3f77-4e13-9691-13b6aab43c65
+2026-03-12 22:56:34.603 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 370.2419 ms
+2026-03-12 22:56:34.800 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 50.2587 ms
+2026-03-12 22:56:34.825 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 80.3958 ms
+2026-03-12 22:56:34.873 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 135.8465 ms
+2026-03-12 22:56:34.976 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.0956 ms
+2026-03-12 22:56:35.034 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 53.0990 ms
+2026-03-12 22:56:44.799 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.5643 ms
+2026-03-12 22:56:44.811 +03:00 [INF] [User: Baran Dogan] Güncel kurlar çekiliyor...
+2026-03-12 22:56:45.197 +03:00 [INF] [User: Baran Dogan] Kurlar güncellendi: {"USD":44.109,"EUR":50.933,"GBP":59.058}
+2026-03-12 22:56:45.204 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 409.0179 ms
+2026-03-12 22:56:49.431 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 11.5045 ms
+2026-03-12 22:56:54.070 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.7154 ms
+2026-03-12 22:56:54.923 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.8270 ms
+2026-03-12 23:14:34.081 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.9225 ms
+2026-03-12 23:14:34.086 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.6172 ms
+2026-03-12 23:14:34.086 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 8.7034 ms
+2026-03-12 23:14:34.097 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.7710 ms
+2026-03-12 23:14:34.099 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.2140 ms
+2026-03-12 23:14:34.617 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.1501 ms
+2026-03-12 23:14:34.618 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.9323 ms
+2026-03-12 23:14:35.013 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.1491 ms
+2026-03-12 23:14:35.016 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.9703 ms
+2026-03-12 23:14:35.019 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.8448 ms
+2026-03-12 23:14:35.022 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 11.1788 ms
+2026-03-12 23:14:39.660 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.3497 ms
+2026-03-12 23:14:39.675 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 5.8661 ms
+2026-03-12 23:14:39.786 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 1.6452 ms
+2026-03-12 23:14:39.788 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.4310 ms
+2026-03-12 23:14:39.788 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.1487 ms
+2026-03-12 23:14:39.791 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.1218 ms
+2026-03-12 23:14:39.807 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.0189 ms
+2026-03-12 23:14:39.807 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.3745 ms
+2026-03-12 23:14:39.815 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 3.9699 ms
+2026-03-12 23:14:41.093 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.4115 ms
+2026-03-12 23:14:41.104 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 11.4754 ms
+2026-03-12 23:15:20.727 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.8144 ms
+2026-03-12 23:16:09.924 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.1646 ms
+2026-03-12 23:16:09.925 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 6.7614 ms
+2026-03-12 23:16:09.941 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.4250 ms
+2026-03-12 23:16:09.941 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.5804 ms
+2026-03-12 23:16:10.275 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.8859 ms
+2026-03-12 23:16:10.662 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.5463 ms
+2026-03-12 23:16:10.662 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.6268 ms
+2026-03-12 23:16:10.663 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.3315 ms
+2026-03-12 23:16:10.663 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.1216 ms

@@ -1,11 +1,14 @@
-import React, { useMemo } from 'react';
-import { View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView, Alert, Dimensions, StatusBar, Switch, Platform, DimensionValue } from 'react-native';
-import { UserSubscription } from '../types';
+import React, { useMemo, useRef, useEffect } from 'react';
+import {
+  View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView,
+  Alert, Dimensions, StatusBar, Platform, DimensionValue, Animated,
+} from 'react-native';
+import Toast from 'react-native-toast-message';
+import { UserSubscription, ApiUsageLog } from '../types';
 import { Ionicons } from '@expo/vector-icons';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
-import { useSettingsStore } from '../store/useSettingsStore'; 
-import { LinearGradient } from 'expo-linear-gradient';
-import { useThemeColors } from '../constants/theme'; 
+import { useSettingsStore } from '../store/useSettingsStore';
+import { useThemeColors } from '../constants/theme';
 
 interface Props {
     visible: boolean;
@@ -16,35 +19,54 @@ interface Props {
 
 const { width } = Dimensions.get('window');
 
+type SubscriptionStatus = 'active' | 'paused' | 'cancelled';
+
 export default function SubscriptionDetailModal({ visible, subscription: initialSubscription, onClose, onEdit }: Props) {
-    // --- TEMA VE STORE ---
     const colors = useThemeColors();
     const isDarkMode = useSettingsStore((state) => state.isDarkMode);
-    
-    const { removeSubscription, updateSubscription } = useUserSubscriptionStore();
+    const { removeSubscription, updateSubscription, fetchUsageLogs } = useUserSubscriptionStore();
 
-    // Store'dan canlı veri
-    const liveSubscription = useUserSubscriptionStore((state) => 
+    // Canlı veri (store'dan)
+    const liveSubscription = useUserSubscriptionStore((state) =>
         state.subscriptions.find((s) => s.id === initialSubscription?.id)
     );
-
     const subscription = liveSubscription || initialSubscription;
 
-    // --- KULLANIM VERİSİ HESAPLAMA ---
+    // Hero animasyonu
+    const heroOpacity = useRef(new Animated.Value(1)).current;
+
+    // Mevcut durum türetme
+    const currentStatus: SubscriptionStatus = (() => {
+        if (!subscription) return 'active';
+        if (subscription.isActive !== false) return 'active';
+        if (subscription.cancelledAt) return 'cancelled';
+        return 'paused';
+    })();
+
+    // Status değişince hero opacity'yi güncelle
+    useEffect(() => {
+        const target = currentStatus === 'active' ? 1 : 0.55;
+        Animated.timing(heroOpacity, { toValue: target, duration: 300, useNativeDriver: true }).start();
+    }, [currentStatus]);
+
+    // Modal açıldığında backend kullanım loglarını çek
+    useEffect(() => {
+        if (visible && subscription?.id) {
+            fetchUsageLogs(subscription.id);
+        }
+    }, [visible, subscription?.id]);
+
+    // Kullanım geçmişi
     const usageData = useMemo(() => {
         if (!subscription) return [];
         const history = subscription.usageHistory || [];
         const months = [];
-        
-        // Son 6 ay
         for (let i = 5; i >= 0; i--) {
             const d = new Date();
-            d.setDate(1); 
+            d.setDate(1);
             d.setMonth(d.getMonth() - i);
-            
             const key = d.toISOString().slice(0, 7);
             const log = history.find((h: any) => h.month === key);
-            
             months.push({
                 label: d.toLocaleDateString('tr-TR', { month: 'short' }).toUpperCase(),
                 status: log ? log.status : 'missing',
@@ -53,22 +75,55 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
         return months;
     }, [subscription]);
 
+    // İptal bilgisi hesaplama (early return öncesinde olmalı)
+    const cancelInfo = useMemo(() => {
+        if (currentStatus !== 'cancelled' || !subscription) return null;
+        const cancelledAt = subscription.cancelledAt ? new Date(subscription.cancelledAt) : null;
+        const contractEnd = subscription.contractEndDate ? new Date(subscription.contractEndDate) : null;
+
+        let remainingDays: number | null = null;
+        if (contractEnd) {
+            const now = new Date();
+            const diff = Math.ceil((contractEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+            remainingDays = diff > 0 ? diff : 0;
+        }
+        return { cancelledAt, contractEnd, remainingDays };
+    }, [currentStatus, subscription?.cancelledAt, subscription?.contractEndDate]);
+
     if (!subscription) return null;
 
     // --- AKSİYONLAR ---
     const handleDelete = () => {
         Alert.alert(
-            "Aboneliği Sil",
+            'Aboneliği Sil',
             `${subscription.name} aboneliğini silmek istediğine emin misin?`,
             [
-                { text: "Vazgeç", style: "cancel" },
-                { text: "Sil", style: "destructive", onPress: async () => { await removeSubscription(subscription.id); onClose(); }}
+                { text: 'Vazgeç', style: 'cancel' },
+                { text: 'Sil', style: 'destructive', onPress: async () => { await removeSubscription(subscription.id); onClose(); } },
             ]
         );
     };
 
-    const toggleStatus = async (value: boolean) => {
-        await updateSubscription(subscription.id, { isActive: value });
+    const handleStatusChange = (newStatus: SubscriptionStatus) => {
+        if (newStatus === currentStatus) return;
+
+        // Animasyon useEffect([currentStatus]) tarafından yönetiliyor —
+        // buradaki manuel tetikleme useEffect ile çakışarak görsel glitch yaratırdı.
+
+        let payload: Partial<UserSubscription> = {};
+
+        if (newStatus === 'active') {
+            payload = { isActive: true, cancelledAt: null };
+            Toast.show({ type: 'success', text1: '✅ Abonelik Aktifleştirildi', text2: `${subscription.name} yeniden aktif.`, position: 'top' });
+        } else if (newStatus === 'paused') {
+            payload = { isActive: false, cancelledAt: null };
+            Toast.show({ type: 'info', text1: '⏸ Abonelik Durduruldu', text2: `${subscription.name} duraklatıldı.`, position: 'top' });
+        } else {
+            payload = { isActive: false, cancelledAt: new Date().toISOString() };
+            Toast.show({ type: 'error', text1: '❌ Abonelik İptal Edildi', text2: `${subscription.name} iptal edildi.`, position: 'top' });
+        }
+
+        updateSubscription(subscription.id, payload);
     };
 
     // --- HESAPLAMALAR ---
@@ -81,37 +136,35 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
         const today = new Date();
         const billingDay = subscription.billingDay;
         const safeDay = (billingDay > 0 && billingDay <= 31) ? billingDay : 1;
-        
         let nextDate = new Date(today.getFullYear(), today.getMonth(), safeDay);
-        
-        if (nextDate < today) {
-            nextDate.setMonth(nextDate.getMonth() + 1);
-        }
-        
+        if (nextDate < today) nextDate.setMonth(nextDate.getMonth() + 1);
         const diffTime = Math.abs(nextDate.getTime() - today.getTime());
         const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
         return { nextDate, daysLeft };
     };
     const { nextDate, daysLeft } = getBillingData();
 
-    // Dinamik Marka Rengi
     const brandColor = subscription.colorCode || colors.primary;
 
-    // --- TAAHHÜT HESAPLAMASI ---
+    // Durum sekmeleri config
+
+    const statusTabs: { key: SubscriptionStatus; label: string; icon: string; color: string }[] = [
+        { key: 'active',    label: 'Aktif',       icon: 'checkmark-circle',  color: colors.success },
+        { key: 'paused',    label: 'Durduruldu',  icon: 'pause-circle',      color: '#F59E0B' },
+        { key: 'cancelled', label: 'İptal',        icon: 'close-circle',      color: colors.error },
+    ];
+
+    // --- TAAHHÜT ---
     const renderContractInfo = () => {
         if (!subscription.hasContract) return null;
-
         const start = subscription.contractStartDate ? new Date(subscription.contractStartDate) : null;
         const end = subscription.contractEndDate ? new Date(subscription.contractEndDate) : null;
-
         return (
-            <View style={[styles.sectionContainer, { backgroundColor: colors.cardBg, borderColor: colors.border, marginTop: 20 }]}>
+            <View style={[styles.sectionContainer, { backgroundColor: colors.cardBg, borderColor: colors.border, marginTop: 0 }]}>
                 <View style={styles.sectionHeader}>
                     <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Taahhüt Bilgisi</Text>
                     <Ionicons name="document-text-outline" size={18} color={colors.textSec} />
                 </View>
-                
                 <View style={styles.contractRow}>
                     <View style={styles.contractItem}>
                         <Text style={[styles.contractLabel, { color: colors.textSec }]}>BAŞLANGIÇ</Text>
@@ -119,9 +172,7 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                             {start ? start.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'}
                         </Text>
                     </View>
-                    
                     <View style={[styles.divider, { backgroundColor: colors.border }]} />
-
                     <View style={styles.contractItem}>
                         <Text style={[styles.contractLabel, { color: colors.textSec }]}>BİTİŞ</Text>
                         <Text style={[styles.contractValue, { color: colors.textMain }]}>
@@ -134,139 +185,197 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
     };
 
     return (
-        <Modal 
-            visible={visible} 
-            animationType="slide" 
-            presentationStyle="pageSheet" 
+        <Modal
+            visible={visible}
+            animationType="slide"
+            presentationStyle="pageSheet"
             onRequestClose={onClose}
         >
             <View style={[styles.container, { backgroundColor: colors.bg }]}>
-                <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
+                <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
 
-                {/* --- HEADER --- */}
+                {/* HEADER */}
                 <View style={styles.topBar}>
-                    <TouchableOpacity 
-                        onPress={onClose} 
-                        style={[styles.iconBtn, { backgroundColor: colors.inputBg }]}
-                    >
+                    <TouchableOpacity onPress={onClose} style={[styles.iconBtn, { backgroundColor: colors.inputBg }]}>
                         <Ionicons name="chevron-down" size={24} color={colors.textMain} />
                     </TouchableOpacity>
-                    
                     <View style={styles.topBarActions}>
-                        <TouchableOpacity 
-                            onPress={() => { onClose(); onEdit(subscription); }} 
+                        <TouchableOpacity
+                            onPress={() => { onClose(); onEdit(subscription); }}
                             style={[styles.iconBtn, { backgroundColor: colors.inputBg, marginRight: 10 }]}
                         >
                             <Ionicons name="pencil" size={20} color={colors.textMain} />
                         </TouchableOpacity>
-                        <TouchableOpacity 
-                            onPress={handleDelete} 
-                            style={[styles.iconBtn, { backgroundColor: colors.error + '20' }]} 
-                        >
+                        <TouchableOpacity onPress={handleDelete} style={[styles.iconBtn, { backgroundColor: colors.error + '20' }]}>
                             <Ionicons name="trash-outline" size={20} color={colors.error} />
                         </TouchableOpacity>
                     </View>
                 </View>
 
                 <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                    
-                    {/* 1. HERO BÖLÜMÜ */}
-                    <View style={[styles.heroSection, !subscription.isActive && styles.heroDisabled]}>
-                        <View style={[styles.logoContainer, { backgroundColor: subscription.isActive ? brandColor : colors.inactive, shadowColor: brandColor }]}>
+
+                    {/* 1. HERO */}
+                    <Animated.View style={[styles.heroSection, { opacity: heroOpacity }]}>
+                        <View style={[styles.logoContainer, {
+                            backgroundColor: currentStatus === 'active' ? brandColor : colors.inactive,
+                            shadowColor: brandColor,
+                        }]}>
                             <Text style={styles.logoText}>{subscription.name.charAt(0).toUpperCase()}</Text>
                         </View>
-                        
                         <Text style={[styles.heroTitle, { color: colors.textMain }]}>{subscription.name}</Text>
-                        
                         <View style={styles.priceContainer}>
                             <Text style={[styles.heroCurrency, { color: colors.textSec }]}>{subscription.currency}</Text>
                             <Text style={[styles.heroPrice, { color: colors.textMain }]}>{subscription.price}</Text>
                             <Text style={[styles.heroPeriod, { color: colors.textSec }]}>/ay</Text>
                         </View>
-
-                        {!subscription.isActive && (
-                            <View style={[styles.badge, { backgroundColor: colors.inactive }]}>
-                                <Text style={styles.badgeText}>PASİF</Text>
+                        {/* Durum badge */}
+                        {currentStatus !== 'active' && (
+                            <View style={[styles.badge, {
+                                backgroundColor: currentStatus === 'cancelled' ? colors.error + '20' : '#F59E0B20',
+                                borderWidth: 1,
+                                borderColor: currentStatus === 'cancelled' ? colors.error : '#F59E0B',
+                            }]}>
+                                <Ionicons
+                                    name={currentStatus === 'cancelled' ? 'close-circle' : 'pause-circle'}
+                                    size={12}
+                                    color={currentStatus === 'cancelled' ? colors.error : '#F59E0B'}
+                                />
+                                <Text style={[styles.badgeText, {
+                                    color: currentStatus === 'cancelled' ? colors.error : '#F59E0B',
+                                    marginLeft: 4,
+                                }]}>
+                                    {currentStatus === 'cancelled' ? 'İPTAL EDİLDİ' : 'DURDURULDU'}
+                                </Text>
                             </View>
                         )}
+                    </Animated.View>
+
+                    {/* 2. DURUM SEKMELERİ (Full width) */}
+                    <View style={[styles.statusCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+                        <View style={styles.cardHeader}>
+                            <Ionicons name="radio-button-on-outline" size={16} color={colors.textSec} />
+                            <Text style={[styles.cardLabel, { color: colors.textSec }]}>ABONELİK DURUMU</Text>
+                        </View>
+                        <View style={styles.statusTabRow}>
+                            {statusTabs.map((tab) => {
+                                const isSelected = currentStatus === tab.key;
+                                return (
+                                    <TouchableOpacity
+                                        key={tab.key}
+                                        style={[
+                                            styles.statusTab,
+                                            {
+                                                backgroundColor: isSelected ? tab.color + '18' : colors.inputBg,
+                                                borderColor: isSelected ? tab.color : colors.border,
+                                            },
+                                        ]}
+                                        onPress={() => handleStatusChange(tab.key)}
+                                        activeOpacity={0.7}
+                                    >
+                                        <Ionicons
+                                            name={tab.icon as any}
+                                            size={18}
+                                            color={isSelected ? tab.color : colors.textSec}
+                                        />
+                                        <Text style={[styles.statusTabText, { color: isSelected ? tab.color : colors.textSec }]}>
+                                            {tab.label}
+                                        </Text>
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </View>
                     </View>
 
-                    {/* 2. BİLGİ KARTLARI */}
-                    <View style={styles.gridContainer}>
-                        {/* Durum Kartı */}
-                        <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border, flex: 1, marginRight: 8 }]}>
-                            <View style={styles.cardHeader}>
-                                <Ionicons name={subscription.isActive ? "power" : "power-outline"} size={18} color={colors.textSec} />
-                                <Text style={[styles.cardLabel, { color: colors.textSec }]}>DURUM</Text>
+                    {/* 3. İPTAL BİLGİ KARTI (sadece iptal durumunda) */}
+                    {currentStatus === 'cancelled' && cancelInfo && (
+                        <View style={[styles.cancelCard, { backgroundColor: colors.error + '0D', borderColor: colors.error + '40' }]}>
+                            <View style={styles.cancelCardHeader}>
+                                <Ionicons name="alert-circle-outline" size={18} color={colors.error} />
+                                <Text style={[styles.cancelCardTitle, { color: colors.error }]}>İptal Bilgisi</Text>
                             </View>
-                            <View style={styles.switchRow}>
-                                <Text style={[styles.cardValue, { color: colors.textMain, fontSize: 13 }]}>
-                                    {subscription.isActive ? 'Aktif' : 'Donduruldu'}
-                                </Text>
-                                <Switch
-                                    trackColor={{ false: colors.border, true: colors.success }}
-                                    thumbColor={colors.white}
-                                    ios_backgroundColor={colors.border}
-                                    onValueChange={toggleStatus}
-                                    value={subscription.isActive}
-                                    style={{ transform: [{ scaleX: .7 }, { scaleY: .7 }] }}
-                                />
-                            </View>
-                        </View>
-
-                        {/* Tarih Kartı */}
-                        <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border, flex: 1, marginLeft: 8 }]}>
-                            <View style={styles.cardHeader}>
-                                <Ionicons name="calendar-outline" size={18} color={colors.textSec} />
-                                <Text style={[styles.cardLabel, { color: colors.textSec }]}>SONRAKİ</Text>
-                            </View>
-                            <View style={{marginTop: 6}}>
-                                <Text style={[styles.cardValue, { color: colors.textMain }]}>
-                                    {subscription.isActive 
-                                        ? nextDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })
-                                        : '-'}
-                                </Text>
-                                {subscription.isActive && (
-                                    <Text style={[styles.subValue, { color: daysLeft <= 3 ? colors.error : colors.success }]}>
-                                        {daysLeft} gün kaldı
+                            <View style={styles.cancelRows}>
+                                {cancelInfo.cancelledAt && (
+                                    <View style={styles.cancelRow}>
+                                        <Text style={[styles.cancelLabel, { color: colors.textSec }]}>İptal Tarihi</Text>
+                                        <Text style={[styles.cancelValue, { color: colors.textMain }]}>
+                                            {cancelInfo.cancelledAt.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                        </Text>
+                                    </View>
+                                )}
+                                {cancelInfo.contractEnd && (
+                                    <View style={styles.cancelRow}>
+                                        <Text style={[styles.cancelLabel, { color: colors.textSec }]}>Erişim Sona Eriyor</Text>
+                                        <Text style={[styles.cancelValue, { color: colors.textMain }]}>
+                                            {cancelInfo.contractEnd.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                        </Text>
+                                    </View>
+                                )}
+                                {cancelInfo.remainingDays !== null && (
+                                    <View style={[styles.cancelRow, styles.cancelRowLast]}>
+                                        <Text style={[styles.cancelLabel, { color: colors.textSec }]}>Kalan Erişim</Text>
+                                        <View style={[styles.remainingBadge, {
+                                            backgroundColor: cancelInfo.remainingDays > 7 ? colors.success + '20' : colors.error + '20',
+                                        }]}>
+                                            <Text style={[styles.remainingText, {
+                                                color: cancelInfo.remainingDays > 7 ? colors.success : colors.error,
+                                            }]}>
+                                                {cancelInfo.remainingDays} gün kaldı
+                                            </Text>
+                                        </View>
+                                    </View>
+                                )}
+                                {!cancelInfo.contractEnd && (
+                                    <Text style={[styles.cancelNote, { color: colors.textSec }]}>
+                                        Taahhüt bilgisi bulunamadı.
                                     </Text>
                                 )}
                             </View>
                         </View>
+                    )}
+
+                    {/* 4. SONRAKİ ÖDEME KARTI */}
+                    <View style={[styles.nextPaymentCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+                        <View style={styles.cardHeader}>
+                            <Ionicons name="calendar-outline" size={16} color={colors.textSec} />
+                            <Text style={[styles.cardLabel, { color: colors.textSec }]}>SONRAKİ ÖDEME</Text>
+                        </View>
+                        {currentStatus === 'active' ? (
+                            <View style={styles.nextPaymentBody}>
+                                <Text style={[styles.nextPaymentDate, { color: colors.textMain }]}>
+                                    {nextDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })}
+                                </Text>
+                                <View style={[styles.daysLeftBadge, {
+                                    backgroundColor: daysLeft <= 3 ? colors.error + '20' : colors.success + '20',
+                                }]}>
+                                    <Text style={[styles.daysLeftText, { color: daysLeft <= 3 ? colors.error : colors.success }]}>
+                                        {daysLeft} gün kaldı
+                                    </Text>
+                                </View>
+                            </View>
+                        ) : (
+                            <Text style={[styles.nextPaymentDate, { color: colors.textSec, fontSize: 15 }]}>—</Text>
+                        )}
                     </View>
 
-                    {/* 3. KULLANIM GEÇMİŞİ GRAFİĞİ */}
+                    {/* 5. KULLANIM GEÇMİŞİ */}
                     <View style={[styles.sectionContainer, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
                         <View style={styles.sectionHeader}>
                             <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Kullanım Sıklığı</Text>
                             <Text style={[styles.sectionSubtitle, { color: colors.textSec }]}>Son 6 Ay</Text>
                         </View>
-
                         <View style={[styles.chartContainer, { backgroundColor: colors.inputBg }]}>
                             <View style={styles.chartRow}>
                                 {usageData.map((m, i) => {
-                                    let height: DimensionValue = '10%';        
-                                    let bgColor = colors.border; 
+                                    let height: DimensionValue = '10%';
+                                    let bgColor = colors.border;
                                     let labelColor = colors.textSec;
-
-                                    if (m.status === 'active') {
-                                        height = '80%'; 
-                                        bgColor = colors.success; 
-                                        labelColor = colors.success;
-                                    } else if (m.status === 'low') {
-                                        height = '45%'; 
-                                        bgColor = colors.accent; 
-                                        labelColor = colors.accent;
-                                    } else if (m.status === 'none') {
-                                        height = '20%'; 
-                                        bgColor = colors.error; 
-                                        labelColor = colors.error; 
-                                    }
-
+                                    if (m.status === 'active') { height = '80%'; bgColor = colors.success; labelColor = colors.success; }
+                                    else if (m.status === 'low') { height = '45%'; bgColor = colors.accent; labelColor = colors.accent; }
+                                    else if (m.status === 'none') { height = '20%'; bgColor = colors.error; labelColor = colors.error; }
                                     return (
                                         <View key={i} style={styles.barWrapper}>
                                             <View style={styles.barTrack}>
-                                                <View style={[styles.barFill, { height: height, backgroundColor: bgColor }]} />
+                                                <View style={[styles.barFill, { height, backgroundColor: bgColor }]} />
                                             </View>
                                             <Text style={[styles.barLabel, { color: labelColor }]}>{m.label}</Text>
                                         </View>
@@ -274,7 +383,6 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                                 })}
                             </View>
                         </View>
-                        
                         <View style={styles.legendRow}>
                             <View style={styles.legendItem}><View style={[styles.dot, { backgroundColor: colors.success }]} /><Text style={[styles.legendText, { color: colors.textSec }]}>Yoğun</Text></View>
                             <View style={styles.legendItem}><View style={[styles.dot, { backgroundColor: colors.accent }]} /><Text style={[styles.legendText, { color: colors.textSec }]}>Normal</Text></View>
@@ -282,12 +390,41 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                         </View>
                     </View>
 
-                    {/* YENİ: TAAHHÜT BİLGİSİ (Varsa Göster) */}
+                    {/* 6. BACKEND KULLANIM LOGLARI */}
+                    {(subscription.usageLogs && subscription.usageLogs.length > 0) && (
+                        <View style={[styles.sectionContainer, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+                            <View style={styles.sectionHeader}>
+                                <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Kayıtlı Kullanımlar</Text>
+                                <Text style={[styles.sectionSubtitle, { color: colors.textSec }]}>{subscription.usageLogs.length} kayıt</Text>
+                            </View>
+                            {subscription.usageLogs.map((log: ApiUsageLog) => (
+                                <View key={log.id} style={[styles.detailItem, { borderBottomColor: colors.border, borderBottomWidth: 1 }]}>
+                                    <View style={styles.detailLeft}>
+                                        <View style={[styles.iconBox, { backgroundColor: colors.inputBg }]}>
+                                            <Ionicons name="time-outline" size={18} color={colors.primary} />
+                                        </View>
+                                        <View>
+                                            <Text style={[styles.detailLabel, { color: colors.textMain }]}>
+                                                {new Date(log.date).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                            </Text>
+                                            {log.note ? <Text style={[styles.legendText, { color: colors.textSec }]}>{log.note}</Text> : null}
+                                        </View>
+                                    </View>
+                                    {log.amount != null && (
+                                        <Text style={[styles.detailValue, { color: colors.textSec }]}>
+                                            {log.amount} {log.unit ?? ''}
+                                        </Text>
+                                    )}
+                                </View>
+                            ))}
+                        </View>
+                    )}
+
+                    {/* 7. TAAHHÜT BİLGİSİ */}
                     {renderContractInfo()}
 
-                    {/* 4. DETAYLAR LİSTESİ */}
+                    {/* 8. DETAYLAR */}
                     <View style={[styles.sectionContainer, { backgroundColor: colors.cardBg, borderColor: colors.border, paddingVertical: 8 }]}>
-                        
                         <View style={[styles.detailItem, { borderBottomColor: colors.border, borderBottomWidth: 1 }]}>
                             <View style={styles.detailLeft}>
                                 <View style={[styles.iconBox, { backgroundColor: colors.inputBg }]}>
@@ -297,7 +434,6 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                             </View>
                             <Text style={[styles.detailValue, { color: colors.textSec }]}>{subscription.category}</Text>
                         </View>
-
                         <View style={[styles.detailItem, { borderBottomColor: colors.border, borderBottomWidth: partnersCount > 0 ? 1 : 0 }]}>
                             <View style={styles.detailLeft}>
                                 <View style={[styles.iconBox, { backgroundColor: colors.inputBg }]}>
@@ -309,7 +445,6 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                                 {partnersCount > 0 ? 'Ortak Plan' : 'Bireysel'}
                             </Text>
                         </View>
-
                         {partnersCount > 0 && (
                             <View style={styles.detailItem}>
                                 <View style={styles.detailLeft}>
@@ -339,20 +474,20 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 20,
-        paddingTop: Platform.OS === 'android' ? 20 : 20, 
+        paddingTop: Platform.OS === 'android' ? 20 : 20,
         paddingBottom: 10,
     },
     topBarActions: { flexDirection: 'row' },
     iconBtn: {
         width: 40,
         height: 40,
-        borderRadius: 20, 
+        borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    
-    heroSection: { alignItems: 'center', marginTop: 20, marginBottom: 30 },
-    heroDisabled: { opacity: 0.5 },
+
+    // Hero
+    heroSection: { alignItems: 'center', marginTop: 20, marginBottom: 28 },
     logoContainer: {
         width: 80,
         height: 80,
@@ -371,22 +506,155 @@ const styles = StyleSheet.create({
     heroCurrency: { fontSize: 18, fontWeight: '600', marginBottom: 8, marginRight: 4 },
     heroPrice: { fontSize: 42, fontWeight: '900', letterSpacing: -1 },
     heroPeriod: { fontSize: 14, fontWeight: '500', marginBottom: 10, marginLeft: 4 },
-    badge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12, marginTop: 8 },
-    badgeText: { color: '#FFF', fontSize: 12, fontWeight: '700' },
+    badge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 12,
+        paddingVertical: 5,
+        borderRadius: 12,
+        marginTop: 10,
+    },
+    badgeText: { fontSize: 12, fontWeight: '800', letterSpacing: 0.5 },
 
-    gridContainer: { flexDirection: 'row', paddingHorizontal: 20, marginBottom: 20 },
-    card: { borderRadius: 20, padding: 16, borderWidth: 1 },
-    cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, opacity: 0.8 },
-    cardLabel: { fontSize: 11, fontWeight: '700', marginLeft: 6, letterSpacing: 0.5 },
-    switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    cardValue: { fontSize: 16, fontWeight: '700' },
-    subValue: { fontSize: 11, fontWeight: '600', marginTop: 2 },
+    // Durum Kartı
+    statusCard: {
+        marginHorizontal: 20,
+        marginBottom: 14,
+        borderRadius: 20,
+        padding: 16,
+        borderWidth: 1,
+    },
+    cardHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    cardLabel: {
+        fontSize: 11,
+        fontWeight: '700',
+        marginLeft: 6,
+        letterSpacing: 0.5,
+    },
+    statusTabRow: {
+        flexDirection: 'row',
+        gap: 8,
+    },
+    statusTab: {
+        flex: 1,
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 12,
+        borderRadius: 14,
+        borderWidth: 1.5,
+        gap: 4,
+    },
+    statusTabText: {
+        fontSize: 11,
+        fontWeight: '700',
+        textAlign: 'center',
+    },
 
-    sectionContainer: { marginHorizontal: 20, marginBottom: 20, borderRadius: 24, padding: 20, borderWidth: 1 },
-    sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+    // İptal Kartı
+    cancelCard: {
+        marginHorizontal: 20,
+        marginBottom: 14,
+        borderRadius: 20,
+        padding: 16,
+        borderWidth: 1,
+    },
+    cancelCardHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 14,
+    },
+    cancelCardTitle: {
+        fontSize: 15,
+        fontWeight: '700',
+        marginLeft: 8,
+    },
+    cancelRows: {},
+    cancelRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 8,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(239,68,68,0.12)',
+    },
+    cancelRowLast: {
+        borderBottomWidth: 0,
+    },
+    cancelLabel: {
+        fontSize: 13,
+        fontWeight: '600',
+    },
+    cancelValue: {
+        fontSize: 13,
+        fontWeight: '700',
+    },
+    cancelNote: {
+        fontSize: 12,
+        fontWeight: '500',
+        marginTop: 4,
+        opacity: 0.7,
+    },
+    remainingBadge: {
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 10,
+    },
+    remainingText: {
+        fontSize: 12,
+        fontWeight: '800',
+    },
+
+    // Sonraki Ödeme
+    nextPaymentCard: {
+        marginHorizontal: 20,
+        marginBottom: 14,
+        borderRadius: 20,
+        padding: 16,
+        borderWidth: 1,
+    },
+    nextPaymentBody: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginTop: 4,
+    },
+    nextPaymentDate: {
+        fontSize: 18,
+        fontWeight: '700',
+    },
+    daysLeftBadge: {
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 10,
+    },
+    daysLeftText: {
+        fontSize: 12,
+        fontWeight: '800',
+    },
+
+    // Bölümler
+    sectionContainer: {
+        marginHorizontal: 20,
+        marginBottom: 14,
+        borderRadius: 24,
+        padding: 20,
+        borderWidth: 1,
+    },
+    sectionHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
     sectionTitle: { fontSize: 16, fontWeight: '700' },
     sectionSubtitle: { fontSize: 12, fontWeight: '500' },
 
+    // Grafik
     chartContainer: { borderRadius: 16, padding: 16, height: 140, justifyContent: 'flex-end' },
     chartRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', height: '100%' },
     barWrapper: { alignItems: 'center', flex: 1, height: '100%', justifyContent: 'flex-end' },
@@ -398,13 +666,14 @@ const styles = StyleSheet.create({
     dot: { width: 8, height: 8, borderRadius: 4, marginRight: 6 },
     legendText: { fontSize: 12, fontWeight: '500' },
 
+    // Detay Listesi
     detailItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14 },
     detailLeft: { flexDirection: 'row', alignItems: 'center' },
     iconBox: { width: 32, height: 32, borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
     detailLabel: { fontSize: 14, fontWeight: '600' },
     detailValue: { fontSize: 14, fontWeight: '500' },
 
-    // Contract Styles
+    // Taahhüt
     contractRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     contractItem: { flex: 1, alignItems: 'center' },
     contractLabel: { fontSize: 11, fontWeight: '700', marginBottom: 4, letterSpacing: 0.5 },

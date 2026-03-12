@@ -1,111 +1,138 @@
 import React from 'react';
-import { View, Text, Dimensions, StyleSheet } from 'react-native';
+import { View, Text, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import { PieChart } from 'react-native-chart-kit';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
-import { convertToTRY } from '../utils/CurrencyService';
+import { useThemeColors } from '../constants/theme';
 
 const screenWidth = Dimensions.get('window').width;
 
-// Renk Paleti (Kategoriler için)
-const CATEGORY_COLORS: Record<string, string> = {
-  'Streaming': '#E50914', // Kırmızı
-  'Music': '#1DB954',     // Yeşil
-  'GSM': '#FFC900',       // Sarı
-  'Cloud': '#00A8E8',     // Mavi
-  'Genel': '#bdc3c7',     // Gri
-  'Game': '#9b59b6'       // Mor
+export const CATEGORY_COLORS: Record<string, string> = {
+  'Streaming':    '#E50914',
+  'Music':        '#1DB954',
+  'GSM':          '#FFC900',
+  'Cloud':        '#00A8E8',
+  'Gaming':       '#9b59b6',
+  'Game':         '#9b59b6',
+  'Fitness':      '#FF6B35',
+  'Productivity': '#4ECDC4',
+  'News':         '#45B7D1',
+  'Education':    '#96CEB4',
+  'Diğer':        '#bdc3c7',
+  'Genel':        '#bdc3c7',
 };
 
-export default function ExpenseChart() {
-  const subscriptions = useUserSubscriptionStore((state) => state.subscriptions);
+const FALLBACK_COLORS = ['#6C5CE7', '#A29BFE', '#FD79A8', '#FDCB6E', '#00B894', '#E17055', '#74B9FF'];
 
-  // --- Veri Analizi ve Gruplama ---
+interface Props {
+  onCategoryPress?: (category: string) => void;
+  selectedCategory?: string | null;
+}
+
+export default function ExpenseChart({ onCategoryPress, selectedCategory }: Props) {
+  const colors = useThemeColors();
+  const { subscriptions, exchangeRates } = useUserSubscriptionStore();
+
+  // Kategori bazlı toplam hesapla (sadece aktif, kur dönüşümlü, paylaşım dahil)
   const categoryTotals: Record<string, number> = {};
+  subscriptions
+    .filter(s => s.isActive !== false)
+    .forEach(sub => {
+      const cat = sub.category || 'Diğer';
+      const rate = exchangeRates[sub.currency] || 1;
+      const amountInTry = sub.price * rate;
+      const partnerCount = sub.sharedWith?.length || 0;
+      const myShare = amountInTry / (partnerCount + 1);
+      categoryTotals[cat] = (categoryTotals[cat] || 0) + myShare;
+    });
 
-  subscriptions.forEach(sub => {
-    // 1. Kategoriyi belirle (Veri yoksa 'Genel' yap)
-    const cat = sub.category || 'Genel';
-    
-    // 2. Fiyatı TL'ye çevir
-    const amountInTry = convertToTRY(sub.price, sub.currency);
-
-    // 3. Topla
-    if (categoryTotals[cat]) {
-      categoryTotals[cat] += amountInTry;
-    } else {
-      categoryTotals[cat] = amountInTry;
-    }
-  });
-
-  // --- Grafik Verisine Dönüştürme ---
-  const chartData = Object.keys(categoryTotals).map((cat) => ({
+  const colorKeys = Object.keys(categoryTotals);
+  const chartData = colorKeys.map((cat, i) => ({
     name: cat,
-    population: parseFloat(categoryTotals[cat].toFixed(2)), // Tutar
-    color: CATEGORY_COLORS[cat] || `#${Math.floor(Math.random()*16777215).toString(16)}`, // Tanımlı renk yoksa rastgele
-    legendFontColor: "#7F7F7F",
-    legendFontSize: 12
+    population: parseFloat(categoryTotals[cat].toFixed(2)),
+    color: CATEGORY_COLORS[cat] || FALLBACK_COLORS[i % FALLBACK_COLORS.length],
+    legendFontColor: colors.textSec,
+    legendFontSize: 12,
   }));
 
-  // Eğer hiç veri yoksa boş dön
-  if (chartData.length === 0) {
-    return (
-        <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>Grafik için henüz veri yok.</Text>
-        </View>
-    );
-  }
+  if (chartData.length === 0) return null;
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Harcama Dağılımı (TL)</Text>
+    <View>
+      {/* Pasta Grafik */}
       <PieChart
         data={chartData}
-        width={screenWidth - 40} // Ekran genişliğinden biraz pay bırak
-        height={220}
+        width={screenWidth - 40}
+        height={190}
         chartConfig={{
-          backgroundColor: "#1cc910",
-          backgroundGradientFrom: "#eff3ff",
-          backgroundGradientTo: "#efefef",
           color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
         }}
-        accessor={"population"} // Veri değeri hangi alanda?
-        backgroundColor={"transparent"}
-        paddingLeft={"15"}
-        center={[10, 0]} // Ortala
-        absolute // Değerleri mutlak sayı olarak göster (Yüzde değil)
+        accessor="population"
+        backgroundColor="transparent"
+        paddingLeft="15"
+        center={[10, 0]}
+        absolute
+        hasLegend={false}
       />
+
+      {/* Tıklanabilir Özel Legend */}
+      <View style={styles.legendContainer}>
+        {chartData.map((item) => {
+          const isSelected = selectedCategory === item.name;
+          return (
+            <TouchableOpacity
+              key={item.name}
+              style={[
+                styles.legendItem,
+                { borderColor: isSelected ? item.color : 'transparent' },
+                isSelected && { backgroundColor: item.color + '18' },
+              ]}
+              onPress={() => onCategoryPress?.(item.name)}
+              activeOpacity={0.7}
+            >
+              <View style={[styles.legendDot, { backgroundColor: item.color }]} />
+              <Text style={[styles.legendName, { color: colors.textMain }]} numberOfLines={1}>
+                {item.name}
+              </Text>
+              <Text style={[styles.legendAmount, { color: item.color }]}>
+                {item.population.toFixed(0)} ₺
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 10,
-    marginTop: 20,
-    marginBottom: 10,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    alignItems: 'center'
+  legendContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 8,
+    gap: 8,
   },
-  title: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10,
-    alignSelf: 'flex-start',
-    marginLeft: 10
-  },
-  emptyContainer: {
-    padding: 20,
+  legendItem: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center'
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    gap: 6,
+    minWidth: 100,
   },
-  emptyText: {
-    color: '#999',
-    fontStyle: 'italic'
-  }
+  legendDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  legendName: {
+    fontSize: 12,
+    fontWeight: '600',
+    flex: 1,
+  },
+  legendAmount: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
 });

@@ -1,0 +1,52 @@
+import { ExpoConfig, ConfigContext } from 'expo/config';
+
+export default ({ config }: ConfigContext): ExpoConfig => ({
+  ...config,
+  name: 'SubGuardApp',
+  slug: 'SubGuardApp',
+  version: '1.0.0',
+  orientation: 'portrait',
+  icon: './assets/icon.png',
+  userInterfaceStyle: 'automatic', // dark mode desteği
+  newArchEnabled: true,
+  splash: {
+    image: './assets/splash-icon.png',
+    resizeMode: 'contain',
+    backgroundColor: '#ffffff',
+  },
+  ios: {
+    supportsTablet: true,
+    infoPlist: {
+      NSCalendarsUsageDescription:
+        'SubGuard, abonelik ödeme günlerinizi takvime işlemek için erişim ister.',
+      NSRemindersUsageDescription: 'SubGuard hatırlatmalar için erişim ister.',
+    },
+  },
+  android: {
+    adaptiveIcon: {
+      foregroundImage: './assets/adaptive-icon.png',
+      backgroundColor: '#ffffff',
+    },
+    edgeToEdgeEnabled: true,
+    predictiveBackGestureEnabled: false,
+    permissions: ['READ_CALENDAR', 'WRITE_CALENDAR'],
+  },
+  web: {
+    favicon: './assets/favicon.png',
+  },
+  plugins: [
+    'expo-secure-store',
+    '@react-native-community/datetimepicker',
+    [
+      'expo-calendar',
+      {
+        calendarPermission:
+          "SubGuard'ın ödeme günlerini takviminize işlemesi için izin veriyor musunuz?",
+        remindersPermission: 'Ödeme hatırlatmaları için izin veriyor musunuz?',
+      },
+    ],
+  ],
+  extra: {
+    apiUrl: process.env.EXPO_PUBLIC_API_URL,
+  },
+});
