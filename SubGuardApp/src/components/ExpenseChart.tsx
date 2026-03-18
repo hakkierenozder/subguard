@@ -2,24 +2,12 @@ import React from 'react';
 import { View, Text, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import { PieChart } from 'react-native-chart-kit';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
-import { useThemeColors } from '../constants/theme';
+import { useThemeColors, CATEGORY_COLORS } from '../constants/theme';
 
 const screenWidth = Dimensions.get('window').width;
 
-export const CATEGORY_COLORS: Record<string, string> = {
-  'Streaming':    '#E50914',
-  'Music':        '#1DB954',
-  'GSM':          '#FFC900',
-  'Cloud':        '#00A8E8',
-  'Gaming':       '#9b59b6',
-  'Game':         '#9b59b6',
-  'Fitness':      '#FF6B35',
-  'Productivity': '#4ECDC4',
-  'News':         '#45B7D1',
-  'Education':    '#96CEB4',
-  'Diğer':        '#bdc3c7',
-  'Genel':        '#bdc3c7',
-};
+// Re-export for backward compat with ReportsScreen import
+export { CATEGORY_COLORS };
 
 const FALLBACK_COLORS = ['#6C5CE7', '#A29BFE', '#FD79A8', '#FDCB6E', '#00B894', '#E17055', '#74B9FF'];
 
@@ -84,7 +72,7 @@ export default function ExpenseChart({ onCategoryPress, selectedCategory }: Prop
               style={[
                 styles.legendItem,
                 { borderColor: isSelected ? item.color : 'transparent' },
-                isSelected && { backgroundColor: item.color + '18' },
+                isSelected && { backgroundColor: item.color + '1A' },
               ]}
               onPress={() => onCategoryPress?.(item.name)}
               activeOpacity={0.7}

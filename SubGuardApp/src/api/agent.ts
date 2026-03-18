@@ -146,7 +146,7 @@ const Currencies = {
 
 // ─── Catalogs ─────────────────────────────────────────────────────────────────
 const Catalogs = {
-  list:    ()           => requests.get('/catalogs'),
+  list:    ()           => requests.get('/catalogs?page=1&pageSize=100'),
   details: (id: number) => requests.get(`/catalogs/${id}`),
 };
 

@@ -43,6 +43,34 @@ export const THEME = {
 
 
 // Dinamik Tema Hook'u
+// Merkezi kategori renk paleti (tüm ekranlar bu kaynaktan kullanır)
+export const CATEGORY_COLORS: Record<string, string> = {
+  // İngilizce anahtarlar (ExpenseChart / katalog)
+  Streaming:    '#E50914',
+  Music:        '#1DB954',
+  GSM:          '#FFC900',
+  Cloud:        '#00A8E8',
+  Gaming:       '#9B59B6',
+  Game:         '#9B59B6',
+  Fitness:      '#FF6B35',
+  Productivity: '#4ECDC4',
+  News:         '#45B7D1',
+  Education:    '#96CEB4',
+  // Türkçe anahtarlar (BudgetScreen / kullanıcı kategorileri)
+  Müzik:        '#EC4899',
+  Oyun:         '#F59E0B',
+  Yazılım:      '#10B981',
+  Eğitim:       '#3B82F6',
+  Haber:        '#8B5CF6',
+  // Genel
+  Diğer:        '#64748B',
+  Genel:        '#94A3B8',
+};
+
+export function getCategoryColor(category: string): string {
+  return CATEGORY_COLORS[category] ?? '#64748B';
+}
+
 export const useThemeColors = () => {
     const isDarkMode = useSettingsStore((state) => state.isDarkMode);
 

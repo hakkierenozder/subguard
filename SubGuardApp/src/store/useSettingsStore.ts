@@ -44,6 +44,10 @@ interface SettingsState {
   setAppLockEnabled: (v: boolean) => void;
   setAppLockMethod: (v: 'pin' | 'biometric') => void;
   setLockAfterMinutes: (v: 5 | 15 | 30 | 60) => void;
+
+  // Budget sync
+  monthlyBudget: number;
+  setMonthlyBudget: (v: number) => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -87,6 +91,9 @@ export const useSettingsStore = create<SettingsState>()(
       setAppLockEnabled: (v) => set({ appLockEnabled: v }),
       setAppLockMethod: (v) => set({ appLockMethod: v }),
       setLockAfterMinutes: (v) => set({ lockAfterMinutes: v }),
+
+      monthlyBudget: 0,
+      setMonthlyBudget: (v) => set({ monthlyBudget: v }),
     }),
     {
       name: 'subguard-settings-storage',

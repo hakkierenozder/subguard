@@ -86,7 +86,9 @@
       "Bash(powershell -Command \"docker exec subguard-db psql -U postgres -d SubGuardDb -c ''SELECT * FROM \"\"__EFMigrationsHistory\"\" ORDER BY \"\"MigrationId\"\" DESC;''\")",
       "Bash(powershell -Command \"New-Item -Path C:\\\\Users\\\\hakki\\\\AppData\\\\Local\\\\Temp -Name q.sql -ItemType File -Force; Set-Content -Path C:\\\\Users\\\\hakki\\\\AppData\\\\Local\\\\Temp\\\\q.sql -Value ''SELECT * FROM \"\"__EFMigrationsHistory\"\" ORDER BY 1 DESC LIMIT 5;'' -Encoding ASCII; Get-Content C:\\\\Users\\\\hakki\\\\AppData\\\\Local\\\\Temp\\\\q.sql\")",
       "Bash(powershell -Command \"docker cp C:\\\\Users\\\\hakki\\\\AppData\\\\Local\\\\Temp\\\\q.sql subguard-db:/tmp/q.sql; docker exec subguard-db psql -U postgres -d SubGuardDb -f /tmp/q.sql\")",
-      "Bash(powershell -Command \"docker cp C:\\\\Users\\\\hakki\\\\AppData\\\\Local\\\\Temp\\\\fix_billing.sql subguard-db:/tmp/fix_billing.sql; docker exec subguard-db psql -U postgres -d SubGuardDb -f /tmp/fix_billing.sql\")"
+      "Bash(powershell -Command \"docker cp C:\\\\Users\\\\hakki\\\\AppData\\\\Local\\\\Temp\\\\fix_billing.sql subguard-db:/tmp/fix_billing.sql; docker exec subguard-db psql -U postgres -d SubGuardDb -f /tmp/fix_billing.sql\")",
+      "WebSearch",
+      "Bash(find /c/Projects/SubGuard/SubGuard -type f -name *CatalogCard*)"
     ]
   }
 }

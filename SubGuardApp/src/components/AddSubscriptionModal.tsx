@@ -41,11 +41,13 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
   const [showShareInput, setShowShareInput] = useState(false);
 
   const isEditing = !!subscriptionToEdit;
-  const isCatalogItem = !!selectedCatalogItem; 
+  const isCatalogItem = !!selectedCatalogItem;
   const hasPlans = selectedCatalogItem?.plans && selectedCatalogItem.plans.length > 0;
+  const [imgFailed, setImgFailed] = useState(false);
 
   useEffect(() => {
     if (visible) {
+      setImgFailed(false);
       if (subscriptionToEdit) {
         setName(subscriptionToEdit.name);
         setPrice(subscriptionToEdit.price.toString());
@@ -148,13 +150,14 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
   const shareAmount = price ? (parseFloat(price) / (sharedWith.length + 1)).toFixed(2) : '0';
 
   const renderLogoSection = () => {
-    if (selectedCatalogItem?.logoUrl) {
+    if (selectedCatalogItem?.logoUrl && !imgFailed) {
        return (
-         <View style={[styles.logoContainer, { backgroundColor: colors.white }]}>
-            <Image 
-                source={{ uri: selectedCatalogItem.logoUrl }} 
-                style={styles.logoImage} 
+         <View style={[styles.logoContainer, { backgroundColor: colors.white, overflow: 'hidden' }]}>
+            <Image
+                source={{ uri: selectedCatalogItem.logoUrl }}
+                style={styles.logoImage}
                 resizeMode="contain"
+                onError={() => setImgFailed(true)}
             />
          </View>
        );
@@ -504,7 +507,7 @@ const styles = StyleSheet.create({
       shadowRadius: 8,
       elevation: 5,
   },
-  logoImage: { width: 64, height: 64, borderRadius: 20 },
+  logoImage: { width: '70%', height: '70%' },
   logoText: { fontSize: 28, fontWeight: '800', color: '#FFF' },
 
   titleContainer: { alignItems: 'center', marginBottom: 20, paddingHorizontal: 20 },

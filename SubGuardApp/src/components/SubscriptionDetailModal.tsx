@@ -1,7 +1,7 @@
-import React, { useMemo, useRef, useEffect } from 'react';
+import React, { useMemo, useRef, useEffect, useState } from 'react';
 import {
   View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView,
-  Alert, Dimensions, StatusBar, Platform, DimensionValue, Animated,
+  Alert, Dimensions, StatusBar, Platform, DimensionValue, Animated, Image,
 } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { UserSubscription, ApiUsageLog } from '../types';
@@ -9,6 +9,26 @@ import { Ionicons } from '@expo/vector-icons';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useThemeColors } from '../constants/theme';
+import { useCatalogStore } from '../store/useCatalogStore';
+
+function DetailLogo({ logoUrl, brandColor, name, size = 80 }: { logoUrl?: string; brandColor: string; name: string; size?: number }) {
+    const [imgFailed, setImgFailed] = useState(false);
+    if (logoUrl && !imgFailed) {
+        return (
+            <Image
+                source={{ uri: logoUrl }}
+                style={{ width: '72%', height: '72%' }}
+                resizeMode="contain"
+                onError={() => setImgFailed(true)}
+            />
+        );
+    }
+    return (
+        <Text style={{ fontSize: size * 0.4, fontWeight: 'bold', color: '#FFFFFF' }}>
+            {name.charAt(0).toUpperCase()}
+        </Text>
+    );
+}
 
 interface Props {
     visible: boolean;
@@ -25,6 +45,7 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
     const colors = useThemeColors();
     const isDarkMode = useSettingsStore((state) => state.isDarkMode);
     const { removeSubscription, updateSubscription, fetchUsageLogs } = useUserSubscriptionStore();
+    const { catalogItems } = useCatalogStore();
 
     // Canlı veri (store'dan)
     const liveSubscription = useUserSubscriptionStore((state) =>
@@ -145,6 +166,7 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
     const { nextDate, daysLeft } = getBillingData();
 
     const brandColor = subscription.colorCode || colors.primary;
+    const catalogLogoUrl = catalogItems.find(c => c.id === subscription.catalogId)?.logoUrl;
 
     // Durum sekmeleri config
 
@@ -217,10 +239,11 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                     {/* 1. HERO */}
                     <Animated.View style={[styles.heroSection, { opacity: heroOpacity }]}>
                         <View style={[styles.logoContainer, {
-                            backgroundColor: currentStatus === 'active' ? brandColor : colors.inactive,
+                            backgroundColor: currentStatus === 'active' ? (catalogLogoUrl ? colors.white : brandColor) : colors.inactive,
                             shadowColor: brandColor,
+                            overflow: 'hidden',
                         }]}>
-                            <Text style={styles.logoText}>{subscription.name.charAt(0).toUpperCase()}</Text>
+                            <DetailLogo logoUrl={catalogLogoUrl} brandColor={brandColor} name={subscription.name} />
                         </View>
                         <Text style={[styles.heroTitle, { color: colors.textMain }]}>{subscription.name}</Text>
                         <View style={styles.priceContainer}>
@@ -265,7 +288,7 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                                         style={[
                                             styles.statusTab,
                                             {
-                                                backgroundColor: isSelected ? tab.color + '18' : colors.inputBg,
+                                                backgroundColor: isSelected ? tab.color + '1A' : colors.inputBg,
                                                 borderColor: isSelected ? tab.color : colors.border,
                                             },
                                         ]}

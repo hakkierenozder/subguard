@@ -1,0 +1,1011 @@
+2026-03-16 20:58:22.406 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-16 20:58:22.557 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 229
+2026-03-16 20:58:59.722 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-16 20:58:59.832 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 229
+2026-03-16 20:59:54.039 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-16 20:59:54.147 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 229
+2026-03-16 21:00:01.185 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-16 21:00:01.296 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 229
+2026-03-16 21:00:07.616 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-16 21:00:08.687 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-16 21:00:08.706 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-16 21:00:08.983 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-16 21:00:08.985 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-16 21:00:08.986 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-16 21:00:08.987 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-16 21:00:08.987 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-16 21:00:08.988 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-16 21:00:09.006 +03:00 [INF] [User: ] Server desktop-25vqrpg:32220:cb8619e3 successfully announced in 8,507 ms
+2026-03-16 21:00:09.009 +03:00 [INF] [User: ] Server desktop-25vqrpg:32220:cb8619e3 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-16 21:00:09.013 +03:00 [INF] [User: ] Server desktop-25vqrpg:32220:cb8619e3 all the dispatchers started
+2026-03-16 21:00:17.300 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-16 21:00:17.580 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 292.0068 ms
+2026-03-16 21:00:17.580 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 292.0170 ms
+2026-03-16 21:00:17.584 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 297.0345 ms
+2026-03-16 21:00:17.722 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 80.9885 ms
+2026-03-16 21:00:20.472 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 79.9629 ms
+2026-03-16 21:00:23.889 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.2829 ms
+2026-03-16 21:00:23.894 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 11.4961 ms
+2026-03-16 21:00:23.921 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.1309 ms
+2026-03-16 21:00:25.469 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.6006 ms
+2026-03-16 21:00:25.471 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 12.4225 ms
+2026-03-16 21:00:25.500 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.2796 ms
+2026-03-16 21:01:35.723 +03:00 [INF] [User: ] Server desktop-25vqrpg:32220:cb8619e3 caught stopping signal...
+2026-03-16 21:01:35.726 +03:00 [INF] [User: ] Server desktop-25vqrpg:32220:cb8619e3 All dispatchers stopped
+2026-03-16 21:01:35.731 +03:00 [INF] [User: ] Server desktop-25vqrpg:32220:cb8619e3 successfully reported itself as stopped in 2,8215 ms
+2026-03-16 21:01:35.732 +03:00 [INF] [User: ] Server desktop-25vqrpg:32220:cb8619e3 has been stopped in total 7,4002 ms
+2026-03-16 21:01:42.162 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-16 21:01:42.269 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 229
+2026-03-16 21:02:18.138 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-16 21:02:18.256 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 229
+2026-03-16 21:02:35.090 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-16 21:02:35.216 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 229
+2026-03-16 21:04:59.315 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-16 21:05:00.452 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-16 21:05:00.472 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-16 21:05:00.757 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-16 21:05:00.758 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-16 21:05:00.759 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-16 21:05:00.760 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-16 21:05:00.761 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-16 21:05:00.762 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-16 21:05:00.781 +03:00 [INF] [User: ] Server desktop-25vqrpg:8144:662869c9 successfully announced in 9,0743 ms
+2026-03-16 21:05:00.783 +03:00 [INF] [User: ] Server desktop-25vqrpg:8144:662869c9 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-16 21:05:00.788 +03:00 [INF] [User: ] Server desktop-25vqrpg:8144:662869c9 all the dispatchers started
+2026-03-16 21:05:07.523 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-16 21:05:07.791 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 278.3199 ms
+2026-03-16 21:05:07.791 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 278.3318 ms
+2026-03-16 21:05:07.793 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 281.5514 ms
+2026-03-16 21:05:07.931 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 78.5490 ms
+2026-03-16 21:05:09.784 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 83.2486 ms
+2026-03-16 21:06:41.382 +03:00 [INF] [User: Hakkı Eren Özder] Abonelik eklendi. UserId: f72dc76e-4159-4db3-b8fa-0c0528bda8c1, Name: Spotify
+2026-03-16 21:06:41.391 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions responded 200 in 216.0914 ms
+2026-03-16 21:06:45.605 +03:00 [INF] [User: Hakkı Eren Özder] Güncel kurlar çekiliyor...
+2026-03-16 21:06:45.613 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 18.8129 ms
+2026-03-16 21:06:45.994 +03:00 [INF] [User: Hakkı Eren Özder] Kurlar güncellendi: {"USD":44.185,"EUR":50.716,"GBP":58.694}
+2026-03-16 21:06:46.001 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 405.4910 ms
+2026-03-16 21:06:46.095 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.0311 ms
+2026-03-16 21:12:18.970 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 6.2341 ms
+2026-03-16 21:12:19.035 +03:00 [INF] [User: Anonymous] Token atomik olarak yenilendi. UserId: f72dc76e-4159-4db3-b8fa-0c0528bda8c1
+2026-03-16 21:12:19.039 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 60.2547 ms
+2026-03-16 21:12:19.061 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.5071 ms
+2026-03-16 21:15:08.086 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.0354 ms
+2026-03-16 21:15:08.091 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.4333 ms
+2026-03-16 21:15:16.058 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 1.4480 ms
+2026-03-16 21:15:16.063 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.8172 ms
+2026-03-16 21:15:27.713 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.6501 ms
+2026-03-16 21:15:27.723 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.5953 ms
+2026-03-16 21:15:44.235 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.6813 ms
+2026-03-16 21:15:44.240 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.6851 ms
+2026-03-16 21:15:49.844 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.3606 ms
+2026-03-16 21:15:49.849 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.2072 ms
+2026-03-16 21:15:58.183 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.8378 ms
+2026-03-16 21:15:58.194 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 15.5349 ms
+2026-03-16 21:15:58.271 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.6683 ms
+2026-03-16 21:16:00.747 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/63/usage responded 200 in 21.6204 ms
+2026-03-16 21:16:05.432 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.0114 ms
+2026-03-16 21:16:05.437 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 10.1981 ms
+2026-03-16 21:16:05.516 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 10.7889 ms
+2026-03-16 21:16:10.926 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.9475 ms
+2026-03-16 21:16:10.931 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 8.3744 ms
+2026-03-16 21:16:10.999 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.0578 ms
+2026-03-16 21:16:15.850 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.9666 ms
+2026-03-16 21:16:15.853 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.3482 ms
+2026-03-16 21:16:15.924 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.1419 ms
+2026-03-16 21:16:28.463 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.2338 ms
+2026-03-16 21:16:28.467 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 8.4381 ms
+2026-03-16 21:16:28.539 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.8783 ms
+2026-03-16 21:16:35.769 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.8750 ms
+2026-03-16 21:16:35.774 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 10.4421 ms
+2026-03-16 21:16:35.844 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.1076 ms
+2026-03-16 21:17:03.504 +03:00 [INF] [User: ] Server desktop-25vqrpg:8144:662869c9 caught stopping signal...
+2026-03-16 21:17:03.507 +03:00 [INF] [User: ] Server desktop-25vqrpg:8144:662869c9 All dispatchers stopped
+2026-03-16 21:17:03.512 +03:00 [INF] [User: ] Server desktop-25vqrpg:8144:662869c9 successfully reported itself as stopped in 2,7978 ms
+2026-03-16 21:17:03.513 +03:00 [INF] [User: ] Server desktop-25vqrpg:8144:662869c9 has been stopped in total 7,4186 ms
+2026-03-16 21:17:07.974 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-16 21:17:09.047 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-16 21:17:09.068 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-16 21:17:09.357 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-16 21:17:09.358 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-16 21:17:09.359 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-16 21:17:09.360 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-16 21:17:09.361 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-16 21:17:09.362 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-16 21:17:09.378 +03:00 [INF] [User: ] Server desktop-25vqrpg:28632:6c58a98c successfully announced in 8,4055 ms
+2026-03-16 21:17:09.381 +03:00 [INF] [User: ] Server desktop-25vqrpg:28632:6c58a98c is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-16 21:17:09.386 +03:00 [INF] [User: ] Server desktop-25vqrpg:28632:6c58a98c all the dispatchers started
+2026-03-16 21:17:12.753 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-16 21:17:13.039 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 296.6735 ms
+2026-03-16 21:17:13.039 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 298.9019 ms
+2026-03-16 21:17:13.041 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 300.5425 ms
+2026-03-16 21:17:13.129 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 388.4309 ms
+2026-03-16 21:17:13.203 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 107.2592 ms
+2026-03-16 21:17:44.239 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.0641 ms
+2026-03-16 21:17:44.241 +03:00 [INF] [User: Hakkı Eren Özder] Güncel kurlar çekiliyor...
+2026-03-16 21:17:44.812 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/63/usage responded 200 in 22.7575 ms
+2026-03-16 21:17:45.221 +03:00 [INF] [User: Hakkı Eren Özder] Kurlar güncellendi: {"USD":44.185,"EUR":50.716,"GBP":58.694}
+2026-03-16 21:17:45.228 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 996.2766 ms
+2026-03-16 21:20:05.033 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 1.3273 ms
+2026-03-16 21:20:05.035 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.8026 ms
+2026-03-16 21:20:23.862 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.1965 ms
+2026-03-16 21:20:23.864 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 1.6381 ms
+2026-03-16 21:20:42.602 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.4108 ms
+2026-03-16 21:20:42.606 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 10.2056 ms
+2026-03-16 21:20:42.656 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.4012 ms
+2026-03-16 21:20:53.756 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.7865 ms
+2026-03-16 21:20:53.763 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.2696 ms
+2026-03-16 21:21:00.649 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.6031 ms
+2026-03-16 21:21:00.654 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.0962 ms
+2026-03-16 21:21:05.989 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.6594 ms
+2026-03-16 21:21:05.994 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.5640 ms
+2026-03-16 21:21:17.720 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.6463 ms
+2026-03-16 21:21:17.725 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.6752 ms
+2026-03-16 21:21:42.819 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.6002 ms
+2026-03-16 21:21:42.821 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.0432 ms
+2026-03-16 21:21:42.826 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 11.0093 ms
+2026-03-16 21:21:42.826 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.7732 ms
+2026-03-16 21:21:42.853 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 9.8340 ms
+2026-03-16 21:21:46.833 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.6953 ms
+2026-03-16 21:21:46.837 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.9799 ms
+2026-03-16 21:21:47.446 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/63/usage responded 200 in 3.4449 ms
+2026-03-16 21:23:33.581 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.7611 ms
+2026-03-16 21:23:34.558 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.8831 ms
+2026-03-16 21:23:36.647 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.2374 ms
+2026-03-16 21:24:06.020 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.8081 ms
+2026-03-16 21:24:06.020 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 9.3747 ms
+2026-03-16 21:24:06.104 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.9649 ms
+2026-03-16 21:24:54.051 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2936 ms
+2026-03-16 21:27:12.620 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.7067 ms
+2026-03-16 21:27:12.624 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.7608 ms
+2026-03-16 21:27:12.624 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.8978 ms
+2026-03-16 21:27:12.626 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.1571 ms
+2026-03-16 21:27:12.629 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 9.2098 ms
+2026-03-16 21:27:12.629 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 9.9698 ms
+2026-03-16 21:27:12.780 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.7828 ms
+2026-03-16 21:27:18.312 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.6862 ms
+2026-03-16 21:27:18.316 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.3131 ms
+2026-03-16 21:27:18.316 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.5707 ms
+2026-03-16 21:27:18.316 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.8325 ms
+2026-03-16 21:27:18.317 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.6183 ms
+2026-03-16 21:27:18.319 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.9291 ms
+2026-03-16 21:27:18.484 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.5795 ms
+2026-03-16 21:27:23.423 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.3430 ms
+2026-03-16 21:27:23.427 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.1975 ms
+2026-03-16 21:27:23.496 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.8095 ms
+2026-03-16 21:27:30.009 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.4714 ms
+2026-03-16 21:27:36.264 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.1614 ms
+2026-03-16 21:27:42.295 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.7284 ms
+2026-03-16 21:28:00.125 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 8.7119 ms
+2026-03-16 21:28:00.126 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 3.7455 ms
+2026-03-16 21:28:00.126 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.3313 ms
+2026-03-16 21:28:00.155 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.9857 ms
+2026-03-16 21:29:05.217 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.8468 ms
+2026-03-16 21:29:05.218 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 3.7613 ms
+2026-03-16 21:29:05.219 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 8.4083 ms
+2026-03-16 21:29:05.225 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.0831 ms
+2026-03-16 21:29:05.246 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.2704 ms
+2026-03-16 21:29:11.607 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.8842 ms
+2026-03-16 21:29:13.692 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.7403 ms
+2026-03-16 21:29:31.707 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.6804 ms
+2026-03-16 21:29:31.712 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.6092 ms
+2026-03-16 21:29:34.816 +03:00 [INF] [User: Hakkı Eren Özder] Abonelik silindi. UserId: f72dc76e-4159-4db3-b8fa-0c0528bda8c1, SubscriptionId: 63
+2026-03-16 21:29:34.818 +03:00 [INF] [User: ] HTTP DELETE /api/usersubscriptions/63 responded 204 in 105.2457 ms
+2026-03-16 21:29:36.163 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.7174 ms
+2026-03-16 21:29:36.167 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.6772 ms
+2026-03-16 21:29:36.244 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 3.9045 ms
+2026-03-16 21:30:38.147 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.3610 ms
+2026-03-16 21:30:38.636 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1656 ms
+2026-03-16 21:30:51.460 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.8571 ms
+2026-03-16 21:30:51.463 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.8126 ms
+2026-03-16 21:30:51.468 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 10.0803 ms
+2026-03-16 21:30:51.468 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 7.9140 ms
+2026-03-16 21:30:51.495 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.3519 ms
+2026-03-16 21:30:57.839 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1647 ms
+2026-03-16 21:31:09.047 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 21.4542 ms
+2026-03-16 21:31:09.056 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 401 in 27.1518 ms
+2026-03-16 21:31:09.296 +03:00 [INF] [User: Anonymous] Token atomik olarak yenilendi. UserId: b9e6ff87-3f77-4e13-9691-13b6aab43c65
+2026-03-16 21:31:09.302 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 133.9923 ms
+2026-03-16 21:31:09.337 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.2852 ms
+2026-03-16 21:31:17.899 +03:00 [INF] [User: Baran Dogan] Abonelik silindi. UserId: b9e6ff87-3f77-4e13-9691-13b6aab43c65, SubscriptionId: 62
+2026-03-16 21:31:17.901 +03:00 [INF] [User: ] HTTP DELETE /api/usersubscriptions/62 responded 204 in 11.1007 ms
+2026-03-16 21:31:18.952 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.5809 ms
+2026-03-16 21:31:20.281 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.0349 ms
+2026-03-16 21:31:20.286 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 8.7009 ms
+2026-03-16 21:31:20.659 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.1857 ms
+2026-03-16 21:31:32.320 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1798 ms
+2026-03-16 21:31:52.197 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1664 ms
+2026-03-16 21:32:03.014 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1772 ms
+2026-03-16 21:32:15.289 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1960 ms
+2026-03-16 21:32:26.194 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1663 ms
+2026-03-16 21:32:29.401 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1787 ms
+2026-03-16 21:33:26.300 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions responded 401 in 0.9472 ms
+2026-03-16 21:33:26.325 +03:00 [INF] [User: Anonymous] Token atomik olarak yenilendi. UserId: f72dc76e-4159-4db3-b8fa-0c0528bda8c1
+2026-03-16 21:33:26.327 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 12.1550 ms
+2026-03-16 21:33:26.433 +03:00 [INF] [User: Hakkı Eren Özder] Abonelik eklendi. UserId: f72dc76e-4159-4db3-b8fa-0c0528bda8c1, Name: Netflix
+2026-03-16 21:33:26.437 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions responded 200 in 84.0732 ms
+2026-03-16 21:33:36.654 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.5787 ms
+2026-03-16 21:33:36.655 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.5485 ms
+2026-03-16 21:33:37.357 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.3252 ms
+2026-03-16 21:33:38.361 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/64/usage responded 200 in 3.6668 ms
+2026-03-16 21:33:47.069 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 17.0270 ms
+2026-03-16 21:33:56.818 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.7770 ms
+2026-03-16 21:34:24.530 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.2094 ms
+2026-03-16 21:34:30.347 +03:00 [INF] [User: ] HTTP PUT /api/auth/profile responded 204 in 51.7389 ms
+2026-03-16 21:34:33.802 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.1363 ms
+2026-03-16 21:34:36.726 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.5432 ms
+2026-03-16 21:34:36.737 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 18.5041 ms
+2026-03-16 21:34:36.799 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.8898 ms
+2026-03-16 21:42:48.489 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1946 ms
+2026-03-16 21:42:51.184 +03:00 [INF] [User: Hakkı Eren Özder] Abonelik silindi. UserId: f72dc76e-4159-4db3-b8fa-0c0528bda8c1, SubscriptionId: 64
+2026-03-16 21:42:51.186 +03:00 [INF] [User: ] HTTP DELETE /api/usersubscriptions/64 responded 204 in 7.7832 ms
+2026-03-16 21:42:51.991 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.8355 ms
+2026-03-16 21:43:12.458 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1653 ms
+2026-03-16 21:43:21.542 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1696 ms
+2026-03-16 21:43:54.542 +03:00 [WRN] [User: Hakkı Eren Özder] Basarisiz giris denemesi. Email: ozdereren@gmail.com
+2026-03-16 21:43:54.544 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 400 in 73.6330 ms
+2026-03-16 21:44:05.343 +03:00 [WRN] [User: Hakkı Eren Özder] Basarisiz giris denemesi. Email: ozdereren@gmail.com
+2026-03-16 21:44:05.344 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 400 in 54.6566 ms
+2026-03-16 21:44:19.035 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2142 ms
+2026-03-16 21:44:23.449 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1878 ms
+2026-03-16 21:44:34.273 +03:00 [INF] [User: Hakkı Eren Özder] Kullanici giris yapti. Email: ozdereren@gmail.com
+2026-03-16 21:44:34.277 +03:00 [INF] [User: Hakkı Eren Özder] Token üretildi. UserId: f72dc76e-4159-4db3-b8fa-0c0528bda8c1
+2026-03-16 21:44:34.279 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 59.1147 ms
+2026-03-16 21:44:34.390 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.2166 ms
+2026-03-16 21:44:34.390 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 3.5520 ms
+2026-03-16 21:44:34.391 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 9.6358 ms
+2026-03-16 21:44:34.417 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.3760 ms
+2026-03-16 21:44:35.963 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.1104 ms
+2026-03-16 21:44:54.473 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1749 ms
+2026-03-16 21:45:15.157 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.6139 ms
+2026-03-16 21:45:15.159 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.0643 ms
+2026-03-16 21:45:16.565 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.5036 ms
+2026-03-16 21:45:18.502 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.8593 ms
+2026-03-16 21:45:47.739 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1659 ms
+2026-03-16 21:45:57.598 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1709 ms
+2026-03-16 21:46:20.371 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.1413 ms
+2026-03-16 21:46:25.836 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2287 ms
+2026-03-16 21:48:00.218 +03:00 [ERR] [User: Hakkı Eren Özder] Failed executing DbCommand (0ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = Int32), @p2='?' (DbType = DateTime), @p3='?' (DbType = Int32), @p4='?', @p5='?', @p6='?' (DbType = DateTime), @p7='?' (DbType = DateTime), @p8='?', @p9='?' (DbType = DateTime), @p10='?', @p11='?' (DbType = Boolean), @p12='?' (DbType = Boolean), @p13='?' (DbType = Boolean), @p14='?', @p15='?' (DbType = DateTime), @p16='?' (DbType = Decimal), @p17='?' (DbType = Object), @p18='?' (DbType = Int32), @p19='?', @p20='?' (DbType = DateTime), @p21='?' (DbType = Object), @p22='?'], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "UserSubscriptions" ("BillingDay", "BillingPeriod", "CancelledDate", "CatalogId", "Category", "ColorCode", "ContractEndDate", "ContractStartDate", "CreatedBy", "CreatedDate", "Currency", "HasContract", "IsActive", "IsDeleted", "Name", "PausedDate", "Price", "SharedWithJson", "Status", "UpdatedBy", "UpdatedDate", "UsageHistoryJson", "UserId")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22)
+RETURNING "Id";
+2026-03-16 21:48:00.265 +03:00 [ERR] [User: Hakkı Eren Özder] An exception occurred in the database while saving changes for context type 'AppDbContext'.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 23505: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 23505
+    MessageText: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+    Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+    SchemaName: public
+    TableName: UserSubscriptions
+    ConstraintName: UQ_UserSubscriptions_UserId_Name
+    File: nbtinsert.c
+    Line: 666
+    Routine: _bt_check_unique
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 23505: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 23505
+    MessageText: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+    Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+    SchemaName: public
+    TableName: UserSubscriptions
+    ConstraintName: UQ_UserSubscriptions_UserId_Name
+    File: nbtinsert.c
+    Line: 666
+    Routine: _bt_check_unique
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+2026-03-16 21:48:00.278 +03:00 [ERR] [User: Hakkı Eren Özder] Abonelik ekleme hatası. UserId: f72dc76e-4159-4db3-b8fa-0c0528bda8c1
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 23505: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 23505
+    MessageText: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+    Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+    SchemaName: public
+    TableName: UserSubscriptions
+    ConstraintName: UQ_UserSubscriptions_UserId_Name
+    File: nbtinsert.c
+    Line: 666
+    Routine: _bt_check_unique
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at SubGuard.Data.UnitOfWork.UnitOfWork.CommitAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Data\UnitOfWork\UnitOfWork.cs:line 23
+   at SubGuard.Service.Services.UserSubscriptionService.AddSubscriptionAsync(UserSubscriptionDto dto) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 79
+2026-03-16 21:48:00.318 +03:00 [ERR] [User: ] Bir hata oluştu: An error occurred while saving the entity changes. See the inner exception for details.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 23505: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 23505
+    MessageText: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+    Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+    SchemaName: public
+    TableName: UserSubscriptions
+    ConstraintName: UQ_UserSubscriptions_UserId_Name
+    File: nbtinsert.c
+    Line: 666
+    Routine: _bt_check_unique
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at SubGuard.Data.UnitOfWork.UnitOfWork.CommitAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Data\UnitOfWork\UnitOfWork.cs:line 23
+   at SubGuard.Service.Services.UserSubscriptionService.AddSubscriptionAsync(UserSubscriptionDto dto) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 79
+   at SubGuard.Service.Services.UserSubscriptionService.AddSubscriptionAsync(UserSubscriptionDto dto) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 89
+   at SubGuard.API.Controllers.UserSubscriptionsController.Save(UserSubscriptionDto dto) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Controllers\UserSubscriptionsController.cs:line 38
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_16>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 323
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+2026-03-16 21:48:00.351 +03:00 [ERR] [User: ] HTTP POST /api/usersubscriptions responded 500 in 160.8572 ms
+2026-03-16 21:48:21.442 +03:00 [ERR] [User: Hakkı Eren Özder] Failed executing DbCommand (0ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = Int32), @p2='?' (DbType = DateTime), @p3='?' (DbType = Int32), @p4='?', @p5='?', @p6='?' (DbType = DateTime), @p7='?' (DbType = DateTime), @p8='?', @p9='?' (DbType = DateTime), @p10='?', @p11='?' (DbType = Boolean), @p12='?' (DbType = Boolean), @p13='?' (DbType = Boolean), @p14='?', @p15='?' (DbType = DateTime), @p16='?' (DbType = Decimal), @p17='?' (DbType = Object), @p18='?' (DbType = Int32), @p19='?', @p20='?' (DbType = DateTime), @p21='?' (DbType = Object), @p22='?'], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "UserSubscriptions" ("BillingDay", "BillingPeriod", "CancelledDate", "CatalogId", "Category", "ColorCode", "ContractEndDate", "ContractStartDate", "CreatedBy", "CreatedDate", "Currency", "HasContract", "IsActive", "IsDeleted", "Name", "PausedDate", "Price", "SharedWithJson", "Status", "UpdatedBy", "UpdatedDate", "UsageHistoryJson", "UserId")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22)
+RETURNING "Id";
+2026-03-16 21:48:21.447 +03:00 [ERR] [User: Hakkı Eren Özder] An exception occurred in the database while saving changes for context type 'AppDbContext'.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 23505: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 23505
+    MessageText: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+    Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+    SchemaName: public
+    TableName: UserSubscriptions
+    ConstraintName: UQ_UserSubscriptions_UserId_Name
+    File: nbtinsert.c
+    Line: 666
+    Routine: _bt_check_unique
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 23505: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 23505
+    MessageText: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+    Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+    SchemaName: public
+    TableName: UserSubscriptions
+    ConstraintName: UQ_UserSubscriptions_UserId_Name
+    File: nbtinsert.c
+    Line: 666
+    Routine: _bt_check_unique
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+2026-03-16 21:48:21.458 +03:00 [ERR] [User: Hakkı Eren Özder] Abonelik ekleme hatası. UserId: f72dc76e-4159-4db3-b8fa-0c0528bda8c1
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 23505: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 23505
+    MessageText: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+    Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+    SchemaName: public
+    TableName: UserSubscriptions
+    ConstraintName: UQ_UserSubscriptions_UserId_Name
+    File: nbtinsert.c
+    Line: 666
+    Routine: _bt_check_unique
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at SubGuard.Data.UnitOfWork.UnitOfWork.CommitAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Data\UnitOfWork\UnitOfWork.cs:line 23
+   at SubGuard.Service.Services.UserSubscriptionService.AddSubscriptionAsync(UserSubscriptionDto dto) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 79
+2026-03-16 21:48:21.470 +03:00 [ERR] [User: ] Bir hata oluştu: An error occurred while saving the entity changes. See the inner exception for details.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 23505: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 23505
+    MessageText: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+    Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+    SchemaName: public
+    TableName: UserSubscriptions
+    ConstraintName: UQ_UserSubscriptions_UserId_Name
+    File: nbtinsert.c
+    Line: 666
+    Routine: _bt_check_unique
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at SubGuard.Data.UnitOfWork.UnitOfWork.CommitAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Data\UnitOfWork\UnitOfWork.cs:line 23
+   at SubGuard.Service.Services.UserSubscriptionService.AddSubscriptionAsync(UserSubscriptionDto dto) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 79
+   at SubGuard.Service.Services.UserSubscriptionService.AddSubscriptionAsync(UserSubscriptionDto dto) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 89
+   at SubGuard.API.Controllers.UserSubscriptionsController.Save(UserSubscriptionDto dto) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Controllers\UserSubscriptionsController.cs:line 38
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_16>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 323
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+2026-03-16 21:48:21.487 +03:00 [ERR] [User: ] HTTP POST /api/usersubscriptions responded 500 in 50.6780 ms
+2026-03-16 21:48:57.475 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2855 ms
+2026-03-16 21:49:09.190 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1895 ms
+2026-03-16 21:49:24.031 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.7288 ms
+2026-03-16 21:50:59.958 +03:00 [ERR] [User: Hakkı Eren Özder] Failed executing DbCommand (0ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = Int32), @p2='?' (DbType = DateTime), @p3='?' (DbType = Int32), @p4='?', @p5='?', @p6='?' (DbType = DateTime), @p7='?' (DbType = DateTime), @p8='?', @p9='?' (DbType = DateTime), @p10='?', @p11='?' (DbType = Boolean), @p12='?' (DbType = Boolean), @p13='?' (DbType = Boolean), @p14='?', @p15='?' (DbType = DateTime), @p16='?' (DbType = Decimal), @p17='?' (DbType = Object), @p18='?' (DbType = Int32), @p19='?', @p20='?' (DbType = DateTime), @p21='?' (DbType = Object), @p22='?'], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "UserSubscriptions" ("BillingDay", "BillingPeriod", "CancelledDate", "CatalogId", "Category", "ColorCode", "ContractEndDate", "ContractStartDate", "CreatedBy", "CreatedDate", "Currency", "HasContract", "IsActive", "IsDeleted", "Name", "PausedDate", "Price", "SharedWithJson", "Status", "UpdatedBy", "UpdatedDate", "UsageHistoryJson", "UserId")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22)
+RETURNING "Id";
+2026-03-16 21:50:59.963 +03:00 [ERR] [User: Hakkı Eren Özder] An exception occurred in the database while saving changes for context type 'AppDbContext'.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 23505: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 23505
+    MessageText: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+    Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+    SchemaName: public
+    TableName: UserSubscriptions
+    ConstraintName: UQ_UserSubscriptions_UserId_Name
+    File: nbtinsert.c
+    Line: 666
+    Routine: _bt_check_unique
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 23505: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 23505
+    MessageText: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+    Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+    SchemaName: public
+    TableName: UserSubscriptions
+    ConstraintName: UQ_UserSubscriptions_UserId_Name
+    File: nbtinsert.c
+    Line: 666
+    Routine: _bt_check_unique
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+2026-03-16 21:50:59.972 +03:00 [ERR] [User: Hakkı Eren Özder] Abonelik ekleme hatası. UserId: f72dc76e-4159-4db3-b8fa-0c0528bda8c1
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 23505: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 23505
+    MessageText: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+    Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+    SchemaName: public
+    TableName: UserSubscriptions
+    ConstraintName: UQ_UserSubscriptions_UserId_Name
+    File: nbtinsert.c
+    Line: 666
+    Routine: _bt_check_unique
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at SubGuard.Data.UnitOfWork.UnitOfWork.CommitAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Data\UnitOfWork\UnitOfWork.cs:line 23
+   at SubGuard.Service.Services.UserSubscriptionService.AddSubscriptionAsync(UserSubscriptionDto dto) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 79
+2026-03-16 21:50:59.983 +03:00 [ERR] [User: ] Bir hata oluştu: An error occurred while saving the entity changes. See the inner exception for details.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 23505: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 23505
+    MessageText: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+    Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+    SchemaName: public
+    TableName: UserSubscriptions
+    ConstraintName: UQ_UserSubscriptions_UserId_Name
+    File: nbtinsert.c
+    Line: 666
+    Routine: _bt_check_unique
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at SubGuard.Data.UnitOfWork.UnitOfWork.CommitAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Data\UnitOfWork\UnitOfWork.cs:line 23
+   at SubGuard.Service.Services.UserSubscriptionService.AddSubscriptionAsync(UserSubscriptionDto dto) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 79
+   at SubGuard.Service.Services.UserSubscriptionService.AddSubscriptionAsync(UserSubscriptionDto dto) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 89
+   at SubGuard.API.Controllers.UserSubscriptionsController.Save(UserSubscriptionDto dto) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Controllers\UserSubscriptionsController.cs:line 38
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_16>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 323
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+2026-03-16 21:50:59.998 +03:00 [ERR] [User: ] HTTP POST /api/usersubscriptions responded 500 in 45.3373 ms
+2026-03-16 21:51:02.866 +03:00 [ERR] [User: Hakkı Eren Özder] Failed executing DbCommand (0ms) [Parameters=[@p0='?' (DbType = Int32), @p1='?' (DbType = Int32), @p2='?' (DbType = DateTime), @p3='?' (DbType = Int32), @p4='?', @p5='?', @p6='?' (DbType = DateTime), @p7='?' (DbType = DateTime), @p8='?', @p9='?' (DbType = DateTime), @p10='?', @p11='?' (DbType = Boolean), @p12='?' (DbType = Boolean), @p13='?' (DbType = Boolean), @p14='?', @p15='?' (DbType = DateTime), @p16='?' (DbType = Decimal), @p17='?' (DbType = Object), @p18='?' (DbType = Int32), @p19='?', @p20='?' (DbType = DateTime), @p21='?' (DbType = Object), @p22='?'], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "UserSubscriptions" ("BillingDay", "BillingPeriod", "CancelledDate", "CatalogId", "Category", "ColorCode", "ContractEndDate", "ContractStartDate", "CreatedBy", "CreatedDate", "Currency", "HasContract", "IsActive", "IsDeleted", "Name", "PausedDate", "Price", "SharedWithJson", "Status", "UpdatedBy", "UpdatedDate", "UsageHistoryJson", "UserId")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22)
+RETURNING "Id";
+2026-03-16 21:51:02.870 +03:00 [ERR] [User: Hakkı Eren Özder] An exception occurred in the database while saving changes for context type 'AppDbContext'.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 23505: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 23505
+    MessageText: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+    Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+    SchemaName: public
+    TableName: UserSubscriptions
+    ConstraintName: UQ_UserSubscriptions_UserId_Name
+    File: nbtinsert.c
+    Line: 666
+    Routine: _bt_check_unique
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 23505: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 23505
+    MessageText: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+    Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+    SchemaName: public
+    TableName: UserSubscriptions
+    ConstraintName: UQ_UserSubscriptions_UserId_Name
+    File: nbtinsert.c
+    Line: 666
+    Routine: _bt_check_unique
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+2026-03-16 21:51:02.881 +03:00 [ERR] [User: Hakkı Eren Özder] Abonelik ekleme hatası. UserId: f72dc76e-4159-4db3-b8fa-0c0528bda8c1
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 23505: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 23505
+    MessageText: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+    Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+    SchemaName: public
+    TableName: UserSubscriptions
+    ConstraintName: UQ_UserSubscriptions_UserId_Name
+    File: nbtinsert.c
+    Line: 666
+    Routine: _bt_check_unique
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at SubGuard.Data.UnitOfWork.UnitOfWork.CommitAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Data\UnitOfWork\UnitOfWork.cs:line 23
+   at SubGuard.Service.Services.UserSubscriptionService.AddSubscriptionAsync(UserSubscriptionDto dto) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 79
+2026-03-16 21:51:02.893 +03:00 [ERR] [User: ] Bir hata oluştu: An error occurred while saving the entity changes. See the inner exception for details.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 23505: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 23505
+    MessageText: duplicate key value violates unique constraint "UQ_UserSubscriptions_UserId_Name"
+    Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+    SchemaName: public
+    TableName: UserSubscriptions
+    ConstraintName: UQ_UserSubscriptions_UserId_Name
+    File: nbtinsert.c
+    Line: 666
+    Routine: _bt_check_unique
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at SubGuard.Data.UnitOfWork.UnitOfWork.CommitAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Data\UnitOfWork\UnitOfWork.cs:line 23
+   at SubGuard.Service.Services.UserSubscriptionService.AddSubscriptionAsync(UserSubscriptionDto dto) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 79
+   at SubGuard.Service.Services.UserSubscriptionService.AddSubscriptionAsync(UserSubscriptionDto dto) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 89
+   at SubGuard.API.Controllers.UserSubscriptionsController.Save(UserSubscriptionDto dto) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Controllers\UserSubscriptionsController.cs:line 38
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_16>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 323
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+2026-03-16 21:51:02.907 +03:00 [ERR] [User: ] HTTP POST /api/usersubscriptions responded 500 in 47.1359 ms
+2026-03-16 21:53:43.751 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1915 ms
+2026-03-16 21:53:45.744 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.3272 ms
+2026-03-16 21:53:45.750 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 11.7458 ms
+2026-03-16 21:53:45.850 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.9416 ms
+2026-03-16 21:53:55.724 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1790 ms
+2026-03-16 21:54:10.981 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.3144 ms
+2026-03-16 21:55:36.298 +03:00 [INF] [User: Hakkı Eren Özder] Abonelik eklendi. UserId: f72dc76e-4159-4db3-b8fa-0c0528bda8c1, Name: Netflix
+2026-03-16 21:55:36.300 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions responded 200 in 9.7061 ms
+2026-03-16 21:55:59.257 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/69/usage responded 200 in 3.4463 ms
+2026-03-16 21:56:52.151 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 4.3354 ms
+2026-03-16 21:58:57.921 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.4936 ms
+2026-03-16 21:59:11.679 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1713 ms
+2026-03-16 21:59:40.311 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.8107 ms
+2026-03-16 21:59:40.316 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 11.7631 ms
+2026-03-16 21:59:40.406 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.8932 ms
+2026-03-16 21:59:41.790 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 3.7757 ms
+2026-03-16 21:59:53.000 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/69/usage responded 200 in 3.7528 ms
+2026-03-16 21:59:57.197 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.1546 ms

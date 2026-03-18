@@ -284,11 +284,10 @@ namespace SubGuard.Service.Services
 
         public async Task<CustomResponseDto<PagedResponseDto<UserSubscriptionDto>>> GetSharedWithMeAsync(string userId, int page, int pageSize)
         {
-            // JSON dizisinde userId tam eşleşmeli arama: ["userId"] formatında çift tırnak ile sınırlandırılmış
-            // Contains(userId) → LIKE '%userId%' (substring, false positive verir)
-            // Contains($"\"{userId}\"") → LIKE '%"userId"%' (JSON string değeri, çok daha güvenli)
-            var quotedUserId = $"\"{userId}\"";
-            var query = _repo.Where(x => x.IsActive && x.SharedWithJson != null && x.SharedWithJson.Contains(quotedUserId))
+            // SharedWithJson jsonb tipinde tutulduğundan EF Core'un üreteceği strpos() çağrısı
+            // PostgreSQL tarafından jsonb → text implicit cast hatası verir (22P02).
+            // DB'de yalnızca NULL olmayan kayıtları çekip kesin filtreyi in-memory yapıyoruz.
+            var query = _repo.Where(x => x.IsActive && x.SharedWithJson != null)
                              .Include(x => x.Catalog);
 
             var subscriptions = await query

@@ -1,0 +1,161 @@
+2026-03-16 20:19:44.620 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-16 20:19:50.510 +03:00 [ERR] [User: ] An error occurred using the connection to database 'SubGuardDb' on server ''.
+2026-03-16 20:19:50.529 +03:00 [ERR] [User: ] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+System.InvalidOperationException: An exception has been raised that is likely due to a transient failure.
+ ---> Npgsql.NpgsqlException (0x80004005): Failed to connect to 127.0.0.1:5432
+ ---> System.Net.Sockets.SocketException (10061): Hedef makine etkin olarak reddettiğinden bağlantı kurulamadı.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Sockets.Socket.<ConnectAsync>g__WaitForConnectWithCancellation|281_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)
+   at Npgsql.TaskTimeoutAndCancellation.ExecuteAsync(Func`2 getTaskFunc, NpgsqlTimeout timeout, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.ConnectAsync(NpgsqlTimeout timeout, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.ConnectAsync(NpgsqlTimeout timeout, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.RawOpen(SslMode sslMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken, Boolean isFirstAttempt)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|204_1(NpgsqlConnector conn, SslMode sslMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken, Boolean isFirstAttempt)
+   at Npgsql.Internal.NpgsqlConnector.Open(NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.OpenNewConnector(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.<Get>g__RentAsync|28_0(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.<Open>g__OpenAsync|45_0(Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: An exception has been raised that is likely due to a transient failure.
+ ---> Npgsql.NpgsqlException (0x80004005): Failed to connect to 127.0.0.1:5432
+ ---> System.Net.Sockets.SocketException (10061): Hedef makine etkin olarak reddettiğinden bağlantı kurulamadı.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Sockets.Socket.<ConnectAsync>g__WaitForConnectWithCancellation|281_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)
+   at Npgsql.TaskTimeoutAndCancellation.ExecuteAsync(Func`2 getTaskFunc, NpgsqlTimeout timeout, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.ConnectAsync(NpgsqlTimeout timeout, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.ConnectAsync(NpgsqlTimeout timeout, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.RawOpen(SslMode sslMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken, Boolean isFirstAttempt)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|204_1(NpgsqlConnector conn, SslMode sslMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken, Boolean isFirstAttempt)
+   at Npgsql.Internal.NpgsqlConnector.Open(NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.OpenNewConnector(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.<Get>g__RentAsync|28_0(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.<Open>g__OpenAsync|45_0(Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+2026-03-16 20:19:50.544 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+System.InvalidOperationException: An exception has been raised that is likely due to a transient failure.
+ ---> Npgsql.NpgsqlException (0x80004005): Failed to connect to 127.0.0.1:5432
+ ---> System.Net.Sockets.SocketException (10061): Hedef makine etkin olarak reddettiğinden bağlantı kurulamadı.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Sockets.Socket.<ConnectAsync>g__WaitForConnectWithCancellation|281_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)
+   at Npgsql.TaskTimeoutAndCancellation.ExecuteAsync(Func`2 getTaskFunc, NpgsqlTimeout timeout, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.ConnectAsync(NpgsqlTimeout timeout, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.ConnectAsync(NpgsqlTimeout timeout, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.RawOpen(SslMode sslMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken, Boolean isFirstAttempt)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|204_1(NpgsqlConnector conn, SslMode sslMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken, Boolean isFirstAttempt)
+   at Npgsql.Internal.NpgsqlConnector.Open(NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.OpenNewConnector(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.<Get>g__RentAsync|28_0(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.<Open>g__OpenAsync|45_0(Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Identity.RoleManager`1.RoleExistsAsync(String roleName)
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 250
+2026-03-16 20:20:29.106 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-16 20:20:30.787 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-16 20:20:30.811 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-16 20:20:31.339 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-16 20:20:31.340 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-16 20:20:31.341 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-16 20:20:31.342 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-16 20:20:31.343 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-16 20:20:31.344 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-16 20:20:31.368 +03:00 [INF] [User: ] Server desktop-25vqrpg:32976:b097b570 successfully announced in 11,1667 ms
+2026-03-16 20:20:31.371 +03:00 [INF] [User: ] Server desktop-25vqrpg:32976:b097b570 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-16 20:20:31.375 +03:00 [INF] [User: ] Server desktop-25vqrpg:32976:b097b570 all the dispatchers started
+2026-03-16 20:20:31.376 +03:00 [INF] [User: ] 1 servers were removed due to timeout
+2026-03-16 20:20:31.399 +03:00 [INF] [User: ] Removed 1 outdated record(s) from 'aggregatedcounter' table.
+2026-03-16 20:20:31.547 +03:00 [INF] [User: ] Güncel kurlar çekiliyor...
+2026-03-16 20:20:31.658 +03:00 [INF] [User: ] Süresi dolmuş 1 refresh token temizlendi.
+2026-03-16 20:20:32.431 +03:00 [INF] [User: ] Removed 4 outdated record(s) from 'job' table.
+2026-03-16 20:20:32.735 +03:00 [INF] [User: ] Kurlar güncellendi: {"USD":44.185,"EUR":50.716,"GBP":58.694}
+2026-03-16 20:22:30.486 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-16 20:22:30.524 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 52.1876 ms
+2026-03-16 20:23:23.007 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 72.0286 ms
+2026-03-16 20:23:23.007 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 401 in 82.5279 ms
+2026-03-16 20:23:23.007 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 401 in 71.6350 ms
+2026-03-16 20:23:23.214 +03:00 [INF] [User: Anonymous] Token atomik olarak yenilendi. UserId: b9e6ff87-3f77-4e13-9691-13b6aab43c65
+2026-03-16 20:23:23.235 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 200.6294 ms
+2026-03-16 20:23:23.327 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 49.4642 ms
+2026-03-16 20:23:23.350 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 67.3557 ms
+2026-03-16 20:23:23.375 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 102.4203 ms
+2026-03-16 20:23:23.569 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 146.1275 ms
+2026-03-16 20:23:34.536 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 63.2870 ms
+2026-03-16 20:27:16.068 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.7376 ms
+2026-03-16 20:27:16.069 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.3422 ms
+2026-03-16 20:27:16.075 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 12.9349 ms
+2026-03-16 20:27:16.170 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.8235 ms
+2026-03-16 20:27:27.309 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.5339 ms
+2026-03-16 20:27:27.310 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 10.9246 ms
+2026-03-16 20:27:27.394 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.3078 ms
+2026-03-16 20:27:39.266 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.2335 ms
+2026-03-16 20:27:39.271 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 8.8059 ms
+2026-03-16 20:27:39.338 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.9875 ms
+2026-03-16 20:27:53.740 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.7667 ms
+2026-03-16 20:27:53.740 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 9.2220 ms
+2026-03-16 20:27:53.815 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.4778 ms
+2026-03-16 20:28:05.357 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 8.1054 ms
+2026-03-16 20:28:05.365 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.1207 ms
+2026-03-16 20:28:05.448 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.2468 ms
+2026-03-16 20:28:15.793 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.4556 ms
+2026-03-16 20:28:15.796 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 9.4351 ms
+2026-03-16 20:28:15.878 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.9461 ms
+2026-03-16 20:30:30.395 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.5658 ms
+2026-03-16 20:30:30.398 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 8.5823 ms
+2026-03-16 20:30:30.401 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.1414 ms
+2026-03-16 20:30:30.489 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.4299 ms
+2026-03-16 20:30:42.831 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.0206 ms
+2026-03-16 20:30:48.409 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.2355 ms
+2026-03-16 20:30:48.416 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 7.7058 ms
+2026-03-16 20:32:08.780 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.1045 ms
+2026-03-16 20:32:08.782 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 11.0985 ms
+2026-03-16 20:32:08.927 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 11.6575 ms
+2026-03-16 20:32:19.429 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 8.5423 ms
+2026-03-16 20:32:19.432 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.4571 ms
+2026-03-16 20:32:19.603 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.7985 ms
+2026-03-16 20:32:27.585 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.0699 ms
+2026-03-16 20:32:27.585 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 9.8792 ms
+2026-03-16 20:32:27.751 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.3930 ms
+2026-03-16 20:33:44.902 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.6462 ms
+2026-03-16 20:33:44.908 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 10.1366 ms
+2026-03-16 20:33:44.913 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.8021 ms
+2026-03-16 20:33:44.998 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.3691 ms
+2026-03-16 20:33:50.680 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 4.2837 ms
+2026-03-16 20:34:06.774 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.3272 ms
+2026-03-16 20:34:06.782 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.3852 ms
+2026-03-16 20:34:09.029 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/62/usage responded 200 in 16.9648 ms
+2026-03-16 20:43:52.321 +03:00 [INF] [User: ] Server desktop-25vqrpg:32976:b097b570 caught stopping signal...
+2026-03-16 20:43:52.324 +03:00 [INF] [User: ] Server desktop-25vqrpg:32976:b097b570 All dispatchers stopped
+2026-03-16 20:43:52.330 +03:00 [INF] [User: ] Server desktop-25vqrpg:32976:b097b570 successfully reported itself as stopped in 2,7972 ms
+2026-03-16 20:43:52.331 +03:00 [INF] [User: ] Server desktop-25vqrpg:32976:b097b570 has been stopped in total 8,5887 ms

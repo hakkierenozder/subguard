@@ -1,41 +1,49 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl, StatusBar, TouchableOpacity, Animated, Easing } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, StatusBar, TouchableOpacity, Animated, Easing, Platform, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useCatalogStore } from '../store/useCatalogStore';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import { useSettingsStore } from '../store/useSettingsStore';
+import { useNotificationStore } from '../store/useNotificationStore';
 import { CatalogItem, UserSubscription } from '../types';
 import { RootStackParamList } from '../../App';
 import AddSubscriptionModal from '../components/AddSubscriptionModal';
 import UsageSurveyModal from '../components/UsageSurveyModal';
-import CatalogExplore from '../components/CatalogExplore';
 import EmptyState from '../components/EmptyState';
 import agent from '../api/agent';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemeColors } from '../constants/theme';
+import { useCatalogStore } from '../store/useCatalogStore';
 
-// ─── Akıllı Öneri tipi ─────────────────────────────────────────────────
-interface Suggestion {
-    id: string;
-    icon: string;
-    iconColor: string;
-    iconBg: string;
-    accentColor: string;
-    title: string;
-    subtitle: string;
-    onPress: () => void;
+function UpcomingPaymentLogo({ logoUrl, colorCode, name }: { logoUrl?: string; colorCode: string; name: string }) {
+  const [imgFailed, setImgFailed] = useState(false);
+  if (logoUrl && !imgFailed) {
+    return (
+      <Image
+        source={{ uri: logoUrl }}
+        style={{ width: '75%', height: '75%' }}
+        resizeMode="contain"
+        onError={() => setImgFailed(true)}
+      />
+    );
+  }
+  return (
+    <Text style={{ fontSize: 16, fontWeight: '800', color: colorCode }}>
+      {name.charAt(0)}
+    </Text>
+  );
 }
 
 export default function HomeScreen() {
     const colors = useThemeColors();
     const isDarkMode = useSettingsStore((state) => state.isDarkMode);
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+    const unreadCount = useNotificationStore((s) => s.unreadCount);
+    const { catalogItems, fetchCatalog } = useCatalogStore();
 
     // Store'lar
-    const { fetchCatalog } = useCatalogStore();
     const {
         subscriptions,
         loading,
@@ -54,39 +62,39 @@ export default function HomeScreen() {
 
     const [refreshing, setRefreshing] = useState(false);
     const [surveySub, setSurveySub] = useState<UserSubscription | null>(null);
-    const [monthlyBudget, setMonthlyBudget] = useState(0);
+    const { monthlyBudget, setMonthlyBudget } = useSettingsStore();
 
     useEffect(() => {
         loadData();
+        if (catalogItems.length === 0) fetchCatalog();
     }, []);
 
     const loadData = async () => {
         try {
-            // Dashboard + profil paralel çek
+            // Dashboard tek çağrıda hem bütçe özetini hem yaklaşan ödeme verisini döner.
+            // Profil sadece kullanıcı adı için çekiliyor.
             const [dashRes, profileRes] = await Promise.allSettled([
                 agent.Dashboard.get(30),
                 agent.Auth.getProfile(),
             ]);
 
+            // Kullanıcı adı → profil'den
             if (profileRes.status === 'fulfilled' && profileRes.value?.data) {
                 setUserName(profileRes.value.data.fullName);
-                setMonthlyBudget(profileRes.value.data.monthlyBudget || 0);
             }
 
-            // Dashboard'dan bütçe bilgisi varsa profil değerini override et
-            // DashboardDto yapısı: { budgetSummary: { monthlyBudget, ... } }
+            // Bütçe → dashboard tek kaynak (profil fallback)
             const budgetSummary = dashRes.status === 'fulfilled'
                 ? dashRes.value?.data?.budgetSummary
                 : null;
             if (budgetSummary?.monthlyBudget) {
                 setMonthlyBudget(Number(budgetSummary.monthlyBudget));
+            } else if (profileRes.status === 'fulfilled' && profileRes.value?.data?.monthlyBudget) {
+                setMonthlyBudget(profileRes.value.data.monthlyBudget);
             }
         } catch (e) { }
 
-        await Promise.all([
-            fetchCatalog(),
-            fetchUserSubscriptions(),
-        ]);
+        await fetchUserSubscriptions();
         checkSurvey();
     };
 
@@ -103,17 +111,9 @@ export default function HomeScreen() {
         }
     };
 
-    // --- Abonelik Ekleme Fonksiyonları ---
-    
-    // 1. Katalogdan Seçilince
-    const handleSelectFromCatalog = (item: CatalogItem) => {
-        setSelectedCatalogItem(item);
-        setModalVisible(true);
-    };
-
-    // 2. Manuel (Özel) Ekleme Butonuna Basılınca
+    // --- Abonelik Ekleme ---
     const handleCreateCustom = () => {
-        setSelectedCatalogItem(null); // Katalog öğesi yok, yani Custom mod
+        setSelectedCatalogItem(null);
         setModalVisible(true);
     };
 
@@ -167,135 +167,7 @@ export default function HomeScreen() {
     const thisWeekTotal  = thisWeekPayments.reduce((sum, s) => sum + s.price, 0);
     const thisMonthTotal = thisMonthPayments.reduce((sum, s) => sum + s.price, 0);
 
-    // Quick Stats hesaplamaları
-    const avgPerSub = activeCount > 0 ? totalExpense / activeCount : 0;
     const categoryCount = new Set(subscriptions.filter(s => s.isActive !== false).map(s => s.category)).size;
-
-    // Stats kart animasyonları
-    const statsAnims = useRef(
-        Array.from({ length: 4 }, () => new Animated.Value(0))
-    ).current;
-
-    useEffect(() => {
-        statsAnims.forEach(a => a.setValue(0));
-        Animated.stagger(80, statsAnims.map(a =>
-            Animated.spring(a, { toValue: 1, useNativeDriver: true, tension: 60, friction: 8 })
-        )).start();
-    }, [subscriptions]);
-
-    // ─── Akıllı Öneriler ──────────────────────────────────────────────────
-    const currentMonth = new Date().toISOString().slice(0, 7); // "2026-03"
-
-    const suggestions = useMemo<Suggestion[]>(() => {
-        const result: Suggestion[] = [];
-
-        // 1. Bütçe uyarıları
-        if (monthlyBudget > 0) {
-            if (budgetPercentage >= 100) {
-                result.push({
-                    id: 'budget_exceeded',
-                    icon: 'warning-outline',
-                    iconColor: '#EF4444',
-                    iconBg: '#FEE2E2',
-                    accentColor: '#EF4444',
-                    title: 'Bütçe Aşıldı!',
-                    subtitle: `Bu ay ${(totalExpense - monthlyBudget).toFixed(0)} ₺ fazla harcadınız`,
-                    onPress: () => (navigation as any).navigate('Budget'),
-                });
-            } else if (budgetPercentage >= 90) {
-                result.push({
-                    id: 'budget_90',
-                    icon: 'trending-up-outline',
-                    iconColor: '#F97316',
-                    iconBg: '#FFEDD5',
-                    accentColor: '#F97316',
-                    title: 'Bütçe Limitine Yaklaşıyorsunuz',
-                    subtitle: `Bütçenizin %${budgetPercentage.toFixed(0)}'ini kullandınız`,
-                    onPress: () => (navigation as any).navigate('Budget'),
-                });
-            } else if (budgetPercentage >= 80) {
-                result.push({
-                    id: 'budget_80',
-                    icon: 'alert-circle-outline',
-                    iconColor: '#FBBF24',
-                    iconBg: '#FEF9C3',
-                    accentColor: '#FBBF24',
-                    title: 'Bütçenizi Takip Edin',
-                    subtitle: `Bütçenizin %${budgetPercentage.toFixed(0)}'ini kullandınız`,
-                    onPress: () => (navigation as any).navigate('Budget'),
-                });
-            }
-        }
-
-        // 2. Kullanılmayan abonelikler
-        const unusedSubs = subscriptions.filter(s => {
-            if (s.isActive === false) return false;
-            const history = s.usageHistory ?? [];
-            if (history.length === 0) return false; // Henüz hiç survey görmemiş
-            const thisMonthLog = history.find(h => h.month === currentMonth);
-            return thisMonthLog?.status === 'none';
-        });
-
-        if (unusedSubs.length >= 2) {
-            result.push({
-                id: 'unused_multi',
-                icon: 'eye-off-outline',
-                iconColor: '#8B5CF6',
-                iconBg: '#EDE9FE',
-                accentColor: '#8B5CF6',
-                title: `${unusedSubs.length} Abonelik Kullanılmıyor`,
-                subtitle: 'Bu ay kullanım kaydı yok, iptal etmeyi düşünebilirsiniz',
-                onPress: () => (navigation as any).navigate('Subscriptions'),
-            });
-        } else if (unusedSubs.length === 1) {
-            result.push({
-                id: 'unused_single',
-                icon: 'eye-off-outline',
-                iconColor: '#8B5CF6',
-                iconBg: '#EDE9FE',
-                accentColor: '#8B5CF6',
-                title: `"${unusedSubs[0].name}" Kullanılmıyor`,
-                subtitle: 'Bu ay hiç kullanım kaydı yok',
-                onPress: () => (navigation as any).navigate('Subscriptions'),
-            });
-        }
-
-        // 3. En pahalı kategori (toplam harcamanın %50'sini geçiyorsa)
-        const activeSubs = subscriptions.filter(s => s.isActive !== false);
-        if (activeSubs.length >= 3 && totalExpense > 0) {
-            const catTotals: Record<string, number> = {};
-            activeSubs.forEach(s => {
-                if (s.category) catTotals[s.category] = (catTotals[s.category] ?? 0) + s.price;
-            });
-            const top = Object.entries(catTotals).sort((a, b) => b[1] - a[1])[0];
-            if (top && top[1] / totalExpense > 0.5) {
-                result.push({
-                    id: 'top_category',
-                    icon: 'pie-chart-outline',
-                    iconColor: '#0EA5E9',
-                    iconBg: '#E0F2FE',
-                    accentColor: '#0EA5E9',
-                    title: `${top[0]} En Büyük Harcama Kalemin`,
-                    subtitle: `Toplam harcamanın %${((top[1] / totalExpense) * 100).toFixed(0)}'i bu kategoride (${top[1].toFixed(0)} ₺)`,
-                    onPress: () => (navigation as any).navigate('Reports'),
-                });
-            }
-        }
-
-        return result.slice(0, 3);
-    }, [subscriptions, budgetPercentage, monthlyBudget, totalExpense, currentMonth]);
-
-    // Öneri kart animasyonları
-    const suggestAnims = useRef(
-        Array.from({ length: 3 }, () => new Animated.Value(0))
-    ).current;
-
-    useEffect(() => {
-        suggestAnims.forEach(a => a.setValue(0));
-        Animated.stagger(100, suggestAnims.slice(0, suggestions.length).map(a =>
-            Animated.spring(a, { toValue: 1, useNativeDriver: true, tension: 55, friction: 8 })
-        )).start();
-    }, [suggestions.length]);
 
     // Animasyon değerleri (max 8 kart)
     const cardAnims = useRef(
@@ -334,8 +206,35 @@ export default function HomeScreen() {
                         <Text style={[styles.greeting, { color: colors.textSec }]}>Tekrar hoş geldin,</Text>
                         <Text style={[styles.username, { color: colors.textMain }]}>{userName.split(' ')[0] || 'Kullanıcı'}</Text>
                     </View>
-                    <View style={[styles.avatar, { backgroundColor: colors.inputBg }]}>
-                        <Text style={[styles.avatarText, { color: colors.primary }]}>{userName?.charAt(0).toUpperCase()}</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                        {/* Bildirim Zili */}
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate('Notifications')}
+                            style={[styles.avatar, { backgroundColor: colors.inputBg }]}
+                            activeOpacity={0.7}
+                        >
+                            <Ionicons
+                                name={unreadCount > 0 ? 'notifications' : 'notifications-outline'}
+                                size={20}
+                                color={colors.primary}
+                            />
+                            {unreadCount > 0 && (
+                                <View style={{
+                                    position: 'absolute', top: 6, right: 6,
+                                    backgroundColor: '#EF4444', borderRadius: 7,
+                                    minWidth: 14, height: 14, alignItems: 'center',
+                                    justifyContent: 'center', paddingHorizontal: 2,
+                                }}>
+                                    <Text style={{ color: '#FFF', fontSize: 8, fontWeight: '700' }}>
+                                        {unreadCount > 9 ? '9+' : unreadCount}
+                                    </Text>
+                                </View>
+                            )}
+                        </TouchableOpacity>
+                        {/* Avatar */}
+                        <View style={[styles.avatar, { backgroundColor: colors.inputBg }]}>
+                            <Text style={[styles.avatarText, { color: colors.primary }]}>{userName?.charAt(0).toUpperCase()}</Text>
+                        </View>
                     </View>
                 </View>
 
@@ -358,6 +257,18 @@ export default function HomeScreen() {
                                     <Ionicons name="apps-outline" size={11} color="rgba(255,255,255,0.9)" />
                                     <Text style={styles.dashCountText}>{activeCount} abonelik</Text>
                                 </View>
+                                {categoryCount > 0 && (
+                                    <View style={styles.dashCountBadge}>
+                                        <Ionicons name="grid-outline" size={11} color="rgba(255,255,255,0.9)" />
+                                        <Text style={styles.dashCountText}>{categoryCount} kategori</Text>
+                                    </View>
+                                )}
+                                {thisWeekPayments.length > 0 && (
+                                    <View style={[styles.dashCountBadge, { backgroundColor: 'rgba(249,115,22,0.35)' }]}>
+                                        <Ionicons name="alarm-outline" size={11} color="rgba(255,255,255,0.95)" />
+                                        <Text style={styles.dashCountText}>{thisWeekPayments.length} bu hafta</Text>
+                                    </View>
+                                )}
                             </View>
                         </View>
                         <View style={styles.budgetBox}>
@@ -406,137 +317,8 @@ export default function HomeScreen() {
                     />
                 )}
 
-                {/* 4. QUICK STATS */}
-                {activeCount > 0 && (
-                    <View style={styles.statsGrid}>
-                        {[
-                            {
-                                icon: 'layers-outline',
-                                value: activeCount.toString(),
-                                label: 'Aktif Abonelik',
-                                color: '#6366F1',
-                                bg: '#EEF2FF',
-                            },
-                            {
-                                icon: 'trending-up-outline',
-                                value: `${avgPerSub.toFixed(0)}₺`,
-                                label: 'Aylık Ortalama',
-                                color: '#10B981',
-                                bg: '#D1FAE5',
-                            },
-                            {
-                                icon: 'alarm-outline',
-                                value: thisWeekPayments.length.toString(),
-                                label: 'Bu Hafta Ödeme',
-                                color: thisWeekPayments.length > 0 ? '#F97316' : '#94A3B8',
-                                bg: thisWeekPayments.length > 0 ? '#FFEDD5' : colors.inputBg,
-                            },
-                            {
-                                icon: 'grid-outline',
-                                value: categoryCount.toString(),
-                                label: 'Kategori',
-                                color: '#0EA5E9',
-                                bg: '#E0F2FE',
-                            },
-                        ].map((stat, i) => (
-                            <Animated.View
-                                key={i}
-                                style={[
-                                    styles.statCardSlot,
-                                    {
-                                        opacity: statsAnims[i],
-                                        transform: [{
-                                            scale: statsAnims[i].interpolate({
-                                                inputRange: [0, 1],
-                                                outputRange: [0.85, 1],
-                                            }),
-                                        }],
-                                    },
-                                ]}
-                            >
-                                <View style={[styles.statCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
-                                    <View style={[styles.statIconWrap, { backgroundColor: isDarkMode ? stat.color + '25' : stat.bg }]}>
-                                        <Ionicons name={stat.icon as any} size={18} color={stat.color} />
-                                    </View>
-                                    <Text style={[styles.statValue, { color: colors.textMain }]}>{stat.value}</Text>
-                                    <Text style={[styles.statLabel, { color: colors.textSec }]}>{stat.label}</Text>
-                                </View>
-                            </Animated.View>
-                        ))}
-                    </View>
-                )}
 
-                {/* 4. AKILLI ÖNERİLER */}
-                {suggestions.length > 0 && (
-                    <View style={styles.section}>
-                        <View style={styles.sectionHeader}>
-                            <View style={styles.suggestionTitleRow}>
-                                <View style={styles.suggestionTitleIcon}>
-                                    <Ionicons name="bulb-outline" size={14} color="#F59E0B" />
-                                </View>
-                                <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Akıllı Öneriler</Text>
-                            </View>
-                            <Text style={[styles.suggestionCount, { color: colors.textSec }]}>
-                                {suggestions.length} öneri
-                            </Text>
-                        </View>
-
-                        {suggestions.map((s, i) => {
-                            const anim = suggestAnims[i] ?? new Animated.Value(1);
-                            return (
-                                <Animated.View
-                                    key={s.id}
-                                    style={{
-                                        opacity: anim,
-                                        transform: [{
-                                            translateY: anim.interpolate({
-                                                inputRange: [0, 1],
-                                                outputRange: [12, 0],
-                                            }),
-                                        }],
-                                        marginBottom: 10,
-                                    }}
-                                >
-                                    <TouchableOpacity
-                                        style={[styles.suggestionCard, {
-                                            backgroundColor: colors.cardBg,
-                                            borderColor: colors.border,
-                                        }]}
-                                        onPress={s.onPress}
-                                        activeOpacity={0.72}
-                                    >
-                                        {/* Sol renkli şerit */}
-                                        <View style={[styles.suggestionStripe, { backgroundColor: s.accentColor }]} />
-
-                                        {/* Icon */}
-                                        <View style={[styles.suggestionIconWrap, {
-                                            backgroundColor: isDarkMode ? s.iconColor + '22' : s.iconBg,
-                                        }]}>
-                                            <Ionicons name={s.icon as any} size={20} color={s.iconColor} />
-                                        </View>
-
-                                        {/* Metin */}
-                                        <View style={{ flex: 1 }}>
-                                            <Text style={[styles.suggestionTitle, { color: colors.textMain }]}>
-                                                {s.title}
-                                            </Text>
-                                            <Text style={[styles.suggestionSubtitle, { color: colors.textSec }]} numberOfLines={2}>
-                                                {s.subtitle}
-                                            </Text>
-                                        </View>
-
-                                        {/* Ok */}
-                                        <View style={[styles.suggestionArrow, { backgroundColor: isDarkMode ? s.iconColor + '22' : s.iconBg }]}>
-                                            <Ionicons name="chevron-forward" size={14} color={s.iconColor} />
-                                        </View>
-                                    </TouchableOpacity>
-                                </Animated.View>
-                            );
-                        })}
-                    </View>
-                )}
-
-                {/* 6. YAKLAŞAN ÖDEMELER */}
+                {/* 4. YAKLAŞAN ÖDEMELER */}
                 {sortedPayments.length > 0 && (
                     <View style={styles.section}>
                         {/* Section Header */}
@@ -568,6 +350,8 @@ export default function HomeScreen() {
                                     const urgencyBg   = daysLeft <= 2 ? '#FEE2E2' : '#FFEDD5';
                                     const urgencyLabel = daysLeft === 0 ? 'Bugün!' : daysLeft === 1 ? 'Yarın!' : `${daysLeft} gün`;
                                     const anim = cardAnims[idx] ?? new Animated.Value(1);
+                                    const itemColor = item.colorCode || colors.primary;
+                                    const catalogLogoUrl = catalogItems.find(c => c.id === item.catalogId)?.logoUrl;
                                     return (
                                         <Animated.View
                                             key={item.id}
@@ -579,10 +363,8 @@ export default function HomeScreen() {
                                             }]}
                                         >
                                             {daysLeft <= 2 && <View style={styles.upRowStripe} />}
-                                            <View style={[styles.upRowIcon, { backgroundColor: (item.colorCode || colors.primary) + '20' }]}>
-                                                <Text style={[styles.upRowIconText, { color: item.colorCode || colors.primary }]}>
-                                                    {item.name.charAt(0)}
-                                                </Text>
+                                            <View style={[styles.upRowIcon, { backgroundColor: itemColor + '20', overflow: 'hidden' }]}>
+                                                <UpcomingPaymentLogo logoUrl={catalogLogoUrl} colorCode={itemColor} name={item.name} />
                                             </View>
                                             <View style={{ flex: 1 }}>
                                                 <Text style={[styles.upRowName, { color: colors.textMain }]} numberOfLines={1}>{item.name}</Text>
@@ -621,6 +403,8 @@ export default function HomeScreen() {
                                     const daysLeft = getDaysLeft(item.billingDay);
                                     const animIdx = thisWeekPayments.length + idx;
                                     const anim = cardAnims[animIdx] ?? new Animated.Value(1);
+                                    const itemColor = item.colorCode || colors.primary;
+                                    const catalogLogoUrl = catalogItems.find(c => c.id === item.catalogId)?.logoUrl;
                                     return (
                                         <Animated.View
                                             key={item.id}
@@ -631,10 +415,8 @@ export default function HomeScreen() {
                                                 transform: [{ translateX: anim.interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) }],
                                             }]}
                                         >
-                                            <View style={[styles.upRowIcon, { backgroundColor: (item.colorCode || colors.primary) + '20' }]}>
-                                                <Text style={[styles.upRowIconText, { color: item.colorCode || colors.primary }]}>
-                                                    {item.name.charAt(0)}
-                                                </Text>
+                                            <View style={[styles.upRowIcon, { backgroundColor: itemColor + '20', overflow: 'hidden' }]}>
+                                                <UpcomingPaymentLogo logoUrl={catalogLogoUrl} colorCode={itemColor} name={item.name} />
                                             </View>
                                             <View style={{ flex: 1 }}>
                                                 <Text style={[styles.upRowName, { color: colors.textMain }]} numberOfLines={1}>{item.name}</Text>
@@ -668,41 +450,60 @@ export default function HomeScreen() {
                     </View>
                 )}
 
-                {/* 7. YENİ ABONELİK EKLEME ALANI (BÜTÜNLEŞİK TASARIM) */}
+                {/* 5. KEŞFET & ABONELİK EKLEME */}
                 <View style={styles.section}>
-                    <View style={styles.sectionHeaderRow}>
-                        <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Yeni Abonelik Ekle</Text>
-                        <TouchableOpacity
-                            onPress={() => navigation.navigate('Discover')}
-                            style={[styles.discoverBtn, { backgroundColor: colors.inputBg, borderColor: colors.border }]}
+                    <Text style={[styles.sectionTitle, { color: colors.textMain, marginBottom: 12 }]}>Abonelik Ekle</Text>
+
+                    {/* Katalog — PRIMARY aksiyon */}
+                    <TouchableOpacity
+                        style={styles.catalogCard}
+                        onPress={() => navigation.navigate('Discover')}
+                        activeOpacity={0.85}
+                    >
+                        <LinearGradient
+                            colors={[colors.accent, colors.primary]}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                            style={styles.catalogCardGradient}
                         >
-                            <Ionicons name="compass-outline" size={14} color={colors.accent} />
-                            <Text style={[styles.discoverBtnText, { color: colors.accent }]}>Keşfet</Text>
-                        </TouchableOpacity>
-                    </View>
-                    
-                    {/* ÖZEL ABONELİK (MANUEL) BUTONU - YENİ TASARIM */}
-                    <TouchableOpacity 
-                        style={[styles.createCustomCard, { borderColor: colors.border, backgroundColor: colors.cardBg }]} 
+                            <View style={styles.catalogDecorCircle} />
+                            <View style={{ flex: 1 }}>
+                                <Text style={styles.catalogCardTitle}>Katalogdan Seç</Text>
+                                <Text style={styles.catalogCardSub}>50+ popüler servis hazır, tek dokunuşla ekle</Text>
+                            </View>
+                            <View style={styles.catalogCardIconWrap}>
+                                <Ionicons name="compass" size={30} color="rgba(255,255,255,0.95)" />
+                            </View>
+                        </LinearGradient>
+                    </TouchableOpacity>
+
+                    {/* Manuel ekleme — SECONDARY aksiyon */}
+                    <TouchableOpacity
+                        style={[styles.createCustomCard, { borderColor: colors.border, backgroundColor: colors.cardBg }]}
                         onPress={handleCreateCustom}
                         activeOpacity={0.7}
                     >
                         <View style={[styles.createIconCircle, { backgroundColor: colors.inputBg }]}>
                             <Ionicons name="add" size={24} color={colors.primary} />
                         </View>
-                        <View style={{flex: 1}}>
+                        <View style={{ flex: 1 }}>
                             <Text style={[styles.createCustomTitle, { color: colors.textMain }]}>Kendin Oluştur</Text>
                             <Text style={[styles.createCustomSub, { color: colors.textSec }]}>Listede olmayan bir servisi ekle</Text>
                         </View>
                         <Ionicons name="chevron-forward" size={20} color={colors.inactive} />
                     </TouchableOpacity>
-
-                    {/* KATALOG LİSTESİ */}
-                    <Text style={[styles.subSectionTitle, { color: colors.textSec }]}>veya popüler servislerden seç</Text>
-                    <CatalogExplore onSelect={handleSelectFromCatalog} isEmbedded={true} />
                 </View>
 
             </ScrollView>
+
+            {/* FAB — Abonelik Ekle */}
+            <TouchableOpacity
+                style={[styles.fab, { backgroundColor: colors.accent }]}
+                onPress={handleCreateCustom}
+                activeOpacity={0.85}
+            >
+                <Ionicons name="add" size={28} color="#FFF" />
+            </TouchableOpacity>
 
             {/* MODALS */}
             {/* Tek Bir Modal, hem manuel hem katalog için */}
@@ -730,8 +531,23 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 }, 
-    scrollContent: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 50 },
+    container: { flex: 1 },
+    scrollContent: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 110 },
+    fab: {
+        position: 'absolute',
+        right: 20,
+        bottom: Platform.OS === 'ios' ? 24 : 20,
+        width: 58,
+        height: 58,
+        borderRadius: 29,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#4F46E5',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.4,
+        shadowRadius: 12,
+        elevation: 10,
+    },
 
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
     greeting: { fontSize: 14, fontWeight: '500' },
@@ -787,48 +603,9 @@ const styles = StyleSheet.create({
     sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
     sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
     sectionTitle: { fontSize: 18, fontWeight: '700' },
-    subSectionTitle: { fontSize: 13, fontWeight: '500', marginTop: 16, marginBottom: 10, marginLeft: 4 },
-    discoverBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 10,
-        paddingVertical: 6,
-        borderRadius: 10,
-        borderWidth: 1,
-    },
-    discoverBtnText: { fontSize: 12, fontWeight: '700', marginLeft: 4 },
 
     upcomingCountBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10 },
     upcomingCountText: { fontSize: 12, fontWeight: '700' },
-
-    // QUICK STATS
-    statsGrid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        marginBottom: 20,
-        marginHorizontal: -6,
-    },
-    statCardSlot: {
-        width: '50%',
-        paddingHorizontal: 6,
-        marginBottom: 12,
-    },
-    statCard: {
-        borderRadius: 18,
-        borderWidth: 1,
-        padding: 16,
-        alignItems: 'flex-start',
-    },
-    statIconWrap: {
-        width: 38,
-        height: 38,
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 10,
-    },
-    statValue: { fontSize: 22, fontWeight: '800', letterSpacing: -0.5, marginBottom: 2 },
-    statLabel: { fontSize: 12, fontWeight: '500' },
 
     calendarBtn: {
         flexDirection: 'row',
@@ -885,77 +662,13 @@ const styles = StyleSheet.create({
     },
     upMoreText: { fontSize: 13, fontWeight: '600' },
 
-    // ─── AKILLI ÖNERİLER ────────────────────────────────────────────────────
-    suggestionTitleRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    suggestionTitleIcon: {
-        width: 26,
-        height: 26,
-        borderRadius: 8,
-        backgroundColor: '#FEF3C7',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 8,
-    },
-    suggestionCount: {
-        fontSize: 12,
-        fontWeight: '600',
-    },
-    suggestionCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderRadius: 16,
-        borderWidth: 1,
-        padding: 14,
-        overflow: 'hidden',
-    },
-    suggestionStripe: {
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        bottom: 0,
-        width: 4,
-        borderTopLeftRadius: 16,
-        borderBottomLeftRadius: 16,
-    },
-    suggestionIconWrap: {
-        width: 42,
-        height: 42,
-        borderRadius: 13,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginLeft: 6,
-        marginRight: 12,
-    },
-    suggestionTitle: {
-        fontSize: 14,
-        fontWeight: '700',
-        marginBottom: 3,
-    },
-    suggestionSubtitle: {
-        fontSize: 12,
-        fontWeight: '500',
-        lineHeight: 16,
-    },
-    suggestionArrow: {
-        width: 28,
-        height: 28,
-        borderRadius: 8,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginLeft: 8,
-    },
-
-    // YENİ "KENDİN OLUŞTUR" KARTI
+    // "KENDİN OLUŞTUR" KARTI
     createCustomCard: {
         flexDirection: 'row',
         alignItems: 'center',
         padding: 16,
-        borderRadius: 20,
+        borderRadius: 16,
         borderWidth: 1,
-        borderStyle: 'dashed', // Kesik çizgili kenarlık
     },
     createIconCircle: {
         width: 48,
@@ -967,5 +680,43 @@ const styles = StyleSheet.create({
     },
     createCustomTitle: { fontSize: 16, fontWeight: '700', marginBottom: 2 },
     createCustomSub: { fontSize: 13 },
+
+    // Katalog primary kart
+    catalogCard: {
+        borderRadius: 20,
+        marginBottom: 10,
+        overflow: 'hidden',
+        shadowColor: '#4F46E5',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.25,
+        shadowRadius: 12,
+        elevation: 8,
+    },
+    catalogCardGradient: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 20,
+        overflow: 'hidden',
+    },
+    catalogDecorCircle: {
+        position: 'absolute',
+        width: 120,
+        height: 120,
+        borderRadius: 60,
+        backgroundColor: 'rgba(255,255,255,0.08)',
+        top: -30,
+        right: 40,
+    },
+    catalogCardTitle: { color: '#FFF', fontSize: 17, fontWeight: '800', marginBottom: 4 },
+    catalogCardSub: { color: 'rgba(255,255,255,0.75)', fontSize: 12, fontWeight: '500', lineHeight: 17 },
+    catalogCardIconWrap: {
+        width: 52,
+        height: 52,
+        borderRadius: 16,
+        backgroundColor: 'rgba(255,255,255,0.15)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: 12,
+    },
 
 });

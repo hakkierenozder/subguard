@@ -1,0 +1,438 @@
+2026-03-13 17:05:19.491 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-13 17:05:21.581 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-13 17:05:21.602 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-13 17:05:22.111 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-13 17:05:22.113 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-13 17:05:22.114 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-13 17:05:22.115 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-13 17:05:22.116 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-13 17:05:22.116 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-13 17:05:22.141 +03:00 [INF] [User: ] Server desktop-25vqrpg:14672:af6b222a successfully announced in 11,9254 ms
+2026-03-13 17:05:22.144 +03:00 [INF] [User: ] Server desktop-25vqrpg:14672:af6b222a is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-13 17:05:22.149 +03:00 [INF] [User: ] Server desktop-25vqrpg:14672:af6b222a all the dispatchers started
+2026-03-13 17:05:22.149 +03:00 [INF] [User: ] 1 servers were removed due to timeout
+2026-03-13 17:05:22.176 +03:00 [INF] [User: ] Removed 2 outdated record(s) from 'aggregatedcounter' table.
+2026-03-13 17:05:22.334 +03:00 [INF] [User: ] Güncel kurlar çekiliyor...
+2026-03-13 17:05:22.450 +03:00 [INF] [User: ] Süresi dolmuş 1 refresh token temizlendi.
+2026-03-13 17:05:23.207 +03:00 [INF] [User: ] Removed 4 outdated record(s) from 'job' table.
+2026-03-13 17:05:23.576 +03:00 [INF] [User: ] Kurlar güncellendi: {"USD":44.109,"EUR":50.933,"GBP":59.058}
+2026-03-13 17:07:13.337 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-13 17:07:13.487 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 169.0560 ms
+2026-03-13 17:07:13.487 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 401 in 159.2827 ms
+2026-03-13 17:07:13.487 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 401 in 155.6881 ms
+2026-03-13 17:07:13.752 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 434.8635 ms
+2026-03-13 17:07:13.821 +03:00 [INF] [User: Anonymous] Token atomik olarak yenilendi. UserId: b9e6ff87-3f77-4e13-9691-13b6aab43c65
+2026-03-13 17:07:13.839 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 246.0128 ms
+2026-03-13 17:07:14.450 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 36.4614 ms
+2026-03-13 17:07:14.467 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 78.0504 ms
+2026-03-13 17:07:14.513 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 111.5790 ms
+2026-03-13 17:07:14.846 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.2011 ms
+2026-03-13 17:07:14.993 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 118.9777 ms
+2026-03-13 17:07:31.074 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.3472 ms
+2026-03-13 17:07:41.097 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.7270 ms
+2026-03-13 17:07:41.102 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 7.1875 ms
+2026-03-13 17:08:09.594 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.2692 ms
+2026-03-13 17:08:14.148 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.4058 ms
+2026-03-13 17:08:27.939 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.3438 ms
+2026-03-13 17:08:34.142 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1957 ms
+2026-03-13 17:08:36.455 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.5362 ms
+2026-03-13 17:08:37.871 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.9748 ms
+2026-03-13 17:08:45.774 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.1102 ms
+2026-03-13 17:08:45.780 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 10.7277 ms
+2026-03-13 17:08:46.058 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.4131 ms
+2026-03-13 17:08:46.077 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.3353 ms
+2026-03-13 17:14:42.982 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.7426 ms
+2026-03-13 17:14:43.000 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.4723 ms
+2026-03-13 17:14:43.002 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 12.4554 ms
+2026-03-13 17:14:43.149 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 6.7776 ms
+2026-03-13 17:14:43.259 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.2368 ms
+2026-03-13 17:14:43.312 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.9420 ms
+2026-03-13 17:14:48.931 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 1.6603 ms
+2026-03-13 17:14:48.932 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.0306 ms
+2026-03-13 17:15:11.079 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.4667 ms
+2026-03-13 17:15:32.792 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.4848 ms
+2026-03-13 17:18:50.371 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.4162 ms
+2026-03-13 17:18:50.378 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.8984 ms
+2026-03-13 17:19:27.737 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.5108 ms
+2026-03-13 17:19:27.749 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.7155 ms
+2026-03-13 17:19:27.756 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 12.0945 ms
+2026-03-13 17:19:27.763 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.4954 ms
+2026-03-13 17:19:28.023 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.5596 ms
+2026-03-13 17:19:28.044 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.5338 ms
+2026-03-13 17:22:33.241 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.5978 ms
+2026-03-13 17:22:33.253 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 11.5336 ms
+2026-03-13 17:22:33.261 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.4757 ms
+2026-03-13 17:22:33.400 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 6.0502 ms
+2026-03-13 17:22:33.539 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.4925 ms
+2026-03-13 17:22:33.550 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.9626 ms
+2026-03-13 17:22:36.078 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.4051 ms
+2026-03-13 17:22:36.081 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.6218 ms
+2026-03-13 17:22:57.322 +03:00 [ERR] [User: Baran Dogan] Failed executing DbCommand (8ms) [Parameters=[@__quotedUserId_0='?' (DbType = Object)], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."BillingDay", u."BillingPeriod", u."CancelledDate", u."CatalogId", u."Category", u."ColorCode", u."ContractEndDate", u."ContractStartDate", u."CreatedBy", u."CreatedDate", u."Currency", u."HasContract", u."IsActive", u."IsDeleted", u."Name", u."PausedDate", u."Price", u."SharedWithJson", u."Status", u."UpdatedBy", u."UpdatedDate", u."UsageHistoryJson", u."UserId", t."Id", t."Category", t."ColorCode", t."CreatedBy", t."CreatedDate", t."IsDeleted", t."LogoUrl", t."Name", t."RequiresContract", t."UpdatedBy", t."UpdatedDate"
+FROM "UserSubscriptions" AS u
+LEFT JOIN (
+    SELECT c."Id", c."Category", c."ColorCode", c."CreatedBy", c."CreatedDate", c."IsDeleted", c."LogoUrl", c."Name", c."RequiresContract", c."UpdatedBy", c."UpdatedDate"
+    FROM "Catalogs" AS c
+    WHERE NOT (c."IsDeleted")
+) AS t ON u."CatalogId" = t."Id"
+WHERE NOT (u."IsDeleted") AND u."IsActive" AND (u."SharedWithJson" IS NOT NULL) AND (@__quotedUserId_0 = '' OR strpos(u."SharedWithJson", @__quotedUserId_0) > 0)
+ORDER BY u."CreatedDate" DESC
+2026-03-13 17:22:57.343 +03:00 [ERR] [User: Baran Dogan] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 22P02: invalid input syntax for type json
+
+POSITION: 943
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 22P02
+    MessageText: invalid input syntax for type json
+    Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+    Position: 943
+    Where: JSON data, line 1: 
+    File: jsonfuncs.c
+    Line: 659
+    Routine: json_errsave_error
+Npgsql.PostgresException (0x80004005): 22P02: invalid input syntax for type json
+
+POSITION: 943
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 22P02
+    MessageText: invalid input syntax for type json
+    Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+    Position: 943
+    Where: JSON data, line 1: 
+    File: jsonfuncs.c
+    Line: 659
+    Routine: json_errsave_error
+2026-03-13 17:22:57.357 +03:00 [ERR] [User: ] Bir hata oluştu: 22P02: invalid input syntax for type json
+
+POSITION: 943
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+Npgsql.PostgresException (0x80004005): 22P02: invalid input syntax for type json
+
+POSITION: 943
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.UserSubscriptionService.GetSharedWithMeAsync(String userId, Int32 page, Int32 pageSize) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 294
+   at SubGuard.API.Controllers.UserSubscriptionsController.GetSharedWithMe(PagedRequestDto paged) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Controllers\UserSubscriptionsController.cs:line 68
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_16>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 323
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+  Exception data:
+    Severity: ERROR
+    SqlState: 22P02
+    MessageText: invalid input syntax for type json
+    Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+    Position: 943
+    Where: JSON data, line 1: 
+    File: jsonfuncs.c
+    Line: 659
+    Routine: json_errsave_error
+2026-03-13 17:22:57.397 +03:00 [ERR] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 500 in 104.1756 ms
+2026-03-13 17:24:15.268 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.2676 ms
+2026-03-13 17:24:16.634 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.7812 ms
+2026-03-13 17:26:12.456 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1688 ms
+2026-03-13 17:26:26.423 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 0.7937 ms
+2026-03-13 17:26:26.434 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 12.3020 ms
+2026-03-13 17:26:26.443 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.3241 ms
+2026-03-13 17:26:26.444 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.4391 ms
+2026-03-13 17:26:26.752 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.8191 ms
+2026-03-13 17:26:26.763 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 12.6491 ms
+2026-03-13 17:26:34.845 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.4031 ms
+2026-03-13 17:26:34.850 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.1650 ms
+2026-03-13 17:26:36.086 +03:00 [ERR] [User: Baran Dogan] Failed executing DbCommand (1ms) [Parameters=[@__quotedUserId_0='?' (DbType = Object)], CommandType='"Text"', CommandTimeout='30']
+SELECT u."Id", u."BillingDay", u."BillingPeriod", u."CancelledDate", u."CatalogId", u."Category", u."ColorCode", u."ContractEndDate", u."ContractStartDate", u."CreatedBy", u."CreatedDate", u."Currency", u."HasContract", u."IsActive", u."IsDeleted", u."Name", u."PausedDate", u."Price", u."SharedWithJson", u."Status", u."UpdatedBy", u."UpdatedDate", u."UsageHistoryJson", u."UserId", t."Id", t."Category", t."ColorCode", t."CreatedBy", t."CreatedDate", t."IsDeleted", t."LogoUrl", t."Name", t."RequiresContract", t."UpdatedBy", t."UpdatedDate"
+FROM "UserSubscriptions" AS u
+LEFT JOIN (
+    SELECT c."Id", c."Category", c."ColorCode", c."CreatedBy", c."CreatedDate", c."IsDeleted", c."LogoUrl", c."Name", c."RequiresContract", c."UpdatedBy", c."UpdatedDate"
+    FROM "Catalogs" AS c
+    WHERE NOT (c."IsDeleted")
+) AS t ON u."CatalogId" = t."Id"
+WHERE NOT (u."IsDeleted") AND u."IsActive" AND (u."SharedWithJson" IS NOT NULL) AND (@__quotedUserId_0 = '' OR strpos(u."SharedWithJson", @__quotedUserId_0) > 0)
+ORDER BY u."CreatedDate" DESC
+2026-03-13 17:26:36.091 +03:00 [ERR] [User: Baran Dogan] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 22P02: invalid input syntax for type json
+
+POSITION: 943
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 22P02
+    MessageText: invalid input syntax for type json
+    Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+    Position: 943
+    Where: JSON data, line 1: 
+    File: jsonfuncs.c
+    Line: 659
+    Routine: json_errsave_error
+Npgsql.PostgresException (0x80004005): 22P02: invalid input syntax for type json
+
+POSITION: 943
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 22P02
+    MessageText: invalid input syntax for type json
+    Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+    Position: 943
+    Where: JSON data, line 1: 
+    File: jsonfuncs.c
+    Line: 659
+    Routine: json_errsave_error
+2026-03-13 17:26:36.104 +03:00 [ERR] [User: ] Bir hata oluştu: 22P02: invalid input syntax for type json
+
+POSITION: 943
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+Npgsql.PostgresException (0x80004005): 22P02: invalid input syntax for type json
+
+POSITION: 943
+DETAIL: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.UserSubscriptionService.GetSharedWithMeAsync(String userId, Int32 page, Int32 pageSize) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 294
+   at SubGuard.API.Controllers.UserSubscriptionsController.GetSharedWithMe(PagedRequestDto paged) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Controllers\UserSubscriptionsController.cs:line 68
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_16>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 323
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+  Exception data:
+    Severity: ERROR
+    SqlState: 22P02
+    MessageText: invalid input syntax for type json
+    Detail: Detail redacted as it may contain sensitive data. Specify 'Include Error Detail' in the connection string to include this information.
+    Position: 943
+    Where: JSON data, line 1: 
+    File: jsonfuncs.c
+    Line: 659
+    Routine: json_errsave_error
+2026-03-13 17:26:36.123 +03:00 [ERR] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 500 in 40.6311 ms
+2026-03-13 17:27:59.877 +03:00 [INF] [User: ] Server desktop-25vqrpg:14672:af6b222a caught stopping signal...
+2026-03-13 17:27:59.879 +03:00 [INF] [User: ] Server desktop-25vqrpg:14672:af6b222a All dispatchers stopped
+2026-03-13 17:27:59.884 +03:00 [INF] [User: ] Server desktop-25vqrpg:14672:af6b222a successfully reported itself as stopped in 2,4259 ms
+2026-03-13 17:27:59.886 +03:00 [INF] [User: ] Server desktop-25vqrpg:14672:af6b222a has been stopped in total 7,7747 ms
+2026-03-13 17:28:09.266 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-13 17:28:10.424 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-13 17:28:10.444 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-13 17:28:10.762 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-13 17:28:10.763 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-13 17:28:10.764 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-13 17:28:10.765 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-13 17:28:10.766 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-13 17:28:10.767 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-13 17:28:10.790 +03:00 [INF] [User: ] Server desktop-25vqrpg:17056:2a01c035 successfully announced in 9,1164 ms
+2026-03-13 17:28:10.793 +03:00 [INF] [User: ] Server desktop-25vqrpg:17056:2a01c035 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-13 17:28:10.798 +03:00 [INF] [User: ] Server desktop-25vqrpg:17056:2a01c035 all the dispatchers started
+2026-03-13 17:28:20.516 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-13 17:28:20.628 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 124.6729 ms
+2026-03-13 17:28:20.628 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 401 in 124.6614 ms
+2026-03-13 17:28:20.628 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 401 in 124.6504 ms
+2026-03-13 17:28:20.959 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 457.4145 ms
+2026-03-13 17:28:21.011 +03:00 [INF] [User: Anonymous] Token atomik olarak yenilendi. UserId: b9e6ff87-3f77-4e13-9691-13b6aab43c65
+2026-03-13 17:28:21.021 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 362.1131 ms
+2026-03-13 17:28:21.187 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 48.9165 ms
+2026-03-13 17:28:21.206 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 64.9265 ms
+2026-03-13 17:28:21.237 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 100.7284 ms
+2026-03-13 17:28:21.355 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.1329 ms
+2026-03-13 17:28:21.470 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 111.1664 ms
+2026-03-13 17:28:26.047 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.7855 ms
+2026-03-13 17:28:26.050 +03:00 [INF] [User: Baran Dogan] Güncel kurlar çekiliyor...
+2026-03-13 17:28:26.513 +03:00 [INF] [User: Baran Dogan] Kurlar güncellendi: {"USD":44.109,"EUR":50.933,"GBP":59.058}
+2026-03-13 17:28:26.520 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 480.9618 ms
+2026-03-13 17:28:27.578 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 30.7800 ms
+2026-03-13 17:31:40.074 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 14.5578 ms
+2026-03-13 17:31:40.080 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 1.2163 ms
+2026-03-13 17:31:40.082 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.9746 ms
+2026-03-13 17:31:40.083 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.8525 ms
+2026-03-13 17:31:40.094 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.9679 ms
+2026-03-13 17:31:40.484 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 4.6611 ms
+2026-03-13 17:31:40.667 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.2471 ms
+2026-03-13 17:32:04.934 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.5871 ms
+2026-03-13 17:32:04.938 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 1.8148 ms
+2026-03-13 17:34:00.265 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 7.9677 ms
+2026-03-13 17:34:05.914 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/62/usage responded 200 in 23.0021 ms
+2026-03-13 17:34:14.456 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.0616 ms
+2026-03-13 17:34:14.470 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 15.8096 ms
+2026-03-13 17:34:14.472 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.3345 ms
+2026-03-13 17:34:14.472 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.6757 ms
+2026-03-13 17:34:14.750 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.6384 ms
+2026-03-13 17:34:14.759 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.5961 ms
+2026-03-13 17:34:18.939 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.9850 ms
+2026-03-13 17:34:18.944 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.6089 ms
+2026-03-13 17:34:20.214 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.2246 ms
+2026-03-13 17:34:21.574 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.3397 ms
+2026-03-13 17:34:36.920 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.2741 ms
+2026-03-13 17:34:38.092 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.1913 ms
+2026-03-13 17:42:30.564 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.8631 ms
+2026-03-13 17:42:30.571 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 12.8285 ms
+2026-03-13 17:42:30.923 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.3884 ms
+2026-03-13 17:42:30.951 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.9157 ms
+2026-03-13 17:42:37.995 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.1355 ms
+2026-03-13 17:42:38.000 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 12.8043 ms
+2026-03-13 17:42:38.371 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.9743 ms
+2026-03-13 17:42:38.382 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 12.9754 ms
+2026-03-13 17:42:49.396 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.9700 ms
+2026-03-13 17:42:49.413 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 8.6863 ms
+2026-03-13 17:42:49.546 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.7155 ms
+2026-03-13 17:42:49.840 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.0624 ms
+2026-03-13 17:42:49.860 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.0987 ms
+2026-03-13 17:42:56.398 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.7389 ms
+2026-03-13 17:42:56.421 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 8.4982 ms
+2026-03-13 17:42:56.538 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.1726 ms
+2026-03-13 17:42:56.853 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.6916 ms
+2026-03-13 17:42:56.858 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.0224 ms
+2026-03-13 17:43:06.752 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.5825 ms
+2026-03-13 17:43:06.756 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 10.8363 ms
+2026-03-13 17:43:07.142 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.6326 ms
+2026-03-13 17:43:07.143 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.2109 ms
+2026-03-13 17:43:12.584 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 10.6847 ms
+2026-03-13 17:43:12.595 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.0762 ms
+2026-03-13 17:43:12.942 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.3978 ms
+2026-03-13 17:43:12.963 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.7400 ms
+2026-03-13 17:43:18.836 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.8845 ms
+2026-03-13 17:43:18.853 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 25.0043 ms
+2026-03-13 17:43:19.187 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.5614 ms
+2026-03-13 17:43:19.193 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.8892 ms
+2026-03-13 17:43:26.521 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 9.5344 ms
+2026-03-13 17:43:26.521 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.8465 ms
+2026-03-13 17:43:26.887 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.2639 ms
+2026-03-13 17:43:26.888 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.2860 ms
+2026-03-13 17:44:00.589 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.3689 ms
+2026-03-13 17:44:00.599 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 10.7893 ms
+2026-03-13 17:44:00.611 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.6734 ms
+2026-03-13 17:44:00.611 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.3252 ms
+2026-03-13 17:44:00.928 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.9662 ms
+2026-03-13 17:44:00.945 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.0934 ms
+2026-03-13 17:44:18.555 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.4862 ms
+2026-03-13 17:44:18.560 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.3579 ms
+2026-03-13 17:48:15.006 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 8.7640 ms
+2026-03-13 17:48:15.012 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 15.1520 ms
+2026-03-13 17:48:15.213 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.5401 ms
+2026-03-13 17:48:15.225 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.0307 ms
+2026-03-13 17:48:16.631 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.3388 ms
+2026-03-13 17:48:17.464 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.6157 ms
+2026-03-13 17:48:34.298 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 401 in 1.0618 ms
+2026-03-13 17:48:34.304 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 0.9205 ms
+2026-03-13 17:48:34.339 +03:00 [INF] [User: Anonymous] Token atomik olarak yenilendi. UserId: b9e6ff87-3f77-4e13-9691-13b6aab43c65
+2026-03-13 17:48:34.341 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 15.8633 ms
+2026-03-13 17:48:34.404 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 11.1870 ms
+2026-03-13 17:48:34.416 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.9184 ms
+2026-03-13 17:48:34.745 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.5718 ms
+2026-03-13 17:48:34.754 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.0084 ms
+2026-03-13 17:49:28.443 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.8430 ms
+2026-03-13 17:49:37.353 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.6979 ms
+2026-03-13 17:49:56.936 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.9876 ms
+2026-03-13 17:50:04.147 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.7655 ms
+2026-03-13 17:50:23.340 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.8866 ms
+2026-03-13 17:52:59.722 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.5267 ms
+2026-03-13 17:52:59.725 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.9700 ms
+2026-03-13 17:52:59.735 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 8.7050 ms
+2026-03-13 17:52:59.736 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.3804 ms
+2026-03-13 17:53:00.068 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.0338 ms
+2026-03-13 17:53:00.072 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.2887 ms
+2026-03-13 17:53:06.998 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.0581 ms
+2026-03-13 17:53:44.562 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.3036 ms
+2026-03-13 17:53:46.150 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.6377 ms
+2026-03-13 17:53:46.155 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.4649 ms
+2026-03-13 17:55:01.971 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.2481 ms

@@ -9,13 +9,13 @@ import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useThemeColors } from '../constants/theme';
-import ExpenseChart, { CATEGORY_COLORS } from '../components/ExpenseChart';
+import { CATEGORY_COLORS } from '../components/ExpenseChart';
 
 const screenWidth = Dimensions.get('window').width;
 
 const FALLBACK_COLORS = ['#6C5CE7', '#A29BFE', '#FD79A8', '#FDCB6E', '#00B894', '#E17055', '#74B9FF'];
 
-export default function ReportsScreen() {
+export default function ReportsScreen({ embedded = false }: { embedded?: boolean }) {
   const colors = useThemeColors();
   const isDarkMode = useSettingsStore((state) => state.isDarkMode);
   const { subscriptions, getTotalExpense, exchangeRates, fetchUserSubscriptions } = useUserSubscriptionStore();
@@ -236,7 +236,7 @@ export default function ReportsScreen() {
   return (
     <View style={[styles.mainContainer, { backgroundColor: colors.bg }]}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} />
-      <SafeAreaView edges={['top']} style={styles.safeArea}>
+      <SafeAreaView edges={embedded ? [] : ['top']} style={styles.safeArea}>
 
         {/* HEADER */}
         <View style={styles.header}>
@@ -302,21 +302,10 @@ export default function ReportsScreen() {
             </View>
           ) : (
             <>
-              {/* 2. PASTA GRAFİK */}
-              <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
-                <View style={styles.sectionHeader}>
-                  <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Harcama Dağılımı</Text>
-                  <Text style={[styles.sectionHint, { color: colors.textSec }]}>Kategoriye dokunun</Text>
-                </View>
-                <ExpenseChart
-                  onCategoryPress={handleCategoryPress}
-                  selectedCategory={selectedCategory}
-                />
-              </View>
-
-              {/* 3. KATEGORİ KIRILIMLARI (tıklanabilir) */}
+              {/* 2. KATEGORİ KIRILIMLARI (tıklanabilir) */}
               <View style={styles.sectionHeader}>
                 <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Kategori Dağılımı</Text>
+                <Text style={[styles.sectionHint, { color: colors.textSec }]}>Kategoriye dokunun</Text>
               </View>
 
               <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>

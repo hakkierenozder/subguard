@@ -11,6 +11,7 @@ import {
   Animated,
   Alert,
 } from 'react-native';
+import { Swipeable } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -67,78 +68,83 @@ interface NotifItemProps {
 function NotifItem({ item, onRead, onDelete, colors, isDarkMode }: NotifItemProps) {
   const { icon, color } = getNotifMeta(item.title);
   const fadeAnim = useRef(new Animated.Value(1)).current;
+  const swipeRef = useRef<Swipeable>(null);
 
   const handleDelete = () => {
-    Alert.alert('Bildirimi Sil', 'Bu bildirimi silmek istiyor musunuz?', [
-      { text: 'Vazgeç', style: 'cancel' },
-      {
-        text: 'Sil',
-        style: 'destructive',
-        onPress: () => {
-          Animated.timing(fadeAnim, {
-            toValue: 0,
-            duration: 250,
-            useNativeDriver: true,
-          }).start(() => onDelete(item.id));
-        },
-      },
-    ]);
+    swipeRef.current?.close();
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start(() => onDelete(item.id));
   };
+
+  const renderRightActions = () => (
+    <TouchableOpacity
+      style={styles.swipeDeleteBtn}
+      onPress={handleDelete}
+      activeOpacity={0.8}
+    >
+      <Ionicons name="trash-outline" size={22} color="#FFF" />
+      <Text style={styles.swipeDeleteText}>Sil</Text>
+    </TouchableOpacity>
+  );
 
   return (
     <Animated.View style={{ opacity: fadeAnim }}>
-      <TouchableOpacity
-        style={[
-          styles.notifCard,
-          {
-            backgroundColor: item.isRead ? colors.cardBg : (isDarkMode ? '#1E2D45' : '#EEF2FF'),
-            borderColor: colors.border,
-          },
-        ]}
-        onPress={() => !item.isRead && onRead(item.id)}
-        activeOpacity={0.75}
+      <Swipeable
+        ref={swipeRef}
+        renderRightActions={renderRightActions}
+        rightThreshold={60}
+        overshootRight={false}
       >
-        {/* Sol: İkon */}
-        <View style={[styles.iconWrap, { backgroundColor: `${color}18` }]}>
-          <Ionicons name={icon as any} size={22} color={color} />
-        </View>
-
-        {/* Orta: İçerik */}
-        <View style={styles.notifContent}>
-          <View style={styles.notifTitleRow}>
-            <Text
-              style={[
-                styles.notifTitle,
-                { color: colors.textMain, fontWeight: item.isRead ? '600' : '800' },
-              ]}
-              numberOfLines={1}
-            >
-              {item.title}
-            </Text>
-            {!item.isRead && (
-              <View style={[styles.unreadDot, { backgroundColor: color }]} />
-            )}
-          </View>
-          <Text
-            style={[styles.notifMessage, { color: colors.textSec }]}
-            numberOfLines={2}
-          >
-            {item.message}
-          </Text>
-          <Text style={[styles.notifDate, { color: colors.textSec }]}>
-            {formatDate(item.createdDate)}
-          </Text>
-        </View>
-
-        {/* Sağ: Sil */}
         <TouchableOpacity
-          style={styles.deleteBtn}
-          onPress={handleDelete}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          style={[
+            styles.notifCard,
+            {
+              backgroundColor: item.isRead ? colors.cardBg : (isDarkMode ? '#1E2D45' : '#EEF2FF'),
+              borderColor: colors.border,
+            },
+          ]}
+          onPress={() => !item.isRead && onRead(item.id)}
+          activeOpacity={0.75}
         >
-          <Ionicons name="trash-outline" size={18} color={colors.textSec} />
+          {/* Sol: İkon */}
+          <View style={[styles.iconWrap, { backgroundColor: `${color}1A` }]}>
+            <Ionicons name={icon as any} size={22} color={color} />
+          </View>
+
+          {/* Orta: İçerik */}
+          <View style={styles.notifContent}>
+            <View style={styles.notifTitleRow}>
+              <Text
+                style={[
+                  styles.notifTitle,
+                  { color: colors.textMain, fontWeight: item.isRead ? '600' : '700' },
+                ]}
+                numberOfLines={1}
+              >
+                {item.title}
+              </Text>
+              {!item.isRead && (
+                <View style={[styles.unreadDot, { backgroundColor: color }]} />
+              )}
+            </View>
+            <Text
+              style={[styles.notifMessage, { color: colors.textSec }]}
+              numberOfLines={2}
+            >
+              {item.message}
+            </Text>
+            <Text style={[styles.notifDate, { color: colors.textSec }]}>
+              {formatDate(item.createdDate)}
+            </Text>
+          </View>
+
+          {/* Sağ: kaydır ipucu */}
+          <Ionicons name="chevron-back-outline" size={14} color={colors.border} style={{ paddingTop: 2 }} />
         </TouchableOpacity>
-      </TouchableOpacity>
+      </Swipeable>
     </Animated.View>
   );
 }
@@ -380,9 +386,19 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '500',
   },
-  deleteBtn: {
-    paddingTop: 2,
-    flexShrink: 0,
+  swipeDeleteBtn: {
+    backgroundColor: '#EF4444',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 72,
+    borderRadius: 18,
+    marginLeft: 8,
+    gap: 4,
+  },
+  swipeDeleteText: {
+    color: '#FFF',
+    fontSize: 11,
+    fontWeight: '700',
   },
 
   // Footer loader

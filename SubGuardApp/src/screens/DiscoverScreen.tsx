@@ -55,6 +55,7 @@ interface CardProps {
 
 function CatalogCard({ item, isSubscribed, isRecommended, colors, onAdd }: CardProps) {
   const priceInfo = getCheapestPrice(item);
+  const [imgFailed, setImgFailed] = React.useState(false);
   return (
     <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
       {isRecommended && !isSubscribed && (
@@ -63,8 +64,8 @@ function CatalogCard({ item, isSubscribed, isRecommended, colors, onAdd }: CardP
         </View>
       )}
       <View style={[styles.cardIcon, { backgroundColor: (item.colorCode || '#4F46E5') + '18' }]}>
-        {item.logoUrl ? (
-          <Image source={{ uri: item.logoUrl }} style={styles.cardImg} />
+        {item.logoUrl && !imgFailed ? (
+          <Image source={{ uri: item.logoUrl }} style={styles.cardImg} onError={() => setImgFailed(true)} />
         ) : (
           <Text style={[styles.cardInitial, { color: item.colorCode || colors.accent }]}>
             {item.name.charAt(0)}

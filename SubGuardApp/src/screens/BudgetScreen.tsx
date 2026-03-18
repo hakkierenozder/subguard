@@ -15,39 +15,22 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ProgressChart } from 'react-native-chart-kit';
-import { useThemeColors } from '../constants/theme';
+import { useThemeColors, getCategoryColor } from '../constants/theme';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
+import { convertToTRY } from '../utils/CurrencyService';
 import agent from '../api/agent';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const RING_SIZE = 180;
+const RING_SIZE = Math.min(Math.round(SCREEN_WIDTH * 0.44), 200);
 
-const ALERT_THRESHOLDS = [70, 80, 90, 100];
+const ALERT_THRESHOLDS = [60, 70, 80, 90, 100];
 
-// Sabit kategori renkleri
-const CATEGORY_COLORS: Record<string, string> = {
-  Streaming: '#6366F1',
-  Müzik: '#EC4899',
-  Oyun: '#F59E0B',
-  Yazılım: '#10B981',
-  Eğitim: '#3B82F6',
-  Fitness: '#EF4444',
-  Haber: '#8B5CF6',
-  Diğer: '#64748B',
-};
-
-function getCategoryColor(category: string): string {
-  return CATEGORY_COLORS[category] || '#64748B';
-}
-
-export default function BudgetScreen() {
+export default function BudgetScreen({ embedded = false }: { embedded?: boolean }) {
   const colors = useThemeColors();
   const isDarkMode = useSettingsStore((s) => s.isDarkMode);
-  const { budgetAlertThreshold, setBudgetAlertThreshold } = useSettingsStore();
-  const { subscriptions, exchangeRates } = useUserSubscriptionStore();
-
-  const [monthlyBudget, setMonthlyBudget] = useState(0);
+  const { budgetAlertThreshold, setBudgetAlertThreshold, monthlyBudget, setMonthlyBudget } = useSettingsStore();
+  const { subscriptions } = useUserSubscriptionStore();
   const [budgetCurrency, setBudgetCurrency] = useState('TRY');
   const [budgetInput, setBudgetInput] = useState('');
   const [saving, setSaving] = useState(false);
@@ -55,11 +38,15 @@ export default function BudgetScreen() {
   const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
+    // Seed input from store while API loads
+    if (monthlyBudget > 0) setBudgetInput(monthlyBudget.toString());
     agent.Auth.getProfile()
       .then((res) => {
         const budget = res?.data?.monthlyBudget ?? 0;
-        setMonthlyBudget(budget);
-        setBudgetInput(budget > 0 ? budget.toString() : '');
+        if (budget > 0) {
+          setMonthlyBudget(budget);
+          setBudgetInput(budget.toString());
+        }
         setBudgetCurrency(res?.data?.monthlyBudgetCurrency ?? 'TRY');
       })
       .catch(() => {})
@@ -74,25 +61,22 @@ export default function BudgetScreen() {
   // Toplam harcama (TRY)
   const totalExpense = useMemo(() => {
     return activeSubs.reduce((total, sub) => {
-      const rate = exchangeRates[sub.currency] ?? 1;
-      const priceInTry = sub.price * rate;
       const partnerCount = sub.sharedWith?.length ?? 0;
-      return total + priceInTry / (partnerCount + 1);
+      return total + convertToTRY(sub.price, sub.currency) / (partnerCount + 1);
     }, 0);
-  }, [activeSubs, exchangeRates]);
+  }, [activeSubs]);
 
   // Kategori bazlı harcama
   const categoryBreakdown = useMemo(() => {
     const map: Record<string, number> = {};
     activeSubs.forEach((sub) => {
-      const rate = exchangeRates[sub.currency] ?? 1;
-      const myShare = (sub.price * rate) / ((sub.sharedWith?.length ?? 0) + 1);
+      const myShare = convertToTRY(sub.price, sub.currency) / ((sub.sharedWith?.length ?? 0) + 1);
       map[sub.category] = (map[sub.category] ?? 0) + myShare;
     });
     return Object.entries(map)
       .map(([category, amount]) => ({ category, amount }))
       .sort((a, b) => b.amount - a.amount);
-  }, [activeSubs, exchangeRates]);
+  }, [activeSubs]);
 
   const budgetPercentage = monthlyBudget > 0 ? Math.min(totalExpense / monthlyBudget, 1) : 0;
   const percentDisplay = (budgetPercentage * 100).toFixed(0);
@@ -111,7 +95,7 @@ export default function BudgetScreen() {
     setSaving(true);
     try {
       await agent.Auth.updateProfile({ monthlyBudget: parsed, monthlyBudgetCurrency: budgetCurrency });
-      setMonthlyBudget(parsed);
+      setMonthlyBudget(parsed); // updates store → HomeScreen sees new value immediately
       setEditMode(false);
     } catch {
       // Hata toast'ı agent.ts interceptor tarafından gösterilir
@@ -122,14 +106,14 @@ export default function BudgetScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]} edges={['top']}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]} edges={embedded ? [] : ['top']}>
         <ActivityIndicator style={{ flex: 1 }} color={colors.accent} />
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]} edges={embedded ? [] : ['top']}>
       <StatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor="transparent"
@@ -232,7 +216,12 @@ export default function BudgetScreen() {
             <View
               style={[
                 styles.warningBanner,
-                { backgroundColor: isOverBudget ? '#FEF2F2' : '#FFFBEB', borderColor: isOverBudget ? '#EF4444' : '#F59E0B' },
+                {
+                  backgroundColor: isOverBudget
+                    ? (isDarkMode ? 'rgba(239,68,68,0.15)' : '#FEF2F2')
+                    : (isDarkMode ? 'rgba(245,158,11,0.15)' : '#FFFBEB'),
+                  borderColor: isOverBudget ? '#EF4444' : '#F59E0B',
+                },
               ]}
             >
               <Ionicons
@@ -240,7 +229,7 @@ export default function BudgetScreen() {
                 size={16}
                 color={isOverBudget ? '#EF4444' : '#F59E0B'}
               />
-              <Text style={[styles.warningText, { color: isOverBudget ? '#EF4444' : '#B45309' }]}>
+              <Text style={[styles.warningText, { color: isOverBudget ? '#EF4444' : (isDarkMode ? '#FBBF24' : '#B45309') }]}>
                 {isOverBudget
                   ? `Bütçen ₺${(totalExpense - monthlyBudget).toFixed(2)} aşıldı!`
                   : `Bütçenin %${percentDisplay}'ini kullandın.`}
@@ -384,26 +373,6 @@ export default function BudgetScreen() {
           )}
         </View>
 
-        {/* ABONELİK SAYISI */}
-        <View style={[styles.statsCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
-          <View style={styles.quickStat}>
-            <Text style={[styles.quickStatNum, { color: colors.accent }]}>{activeSubs.length}</Text>
-            <Text style={[styles.quickStatLabel, { color: colors.textSec }]}>Aktif Abonelik</Text>
-          </View>
-          <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
-          <View style={styles.quickStat}>
-            <Text style={[styles.quickStatNum, { color: '#10B981' }]}>{categoryBreakdown.length}</Text>
-            <Text style={[styles.quickStatLabel, { color: colors.textSec }]}>Kategori</Text>
-          </View>
-          <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
-          <View style={styles.quickStat}>
-            <Text style={[styles.quickStatNum, { color: '#F59E0B' }]}>
-              {subscriptions.filter((s) => s.isActive === false).length}
-            </Text>
-            <Text style={[styles.quickStatLabel, { color: colors.textSec }]}>Dondurulmuş</Text>
-          </View>
-        </View>
-
         <View style={{ height: 40 }} />
       </ScrollView>
     </SafeAreaView>
@@ -537,16 +506,4 @@ const styles = StyleSheet.create({
   catBarBg: { height: 6, borderRadius: 3, overflow: 'hidden' },
   catBarFill: { height: '100%', borderRadius: 3 },
 
-  // Quick stats card
-  statsCard: {
-    borderRadius: 20,
-    borderWidth: 1,
-    padding: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  quickStat: { flex: 1, alignItems: 'center' },
-  quickStatNum: { fontSize: 26, fontWeight: '800' },
-  quickStatLabel: { fontSize: 11, fontWeight: '600', marginTop: 2, textAlign: 'center' },
 });

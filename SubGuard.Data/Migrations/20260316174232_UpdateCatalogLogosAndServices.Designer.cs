@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace SubGuard.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260316174232_UpdateCatalogLogosAndServices")]
+    partial class UpdateCatalogLogosAndServices
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -282,9 +285,9 @@ namespace SubGuard.Data.Migrations
                             Id = 101,
                             Category = "Streaming",
                             ColorCode = "#E50914",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2287),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 395, DateTimeKind.Utc).AddTicks(4644),
                             IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/netflix.com",
+                            LogoUrl = "netflix_logo",
                             Name = "Netflix",
                             RequiresContract = false
                         },
@@ -293,9 +296,9 @@ namespace SubGuard.Data.Migrations
                             Id = 102,
                             Category = "Streaming",
                             ColorCode = "#113CCF",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2289),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 395, DateTimeKind.Utc).AddTicks(4654),
                             IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/disneyplus.com",
+                            LogoUrl = "disney_logo",
                             Name = "Disney+",
                             RequiresContract = false
                         },
@@ -304,9 +307,9 @@ namespace SubGuard.Data.Migrations
                             Id = 103,
                             Category = "Streaming",
                             ColorCode = "#11D6D4",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2290),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 395, DateTimeKind.Utc).AddTicks(4655),
                             IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/blutv.com",
+                            LogoUrl = "blutv_logo",
                             Name = "BluTV",
                             RequiresContract = false
                         },
@@ -315,9 +318,9 @@ namespace SubGuard.Data.Migrations
                             Id = 104,
                             Category = "Streaming",
                             ColorCode = "#00A8E1",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2292),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 395, DateTimeKind.Utc).AddTicks(4656),
                             IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/primevideo.com",
+                            LogoUrl = "prime_logo",
                             Name = "Amazon Prime",
                             RequiresContract = false
                         },
@@ -326,9 +329,9 @@ namespace SubGuard.Data.Migrations
                             Id = 105,
                             Category = "Streaming",
                             ColorCode = "#FFD600",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2293),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 395, DateTimeKind.Utc).AddTicks(4657),
                             IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/exxen.com",
+                            LogoUrl = "exxen_logo",
                             Name = "Exxen",
                             RequiresContract = false
                         },
@@ -337,9 +340,9 @@ namespace SubGuard.Data.Migrations
                             Id = 106,
                             Category = "Streaming",
                             ColorCode = "#191919",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2294),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 395, DateTimeKind.Utc).AddTicks(4658),
                             IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/mubi.com",
+                            LogoUrl = "mubi_logo",
                             Name = "MUBI",
                             RequiresContract = false
                         },
@@ -348,9 +351,9 @@ namespace SubGuard.Data.Migrations
                             Id = 107,
                             Category = "Streaming",
                             ColorCode = "#592878",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2295),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 395, DateTimeKind.Utc).AddTicks(4659),
                             IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/tod.tv",
+                            LogoUrl = "tod_logo",
                             Name = "TOD (beIN)",
                             RequiresContract = true
                         },
@@ -359,9 +362,9 @@ namespace SubGuard.Data.Migrations
                             Id = 108,
                             Category = "Streaming",
                             ColorCode = "#FF0000",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2296),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 395, DateTimeKind.Utc).AddTicks(4660),
                             IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/youtube.com",
+                            LogoUrl = "youtube_logo",
                             Name = "YouTube Premium",
                             RequiresContract = false
                         },
@@ -369,77 +372,11 @@ namespace SubGuard.Data.Migrations
                         {
                             Id = 109,
                             Category = "Streaming",
-                            ColorCode = "#FF6A00",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2297),
+                            ColorCode = "#FF0000",
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 395, DateTimeKind.Utc).AddTicks(4661),
                             IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/gain.tv",
+                            LogoUrl = "gain_logo",
                             Name = "Gain",
-                            RequiresContract = false
-                        },
-                        new
-                        {
-                            Id = 110,
-                            Category = "Streaming",
-                            ColorCode = "#E8261A",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2298),
-                            IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/puhutv.com",
-                            Name = "Puhutv",
-                            RequiresContract = false
-                        },
-                        new
-                        {
-                            Id = 111,
-                            Category = "Streaming",
-                            ColorCode = "#1A936F",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2298),
-                            IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/tabii.com",
-                            Name = "Tabii",
-                            RequiresContract = false
-                        },
-                        new
-                        {
-                            Id = 112,
-                            Category = "Streaming",
-                            ColorCode = "#000000",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2299),
-                            IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/apple.com",
-                            Name = "Apple TV+",
-                            RequiresContract = false
-                        },
-                        new
-                        {
-                            Id = 113,
-                            Category = "Streaming",
-                            ColorCode = "#0064FF",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2300),
-                            IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/paramountplus.com",
-                            Name = "Paramount+",
-                            RequiresContract = false
-                        },
-                        new
-                        {
-                            Id = 114,
-                            Category = "Streaming",
-                            ColorCode = "#F47521",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2301),
-                            IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/crunchyroll.com",
-                            Name = "Crunchyroll",
-                            RequiresContract = false
-                        },
-                        new
-                        {
-                            Id = 115,
-                            Category = "Streaming",
-                            ColorCode = "#009EDB",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2302),
-                            IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/tvplus.com.tr",
-                            Name = "Turkcell TV+",
                             RequiresContract = false
                         },
                         new
@@ -447,9 +384,9 @@ namespace SubGuard.Data.Migrations
                             Id = 201,
                             Category = "Music",
                             ColorCode = "#1DB954",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2323),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 395, DateTimeKind.Utc).AddTicks(4687),
                             IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/spotify.com",
+                            LogoUrl = "spotify_logo",
                             Name = "Spotify",
                             RequiresContract = false
                         },
@@ -458,9 +395,9 @@ namespace SubGuard.Data.Migrations
                             Id = 202,
                             Category = "Music",
                             ColorCode = "#FA243C",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2324),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 395, DateTimeKind.Utc).AddTicks(4688),
                             IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/apple.com",
+                            LogoUrl = "applemusic_logo",
                             Name = "Apple Music",
                             RequiresContract = false
                         },
@@ -469,9 +406,9 @@ namespace SubGuard.Data.Migrations
                             Id = 203,
                             Category = "Music",
                             ColorCode = "#F39200",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2325),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 395, DateTimeKind.Utc).AddTicks(4689),
                             IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/fizy.com",
+                            LogoUrl = "fizy_logo",
                             Name = "Fizy",
                             RequiresContract = false
                         },
@@ -480,32 +417,10 @@ namespace SubGuard.Data.Migrations
                             Id = 204,
                             Category = "Music",
                             ColorCode = "#EF5466",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2326),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 395, DateTimeKind.Utc).AddTicks(4690),
                             IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/deezer.com",
+                            LogoUrl = "deezer_logo",
                             Name = "Deezer",
-                            RequiresContract = false
-                        },
-                        new
-                        {
-                            Id = 205,
-                            Category = "Music",
-                            ColorCode = "#000000",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2327),
-                            IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/tidal.com",
-                            Name = "Tidal",
-                            RequiresContract = false
-                        },
-                        new
-                        {
-                            Id = 206,
-                            Category = "Music",
-                            ColorCode = "#FF6B35",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2328),
-                            IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/muud.com.tr",
-                            Name = "Muud",
                             RequiresContract = false
                         },
                         new
@@ -513,9 +428,9 @@ namespace SubGuard.Data.Migrations
                             Id = 301,
                             Category = "Gaming",
                             ColorCode = "#00439C",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2331),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 395, DateTimeKind.Utc).AddTicks(4693),
                             IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/playstation.com",
+                            LogoUrl = "psplus_logo",
                             Name = "PlayStation Plus",
                             RequiresContract = false
                         },
@@ -524,9 +439,9 @@ namespace SubGuard.Data.Migrations
                             Id = 302,
                             Category = "Gaming",
                             ColorCode = "#107C10",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2332),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 395, DateTimeKind.Utc).AddTicks(4694),
                             IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/xbox.com",
+                            LogoUrl = "gamepass_logo",
                             Name = "Xbox Game Pass",
                             RequiresContract = false
                         },
@@ -535,9 +450,9 @@ namespace SubGuard.Data.Migrations
                             Id = 303,
                             Category = "Gaming",
                             ColorCode = "#76B900",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2333),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 395, DateTimeKind.Utc).AddTicks(4695),
                             IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/nvidia.com",
+                            LogoUrl = "gfn_logo",
                             Name = "GeForce Now",
                             RequiresContract = false
                         },
@@ -546,32 +461,10 @@ namespace SubGuard.Data.Migrations
                             Id = 304,
                             Category = "Gaming",
                             ColorCode = "#5865F2",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2334),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 395, DateTimeKind.Utc).AddTicks(4696),
                             IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/discord.com",
+                            LogoUrl = "discord_logo",
                             Name = "Discord Nitro",
-                            RequiresContract = false
-                        },
-                        new
-                        {
-                            Id = 305,
-                            Category = "Gaming",
-                            ColorCode = "#1B2838",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2335),
-                            IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/steampowered.com",
-                            Name = "Steam",
-                            RequiresContract = false
-                        },
-                        new
-                        {
-                            Id = 306,
-                            Category = "Gaming",
-                            ColorCode = "#FF4747",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2336),
-                            IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/ea.com",
-                            Name = "EA Play",
                             RequiresContract = false
                         },
                         new
@@ -579,9 +472,9 @@ namespace SubGuard.Data.Migrations
                             Id = 401,
                             Category = "Shopping",
                             ColorCode = "#FF6000",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2377),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 395, DateTimeKind.Utc).AddTicks(4746),
                             IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/hepsiburada.com",
+                            LogoUrl = "hepsiburada_logo",
                             Name = "Hepsiburada Premium",
                             RequiresContract = false
                         },
@@ -590,9 +483,9 @@ namespace SubGuard.Data.Migrations
                             Id = 402,
                             Category = "Food",
                             ColorCode = "#EA004B",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2378),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 395, DateTimeKind.Utc).AddTicks(4747),
                             IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/yemeksepeti.com",
+                            LogoUrl = "yemeksepeti_logo",
                             Name = "Yemeksepeti Club",
                             RequiresContract = false
                         },
@@ -601,21 +494,10 @@ namespace SubGuard.Data.Migrations
                             Id = 403,
                             Category = "Food",
                             ColorCode = "#5D3EB2",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2379),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 395, DateTimeKind.Utc).AddTicks(4748),
                             IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/getir.com",
+                            LogoUrl = "getir_logo",
                             Name = "Getir",
-                            RequiresContract = false
-                        },
-                        new
-                        {
-                            Id = 404,
-                            Category = "Shopping",
-                            ColorCode = "#F27A1A",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2380),
-                            IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/trendyol.com",
-                            Name = "Trendyol Premium",
                             RequiresContract = false
                         },
                         new
@@ -623,9 +505,9 @@ namespace SubGuard.Data.Migrations
                             Id = 501,
                             Category = "Cloud",
                             ColorCode = "#007AFF",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2383),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 395, DateTimeKind.Utc).AddTicks(4751),
                             IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/icloud.com",
+                            LogoUrl = "icloud_logo",
                             Name = "Apple iCloud",
                             RequiresContract = false
                         },
@@ -634,9 +516,9 @@ namespace SubGuard.Data.Migrations
                             Id = 502,
                             Category = "Cloud",
                             ColorCode = "#4285F4",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2384),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 395, DateTimeKind.Utc).AddTicks(4752),
                             IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/google.com",
+                            LogoUrl = "googleone_logo",
                             Name = "Google One",
                             RequiresContract = false
                         },
@@ -645,88 +527,11 @@ namespace SubGuard.Data.Migrations
                             Id = 503,
                             Category = "Cloud",
                             ColorCode = "#EA3E23",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2385),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 395, DateTimeKind.Utc).AddTicks(4753),
                             IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/microsoft.com",
+                            LogoUrl = "office_logo",
                             Name = "Microsoft 365",
                             RequiresContract = true
-                        },
-                        new
-                        {
-                            Id = 504,
-                            Category = "Cloud",
-                            ColorCode = "#0061FF",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2386),
-                            IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/dropbox.com",
-                            Name = "Dropbox",
-                            RequiresContract = false
-                        },
-                        new
-                        {
-                            Id = 505,
-                            Category = "Cloud",
-                            ColorCode = "#FF0000",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2387),
-                            IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/adobe.com",
-                            Name = "Adobe Creative Cloud",
-                            RequiresContract = true
-                        },
-                        new
-                        {
-                            Id = 506,
-                            Category = "Cloud",
-                            ColorCode = "#00C4CC",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2388),
-                            IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/canva.com",
-                            Name = "Canva Pro",
-                            RequiresContract = false
-                        },
-                        new
-                        {
-                            Id = 507,
-                            Category = "Cloud",
-                            ColorCode = "#10A37F",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2389),
-                            IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/openai.com",
-                            Name = "ChatGPT Plus",
-                            RequiresContract = false
-                        },
-                        new
-                        {
-                            Id = 508,
-                            Category = "Cloud",
-                            ColorCode = "#4687FF",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2390),
-                            IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/nordvpn.com",
-                            Name = "NordVPN",
-                            RequiresContract = false
-                        },
-                        new
-                        {
-                            Id = 601,
-                            Category = "Education",
-                            ColorCode = "#58CC02",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2395),
-                            IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/duolingo.com",
-                            Name = "Duolingo Plus",
-                            RequiresContract = false
-                        },
-                        new
-                        {
-                            Id = 602,
-                            Category = "Education",
-                            ColorCode = "#0A66C2",
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(2395),
-                            IsDeleted = false,
-                            LogoUrl = "https://logo.clearbit.com/linkedin.com",
-                            Name = "LinkedIn Premium",
-                            RequiresContract = false
                         });
                 });
 
@@ -853,7 +658,7 @@ namespace SubGuard.Data.Migrations
                             Id = 1001,
                             BillingCycleDays = 30,
                             CatalogId = 101,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9177),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 396, DateTimeKind.Utc).AddTicks(1633),
                             Currency = "TRY",
                             IsDeleted = false,
                             Name = "Temel Plan",
@@ -864,7 +669,7 @@ namespace SubGuard.Data.Migrations
                             Id = 1002,
                             BillingCycleDays = 30,
                             CatalogId = 101,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9184),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 396, DateTimeKind.Utc).AddTicks(1639),
                             Currency = "TRY",
                             IsDeleted = false,
                             Name = "Standart Plan",
@@ -875,7 +680,7 @@ namespace SubGuard.Data.Migrations
                             Id = 1003,
                             BillingCycleDays = 30,
                             CatalogId = 101,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9185),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 396, DateTimeKind.Utc).AddTicks(1641),
                             Currency = "TRY",
                             IsDeleted = false,
                             Name = "Özel Plan",
@@ -886,7 +691,7 @@ namespace SubGuard.Data.Migrations
                             Id = 2001,
                             BillingCycleDays = 30,
                             CatalogId = 201,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9187),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 396, DateTimeKind.Utc).AddTicks(1642),
                             Currency = "TRY",
                             IsDeleted = false,
                             Name = "Bireysel",
@@ -897,7 +702,7 @@ namespace SubGuard.Data.Migrations
                             Id = 2002,
                             BillingCycleDays = 30,
                             CatalogId = 201,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9188),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 396, DateTimeKind.Utc).AddTicks(1643),
                             Currency = "TRY",
                             IsDeleted = false,
                             Name = "Öğrenci",
@@ -908,7 +713,7 @@ namespace SubGuard.Data.Migrations
                             Id = 2003,
                             BillingCycleDays = 30,
                             CatalogId = 201,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9189),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 396, DateTimeKind.Utc).AddTicks(1644),
                             Currency = "TRY",
                             IsDeleted = false,
                             Name = "Duo",
@@ -919,7 +724,7 @@ namespace SubGuard.Data.Migrations
                             Id = 2004,
                             BillingCycleDays = 30,
                             CatalogId = 201,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9190),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 396, DateTimeKind.Utc).AddTicks(1645),
                             Currency = "TRY",
                             IsDeleted = false,
                             Name = "Aile",
@@ -930,7 +735,7 @@ namespace SubGuard.Data.Migrations
                             Id = 3001,
                             BillingCycleDays = 30,
                             CatalogId = 108,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9191),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 396, DateTimeKind.Utc).AddTicks(1646),
                             Currency = "TRY",
                             IsDeleted = false,
                             Name = "Bireysel",
@@ -941,7 +746,7 @@ namespace SubGuard.Data.Migrations
                             Id = 3002,
                             BillingCycleDays = 30,
                             CatalogId = 108,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9192),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 396, DateTimeKind.Utc).AddTicks(1647),
                             Currency = "TRY",
                             IsDeleted = false,
                             Name = "Aile",
@@ -952,330 +757,11 @@ namespace SubGuard.Data.Migrations
                             Id = 3003,
                             BillingCycleDays = 30,
                             CatalogId = 108,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9193),
+                            CreatedDate = new DateTime(2026, 3, 16, 17, 42, 32, 396, DateTimeKind.Utc).AddTicks(1648),
                             Currency = "TRY",
                             IsDeleted = false,
                             Name = "Öğrenci",
                             Price = 37.99m
-                        },
-                        new
-                        {
-                            Id = 4001,
-                            BillingCycleDays = 30,
-                            CatalogId = 110,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9194),
-                            Currency = "TRY",
-                            IsDeleted = false,
-                            Name = "Bireysel",
-                            Price = 59.99m
-                        },
-                        new
-                        {
-                            Id = 4002,
-                            BillingCycleDays = 30,
-                            CatalogId = 110,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9195),
-                            Currency = "TRY",
-                            IsDeleted = false,
-                            Name = "Aile",
-                            Price = 99.99m
-                        },
-                        new
-                        {
-                            Id = 4101,
-                            BillingCycleDays = 30,
-                            CatalogId = 111,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9196),
-                            Currency = "TRY",
-                            IsDeleted = false,
-                            Name = "Bireysel",
-                            Price = 39.99m
-                        },
-                        new
-                        {
-                            Id = 4102,
-                            BillingCycleDays = 30,
-                            CatalogId = 111,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9197),
-                            Currency = "TRY",
-                            IsDeleted = false,
-                            Name = "Aile",
-                            Price = 59.99m
-                        },
-                        new
-                        {
-                            Id = 4201,
-                            BillingCycleDays = 30,
-                            CatalogId = 112,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9198),
-                            Currency = "TRY",
-                            IsDeleted = false,
-                            Name = "Bireysel",
-                            Price = 79.99m
-                        },
-                        new
-                        {
-                            Id = 4202,
-                            BillingCycleDays = 30,
-                            CatalogId = 112,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9199),
-                            Currency = "TRY",
-                            IsDeleted = false,
-                            Name = "Aile",
-                            Price = 119.99m
-                        },
-                        new
-                        {
-                            Id = 4301,
-                            BillingCycleDays = 30,
-                            CatalogId = 113,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9200),
-                            Currency = "TRY",
-                            IsDeleted = false,
-                            Name = "Bireysel",
-                            Price = 49.99m
-                        },
-                        new
-                        {
-                            Id = 4401,
-                            BillingCycleDays = 30,
-                            CatalogId = 114,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9201),
-                            Currency = "TRY",
-                            IsDeleted = false,
-                            Name = "Fanatic",
-                            Price = 49.99m
-                        },
-                        new
-                        {
-                            Id = 4402,
-                            BillingCycleDays = 30,
-                            CatalogId = 114,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9202),
-                            Currency = "TRY",
-                            IsDeleted = false,
-                            Name = "Mega Fan",
-                            Price = 89.99m
-                        },
-                        new
-                        {
-                            Id = 4501,
-                            BillingCycleDays = 30,
-                            CatalogId = 115,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9203),
-                            Currency = "TRY",
-                            IsDeleted = false,
-                            Name = "Bireysel",
-                            Price = 29.99m
-                        },
-                        new
-                        {
-                            Id = 4502,
-                            BillingCycleDays = 30,
-                            CatalogId = 115,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9204),
-                            Currency = "TRY",
-                            IsDeleted = false,
-                            Name = "Aile",
-                            Price = 59.99m
-                        },
-                        new
-                        {
-                            Id = 5001,
-                            BillingCycleDays = 30,
-                            CatalogId = 205,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9205),
-                            Currency = "USD",
-                            IsDeleted = false,
-                            Name = "Bireysel",
-                            Price = 12.99m
-                        },
-                        new
-                        {
-                            Id = 5002,
-                            BillingCycleDays = 30,
-                            CatalogId = 205,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9206),
-                            Currency = "USD",
-                            IsDeleted = false,
-                            Name = "Aile",
-                            Price = 19.99m
-                        },
-                        new
-                        {
-                            Id = 5101,
-                            BillingCycleDays = 30,
-                            CatalogId = 306,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9207),
-                            Currency = "USD",
-                            IsDeleted = false,
-                            Name = "EA Play",
-                            Price = 4.99m
-                        },
-                        new
-                        {
-                            Id = 5102,
-                            BillingCycleDays = 30,
-                            CatalogId = 306,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9208),
-                            Currency = "USD",
-                            IsDeleted = false,
-                            Name = "EA Play Pro",
-                            Price = 14.99m
-                        },
-                        new
-                        {
-                            Id = 5201,
-                            BillingCycleDays = 30,
-                            CatalogId = 404,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9209),
-                            Currency = "TRY",
-                            IsDeleted = false,
-                            Name = "Premium Üyelik",
-                            Price = 99.99m
-                        },
-                        new
-                        {
-                            Id = 5301,
-                            BillingCycleDays = 30,
-                            CatalogId = 504,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9210),
-                            Currency = "USD",
-                            IsDeleted = false,
-                            Name = "Plus (2 TB)",
-                            Price = 9.99m
-                        },
-                        new
-                        {
-                            Id = 5302,
-                            BillingCycleDays = 30,
-                            CatalogId = 504,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9211),
-                            Currency = "USD",
-                            IsDeleted = false,
-                            Name = "Professional (3 TB)",
-                            Price = 16.58m
-                        },
-                        new
-                        {
-                            Id = 5401,
-                            BillingCycleDays = 30,
-                            CatalogId = 505,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9212),
-                            Currency = "USD",
-                            IsDeleted = false,
-                            Name = "Tüm Uygulamalar",
-                            Price = 54.99m
-                        },
-                        new
-                        {
-                            Id = 5402,
-                            BillingCycleDays = 30,
-                            CatalogId = 505,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9213),
-                            Currency = "USD",
-                            IsDeleted = false,
-                            Name = "Tek Uygulama",
-                            Price = 20.99m
-                        },
-                        new
-                        {
-                            Id = 5501,
-                            BillingCycleDays = 30,
-                            CatalogId = 506,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9214),
-                            Currency = "TRY",
-                            IsDeleted = false,
-                            Name = "Pro",
-                            Price = 119.99m
-                        },
-                        new
-                        {
-                            Id = 5601,
-                            BillingCycleDays = 30,
-                            CatalogId = 507,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9215),
-                            Currency = "USD",
-                            IsDeleted = false,
-                            Name = "Plus",
-                            Price = 20.00m
-                        },
-                        new
-                        {
-                            Id = 5602,
-                            BillingCycleDays = 30,
-                            CatalogId = 507,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9216),
-                            Currency = "USD",
-                            IsDeleted = false,
-                            Name = "Pro",
-                            Price = 200.00m
-                        },
-                        new
-                        {
-                            Id = 5701,
-                            BillingCycleDays = 30,
-                            CatalogId = 508,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9217),
-                            Currency = "USD",
-                            IsDeleted = false,
-                            Name = "Basic",
-                            Price = 3.79m
-                        },
-                        new
-                        {
-                            Id = 5702,
-                            BillingCycleDays = 30,
-                            CatalogId = 508,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9218),
-                            Currency = "USD",
-                            IsDeleted = false,
-                            Name = "Plus",
-                            Price = 4.79m
-                        },
-                        new
-                        {
-                            Id = 5801,
-                            BillingCycleDays = 30,
-                            CatalogId = 601,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9219),
-                            Currency = "USD",
-                            IsDeleted = false,
-                            Name = "Super",
-                            Price = 6.99m
-                        },
-                        new
-                        {
-                            Id = 5802,
-                            BillingCycleDays = 30,
-                            CatalogId = 601,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9220),
-                            Currency = "USD",
-                            IsDeleted = false,
-                            Name = "Max",
-                            Price = 13.99m
-                        },
-                        new
-                        {
-                            Id = 5901,
-                            BillingCycleDays = 30,
-                            CatalogId = 602,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9221),
-                            Currency = "USD",
-                            IsDeleted = false,
-                            Name = "Career",
-                            Price = 29.99m
-                        },
-                        new
-                        {
-                            Id = 5902,
-                            BillingCycleDays = 30,
-                            CatalogId = 602,
-                            CreatedDate = new DateTime(2026, 3, 16, 17, 58, 23, 296, DateTimeKind.Utc).AddTicks(9222),
-                            Currency = "USD",
-                            IsDeleted = false,
-                            Name = "Business",
-                            Price = 59.99m
                         });
                 });
 

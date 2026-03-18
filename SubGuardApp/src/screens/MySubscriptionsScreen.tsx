@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, useRef } from 'react';
-import { View, Text, FlatList, ScrollView, StyleSheet, TouchableOpacity, Alert, Linking, TextInput, RefreshControl, StatusBar, Animated, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, ScrollView, StyleSheet, TouchableOpacity, Alert, Linking, TextInput, RefreshControl, StatusBar, Animated, ActivityIndicator, Modal, Switch, Image } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import AnimatedPressable from '../components/AnimatedPressable';
 import { SubscriptionSkeletonList } from '../components/SkeletonLoader';
@@ -17,6 +17,27 @@ import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-ico
 import { LinearGradient } from 'expo-linear-gradient';
 import { convertToTRY } from '../utils/CurrencyService';
 import { useThemeColors } from '../constants/theme';
+import { useCatalogStore } from '../store/useCatalogStore';
+
+// Dosya düzeyinde logo bileşeni — render içinde tanımlanırsa state sıfırlanır
+function SubscriptionLogo({ logoUrl, brandColor, name }: { logoUrl?: string; brandColor: string; name: string }) {
+  const [imgFailed, setImgFailed] = useState(false);
+  if (logoUrl && !imgFailed) {
+    return (
+      <Image
+        source={{ uri: logoUrl }}
+        style={{ width: '75%', height: '75%' }}
+        resizeMode="contain"
+        onError={() => setImgFailed(true)}
+      />
+    );
+  }
+  return (
+    <Text style={{ fontSize: 18, fontWeight: 'bold', color: brandColor }}>
+      {name.charAt(0).toUpperCase()}
+    </Text>
+  );
+}
 
 // Tip tanımları
 type SortType = 'date' | 'price_desc' | 'name';
@@ -34,6 +55,7 @@ export default function MySubscriptionsScreen() {
   const colors = useThemeColors();
   const isDarkMode = useSettingsStore((state) => state.isDarkMode);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { catalogItems, fetchCatalog } = useCatalogStore();
 
   const {
     subscriptions,
@@ -51,7 +73,8 @@ export default function MySubscriptionsScreen() {
 
   React.useEffect(() => {
     fetchUserSubscriptions();
-    fetchExchangeRates(); // Ekran açılınca kurları güncelle
+    fetchExchangeRates();
+    if (catalogItems.length === 0) fetchCatalog();
   }, []);
 
   const totalExpense = getTotalExpense();
@@ -67,23 +90,25 @@ export default function MySubscriptionsScreen() {
   // Grup görünümü
   const [groupByCategory, setGroupByCategory] = useState(false);
 
-  // Gelişmiş filtreler
-  const [showFilters, setShowFilters] = useState(false);
+  // Filtre modal
+  const [showFilterModal, setShowFilterModal] = useState(false);
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'paused'>('all');
   const [currencyFilter, setCurrencyFilter] = useState<'all' | 'TRY' | 'USD' | 'EUR'>('all');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
 
-  // Aktif filtre sayısı (badge için)
-  const activeFilterCount = useMemo(() => {
+  // Toplam aktif özelleştirme sayısı (filtre + sıralama + gruplama)
+  const totalBadgeCount = useMemo(() => {
     let count = 0;
     if (statusFilter !== 'all') count++;
     if (currencyFilter !== 'all') count++;
     if (minPrice !== '') count++;
     if (maxPrice !== '') count++;
     if (selectedCategory) count++;
+    if (sortBy !== 'date') count++;
+    // groupByCategory çıkarıldı — artık inline buton
     return count;
-  }, [statusFilter, currencyFilter, minPrice, maxPrice, selectedCategory]);
+  }, [statusFilter, currencyFilter, minPrice, maxPrice, selectedCategory, sortBy]);
 
   const clearAllFilters = () => {
     setStatusFilter('all');
@@ -91,6 +116,8 @@ export default function MySubscriptionsScreen() {
     setMinPrice('');
     setMaxPrice('');
     setSelectedCategory(null);
+    setSortBy('date');
+    setGroupByCategory(false);
   };
 
   // Kategoriler
@@ -206,9 +233,8 @@ export default function MySubscriptionsScreen() {
     for (const cat of sortedCategories) {
       const items = groupMap[cat];
       const totalTRY = items.reduce((sum, sub) => {
-        const rate = exchangeRates[sub.currency] || 1;
         const partnerCount = sub.sharedWith?.length || 0;
-        return sum + (sub.price * rate) / (partnerCount + 1);
+        return sum + convertToTRY(sub.price, sub.currency) / (partnerCount + 1);
       }, 0);
 
       rows.push({ _type: 'header', category: cat, count: items.length, totalTRY });
@@ -330,14 +356,25 @@ export default function MySubscriptionsScreen() {
 
           <View style={styles.heroCardTop}>
               <View style={{ flex: 1 }}>
-                  <Text style={styles.heroLabel}>Aylık Toplam Gider</Text>
-                  <View style={styles.heroAmountRow}>
-                      <Text style={styles.heroCurrency}>₺</Text>
-                      <Text style={styles.heroAmount}>{totalExpense.toFixed(2)}</Text>
-                  </View>
+                  <Text style={styles.heroLabel}>ABONELİKLERİM</Text>
+                  <Text style={styles.heroAmount}>{activeSubsCount} aktif</Text>
+                  {categoryList.length > 0 && (
+                      <Text style={[styles.heroLabel, { marginTop: 3, opacity: 0.75 }]}>
+                          {categoryList.length} kategori
+                      </Text>
+                  )}
               </View>
-              <View style={styles.heroIconContainer}>
-                  <MaterialCommunityIcons name="wallet-outline" size={30} color="rgba(255,255,255,0.9)" />
+              <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 14 }}>
+                  <TouchableOpacity
+                      onPress={() => navigation.navigate('Calendar')}
+                      activeOpacity={0.7}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  >
+                      <Ionicons name="calendar-outline" size={26} color="rgba(255,255,255,0.9)" />
+                  </TouchableOpacity>
+                  <View style={styles.heroIconContainer}>
+                      <MaterialCommunityIcons name="layers-outline" size={28} color="rgba(255,255,255,0.9)" />
+                  </View>
               </View>
           </View>
 
@@ -358,10 +395,7 @@ export default function MySubscriptionsScreen() {
             </View>
           )}
 
-          <View style={styles.heroCardBottom}>
-              <Text style={styles.heroSubText}>
-                  {activeSubsCount} aktif abonelik yönetiliyor
-              </Text>
+          <View style={[styles.heroCardBottom, { justifyContent: 'flex-end' }]}>
               <TouchableOpacity
                 onPress={() => navigation.navigate('SharedSubscriptions')}
                 style={styles.sharedBtn}
@@ -439,140 +473,49 @@ export default function MySubscriptionsScreen() {
           </ScrollView>
         )}
 
-        {/* Sıralama + Filtre Toggle */}
-        <View style={styles.sortRow}>
-          <Text style={[styles.sortLabel, { color: colors.textSec }]}>Sırala:</Text>
-          {(['date', 'price_desc', 'name'] as SortType[]).map(s => {
-            const label = s === 'date' ? 'Yaklaşan' : s === 'price_desc' ? 'Fiyat ↓' : 'A-Z';
-            const isActive = sortBy === s;
-            return (
-              <TouchableOpacity
-                key={s}
-                onPress={() => setSortBy(s)}
-                style={[styles.sortChip, {
-                  backgroundColor: isActive ? colors.primary : colors.cardBg,
-                  borderColor: isActive ? colors.primary : colors.border,
-                }]}
-              >
-                <Text style={[styles.sortChipText, { color: isActive ? '#FFF' : colors.textSec }]}>{label}</Text>
-              </TouchableOpacity>
-            );
-          })}
-          <View style={{ flex: 1 }} />
+        {/* Filtre & Sıralama — tek buton */}
+        <View style={styles.filterActionRow}>
           <TouchableOpacity
-            style={[styles.filterToggleBtn, {
-              backgroundColor: showFilters ? colors.primary : colors.cardBg,
-              borderColor: showFilters ? colors.primary : colors.border,
+            style={[styles.filterSortBtn, {
+              backgroundColor: totalBadgeCount > 0 ? colors.primary : colors.cardBg,
+              borderColor: totalBadgeCount > 0 ? colors.primary : colors.border,
             }]}
-            onPress={() => setShowFilters(v => !v)}
+            onPress={() => setShowFilterModal(true)}
+            activeOpacity={0.7}
           >
-            <Ionicons name="options-outline" size={14} color={showFilters ? '#FFF' : colors.textSec} />
-            <Text style={[styles.filterToggleText, { color: showFilters ? '#FFF' : colors.textSec }]}>
-              Filtrele
+            <Ionicons name="options-outline" size={15} color={totalBadgeCount > 0 ? '#FFF' : colors.textSec} />
+            <Text style={[styles.filterToggleText, { color: totalBadgeCount > 0 ? '#FFF' : colors.textSec }]}>
+              Sırala & Filtrele
             </Text>
-            {activeFilterCount > 0 && (
-              <View style={[styles.filterBadge, { backgroundColor: showFilters ? 'rgba(255,255,255,0.35)' : colors.primary }]}>
-                <Text style={styles.filterBadgeText}>{activeFilterCount}</Text>
+            {totalBadgeCount > 0 && (
+              <View style={[styles.filterBadge, { backgroundColor: 'rgba(255,255,255,0.35)' }]}>
+                <Text style={styles.filterBadgeText}>{totalBadgeCount}</Text>
               </View>
             )}
           </TouchableOpacity>
+
+          {/* Gruplama butonu — modal dışında, ayrı görünüm tercihi */}
           <TouchableOpacity
-            style={[styles.groupToggleBtn, {
-              backgroundColor: groupByCategory ? colors.accent || '#8B5CF6' : colors.cardBg,
-              borderColor: groupByCategory ? colors.accent || '#8B5CF6' : colors.border,
-              marginLeft: 6,
+            style={[styles.filterSortBtn, {
+              backgroundColor: groupByCategory ? colors.accent : colors.cardBg,
+              borderColor: groupByCategory ? colors.accent : colors.border,
             }]}
             onPress={() => setGroupByCategory(v => !v)}
+            activeOpacity={0.7}
           >
-            <Ionicons
-              name={groupByCategory ? 'layers' : 'layers-outline'}
-              size={14}
-              color={groupByCategory ? '#FFF' : colors.textSec}
-            />
+            <Ionicons name="layers-outline" size={15} color={groupByCategory ? '#FFF' : colors.textSec} />
             <Text style={[styles.filterToggleText, { color: groupByCategory ? '#FFF' : colors.textSec }]}>
-              Grup
+              Grupla
             </Text>
           </TouchableOpacity>
+
+          {totalBadgeCount > 0 && (
+            <TouchableOpacity style={styles.clearInlineBtn} onPress={clearAllFilters} activeOpacity={0.7}>
+              <Ionicons name="close-circle" size={14} color={colors.textSec} />
+              <Text style={[styles.clearInlineBtnText, { color: colors.textSec }]}>Temizle</Text>
+            </TouchableOpacity>
+          )}
         </View>
-
-        {/* Gelişmiş Filtreler Paneli */}
-        {showFilters && (
-          <View style={[styles.filterPanel, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
-
-            {/* Durum */}
-            <Text style={[styles.filterGroupLabel, { color: colors.textSec }]}>DURUM</Text>
-            <View style={styles.filterChipRow}>
-              {([
-                { key: 'all', label: 'Tümü' },
-                { key: 'active', label: '● Aktif' },
-                { key: 'paused', label: '⏸ Durdurulmuş' },
-              ] as { key: typeof statusFilter; label: string }[]).map(opt => (
-                <TouchableOpacity
-                  key={opt.key}
-                  style={[styles.advFilterChip, {
-                    backgroundColor: statusFilter === opt.key ? colors.primary : colors.inputBg,
-                    borderColor: statusFilter === opt.key ? colors.primary : colors.border,
-                  }]}
-                  onPress={() => setStatusFilter(opt.key)}
-                >
-                  <Text style={[styles.advFilterChipText, { color: statusFilter === opt.key ? '#FFF' : colors.textSec }]}>
-                    {opt.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            {/* Para Birimi */}
-            <Text style={[styles.filterGroupLabel, { color: colors.textSec, marginTop: 14 }]}>PARA BİRİMİ</Text>
-            <View style={styles.filterChipRow}>
-              {(['all', 'TRY', 'USD', 'EUR'] as const).map(c => (
-                <TouchableOpacity
-                  key={c}
-                  style={[styles.advFilterChip, {
-                    backgroundColor: currencyFilter === c ? colors.primary : colors.inputBg,
-                    borderColor: currencyFilter === c ? colors.primary : colors.border,
-                  }]}
-                  onPress={() => setCurrencyFilter(c)}
-                >
-                  <Text style={[styles.advFilterChipText, { color: currencyFilter === c ? '#FFF' : colors.textSec }]}>
-                    {c === 'all' ? 'Tümü' : c}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            {/* Fiyat Aralığı */}
-            <Text style={[styles.filterGroupLabel, { color: colors.textSec, marginTop: 14 }]}>FİYAT ARALIĞI</Text>
-            <View style={styles.priceRangeRow}>
-              <TextInput
-                style={[styles.priceInput, { color: colors.textMain, borderColor: colors.border, backgroundColor: colors.inputBg }]}
-                placeholder="Min"
-                placeholderTextColor={colors.textSec}
-                keyboardType="numeric"
-                value={minPrice}
-                onChangeText={setMinPrice}
-              />
-              <Text style={[styles.priceRangeDash, { color: colors.textSec }]}>—</Text>
-              <TextInput
-                style={[styles.priceInput, { color: colors.textMain, borderColor: colors.border, backgroundColor: colors.inputBg }]}
-                placeholder="Max"
-                placeholderTextColor={colors.textSec}
-                keyboardType="numeric"
-                value={maxPrice}
-                onChangeText={setMaxPrice}
-              />
-              <Text style={[styles.priceRangeUnit, { color: colors.textSec }]}>₺</Text>
-            </View>
-
-            {/* Temizle Butonu */}
-            {activeFilterCount > 0 && (
-              <TouchableOpacity style={styles.clearFiltersBtn} onPress={clearAllFilters}>
-                <Ionicons name="close-circle-outline" size={13} color="#EF4444" />
-                <Text style={styles.clearFiltersBtnText}>Tüm Filtreleri Temizle</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        )}
 
       </View>
     );
@@ -613,11 +556,10 @@ export default function MySubscriptionsScreen() {
     // PAYLAŞIM KONTROLÜ
     const isShared = sub.sharedWith && sub.sharedWith.length > 0;
 
+    const catalogLogoUrl = catalogItems.find(c => c.id === sub.catalogId)?.logoUrl;
     const renderLogo = () => (
-        <View style={[styles.logoContainer, { backgroundColor: brandColor + '15' }]}>
-          <Text style={[styles.logoText, { color: brandColor }]}>
-            {sub.name.charAt(0).toUpperCase()}
-          </Text>
+        <View style={[styles.logoContainer, { backgroundColor: brandColor + '15', overflow: 'hidden' }]}>
+          <SubscriptionLogo logoUrl={catalogLogoUrl} brandColor={brandColor} name={sub.name} />
         </View>
     );
 
@@ -684,7 +626,7 @@ export default function MySubscriptionsScreen() {
               <Text style={[styles.currencyText, { color: colors.textSec }]}>{sub.currency}</Text>
 
               {isForeignCurrency && !isPassive && (
-                <View style={{ backgroundColor: '#334155', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, marginLeft: 6, marginRight: 6 }}>
+                <View style={{ backgroundColor: colors.primary, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, marginLeft: 6, marginRight: 6 }}>
                   <Text style={{ color: '#fff', fontSize: 10, fontWeight: 'bold' }}>
                     ≈ ₺{priceInTry.toFixed(0)}
                   </Text>
@@ -782,6 +724,121 @@ export default function MySubscriptionsScreen() {
           onClose={() => setDetailSub(null)}
           onEdit={handleEditFromDetail}
         />
+
+        {/* ── Sırala & Filtrele Bottom Sheet ─────────────────── */}
+        <Modal
+          visible={showFilterModal}
+          animationType="slide"
+          transparent
+          onRequestClose={() => setShowFilterModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <TouchableOpacity style={StyleSheet.absoluteFillObject} onPress={() => setShowFilterModal(false)} activeOpacity={1} />
+            <View style={[styles.bottomSheet, { backgroundColor: colors.cardBg }]}>
+              {/* Drag handle */}
+              <View style={[styles.dragHandle, { backgroundColor: colors.border }]} />
+
+              {/* Header */}
+              <View style={styles.sheetHeader}>
+                <Text style={[styles.sheetTitle, { color: colors.textMain }]}>Sırala & Filtrele</Text>
+                <TouchableOpacity onPress={() => setShowFilterModal(false)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                  <Ionicons name="close" size={22} color={colors.textSec} />
+                </TouchableOpacity>
+              </View>
+
+              <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.sheetContent}>
+
+                {/* SIRALAMA */}
+                <Text style={[styles.sheetSectionLabel, { color: colors.textSec }]}>SIRALAMA</Text>
+                <Text style={[styles.sheetSectionDesc, { color: colors.textSec }]}>Listeyi nasıl sıralamak istiyorsun?</Text>
+                <View style={styles.filterChipRow}>
+                  {(['date', 'price_desc', 'name'] as SortType[]).map(s => {
+                    const label = s === 'date' ? '📅 Yaklaşan ödeme' : s === 'price_desc' ? '💰 Fiyat (yüksek→düşük)' : '🔤 A-Z isim';
+                    const isActive = sortBy === s;
+                    return (
+                      <TouchableOpacity key={s} style={[styles.advFilterChip, {
+                        backgroundColor: isActive ? colors.primary : colors.inputBg,
+                        borderColor: isActive ? colors.primary : colors.border,
+                      }]} onPress={() => setSortBy(s)}>
+                        <Text style={[styles.advFilterChipText, { color: isActive ? '#FFF' : colors.textSec }]}>{label}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+
+                {/* DURUM */}
+                <Text style={[styles.sheetSectionLabel, { color: colors.textSec, marginTop: 20 }]}>DURUM</Text>
+                <Text style={[styles.sheetSectionDesc, { color: colors.textSec }]}>Aktif, dondurulmuş veya tüm abonelikler</Text>
+                <View style={styles.filterChipRow}>
+                  {([
+                    { key: 'all', label: 'Tümü' },
+                    { key: 'active', label: '● Aktif' },
+                    { key: 'paused', label: '⏸ Dondurulmuş' },
+                  ] as { key: typeof statusFilter; label: string }[]).map(opt => (
+                    <TouchableOpacity key={opt.key} style={[styles.advFilterChip, {
+                      backgroundColor: statusFilter === opt.key ? colors.primary : colors.inputBg,
+                      borderColor: statusFilter === opt.key ? colors.primary : colors.border,
+                    }]} onPress={() => setStatusFilter(opt.key)}>
+                      <Text style={[styles.advFilterChipText, { color: statusFilter === opt.key ? '#FFF' : colors.textSec }]}>{opt.label}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                {/* PARA BİRİMİ */}
+                <Text style={[styles.sheetSectionLabel, { color: colors.textSec, marginTop: 20 }]}>PARA BİRİMİ</Text>
+                <Text style={[styles.sheetSectionDesc, { color: colors.textSec }]}>Belirli bir para birimiyle filtrelemek için seç</Text>
+                <View style={styles.filterChipRow}>
+                  {(['all', 'TRY', 'USD', 'EUR'] as const).map(c => (
+                    <TouchableOpacity key={c} style={[styles.advFilterChip, {
+                      backgroundColor: currencyFilter === c ? colors.primary : colors.inputBg,
+                      borderColor: currencyFilter === c ? colors.primary : colors.border,
+                    }]} onPress={() => setCurrencyFilter(c)}>
+                      <Text style={[styles.advFilterChipText, { color: currencyFilter === c ? '#FFF' : colors.textSec }]}>{c === 'all' ? 'Tümü' : c}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                {/* FİYAT ARALIĞI */}
+                <Text style={[styles.sheetSectionLabel, { color: colors.textSec, marginTop: 20 }]}>FİYAT ARALIĞI</Text>
+                <Text style={[styles.sheetSectionDesc, { color: colors.textSec }]}>Aylık tutarı bu aralıkta olan abonelikleri göster</Text>
+                <View style={styles.priceRangeRow}>
+                  <TextInput
+                    style={[styles.priceInput, { color: colors.textMain, borderColor: colors.border, backgroundColor: colors.inputBg }]}
+                    placeholder="Min" placeholderTextColor={colors.textSec}
+                    keyboardType="numeric" value={minPrice} onChangeText={setMinPrice}
+                  />
+                  <Text style={[styles.priceRangeDash, { color: colors.textSec }]}>—</Text>
+                  <TextInput
+                    style={[styles.priceInput, { color: colors.textMain, borderColor: colors.border, backgroundColor: colors.inputBg }]}
+                    placeholder="Max" placeholderTextColor={colors.textSec}
+                    keyboardType="numeric" value={maxPrice} onChangeText={setMaxPrice}
+                  />
+                  <Text style={[styles.priceRangeUnit, { color: colors.textSec }]}>₺</Text>
+                </View>
+
+              </ScrollView>
+
+              {/* Footer */}
+              <View style={[styles.sheetFooter, { borderTopColor: colors.border }]}>
+                {totalBadgeCount > 0 && (
+                  <TouchableOpacity
+                    style={[styles.sheetClearBtn, { borderColor: colors.border }]}
+                    onPress={() => { clearAllFilters(); setShowFilterModal(false); }}
+                  >
+                    <Text style={[styles.sheetClearBtnText, { color: colors.textSec }]}>Temizle</Text>
+                  </TouchableOpacity>
+                )}
+                <TouchableOpacity
+                  style={[styles.sheetApplyBtn, { backgroundColor: colors.primary }]}
+                  onPress={() => setShowFilterModal(false)}
+                >
+                  <Text style={styles.sheetApplyBtnText}>Tamam</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
       </SafeAreaView>
     </View>
   );
@@ -945,30 +1002,27 @@ const styles = StyleSheet.create({
   },
   catChipCountText: { fontSize: 10, fontWeight: '700' },
 
-  sortRow: {
+  // ─── Filtre & Sırala Satırı ─────────────────────────────────────────────
+  filterActionRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 8,
+    gap: 8,
   },
-  sortLabel: { fontSize: 12, fontWeight: '600', marginRight: 8 },
-  sortChip: {
-    paddingVertical: 5,
-    paddingHorizontal: 12,
-    borderRadius: 10,
-    marginRight: 6,
-    borderWidth: 1,
-  },
-  sortChipText: { fontSize: 12, fontWeight: '600' },
-
-  // ─── Grup Toggle ────────────────────────────────────────────────────────
-  groupToggleBtn: {
+  filterSortBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
     borderRadius: 10,
     borderWidth: 1,
   },
+  clearInlineBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  clearInlineBtnText: { fontSize: 12, fontWeight: '600' },
 
   // ─── Grup Başlığı ───────────────────────────────────────────────────────
   groupHeader: {
@@ -1024,15 +1078,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
 
-  // ─── Filtre Toggle ──────────────────────────────────────────────────────
-  filterToggleBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 10,
-    borderWidth: 1,
-  },
   filterToggleText: { fontSize: 12, fontWeight: '700', marginLeft: 4 },
   filterBadge: {
     minWidth: 16,
@@ -1045,19 +1090,71 @@ const styles = StyleSheet.create({
   },
   filterBadgeText: { color: '#FFF', fontSize: 10, fontWeight: '800' },
 
-  // ─── Gelişmiş Filtreler Paneli ─────────────────────────────────────────
-  filterPanel: {
-    borderRadius: 16,
-    borderWidth: 1,
-    padding: 16,
-    marginBottom: 10,
+  // ─── Bottom Sheet Modal ────────────────────────────────────────────────
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.4)',
   },
-  filterGroupLabel: {
+  bottomSheet: {
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: '85%',
+    paddingBottom: 24,
+  },
+  dragHandle: {
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginTop: 12,
+    marginBottom: 4,
+  },
+  sheetHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+  },
+  sheetTitle: { fontSize: 16, fontWeight: '700' },
+  sheetContent: { paddingHorizontal: 20, paddingBottom: 16 },
+  sheetSectionLabel: {
     fontSize: 10,
     fontWeight: '800',
     letterSpacing: 0.8,
-    marginBottom: 8,
+    marginBottom: 4,
   },
+  sheetSectionDesc: {
+    fontSize: 11,
+    fontWeight: '500',
+    marginBottom: 10,
+    opacity: 0.7,
+  },
+  sheetFooter: {
+    flexDirection: 'row',
+    gap: 10,
+    paddingHorizontal: 20,
+    paddingTop: 14,
+    borderTopWidth: 1,
+  },
+  sheetClearBtn: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sheetClearBtnText: { fontSize: 14, fontWeight: '600' },
+  sheetApplyBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sheetApplyBtnText: { color: '#FFF', fontSize: 14, fontWeight: '700' },
   filterChipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -1088,23 +1185,6 @@ const styles = StyleSheet.create({
   priceRangeDash: { marginHorizontal: 10, fontSize: 16, fontWeight: '500' },
   priceRangeUnit: { marginLeft: 8, fontSize: 14, fontWeight: '700' },
 
-  clearFiltersBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 14,
-    paddingVertical: 8,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#FCA5A5',
-    backgroundColor: '#FEF2F2',
-  },
-  clearFiltersBtnText: {
-    color: '#EF4444',
-    fontSize: 12,
-    fontWeight: '700',
-    marginLeft: 5,
-  },
 
   categoryBadge: {
     borderRadius: 6,

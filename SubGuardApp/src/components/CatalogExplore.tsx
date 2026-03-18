@@ -39,6 +39,23 @@ const THEME = {
   heroEnd: '#334155',
 };
 
+// Component dışında tanımlanmalı — içeride tanımlanırsa her render'da yeni tip oluşur, state sıfırlanır
+function CatalogLogo({
+  logoUrl, name, colorCode, imgStyle, txtStyle,
+}: { logoUrl?: string; name: string; colorCode?: string; imgStyle: any; txtStyle: any }) {
+  const [imgFailed, setImgFailed] = useState(false);
+  if (logoUrl && !imgFailed) {
+    return (
+      <Image
+        source={{ uri: logoUrl }}
+        style={imgStyle}
+        onError={() => setImgFailed(true)}
+      />
+    );
+  }
+  return <Text style={txtStyle}>{name.charAt(0)}</Text>;
+}
+
 export default function CatalogExplore({ onSelect, isEmbedded = false }: Props) {
   const { catalogItems, fetchCatalog, loading } = useCatalogStore();
   const [searchText, setSearchText] = useState('');
@@ -97,10 +114,7 @@ export default function CatalogExplore({ onSelect, isEmbedded = false }: Props) 
         style={styles.heroCard}
       >
         <View style={styles.heroIconBg}>
-          {item.logoUrl ?
-            <Image source={{ uri: item.logoUrl }} style={styles.heroImg} /> :
-            <Text style={styles.heroTxt}>{item.name.charAt(0)}</Text>
-          }
+          <CatalogLogo logoUrl={item.logoUrl} name={item.name} colorCode={item.colorCode} imgStyle={styles.heroImg} txtStyle={styles.heroTxt} />
         </View>
         <View style={{ flex: 1 }}>
           <Text style={styles.heroTitle} numberOfLines={1}>{item.name}</Text>
@@ -116,10 +130,7 @@ export default function CatalogExplore({ onSelect, isEmbedded = false }: Props) 
     <TouchableOpacity onPress={() => onSelect(item)} activeOpacity={0.8} style={styles.itemWrapper}>
       <View style={styles.itemCard}>
         <View style={[styles.itemIcon, { backgroundColor: '#F8FAFC' }]}>
-          {item.logoUrl ?
-            <Image source={{ uri: item.logoUrl }} style={styles.itemImg} /> :
-            <Text style={[styles.itemTxt, { color: item.colorCode || THEME.textMain }]}>{item.name.charAt(0)}</Text>
-          }
+          <CatalogLogo logoUrl={item.logoUrl} name={item.name} colorCode={item.colorCode} imgStyle={styles.itemImg} txtStyle={[styles.itemTxt, { color: item.colorCode || THEME.textMain }]} />
         </View>
         <Text style={styles.itemTitle} numberOfLines={1}>{item.name}</Text>
       </View>
@@ -131,10 +142,7 @@ export default function CatalogExplore({ onSelect, isEmbedded = false }: Props) 
     <TouchableOpacity onPress={() => { closeSeeAll(); onSelect(item); }} activeOpacity={0.8} style={styles.gridItemWrapper}>
       <View style={styles.gridCard}>
         <View style={[styles.gridIcon, { backgroundColor: item.colorCode || '#F8FAFC' }]}>
-          {item.logoUrl ?
-            <Image source={{ uri: item.logoUrl }} style={styles.gridImg} /> :
-            <Text style={[styles.gridTxt, { color: '#FFF' }]}>{item.name.charAt(0)}</Text>
-          }
+          <CatalogLogo logoUrl={item.logoUrl} name={item.name} colorCode={item.colorCode} imgStyle={styles.gridImg} txtStyle={[styles.gridTxt, { color: '#FFF' }]} />
         </View>
         <Text style={styles.gridTitle} numberOfLines={1}>{item.name}</Text>
         <Ionicons name="add-circle" size={24} color={THEME.accent} style={{ marginTop: 8 }} />
@@ -318,9 +326,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden'
   },
   itemImg: {
-    width: 32, // Biraz daha küçük padding
-    height: 32,
-    resizeMode: 'contain'
+    width: '80%',
+    height: '80%',
+    resizeMode: 'contain',
   },
   itemTxt: { fontSize: 18, fontWeight: 'bold' },
   itemTitle: {
@@ -401,10 +409,10 @@ gridIcon: {
         borderColor: '#F1F5F9',
         overflow: 'hidden'
     },
-    gridImg: { 
-        width: 36, 
-        height: 36, 
-        resizeMode: 'contain' 
+    gridImg: {
+        width: '80%',
+        height: '80%',
+        resizeMode: 'contain',
     },
   gridTxt: { fontSize: 22, fontWeight: 'bold' },
   gridTitle: {

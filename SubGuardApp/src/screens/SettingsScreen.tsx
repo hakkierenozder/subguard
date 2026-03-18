@@ -170,8 +170,6 @@ export default function SettingsScreen() {
   const activeCount  = subscriptions.filter(s => s.isActive !== false).length;
   const totalExpense = getTotalExpense();
   const budget       = userProfile?.monthlyBudget ?? 0;
-  const budgetPct    = budget > 0 ? Math.min((totalExpense / budget) * 100, 100) : 0;
-  const budgetColor  = budgetPct >= 100 ? '#EF4444' : budgetPct >= 80 ? '#F97316' : '#34D399';
 
   const initials = userProfile?.fullName
     ? userProfile.fullName.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
@@ -340,18 +338,6 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         </View>
 
-        {budget > 0 && (
-          <View style={styles.budgetBar}>
-            <View style={styles.budgetBarBg}>
-              <View style={[styles.budgetBarFill, { width: `${budgetPct}%` as any, backgroundColor: budgetColor }]} />
-            </View>
-            <Text style={styles.budgetBarText}>
-              {budgetPct >= 100
-                ? 'Bütçe aşıldı!'
-                : `Bütçenin %${budgetPct.toFixed(0)}'ini kullandın — ${totalExpense.toFixed(0)}₺ / ${budget}₺`}
-            </Text>
-          </View>
-        )}
       </LinearGradient>
 
       {/* ── İÇERİK ─────────────────────────────────── */}
@@ -372,27 +358,7 @@ export default function SettingsScreen() {
           />
         </View>
 
-        {/* HIZLI ERİŞİM */}
-        <Text style={[styles.sectionLabel, { color: colors.textSec }]}>HIZLI ERİŞİM</Text>
-        <View style={[styles.section, { borderColor: colors.border }]}>
-          <MenuItem
-            icon="wallet-outline" iconColor="#10B981" iconBg={isDarkMode ? '#064E3B' : '#D1FAE5'}
-            title="Bütçe Yönetimi" subtitle="Limitler ve kategori dağılımı"
-            onPress={() => navigation.navigate('Budget')}
-          />
-          <MenuItem
-            icon="calendar-outline" iconColor="#0EA5E9" iconBg={isDarkMode ? '#0C4A6E' : '#E0F2FE'}
-            title="Ödeme Takvimi" subtitle="Tüm ödeme günlerini gör"
-            onPress={() => navigation.navigate('Calendar')}
-          />
-          <MenuItem
-            icon="compass-outline" iconColor="#F59E0B" iconBg={isDarkMode ? '#451A03' : '#FEF3C7'}
-            title="Servis Keşfet" subtitle="Yeni abonelik önerileri"
-            onPress={() => navigation.navigate('Discover')} isLast
-          />
-        </View>
-
-        {/* ── 19. BİLDİRİM TERCİHLERİ ── */}
+        {/* ── BİLDİRİM TERCİHLERİ ── */}
         <Text style={[styles.sectionLabel, { color: colors.textSec }]}>BİLDİRİMLER</Text>
         <View style={[styles.section, { borderColor: colors.border }]}>
           <MenuItem
