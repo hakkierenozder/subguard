@@ -21,6 +21,7 @@ public class AppDbContext : IdentityDbContext<AppUser>
     public DbSet<NotificationQueue> NotificationQueues { get; set; } // <--- EKLENDİ
     public DbSet<CategoryBudget> CategoryBudgets { get; set; }
     public DbSet<PriceHistory> PriceHistories { get; set; } // Fiyat değişikliği geçmişi (silinmez)
+    public DbSet<RevokedUserEntry> RevokedUserEntries { get; set; } // JWT revocation kalıcı listesi
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

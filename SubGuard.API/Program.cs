@@ -182,13 +182,22 @@ try
         });
     });
 
-    // Rate Limiting: auth → 10 req/dk, global API → 60 req/dk
+    // Rate Limiting: auth → 10 req/dk, user-api → 30 req/dk, global API → 60 req/dk
     builder.Services.AddRateLimiter(options =>
     {
         // Sıkı limit: login/register gibi auth endpoint'leri
         options.AddFixedWindowLimiter("auth", limiterOptions =>
         {
             limiterOptions.PermitLimit = 10;
+            limiterOptions.Window = TimeSpan.FromMinutes(1);
+            limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+            limiterOptions.QueueLimit = 0;
+        });
+
+        // Orta limit: abonelik, bildirim, rapor endpoint'leri — [EnableRateLimiting("user-api")] ile uygulanır
+        options.AddFixedWindowLimiter("user-api", limiterOptions =>
+        {
+            limiterOptions.PermitLimit = 30;
             limiterOptions.Window = TimeSpan.FromMinutes(1);
             limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
             limiterOptions.QueueLimit = 0;
@@ -229,7 +238,8 @@ try
         // Decorator i�ine as�l servisi ve cache'i vererek instance olu�tur
         return new SubGuard.Service.Services.Decorators.CachedCatalogService(actualService, memoryCache);
     });
-    builder.Services.AddSingleton<IRevokedUserStore, InMemoryRevokedUserStore>();
+    // DB-backed revocation store: sunucu restart / çoklu instance senaryolarında da çalışır
+    builder.Services.AddSingleton<IRevokedUserStore, DbRevokedUserStore>();
     builder.Services.AddScoped<IReportService, ReportService>();
     builder.Services.AddScoped<IUserSubscriptionService, UserSubscriptionService>();
     builder.Services.AddScoped<IAuthService, AuthService>();
@@ -273,6 +283,15 @@ try
             throw new InvalidOperationException(
                 $"Zorunlu yapılandırma eksik: '{label}' ({key}). " +
                 "Lütfen 'dotnet user-secrets set' veya environment variable kullanın.");
+    }
+
+    // S-6: Production ortamında CORS konfigüre edilmemişse uyar
+    if (!app.Environment.IsDevelopment())
+    {
+        var corsOrigins = app.Configuration.GetSection("AllowedCorsOrigins").Get<string[]>() ?? Array.Empty<string>();
+        if (corsOrigins.Length == 0)
+            Log.Warning("GÜVENLİK UYARISI: Production ortamında 'AllowedCorsOrigins' yapılandırılmamış. " +
+                        "Tüm origin'lere CORS izni veriliyor. appsettings.Production.json'ı güncelleyin.");
     }
 
     // Admin rolünü seed et
@@ -338,18 +357,23 @@ try
         new RecurringJobOptions { TimeZone = trTimeZone }
     );
 
-    // #11: Bütçe aşım kontrolü — ayın 1'i sabah 09:00
+    // #11: Bütçe aşım kontrolü — her gün 09:00.
+    // Servis içindeki startOfMonth filtresi aynı ay için tekrar bildirim gönderilmesini önler.
+    // Böylece kullanıcı ayın ortasında limit aşarsa aynı gün uyarı alır.
     RecurringJob.AddOrUpdate<INotificationService>(
         "monthly-budget-alert",
         service => service.CheckAndQueueBudgetAlertsAsync(),
-        "0 9 1 * *",
+        "0 9 * * *",
         new RecurringJobOptions { TimeZone = trTimeZone }
     );
 
+    // Bildirim kuyruğu işleme: CheckAndQueue ile aynı saatlik sıklıkta çalışır,
+    // böylece NotifyHour=18 gibi seçimlerde bildirim aynı saat işlenir.
     RecurringJob.AddOrUpdate<INotificationService>(
         "process-notification-queue",
         service => service.ProcessNotificationQueueAsync(),
-        "0 9 * * *"
+        "0 * * * *",
+        new RecurringJobOptions { TimeZone = trTimeZone }
     );
 
     RecurringJob.AddOrUpdate<ITokenService>(

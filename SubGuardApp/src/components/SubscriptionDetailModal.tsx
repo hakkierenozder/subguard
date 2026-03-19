@@ -45,7 +45,7 @@ type SubscriptionStatus = 'active' | 'paused' | 'cancelled';
 export default function SubscriptionDetailModal({ visible, subscription: initialSubscription, onClose, onEdit }: Props) {
     const colors = useThemeColors();
     const isDarkMode = useSettingsStore((state) => state.isDarkMode);
-    const { removeSubscription, updateSubscription, fetchUsageLogs } = useUserSubscriptionStore();
+    const { removeSubscription, updateSubscription, fetchUsageLogs, fetchUserSubscriptions } = useUserSubscriptionStore();
     const { catalogItems } = useCatalogStore();
 
     // Canlı veri (store'dan)
@@ -73,6 +73,7 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
 
     const [usageLogsError, setUsageLogsError] = useState(false);
     const [priceHistory, setPriceHistory] = useState<PriceHistoryEntry[]>([]);
+    const [isDuplicating, setIsDuplicating] = useState(false);
 
     // Modal açıldığında backend kullanım loglarını ve fiyat geçmişini çek
     useEffect(() => {
@@ -128,6 +129,32 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
     if (!subscription) return null;
 
     // --- AKSİYONLAR ---
+    const handleDuplicate = () => {
+        Alert.alert(
+            'Aboneliği Kopyala',
+            `${subscription.name} aboneliğini kopyalamak istiyor musun?`,
+            [
+                { text: 'Vazgeç', style: 'cancel' },
+                {
+                    text: 'Kopyala',
+                    onPress: async () => {
+                        setIsDuplicating(true);
+                        try {
+                            await agent.UserSubscriptions.duplicate(subscription.id);
+                            await fetchUserSubscriptions();
+                            Toast.show({ type: 'success', text1: '✅ Kopyalandı', text2: `${subscription.name} kopyalandı.`, position: 'top' });
+                            onClose();
+                        } catch {
+                            // Hata agent interceptor'ı tarafından toast ile gösteriliyor
+                        } finally {
+                            setIsDuplicating(false);
+                        }
+                    },
+                },
+            ]
+        );
+    };
+
     const handleDelete = () => {
         Alert.alert(
             'Aboneliği Sil',
@@ -236,6 +263,13 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                         <Ionicons name="chevron-down" size={24} color={colors.textMain} />
                     </TouchableOpacity>
                     <View style={styles.topBarActions}>
+                        <TouchableOpacity
+                            onPress={handleDuplicate}
+                            disabled={isDuplicating}
+                            style={[styles.iconBtn, { backgroundColor: colors.inputBg, marginRight: 10 }]}
+                        >
+                            <Ionicons name="copy-outline" size={20} color={isDuplicating ? colors.textSec : colors.textMain} />
+                        </TouchableOpacity>
                         <TouchableOpacity
                             onPress={() => { onClose(); onEdit(subscription); }}
                             style={[styles.iconBtn, { backgroundColor: colors.inputBg, marginRight: 10 }]}

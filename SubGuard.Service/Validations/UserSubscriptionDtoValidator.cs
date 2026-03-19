@@ -25,6 +25,15 @@ namespace SubGuard.Service.Validations
                 .MaximumLength(500).WithMessage("Not alanı en fazla 500 karakter olabilir.")
                 .When(x => x.Notes != null);
 
+            // HasContract=true ise başlangıç ve bitiş tarihleri zorunlu
+            RuleFor(x => x.ContractStartDate)
+                .NotNull().WithMessage("Sözleşme başlangıç tarihi zorunludur.")
+                .When(x => x.HasContract);
+
+            RuleFor(x => x.ContractEndDate)
+                .NotNull().WithMessage("Sözleşme bitiş tarihi zorunludur.")
+                .When(x => x.HasContract);
+
             // Kontrat tarihleri girilmişse başlangıç < bitiş olmalı
             RuleFor(x => x.ContractEndDate)
                 .GreaterThan(x => x.ContractStartDate)

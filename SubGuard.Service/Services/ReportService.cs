@@ -22,8 +22,10 @@ namespace SubGuard.Service.Services
             if (from > to)
                 return CustomResponseDto<SpendingReportDto>.Fail(400, "'from' tarihi 'to' tarihinden büyük olamaz.");
 
+            // Yalnızca aktif abonelikler rapora dahil edilir.
+            // Duraklatılmış (Paused) abonelikler o dönemde ödeme gerektirmez.
             var subscriptions = await _subRepo
-                .Where(x => x.UserId == userId && x.Status != SubscriptionStatus.Cancelled)
+                .Where(x => x.UserId == userId && x.Status == SubscriptionStatus.Active)
                 .ToListAsync();
 
             var lines = new List<SpendingLineDto>();

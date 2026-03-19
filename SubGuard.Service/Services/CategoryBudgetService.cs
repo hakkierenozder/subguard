@@ -38,20 +38,18 @@ namespace SubGuard.Service.Services
                 .Where(b => b.UserId == userId)
                 .ToListAsync();
 
-            // Aktif abonelikleri çek (aynı para birimi)
-            var subscriptions = await _db.UserSubscriptions
+            // Kategori bazlı aylık harcamayı DB'de GROUP BY + SUM ile hesapla
+            var spendingByCategory = await _db.UserSubscriptions
                 .Where(s => s.UserId == userId
                          && s.Status == SubscriptionStatus.Active
                          && s.Currency == currency)
-                .ToListAsync();
-
-            // Kategori bazlı aylık harcamayı hesapla
-            var spendingByCategory = subscriptions
                 .GroupBy(s => s.Category)
-                .ToDictionary(
-                    g => g.Key,
-                    g => g.Sum(s => s.BillingPeriod == BillingPeriod.Yearly ? s.Price / 12m : s.Price)
-                );
+                .Select(g => new
+                {
+                    Category = g.Key,
+                    Total = g.Sum(s => s.BillingPeriod == BillingPeriod.Yearly ? s.Price / 12m : s.Price)
+                })
+                .ToDictionaryAsync(x => x.Category, x => x.Total);
 
             var result = budgets.Select(b =>
             {

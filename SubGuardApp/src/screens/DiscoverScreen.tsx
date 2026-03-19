@@ -23,6 +23,7 @@ import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import AddSubscriptionModal from '../components/AddSubscriptionModal';
 import { SubscriptionSkeletonList } from '../components/SkeletonLoader'; // #42
 import { CatalogItem } from '../types';
+import agent from '../api/agent';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Discover'>;
 
@@ -52,6 +53,37 @@ function getCheapestPrice(item: CatalogItem): {
 type ListRow =
   | { type: 'header'; title: string; count: number }
   | { type: 'item'; left: CatalogItem; right: CatalogItem | null };
+
+// --- Trending Mini Kart ---
+function TrendingCard({ item, isSubscribed, colors, onAdd }: {
+  item: CatalogItem;
+  isSubscribed: boolean;
+  colors: ReturnType<typeof useThemeColors>;
+  onAdd: (item: CatalogItem) => void;
+}) {
+  const [imgFailed, setImgFailed] = useState(false);
+  return (
+    <TouchableOpacity
+      style={[styles.trendingCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}
+      onPress={() => !isSubscribed && onAdd(item)}
+      activeOpacity={0.75}
+    >
+      <View style={[styles.trendingIcon, { backgroundColor: (item.colorCode || '#4F46E5') + '18' }]}>
+        {item.logoUrl && !imgFailed ? (
+          <Image source={{ uri: item.logoUrl }} style={styles.trendingImg} onError={() => setImgFailed(true)} />
+        ) : (
+          <Text style={[styles.trendingInitial, { color: item.colorCode || colors.accent }]}>
+            {item.name.charAt(0)}
+          </Text>
+        )}
+      </View>
+      <Text style={[styles.trendingName, { color: colors.textMain }]} numberOfLines={1}>{item.name}</Text>
+      {isSubscribed && (
+        <Ionicons name="checkmark-circle" size={14} color={colors.success} style={{ marginTop: 2 }} />
+      )}
+    </TouchableOpacity>
+  );
+}
 
 // --- Katalog Kart ---
 interface CardProps {
@@ -131,6 +163,13 @@ export default function DiscoverScreen({ navigation }: Props) {
   const [searchText, setSearchText] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [addingItem, setAddingItem] = useState<CatalogItem | null>(null);
+  const [trendingItems, setTrendingItems] = useState<CatalogItem[]>([]);
+
+  useEffect(() => {
+    agent.Catalogs.trending(8).then((res: any) => {
+      if (res?.data) setTrendingItems(res.data);
+    }).catch(() => {});
+  }, []);
 
   const subscribedCatalogIds = useMemo(
     () => new Set(subscriptions.map((s) => s.catalogId).filter(Boolean)),
@@ -309,6 +348,24 @@ export default function DiscoverScreen({ navigation }: Props) {
         })}
       </ScrollView>
 
+      {/* TREND OLAN SERVİSLER */}
+      {trendingItems.length > 0 && !searchText && !selectedCategory && (
+        <View style={styles.trendingSection}>
+          <Text style={[styles.trendingTitle, { color: colors.textMain }]}>🔥 Trend</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.trendingList}>
+            {trendingItems.map((item) => (
+              <TrendingCard
+                key={item.id}
+                item={item}
+                isSubscribed={subscribedCatalogIds.has(item.id)}
+                colors={colors}
+                onAdd={handleAdd}
+              />
+            ))}
+          </ScrollView>
+        </View>
+      )}
+
       {/* İÇERİK */}
       <FlatList
         data={listData}
@@ -468,4 +525,27 @@ const styles = StyleSheet.create({
   emptyWrap: { alignItems: 'center', paddingTop: 60 },
   emptyTitle: { fontSize: 18, fontWeight: '800', marginTop: 14 },
   emptyDesc: { fontSize: 14, marginTop: 6, textAlign: 'center', paddingHorizontal: 40 },
+
+  // Trending
+  trendingSection: { paddingBottom: 4 },
+  trendingTitle: { fontSize: 14, fontWeight: '800', marginLeft: 16, marginBottom: 8, marginTop: 4 },
+  trendingList: { paddingHorizontal: 16, gap: 10 },
+  trendingCard: {
+    width: 76,
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: 10,
+    alignItems: 'center',
+  },
+  trendingIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 13,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  trendingImg: { width: 30, height: 30, resizeMode: 'contain' },
+  trendingInitial: { fontSize: 18, fontWeight: '800' },
+  trendingName: { fontSize: 10, fontWeight: '700', textAlign: 'center' },
 });

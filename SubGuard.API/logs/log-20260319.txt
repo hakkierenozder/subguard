@@ -850,3 +850,36 @@ Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
 2026-03-19 12:27:23.721 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/72/usage responded 200 in 6.3294 ms
 2026-03-19 12:27:23.723 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/72/price-history responded 200 in 7.5454 ms
 2026-03-19 12:30:42.051 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.4020 ms
+2026-03-19 12:45:45.109 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 401 in 1.4901 ms
+2026-03-19 12:45:45.111 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.8865 ms
+2026-03-19 12:45:45.109 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 401 in 0.4502 ms
+2026-03-19 12:45:45.109 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 0.2734 ms
+2026-03-19 12:45:45.113 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 4.3883 ms
+2026-03-19 12:45:45.130 +03:00 [INF] [User: Anonymous] Token atomik olarak yenilendi. Email: ha***@gmail.com
+2026-03-19 12:45:45.132 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 12.3726 ms
+2026-03-19 12:45:45.150 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.9143 ms
+2026-03-19 12:45:45.153 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 9.2575 ms
+2026-03-19 12:45:45.159 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.9834 ms
+2026-03-19 12:45:45.204 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.9453 ms
+2026-03-19 12:45:49.997 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.4267 ms
+2026-03-19 12:45:50.001 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.3526 ms
+2026-03-19 12:45:51.227 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.6645 ms
+2026-03-19 12:45:51.252 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 31.5043 ms
+2026-03-19 12:45:52.105 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.8562 ms
+2026-03-19 12:45:52.108 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.6174 ms
+2026-03-19 12:46:11.948 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.3128 ms
+2026-03-19 12:46:19.001 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.1039 ms
+2026-03-19 12:46:19.005 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.8555 ms
+2026-03-19 12:46:31.146 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1899 ms
+2026-03-19 12:46:41.026 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.8475 ms
+2026-03-19 12:46:41.026 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 8.3026 ms
+2026-03-19 12:46:41.119 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.9793 ms
+2026-03-19 12:46:42.137 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.2220 ms
+2026-03-19 12:46:42.143 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.6262 ms
+2026-03-19 12:46:42.240 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.2920 ms
+2026-03-19 12:46:47.228 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.2618 ms
+2026-03-19 12:46:47.232 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.0593 ms
+2026-03-19 17:09:32.048 +03:00 [INF] [User: ] Server desktop-25vqrpg:27260:224a5f39 caught stopping signal...
+2026-03-19 17:09:32.057 +03:00 [INF] [User: ] Server desktop-25vqrpg:27260:224a5f39 All dispatchers stopped
+2026-03-19 17:09:32.070 +03:00 [INF] [User: ] Server desktop-25vqrpg:27260:224a5f39 successfully reported itself as stopped in 8,7208 ms
+2026-03-19 17:09:32.071 +03:00 [INF] [User: ] Server desktop-25vqrpg:27260:224a5f39 has been stopped in total 17,3631 ms

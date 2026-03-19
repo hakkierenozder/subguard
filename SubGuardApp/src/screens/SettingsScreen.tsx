@@ -527,7 +527,10 @@ export default function SettingsScreen() {
                         { borderColor: selected ? colors.primary : colors.border },
                         selected && { backgroundColor: colors.primary },
                       ]}
-                      onPress={() => setDefaultCurrency(cur)}
+                      onPress={async () => {
+                        setDefaultCurrency(cur);
+                        try { await agent.Auth.updateProfile({ monthlyBudgetCurrency: cur }); } catch {}
+                      }}
                     >
                       <Text style={[styles.chipText, { color: selected ? colors.white : colors.textSec }]}>{cur}</Text>
                     </TouchableOpacity>

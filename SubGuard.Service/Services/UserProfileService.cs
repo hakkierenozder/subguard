@@ -6,6 +6,7 @@ using SubGuard.Core.DTOs.Auth;
 using SubGuard.Core.Entities;
 using SubGuard.Core.Repositories;
 using SubGuard.Core.Services;
+using System.Text.Json;
 
 namespace SubGuard.Service.Services
 {
@@ -121,6 +122,25 @@ namespace SubGuard.Service.Services
                     .Where(x => x.UserId == userId)
                     .ToListAsync();
                 _db.UserSubscriptions.RemoveRange(subscriptions);
+
+                // Diğer kullanıcıların paylaşım listelerinden bu userId'yi temizle
+                var sharedSubs = await _db.UserSubscriptions
+                    .Where(s => s.SharedWithJson != null && s.SharedWithJson.Contains(userId))
+                    .ToListAsync();
+
+                foreach (var sub in sharedSubs)
+                {
+                    try
+                    {
+                        var list = JsonSerializer.Deserialize<List<string>>(sub.SharedWithJson!) ?? new();
+                        list.Remove(userId);
+                        sub.SharedWithJson = list.Count > 0 ? JsonSerializer.Serialize(list) : null;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "SharedWithJson temizleme hatası. SubscriptionId: {Id}", sub.Id);
+                    }
+                }
 
                 var notifications = await _db.NotificationQueues
                     .IgnoreQueryFilters()

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.Services;
 using System.Security.Claims;
@@ -9,6 +10,7 @@ namespace SubGuard.API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize] // Sadece token'ı olanlar girebilir
+    [EnableRateLimiting("user-api")]
     public class UserSubscriptionsController : CustomBaseController
     {
         private readonly IUserSubscriptionService _service;
@@ -64,7 +66,7 @@ namespace SubGuard.API.Controllers
         [HttpPatch("{id}/status")]
         public async Task<IActionResult> ChangeStatus(int id, [FromBody] ChangeSubscriptionStatusDto dto)
         {
-            return CreateActionResult(await _service.ChangeStatusAsync(id, LoggedInUserId, dto.Status));
+            return CreateActionResult(await _service.ChangeStatusAsync(id, LoggedInUserId, dto.Status, dto.ForceCancel));
         }
 
         // GET api/usersubscriptions/shared-with-me

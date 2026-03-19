@@ -164,7 +164,7 @@ namespace SubGuard.Service.Services
             }
         }
 
-        public async Task<CustomResponseDto<bool>> ChangeStatusAsync(int id, string userId, SubscriptionStatus newStatus)
+        public async Task<CustomResponseDto<bool>> ChangeStatusAsync(int id, string userId, SubscriptionStatus newStatus, bool forceCancel = false)
         {
             var entity = await _repo.GetByIdAsync(id);
 
@@ -184,6 +184,20 @@ namespace SubGuard.Service.Services
 
             if (!validTransitions[entity.Status].Contains(newStatus))
                 return CustomResponseDto<bool>.Fail(422, $"'{entity.Status}' durumundan '{newStatus}' durumuna geçiş yapılamaz.");
+
+            // İptal edilmek isteniyorsa ve aktif bir kontrat varsa onay iste
+            if (newStatus == SubscriptionStatus.Cancelled
+                && entity.HasContract
+                && entity.ContractEndDate.HasValue
+                && entity.ContractEndDate.Value > DateTime.UtcNow
+                && !forceCancel)
+            {
+                var endDateStr = entity.ContractEndDate.Value.ToString("dd.MM.yyyy");
+                return CustomResponseDto<bool>.Fail(
+                    409,
+                    $"Bu aboneliğin sözleşmesi {endDateStr} tarihine kadar geçerlidir. " +
+                    "Erken iptal etmek için 'forceCancel: true' ile tekrar gönderin.");
+            }
 
             entity.Status = newStatus;
             entity.IsActive = newStatus == SubscriptionStatus.Active;
@@ -270,54 +284,109 @@ namespace SubGuard.Service.Services
 
         public async Task<CustomResponseDto<bool>> ShareSubscriptionAsync(int id, string ownerId, string targetEmail)
         {
-            var entity = await _repo.GetByIdAsync(id);
-            if (entity == null) return CustomResponseDto<bool>.Fail(404, "Abonelik bulunamadı.");
-            if (entity.UserId != ownerId) return CustomResponseDto<bool>.Fail(403, "Bu aboneliği paylaşma yetkiniz yok.");
-
+            // Hedef kullanıcıyı önceden doğrula — lock almadan önce hızlı kontrol
             var targetUser = await _userManager.FindByEmailAsync(targetEmail);
-            if (targetUser == null) return CustomResponseDto<bool>.Fail(404, $"'{targetEmail}' adresinde kayıtlı kullanıcı bulunamadı.");
+            if (targetUser == null) return CustomResponseDto<bool>.Fail(404, "Kullanıcı bulunamadı.");
             if (targetUser.Id == ownerId) return CustomResponseDto<bool>.Fail(400, "Aboneliği kendinizle paylaşamazsınız.");
 
-            var sharedWith = DeserializeSharedWith(entity.SharedWithJson);
-            if (sharedWith.Contains(targetUser.Id)) return CustomResponseDto<bool>.Fail(409, "Bu kullanıcıyla zaten paylaşılmış.");
-
-            sharedWith.Add(targetUser.Id);
-            entity.SharedWithJson = JsonSerializer.Serialize(sharedWith);
-            _repo.Update(entity);
-            await _unitOfWork.CommitAsync();
-
-            // #13: Hedef kullanıcıya paylaşım bildirimi gönder
-            var owner = await _userManager.FindByIdAsync(ownerId);
-            var ownerName = owner?.FullName ?? owner?.Email ?? "Bir kullanıcı";
+            await _unitOfWork.BeginTransactionAsync();
             try
             {
-                await _notificationService.QueueShareNotificationAsync(
-                    targetUser.Id, id, entity.Name, ownerName);
+                // Eşzamanlı güncelleme sorununu önlemek için PostgreSQL satır kilidi (FOR UPDATE)
+                var entity = await _db.UserSubscriptions
+                    .FromSqlRaw(@"SELECT * FROM ""UserSubscriptions"" WHERE ""Id"" = {0} AND ""IsDeleted"" = FALSE FOR UPDATE", id)
+                    .IgnoreQueryFilters()
+                    .FirstOrDefaultAsync();
+
+                if (entity == null)
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    return CustomResponseDto<bool>.Fail(404, "Abonelik bulunamadı.");
+                }
+                if (entity.UserId != ownerId)
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    return CustomResponseDto<bool>.Fail(403, "Bu aboneliği paylaşma yetkiniz yok.");
+                }
+
+                var sharedWith = DeserializeSharedWith(entity.SharedWithJson);
+                if (sharedWith.Contains(targetUser.Id))
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    return CustomResponseDto<bool>.Fail(409, "Bu kullanıcıyla zaten paylaşılmış.");
+                }
+
+                sharedWith.Add(targetUser.Id);
+                entity.SharedWithJson = JsonSerializer.Serialize(sharedWith);
+                await _unitOfWork.CommitAsync();
+                await _unitOfWork.CommitTransactionAsync();
+
+                // Hedef kullanıcıya paylaşım bildirimi gönder
+                var owner = await _userManager.FindByIdAsync(ownerId);
+                var ownerName = owner?.FullName ?? owner?.Email ?? "Bir kullanıcı";
+                try
+                {
+                    await _notificationService.QueueShareNotificationAsync(
+                        targetUser.Id, id, entity.Name, ownerName);
+                }
+                catch (Exception ex)
+                {
+                    // Bildirim hatası paylaşım işlemini geri almasın
+                    _logger.LogWarning(ex, "Paylaşım bildirimi kuyruğa eklenemedi. SubscriptionId: {Id}", id);
+                }
+
+                _logger.LogInformation("Abonelik paylaşıldı. SubscriptionId: {Id}, Hedef: {Email}", id, targetEmail);
+                return CustomResponseDto<bool>.Success(200, true);
             }
             catch (Exception ex)
             {
-                // Bildirim hatası paylaşım işlemini geri almasın
-                _logger.LogWarning(ex, "Paylaşım bildirimi kuyruğa eklenemedi. SubscriptionId: {Id}", id);
+                _logger.LogError(ex, "Abonelik paylaşım hatası. Id: {Id}", id);
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
             }
-
-            _logger.LogInformation("Abonelik paylaşıldı. SubscriptionId: {Id}, Hedef: {Email}", id, targetEmail);
-            return CustomResponseDto<bool>.Success(200, true);
         }
 
         public async Task<CustomResponseDto<bool>> RemoveShareAsync(int id, string ownerId, string targetUserId)
         {
-            var entity = await _repo.GetByIdAsync(id);
-            if (entity == null) return CustomResponseDto<bool>.Fail(404, "Abonelik bulunamadı.");
-            if (entity.UserId != ownerId) return CustomResponseDto<bool>.Fail(403, "Bu aboneliğe erişim yetkiniz yok.");
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                // Eşzamanlı güncelleme sorununu önlemek için PostgreSQL satır kilidi (FOR UPDATE)
+                var entity = await _db.UserSubscriptions
+                    .FromSqlRaw(@"SELECT * FROM ""UserSubscriptions"" WHERE ""Id"" = {0} AND ""IsDeleted"" = FALSE FOR UPDATE", id)
+                    .IgnoreQueryFilters()
+                    .FirstOrDefaultAsync();
 
-            var sharedWith = DeserializeSharedWith(entity.SharedWithJson);
-            if (!sharedWith.Remove(targetUserId)) return CustomResponseDto<bool>.Fail(404, "Bu kullanıcı paylaşım listesinde değil.");
+                if (entity == null)
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    return CustomResponseDto<bool>.Fail(404, "Abonelik bulunamadı.");
+                }
+                if (entity.UserId != ownerId)
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    return CustomResponseDto<bool>.Fail(403, "Bu aboneliğe erişim yetkiniz yok.");
+                }
 
-            entity.SharedWithJson = sharedWith.Count > 0 ? JsonSerializer.Serialize(sharedWith) : null;
-            _repo.Update(entity);
-            await _unitOfWork.CommitAsync();
+                var sharedWith = DeserializeSharedWith(entity.SharedWithJson);
+                if (!sharedWith.Remove(targetUserId))
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    return CustomResponseDto<bool>.Fail(404, "Bu kullanıcı paylaşım listesinde değil.");
+                }
 
-            return CustomResponseDto<bool>.Success(200, true);
+                entity.SharedWithJson = sharedWith.Count > 0 ? JsonSerializer.Serialize(sharedWith) : null;
+                await _unitOfWork.CommitAsync();
+                await _unitOfWork.CommitTransactionAsync();
+
+                return CustomResponseDto<bool>.Success(200, true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Paylaşım kaldırma hatası. Id: {Id}", id);
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
 
         public async Task<CustomResponseDto<PagedResponseDto<UserSubscriptionDto>>> GetSharedWithMeAsync(string userId, int page, int pageSize)
@@ -392,6 +461,24 @@ namespace SubGuard.Service.Services
             }
         }
 
+        // JSON varlığına rağmen parse başarısız olursa false döner —
+        // çağıran kod veri kaybına yol açmadan erken dönebilir.
+        private bool TryDeserializeUsageLogs(string? json, out List<UsageLogDto> logs)
+        {
+            logs = new List<UsageLogDto>();
+            if (string.IsNullOrEmpty(json)) return true; // Boş = geçerli durum
+            try
+            {
+                logs = JsonSerializer.Deserialize<List<UsageLogDto>>(json) ?? new();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "UsageHistoryJson parse hatası (TryDeserialize). Ham değer: {Json}", json);
+                return false;
+            }
+        }
+
         public async Task<CustomResponseDto<List<UsageLogDto>>> GetUsageHistoryAsync(int id, string userId)
         {
             var (entity, error) = await GetOwnedSubscription<List<UsageLogDto>>(id, userId);
@@ -409,7 +496,10 @@ namespace SubGuard.Service.Services
             var (entity, error) = await GetOwnedSubscription<UsageLogDto>(id, userId);
             if (error != null) return error;
 
-            var logs = DeserializeUsageLogs(entity!.UsageHistoryJson);
+            // JSON bozuksa mevcut veriyi kaybetmemek için erken dön
+            if (!TryDeserializeUsageLogs(entity!.UsageHistoryJson, out var logs))
+                return CustomResponseDto<UsageLogDto>.Fail(500,
+                    "Kullanım geçmişi verisi bozuk. Lütfen destek ile iletişime geçin.");
 
             var newLog = new UsageLogDto
             {
@@ -433,7 +523,11 @@ namespace SubGuard.Service.Services
             var (entity, error) = await GetOwnedSubscription<bool>(id, userId);
             if (error != null) return error;
 
-            var logs = DeserializeUsageLogs(entity!.UsageHistoryJson);
+            // JSON bozuksa belirsiz silme yapma
+            if (!TryDeserializeUsageLogs(entity!.UsageHistoryJson, out var logs))
+                return CustomResponseDto<bool>.Fail(500,
+                    "Kullanım geçmişi verisi bozuk. Lütfen destek ile iletişime geçin.");
+
             var removed = logs.RemoveAll(x => x.Id == logId);
 
             if (removed == 0)

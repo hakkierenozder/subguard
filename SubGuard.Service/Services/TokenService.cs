@@ -24,19 +24,22 @@ namespace SubGuard.Service.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
         private readonly ILogger<TokenService> _logger;
+        private readonly AppDbContext _db;
 
         public TokenService(
             UserManager<AppUser> userManager,
             IGenericRepository<RefreshToken> refreshTokenRepo,
             IUnitOfWork unitOfWork,
             IConfiguration configuration,
-            ILogger<TokenService> logger)
+            ILogger<TokenService> logger,
+            AppDbContext db)
         {
             _userManager = userManager;
             _refreshTokenRepo = refreshTokenRepo;
             _unitOfWork = unitOfWork;
             _configuration = configuration;
             _logger = logger;
+            _db = db;
         }
 
         public async Task<CustomResponseDto<TokenDto>> CreateTokenAsync(AppUser user)
@@ -115,17 +118,27 @@ namespace SubGuard.Service.Services
 
         public async Task PurgeExpiredRefreshTokensAsync()
         {
+            // Süresi dolmuş refresh token'ları temizle
             var expired = await _refreshTokenRepo
                 .Where(x => x.Expiration < DateTime.UtcNow)
                 .ToListAsync();
 
-            if (expired.Count == 0) return;
-
             foreach (var token in expired)
                 _refreshTokenRepo.Remove(token);
 
+            // Süresi dolmuş JWT revocation kayıtlarını temizle (DB şişmesini önler)
+            var expiredRevocations = await _db.RevokedUserEntries
+                .Where(e => e.ExpiresAt < DateTime.UtcNow)
+                .ToListAsync();
+
+            if (expiredRevocations.Count > 0)
+                _db.RevokedUserEntries.RemoveRange(expiredRevocations);
+
             await _unitOfWork.CommitAsync();
-            _logger.LogInformation("Süresi dolmuş {Count} refresh token temizlendi.", expired.Count);
+
+            _logger.LogInformation(
+                "Süresi dolmuş {RefreshCount} refresh token ve {RevocationCount} revocation kaydı temizlendi.",
+                expired.Count, expiredRevocations.Count);
         }
 
         // ─── Private helpers ──────────────────────────────────────

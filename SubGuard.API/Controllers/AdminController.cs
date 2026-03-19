@@ -1,9 +1,11 @@
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.Entities;
+using SubGuard.Core.Helpers;
 using SubGuard.Core.Services;
 
 namespace SubGuard.API.Controllers
@@ -18,15 +20,20 @@ namespace SubGuard.API.Controllers
         private readonly ICatalogService _catalogService;
         private readonly IAdminService _adminService;
         private readonly UserManager<AppUser> _userManager;
+        private readonly ILogger<AdminController> _logger;
+
+        private string AdminId => User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier) ?? "unknown";
 
         public AdminController(
             ICatalogService catalogService,
             IAdminService adminService,
-            UserManager<AppUser> userManager)
+            UserManager<AppUser> userManager,
+            ILogger<AdminController> logger)
         {
             _catalogService = catalogService;
             _adminService = adminService;
             _userManager = userManager;
+            _logger = logger;
         }
 
         // ─── Sistem İstatistikleri ────────────────────────────────
@@ -61,6 +68,7 @@ namespace SubGuard.API.Controllers
         [ProducesResponseType(typeof(CustomResponseDto<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetUser(string id)
         {
+            _logger.LogWarning("[AUDIT] Admin {AdminId} kullanıcı detayını görüntüledi. TargetUserId: {TargetId}", AdminId, id);
             return CreateActionResult(await _adminService.GetUserDetailAsync(id));
         }
 
@@ -71,6 +79,7 @@ namespace SubGuard.API.Controllers
         [ProducesResponseType(typeof(CustomResponseDto<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Deactivate(string id)
         {
+            _logger.LogWarning("[AUDIT] Admin {AdminId} kullanıcıyı askıya aldı. TargetUserId: {TargetId}", AdminId, id);
             return CreateActionResult(await _adminService.DeactivateUserAsync(id));
         }
 
@@ -81,6 +90,7 @@ namespace SubGuard.API.Controllers
         [ProducesResponseType(typeof(CustomResponseDto<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Activate(string id)
         {
+            _logger.LogWarning("[AUDIT] Admin {AdminId} kullanıcı askıyı kaldırdı. TargetUserId: {TargetId}", AdminId, id);
             return CreateActionResult(await _adminService.ActivateUserAsync(id));
         }
 
@@ -94,6 +104,7 @@ namespace SubGuard.API.Controllers
         [ProducesResponseType(typeof(CustomResponseDto<object>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateCatalog([FromBody] ServiceDto dto)
         {
+            _logger.LogWarning("[AUDIT] Admin {AdminId} yeni katalog oluşturdu. CatalogName: {Name}", AdminId, dto?.Name);
             return CreateActionResult(await _catalogService.CreateCatalogAsync(dto));
         }
 
@@ -106,6 +117,7 @@ namespace SubGuard.API.Controllers
         [ProducesResponseType(typeof(CustomResponseDto<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateCatalog(int id, [FromBody] ServiceDto dto)
         {
+            _logger.LogWarning("[AUDIT] Admin {AdminId} katalogu güncelledi. CatalogId: {CatalogId}", AdminId, id);
             return CreateActionResult(await _catalogService.UpdateCatalogAsync(id, dto));
         }
 
@@ -116,6 +128,7 @@ namespace SubGuard.API.Controllers
         [ProducesResponseType(typeof(CustomResponseDto<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteCatalog(int id)
         {
+            _logger.LogWarning("[AUDIT] Admin {AdminId} katalogu sildi. CatalogId: {CatalogId}", AdminId, id);
             return CreateActionResult(await _catalogService.DeleteCatalogAsync(id));
         }
 
@@ -130,6 +143,7 @@ namespace SubGuard.API.Controllers
         [ProducesResponseType(typeof(CustomResponseDto<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> CreatePlan(int catalogId, [FromBody] PlanDto dto)
         {
+            _logger.LogWarning("[AUDIT] Admin {AdminId} yeni plan oluşturdu. CatalogId: {CatalogId}, PlanName: {Name}", AdminId, catalogId, dto?.Name);
             return CreateActionResult(await _catalogService.CreatePlanAsync(catalogId, dto));
         }
 
@@ -142,6 +156,7 @@ namespace SubGuard.API.Controllers
         [ProducesResponseType(typeof(CustomResponseDto<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdatePlan(int id, [FromBody] PlanDto dto)
         {
+            _logger.LogWarning("[AUDIT] Admin {AdminId} planı güncelledi. PlanId: {PlanId}", AdminId, id);
             return CreateActionResult(await _catalogService.UpdatePlanAsync(id, dto));
         }
 
@@ -152,6 +167,7 @@ namespace SubGuard.API.Controllers
         [ProducesResponseType(typeof(CustomResponseDto<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeletePlan(int id)
         {
+            _logger.LogWarning("[AUDIT] Admin {AdminId} planı sildi. PlanId: {PlanId}", AdminId, id);
             return CreateActionResult(await _catalogService.DeletePlanAsync(id));
         }
 
@@ -180,6 +196,7 @@ namespace SubGuard.API.Controllers
             if (!result.Succeeded)
                 return CreateActionResult(CustomResponseDto<bool>.Fail(400, result.Errors.Select(e => e.Description).ToList()));
 
+            _logger.LogWarning("[AUDIT] Admin {AdminId} kullanıcıya Admin rolü atadı. TargetEmail: {Email}", AdminId, PiiSanitizer.MaskEmail(dto.Email));
             return CreateActionResult(CustomResponseDto<bool>.Success(200, true));
         }
     }

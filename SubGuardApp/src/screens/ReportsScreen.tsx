@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, StatusBar,
-  TouchableOpacity, Share, Dimensions, Alert,
+  TouchableOpacity, Share, Dimensions, Alert, ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BarChart } from 'react-native-chart-kit';
@@ -12,6 +12,7 @@ import { useSettingsStore } from '../store/useSettingsStore';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useThemeColors } from '../constants/theme';
 import { CATEGORY_COLORS } from '../components/ExpenseChart';
+import agent from '../api/agent';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -29,6 +30,49 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
 
   // Seçili kategori (detay için)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  // --- DÖNEM FİLTRESİ ---
+  type Period = 'this_month' | 'last_3_months' | 'this_year';
+  const [selectedPeriod, setSelectedPeriod] = useState<Period | null>(null);
+  const [periodData, setPeriodData] = useState<{ totalSpending?: number; currency?: string } | null>(null);
+  const [periodLoading, setPeriodLoading] = useState(false);
+
+  const periodRanges: Record<Period, { label: string; from: () => string; to: () => string }> = {
+    this_month: {
+      label: 'Bu Ay',
+      from: () => {
+        const d = new Date(); d.setDate(1);
+        return d.toISOString().slice(0, 10);
+      },
+      to: () => new Date().toISOString().slice(0, 10),
+    },
+    last_3_months: {
+      label: 'Son 3 Ay',
+      from: () => {
+        const d = new Date(); d.setMonth(d.getMonth() - 3); d.setDate(1);
+        return d.toISOString().slice(0, 10);
+      },
+      to: () => new Date().toISOString().slice(0, 10),
+    },
+    this_year: {
+      label: 'Bu Yıl',
+      from: () => `${new Date().getFullYear()}-01-01`,
+      to: () => new Date().toISOString().slice(0, 10),
+    },
+  };
+
+  useEffect(() => {
+    if (!selectedPeriod) { setPeriodData(null); return; }
+    const range = periodRanges[selectedPeriod];
+    setPeriodLoading(true);
+    agent.Reports.spending(range.from(), range.to())
+      .then((res: any) => {
+        if (res?.data) setPeriodData(res.data);
+        else setPeriodData(null);
+      })
+      .catch(() => setPeriodData(null))
+      .finally(() => setPeriodLoading(false));
+  }, [selectedPeriod]);
 
   const handleCategoryPress = (cat: string) => {
     setSelectedCategory(prev => (prev === cat ? null : cat));
@@ -342,6 +386,50 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
 
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
+          {/* 0. DÖNEM SEÇİCİ */}
+          <View style={styles.periodRow}>
+            {(Object.keys(periodRanges) as Period[]).map((key) => {
+              const isActive = selectedPeriod === key;
+              return (
+                <TouchableOpacity
+                  key={key}
+                  style={[styles.periodChip, {
+                    backgroundColor: isActive ? colors.primary : colors.inputBg,
+                    borderColor: isActive ? colors.primary : colors.border,
+                  }]}
+                  onPress={() => setSelectedPeriod(isActive ? null : key)}
+                >
+                  <Text style={[styles.periodChipText, { color: isActive ? '#FFF' : colors.textSec }]}>
+                    {periodRanges[key].label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          {/* DÖNEM SONUCU */}
+          {selectedPeriod && (
+            <View style={[styles.periodResultCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+              {periodLoading ? (
+                <ActivityIndicator size="small" color={colors.primary} />
+              ) : periodData?.totalSpending != null ? (
+                <View style={styles.periodResultRow}>
+                  <Ionicons name="calendar-outline" size={18} color={colors.primary} />
+                  <Text style={[styles.periodResultLabel, { color: colors.textSec }]}>
+                    {periodRanges[selectedPeriod].label} Toplam
+                  </Text>
+                  <Text style={[styles.periodResultValue, { color: colors.textMain }]}>
+                    {periodData.totalSpending.toFixed(2)} {periodData.currency ?? '₺'}
+                  </Text>
+                </View>
+              ) : (
+                <Text style={[styles.periodResultLabel, { color: colors.textSec }]}>
+                  Bu dönem için veri bulunamadı.
+                </Text>
+              )}
+            </View>
+          )}
+
           {/* 1. ÖZET KARTI */}
           <View style={[styles.heroCard, { backgroundColor: colors.primary, shadowColor: isDarkMode ? '#000' : colors.primaryDark }]}>
             <View style={styles.heroTop}>
@@ -569,4 +657,32 @@ const styles = StyleSheet.create({
   emptyState: { alignItems: 'center', marginTop: 40, padding: 20 },
   emptyText: { marginTop: 16, fontSize: 16, fontWeight: '600' },
   emptySubText: { marginTop: 8, fontSize: 14, textAlign: 'center' },
+
+  // Dönem Seçici
+  periodRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
+  periodChip: {
+    flex: 1,
+    paddingVertical: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: 'center',
+  },
+  periodChipText: { fontSize: 13, fontWeight: '700' },
+  periodResultCard: {
+    borderRadius: 16,
+    padding: 14,
+    borderWidth: 1,
+    marginBottom: 16,
+    minHeight: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  periodResultRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    width: '100%',
+  },
+  periodResultLabel: { fontSize: 13, fontWeight: '600', flex: 1 },
+  periodResultValue: { fontSize: 16, fontWeight: '800' },
 });

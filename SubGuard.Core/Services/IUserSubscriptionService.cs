@@ -10,7 +10,7 @@ namespace SubGuard.Core.Services
         Task<CustomResponseDto<UserSubscriptionDto>> AddSubscriptionAsync(UserSubscriptionDto dto);
         Task<CustomResponseDto<bool>> UpdateSubscriptionAsync(UserSubscriptionDto dto);
         Task<CustomResponseDto<bool>> RemoveSubscriptionAsync(int id, string userId);
-        Task<CustomResponseDto<bool>> ChangeStatusAsync(int id, string userId, SubscriptionStatus newStatus);
+        Task<CustomResponseDto<bool>> ChangeStatusAsync(int id, string userId, SubscriptionStatus newStatus, bool forceCancel = false);
 
         // Paylaşım
         Task<CustomResponseDto<bool>> ShareSubscriptionAsync(int id, string ownerId, string targetEmail);

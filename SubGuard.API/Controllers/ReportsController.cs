@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SubGuard.Core.Services;
 using System.Security.Claims;
 
@@ -8,6 +9,7 @@ namespace SubGuard.API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
+    [EnableRateLimiting("user-api")]
     public class ReportsController : CustomBaseController
     {
         private readonly IReportService _reportService;
