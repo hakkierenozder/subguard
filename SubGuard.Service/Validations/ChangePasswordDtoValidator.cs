@@ -16,7 +16,8 @@ namespace SubGuard.Service.Validations
                 .Matches("[A-Z]").WithMessage("Şifre en az bir büyük harf içermelidir.")
                 .Matches("[a-z]").WithMessage("Şifre en az bir küçük harf içermelidir.")
                 .Matches("[0-9]").WithMessage("Şifre en az bir rakam içermelidir.")
-                .Matches("[^a-zA-Z0-9]").WithMessage("Şifre en az bir özel karakter içermelidir (örn: !@#$%).");
+                .Matches("[^a-zA-Z0-9]").WithMessage("Şifre en az bir özel karakter içermelidir (örn: !@#$%).")
+                .NotEqual(x => x.CurrentPassword).WithMessage("Yeni şifre mevcut şifrenizle aynı olamaz.");
 
             RuleFor(x => x.ConfirmNewPassword)
                 .NotEmpty().WithMessage("Şifre onayı gereklidir.")

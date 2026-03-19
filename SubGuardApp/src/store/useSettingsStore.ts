@@ -15,14 +15,22 @@ interface SettingsState {
   sharedAlertEnabled: boolean;
   notifyHour: number; // 0-23
 
-  // 20 — Para Birimi
-  defaultCurrency: 'TRY' | 'USD' | 'EUR';
+  // 20 — Para Birimi (#49: GBP eklendi)
+  defaultCurrency: 'TRY' | 'USD' | 'EUR' | 'GBP';
   autoConvert: boolean;
 
   // 22 — Uygulama Kilidi
   appLockEnabled: boolean;
   appLockMethod: 'pin' | 'biometric';
   lockAfterMinutes: 5 | 15 | 30 | 60;
+
+  // 23 — Takvim Senkronizasyonu
+  calendarSyncEnabled: boolean;
+  setCalendarSyncEnabled: (v: boolean) => void;
+
+  // 35 — Dashboard yaklaşan ödeme aralığı
+  dashboardUpcomingDays: 7 | 14 | 30;
+  setDashboardUpcomingDays: (v: 7 | 14 | 30) => void;
 
   // Actions — Mevcut
   toggleDarkMode: () => void;
@@ -37,7 +45,7 @@ interface SettingsState {
   setNotifyHour: (v: number) => void;
 
   // Actions — 20
-  setDefaultCurrency: (v: 'TRY' | 'USD' | 'EUR') => void;
+  setDefaultCurrency: (v: 'TRY' | 'USD' | 'EUR' | 'GBP') => void;
   setAutoConvert: (v: boolean) => void;
 
   // Actions — 22
@@ -48,6 +56,10 @@ interface SettingsState {
   // Budget sync
   monthlyBudget: number;
   setMonthlyBudget: (v: number) => void;
+
+  // Admin — profil yüklenince set edilir, persist edilmez (session bilgisi)
+  isAdmin: boolean;
+  setIsAdmin: (v: boolean) => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -74,6 +86,12 @@ export const useSettingsStore = create<SettingsState>()(
       appLockMethod: 'pin',
       lockAfterMinutes: 15,
 
+      // 23 defaults
+      calendarSyncEnabled: false,
+
+      // 35 defaults
+      dashboardUpcomingDays: 30,
+
       // Actions
       toggleDarkMode: () => set((s) => ({ isDarkMode: !s.isDarkMode })),
       toggleNotifications: (isEnabled) => set({ notificationsEnabled: isEnabled }),
@@ -91,13 +109,23 @@ export const useSettingsStore = create<SettingsState>()(
       setAppLockEnabled: (v) => set({ appLockEnabled: v }),
       setAppLockMethod: (v) => set({ appLockMethod: v }),
       setLockAfterMinutes: (v) => set({ lockAfterMinutes: v }),
+      setCalendarSyncEnabled: (v) => set({ calendarSyncEnabled: v }),
+      setDashboardUpcomingDays: (v) => set({ dashboardUpcomingDays: v }),
 
       monthlyBudget: 0,
       setMonthlyBudget: (v) => set({ monthlyBudget: v }),
+
+      isAdmin: false,
+      setIsAdmin: (v) => set({ isAdmin: v }),
     }),
     {
       name: 'subguard-settings-storage',
       storage: createJSONStorage(() => AsyncStorage),
+      // isAdmin persist edilmez — her oturumda profil yüklenince belirlenir
+      partialize: (state) => {
+        const { isAdmin, setIsAdmin, ...persisted } = state;
+        return persisted;
+      },
     }
   )
 );

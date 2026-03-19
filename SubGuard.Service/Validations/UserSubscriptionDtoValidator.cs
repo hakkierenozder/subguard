@@ -11,7 +11,7 @@ namespace SubGuard.Service.Validations
                 .NotEmpty().WithMessage("Abonelik adı (Name) boş bırakılamaz.");
 
             RuleFor(x => x.Price)
-                .GreaterThanOrEqualTo(0).WithMessage("Fiyat 0'dan küçük olamaz.");
+                .GreaterThan(0).WithMessage("Fiyat 0'dan büyük olmalıdır.");
 
             // Fatura günü ayın 1'i ile 31'i arasında olmalı
             RuleFor(x => x.BillingDay)
@@ -19,7 +19,11 @@ namespace SubGuard.Service.Validations
 
             RuleFor(x => x.Currency)
                 .NotEmpty().WithMessage("Para birimi seçilmelidir.")
-                .Length(1, 5).WithMessage("Geçersiz para birimi kodu.");
+                .Length(3).WithMessage("Para birimi kodu 3 karakter olmalıdır (ör: USD, TRY, EUR).");
+
+            RuleFor(x => x.Notes)
+                .MaximumLength(500).WithMessage("Not alanı en fazla 500 karakter olabilir.")
+                .When(x => x.Notes != null);
 
             // Kontrat tarihleri girilmişse başlangıç < bitiş olmalı
             RuleFor(x => x.ContractEndDate)

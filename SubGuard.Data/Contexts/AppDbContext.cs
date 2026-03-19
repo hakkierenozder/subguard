@@ -19,6 +19,8 @@ public class AppDbContext : IdentityDbContext<AppUser>
     public DbSet<UserSubscription> UserSubscriptions { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; } // EKLENDİ
     public DbSet<NotificationQueue> NotificationQueues { get; set; } // <--- EKLENDİ
+    public DbSet<CategoryBudget> CategoryBudgets { get; set; }
+    public DbSet<PriceHistory> PriceHistories { get; set; } // Fiyat değişikliği geçmişi (silinmez)
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -64,5 +66,6 @@ public class AppDbContext : IdentityDbContext<AppUser>
         // Gelecekte eklenecek BaseEntity türevleri için de buraya ekleme yapılmalı.
 
         modelBuilder.Entity<NotificationQueue>().HasQueryFilter(x => !x.IsDeleted);
+        modelBuilder.Entity<CategoryBudget>().HasQueryFilter(x => !x.IsDeleted);
     }
 }

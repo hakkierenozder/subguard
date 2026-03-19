@@ -10,8 +10,8 @@ namespace SubGuard.Service.Validations
             RuleFor(x => x.Token)
                 .NotEmpty().WithMessage("Push token boş bırakılamaz.")
                 .MaximumLength(512).WithMessage("Push token 512 karakterden uzun olamaz.")
-                .Must(t => t.StartsWith("ExponentPushToken[") || t.StartsWith("ExpoPushToken["))
-                .WithMessage("Geçersiz Expo push token formatı.");
+                .Matches(@"^(ExponentPushToken|ExpoPushToken)\[[a-zA-Z0-9_\-]+\]$")
+                .WithMessage("Geçersiz Expo push token formatı. Beklenen: ExponentPushToken[...] veya ExpoPushToken[...]");
         }
     }
 }

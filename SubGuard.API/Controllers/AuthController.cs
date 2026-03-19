@@ -30,6 +30,11 @@ namespace SubGuard.API.Controllers
         public async Task<IActionResult> Register(RegisterDto registerDto)
             => CreateActionResult(await _authService.RegisterAsync(registerDto));
 
+        [HttpPost("confirm-email")]
+        [EnableRateLimiting("auth")]
+        public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailDto dto)
+            => CreateActionResult(await _authService.ConfirmEmailAsync(dto.UserId, dto.Token));
+
         [HttpPost("login")]
         [EnableRateLimiting("auth")]
         public async Task<IActionResult> Login(LoginDto loginDto)

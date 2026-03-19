@@ -1,3 +1,5 @@
+using SubGuard.Core.Enums;
+
 namespace SubGuard.Core.DTOs
 {
     public class NotificationDto
@@ -10,5 +12,6 @@ namespace SubGuard.Core.DTOs
         public bool IsRead { get; set; }
         public DateTime? ReadDate { get; set; }
         public DateTime CreatedDate { get; set; }
+        public NotificationType Type { get; set; }
     }
 }

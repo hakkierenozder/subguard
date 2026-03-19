@@ -3,6 +3,7 @@ using MailKit.Security;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
+using SubGuard.Core.Helpers;
 using SubGuard.Core.Models;
 using SubGuard.Core.Services;
 
@@ -23,7 +24,7 @@ namespace SubGuard.Service.Services
         {
             if (string.IsNullOrEmpty(_settings.Host) || string.IsNullOrEmpty(_settings.From))
             {
-                _logger.LogWarning("Email ayarları eksik (Host veya From boş). Gönderim yapılamadı. Alıcı: {Email}", toEmail);
+                _logger.LogWarning("Email ayarları eksik (Host veya From boş). Gönderim yapılamadı. Alıcı: {Email}", PiiSanitizer.MaskEmail(toEmail));
                 throw new InvalidOperationException("SMTP ayarları eksik. Email gönderilemedi.");
             }
 
@@ -47,11 +48,11 @@ namespace SubGuard.Service.Services
                 await client.AuthenticateAsync(_settings.Username, _settings.Password);
                 await client.SendAsync(message);
 
-                _logger.LogInformation("Email gönderildi. Alıcı: {Email}, Konu: {Subject}", toEmail, subject);
+                _logger.LogInformation("Email gönderildi. Alıcı: {Email}, Konu: {Subject}", PiiSanitizer.MaskEmail(toEmail), subject);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Email gönderilemedi. Alıcı: {Email}", toEmail);
+                _logger.LogError(ex, "Email gönderilemedi. Alıcı: {Email}", PiiSanitizer.MaskEmail(toEmail));
                 throw;
             }
             finally

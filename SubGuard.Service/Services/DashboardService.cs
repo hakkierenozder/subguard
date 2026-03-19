@@ -11,11 +11,16 @@ namespace SubGuard.Service.Services
     {
         private readonly IGenericRepository<UserSubscription> _repo;
         private readonly UserManager<AppUser> _userManager;
+        private readonly ICurrencyService _currencyService;
 
-        public DashboardService(IGenericRepository<UserSubscription> repo, UserManager<AppUser> userManager)
+        public DashboardService(
+            IGenericRepository<UserSubscription> repo,
+            UserManager<AppUser> userManager,
+            ICurrencyService currencyService)
         {
             _repo = repo;
             _userManager = userManager;
+            _currencyService = currencyService;
         }
 
         public async Task<CustomResponseDto<DashboardDto>> GetDashboardAsync(string userId, int upcomingDays = 30)
@@ -80,31 +85,68 @@ namespace SubGuard.Service.Services
             if (user == null || user.MonthlyBudget <= 0 || string.IsNullOrEmpty(user.MonthlyBudgetCurrency))
                 return null;
 
-            // SUM DB'de hesaplanıyor
-            var totalSpent = await baseQuery
-                .Where(x => x.Currency == user.MonthlyBudgetCurrency)
-                .SumAsync(x => x.Price);
+            // Kur bilgilerini cache'den çek
+            var rates = await _currencyService.GetRatesAsync();
+
+            // Tüm abonelik fiyatlarını bütçe para birimine çevirerek topla
+            var allSubs = await baseQuery
+                .Select(x => new { x.Price, x.Currency })
+                .ToListAsync();
+
+            var totalSpent = allSubs.Sum(x =>
+                ConvertToTargetCurrency(x.Price, x.Currency, user.MonthlyBudgetCurrency, rates));
 
             return new BudgetSummaryDto
             {
                 MonthlyBudget = user.MonthlyBudget,
                 Currency = user.MonthlyBudgetCurrency,
-                TotalSpent = totalSpent
+                TotalSpent = Math.Round(totalSpent, 2)
             };
+        }
+
+        // Frankfurter API kurları EUR bazlıdır: 1 EUR = rates[X] X birimi
+        private static decimal ConvertToTargetCurrency(
+            decimal amount, string fromCurrency, string toCurrency,
+            Dictionary<string, decimal> rates)
+        {
+            if (fromCurrency == toCurrency) return amount;
+
+            decimal fromRate = fromCurrency == "EUR" ? 1m : rates.GetValueOrDefault(fromCurrency, 0m);
+            decimal toRate = toCurrency == "EUR" ? 1m : rates.GetValueOrDefault(toCurrency, 0m);
+
+            if (fromRate == 0) return 0; // Bilinmeyen kaynak para birimi
+
+            // Önce EUR'ya çevir, sonra hedef para birimine
+            return amount / fromRate * toRate;
         }
 
         private static List<UpcomingPaymentDto> CalcUpcomingPayments(
             IEnumerable<SubscriptionPaymentData> subs, DateTime today, int upcomingDays)
         {
             var result = new List<UpcomingPaymentDto>();
-            int daysInMonth = DateTime.DaysInMonth(today.Year, today.Month);
+            var todayDate = today.Date;
 
             foreach (var sub in subs)
             {
-                int billingDay = Math.Min(sub.BillingDay, daysInMonth);
-                int daysUntil = billingDay >= today.Day
-                    ? billingDay - today.Day
-                    : (daysInMonth - today.Day) + billingDay;
+                // Bir sonraki fatura tarihini hesapla — yıl/ay geçişlerini doğru ele alır
+                int clampedThisMonth = Math.Min(sub.BillingDay, DateTime.DaysInMonth(todayDate.Year, todayDate.Month));
+                DateTime nextBilling;
+
+                if (clampedThisMonth >= todayDate.Day)
+                {
+                    // Bu ay içinde
+                    nextBilling = new DateTime(todayDate.Year, todayDate.Month, clampedThisMonth);
+                }
+                else
+                {
+                    // Sonraki ay (Aralık → Ocak yıl geçişi dahil)
+                    int nextMonth = todayDate.Month == 12 ? 1 : todayDate.Month + 1;
+                    int nextYear = todayDate.Month == 12 ? todayDate.Year + 1 : todayDate.Year;
+                    int clampedNextMonth = Math.Min(sub.BillingDay, DateTime.DaysInMonth(nextYear, nextMonth));
+                    nextBilling = new DateTime(nextYear, nextMonth, clampedNextMonth);
+                }
+
+                int daysUntil = (int)(nextBilling - todayDate).TotalDays;
 
                 if (daysUntil <= upcomingDays)
                 {

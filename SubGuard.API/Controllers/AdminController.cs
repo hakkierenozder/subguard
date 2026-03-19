@@ -16,12 +16,72 @@ namespace SubGuard.API.Controllers
     public class AdminController : CustomBaseController
     {
         private readonly ICatalogService _catalogService;
+        private readonly IAdminService _adminService;
         private readonly UserManager<AppUser> _userManager;
 
-        public AdminController(ICatalogService catalogService, UserManager<AppUser> userManager)
+        public AdminController(
+            ICatalogService catalogService,
+            IAdminService adminService,
+            UserManager<AppUser> userManager)
         {
             _catalogService = catalogService;
+            _adminService = adminService;
             _userManager = userManager;
+        }
+
+        // ─── Sistem İstatistikleri ────────────────────────────────
+
+        /// <summary>Sistem geneli özet metrikler.</summary>
+        // GET api/admin/stats
+        [HttpGet("stats")]
+        [ProducesResponseType(typeof(CustomResponseDto<AdminStatsDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetStats()
+        {
+            return CreateActionResult(await _adminService.GetStatsAsync());
+        }
+
+        // ─── Kullanıcı Yönetimi ───────────────────────────────────
+
+        /// <summary>Kullanıcıları sayfalı listeler; isteğe bağlı e-posta/ad araması.</summary>
+        // GET api/admin/users?search=&page=1&pageSize=20
+        [HttpGet("users")]
+        [ProducesResponseType(typeof(CustomResponseDto<PagedResponseDto<AdminUserDto>>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetUsers(
+            [FromQuery] string? search,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20)
+        {
+            return CreateActionResult(await _adminService.GetUsersAsync(search, page, pageSize));
+        }
+
+        /// <summary>Tek kullanıcı detayı.</summary>
+        // GET api/admin/users/{id}
+        [HttpGet("users/{id}")]
+        [ProducesResponseType(typeof(CustomResponseDto<AdminUserDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(CustomResponseDto<object>), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetUser(string id)
+        {
+            return CreateActionResult(await _adminService.GetUserDetailAsync(id));
+        }
+
+        /// <summary>Kullanıcıyı askıya alır (giriş engellenir).</summary>
+        // PUT api/admin/users/{id}/deactivate
+        [HttpPut("users/{id}/deactivate")]
+        [ProducesResponseType(typeof(CustomResponseDto<bool>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(CustomResponseDto<object>), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Deactivate(string id)
+        {
+            return CreateActionResult(await _adminService.DeactivateUserAsync(id));
+        }
+
+        /// <summary>Kullanıcının askıya alınmasını kaldırır.</summary>
+        // PUT api/admin/users/{id}/activate
+        [HttpPut("users/{id}/activate")]
+        [ProducesResponseType(typeof(CustomResponseDto<bool>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(CustomResponseDto<object>), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Activate(string id)
+        {
+            return CreateActionResult(await _adminService.ActivateUserAsync(id));
         }
 
         // ─── Catalog CRUD ─────────────────────────────────────────
@@ -112,6 +172,9 @@ namespace SubGuard.API.Controllers
             var user = await _userManager.FindByEmailAsync(dto.Email);
             if (user == null)
                 return CreateActionResult(CustomResponseDto<bool>.Fail(404, "Kullanıcı bulunamadı."));
+
+            if (await _userManager.IsInRoleAsync(user, "Admin"))
+                return CreateActionResult(CustomResponseDto<bool>.Fail(400, "Kullanıcı zaten Admin rolüne sahip."));
 
             var result = await _userManager.AddToRoleAsync(user, "Admin");
             if (!result.Succeeded)

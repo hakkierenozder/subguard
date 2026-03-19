@@ -7,5 +7,7 @@ namespace SubGuard.Core.DTOs.Auth
         public int TotalSubscriptions { get; set; }
         public decimal MonthlyBudget { get; set; }
         public string? MonthlyBudgetCurrency { get; set; }
+        public int BudgetAlertThreshold { get; set; }
+        public bool IsAdmin { get; set; }
     }
 }

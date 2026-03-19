@@ -10,7 +10,6 @@ import {
   StatusBar,
   Image,
   Dimensions,
-  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,6 +21,7 @@ import { useSettingsStore } from '../store/useSettingsStore';
 import { useCatalogStore } from '../store/useCatalogStore';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import AddSubscriptionModal from '../components/AddSubscriptionModal';
+import { SubscriptionSkeletonList } from '../components/SkeletonLoader'; // #42
 import { CatalogItem } from '../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Discover'>;
@@ -29,14 +29,23 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Discover'>;
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_SIZE = (SCREEN_WIDTH - 48) / 2; // 2 sütun, 16px padding + 16px gap
 
-// Cheapest monthly plan price
-function getCheapestPrice(item: CatalogItem): { price: number; currency: string } | null {
+// En ucuz planı günlük birim maliyete göre bulur.
+// #46: billingCycleDays de döndürülerek kart "/ay" vs "/yıl" doğru gösterebilsin.
+function getCheapestPrice(item: CatalogItem): {
+  price: number;
+  currency: string;
+  billingCycleDays: number;
+} | null {
   if (!item.plans || item.plans.length === 0) return null;
   const sorted = [...item.plans]
     .filter((p) => p.billingCycleDays > 0)
     .sort((a, b) => (a.price / a.billingCycleDays) - (b.price / b.billingCycleDays));
   if (sorted.length === 0) return null;
-  return { price: sorted[0].price, currency: sorted[0].currency };
+  return {
+    price: sorted[0].price,
+    currency: sorted[0].currency,
+    billingCycleDays: sorted[0].billingCycleDays,
+  };
 }
 
 // Flat list veri tipleri (header veya item)
@@ -83,7 +92,10 @@ function CatalogCard({ item, isSubscribed, isRecommended, colors, onAdd }: CardP
           {priceInfo.currency === 'TRY' ? '₺' : `${priceInfo.currency} `}
           {priceInfo.price.toFixed(2)}
           {'  '}
-          <Text style={[styles.cardPricePer, { color: colors.textSec }]}>/ay</Text>
+          {/* #46: billingCycleDays >= 365 ise yıllık plan — "/ay" yerine "/yıl" göster */}
+          <Text style={[styles.cardPricePer, { color: colors.textSec }]}>
+            {priceInfo.billingCycleDays >= 365 ? '/yıl' : '/ay'}
+          </Text>
         </Text>
       )}
       {isSubscribed ? (
@@ -308,12 +320,8 @@ export default function DiscoverScreen({ navigation }: Props) {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           catalogLoading ? (
-            <View style={styles.emptyWrap}>
-              <ActivityIndicator size="large" color={colors.accent} />
-              <Text style={[styles.emptyDesc, { color: colors.textSec, marginTop: 16 }]}>
-                Katalog yükleniyor...
-              </Text>
-            </View>
+            // #42: ActivityIndicator → SubscriptionSkeletonList
+            <SubscriptionSkeletonList count={6} />
           ) : (
             <View style={styles.emptyWrap}>
               <Ionicons name="search-outline" size={48} color={colors.textSec} />

@@ -31,5 +31,12 @@ namespace SubGuard.API.Controllers
             return CreateActionResult(response);
         }
 
+        // GET api/catalogs/trending?limit=10
+        [HttpGet("trending")]
+        public async Task<IActionResult> GetTrending([FromQuery] int limit = 10)
+        {
+            if (limit < 1 || limit > 50) limit = 10;
+            return CreateActionResult(await _catalogService.GetTrendingAsync(limit));
+        }
     }
 }

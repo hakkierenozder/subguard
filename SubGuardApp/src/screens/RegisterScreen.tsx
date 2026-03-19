@@ -42,9 +42,19 @@ export default function RegisterScreen({ navigation }: Props) {
   const onSubmit = async (data: any) => {
     setLoading(true);
     try {
-      await agent.Auth.register(data);
-      Toast.show({ type: 'success', text1: 'Kayıt başarılı!', text2: 'Giriş yapabilirsiniz.', position: 'bottom' });
-      navigation.navigate('Login');
+      const response = await agent.Auth.register(data);
+      const userId: string = response?.data ?? '';
+
+      Toast.show({
+        type: 'success',
+        text1: 'Kayıt başarılı!',
+        text2: 'Doğrulama kodu e-posta adresinize gönderildi.',
+        position: 'bottom',
+        visibilityTime: 3000,
+      });
+
+      // Backend'den dönen userId ile doğrulama ekranına yönlendir
+      navigation.navigate('EmailVerification', { email: data.email, userId });
     } catch {
       // Hata toast'ı agent.ts interceptor'ı tarafından gösterilir
     } finally {

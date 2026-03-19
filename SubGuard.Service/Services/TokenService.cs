@@ -7,6 +7,7 @@ using SubGuard.Core.Constants;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.DTOs.Auth;
 using SubGuard.Core.Entities;
+using SubGuard.Core.Helpers;
 using SubGuard.Core.Repositories;
 using SubGuard.Core.Services;
 using SubGuard.Core.UnitOfWork;
@@ -40,13 +41,13 @@ namespace SubGuard.Service.Services
 
         public async Task<CustomResponseDto<TokenDto>> CreateTokenAsync(AppUser user)
         {
-            var (accessToken, accessExpiry) = BuildAccessToken(user);
+            var (accessToken, accessExpiry) = await BuildAccessTokenAsync(user);
             var refreshToken = BuildRefreshTokenEntity(user.Id);
 
             await _refreshTokenRepo.AddAsync(refreshToken);
             await _unitOfWork.CommitAsync();
 
-            _logger.LogInformation("Token üretildi. UserId: {UserId}", user.Id);
+            _logger.LogInformation("Token üretildi. Email: {Email}", PiiSanitizer.MaskEmail(user.Email));
 
             return CustomResponseDto<TokenDto>.Success(200, new TokenDto
             {
@@ -68,7 +69,7 @@ namespace SubGuard.Service.Services
 
             if (existToken.Expiration < DateTime.UtcNow)
             {
-                _logger.LogWarning("Süresi dolmuş refresh token kullanım denemesi. UserId: {UserId}", existToken.UserId);
+                _logger.LogWarning("Süresi dolmuş refresh token kullanım denemesi. UserId: {UserId}", existToken.UserId); // UserId PII değil, sadece internal ID
                 _refreshTokenRepo.Remove(existToken);
                 await _unitOfWork.CommitAsync();
                 return CustomResponseDto<TokenDto>.Fail(401, "Refresh token süresi dolmuş. Lütfen tekrar giriş yapın.");
@@ -84,11 +85,11 @@ namespace SubGuard.Service.Services
             var newRefreshToken = BuildRefreshTokenEntity(user.Id);
             await _refreshTokenRepo.AddAsync(newRefreshToken);
 
-            var (accessToken, accessExpiry) = BuildAccessToken(user);
+            var (accessToken, accessExpiry) = await BuildAccessTokenAsync(user);
 
             await _unitOfWork.CommitAsync();
 
-            _logger.LogInformation("Token atomik olarak yenilendi. UserId: {UserId}", user.Id);
+            _logger.LogInformation("Token atomik olarak yenilendi. Email: {Email}", PiiSanitizer.MaskEmail(user.Email));
 
             return CustomResponseDto<TokenDto>.Success(200, new TokenDto
             {
@@ -130,9 +131,9 @@ namespace SubGuard.Service.Services
         // ─── Private helpers ──────────────────────────────────────
 
         /// <summary>
-        /// JWT access token'ı üretir. Saf in-memory işlem — DB'ye yazılmaz.
+        /// JWT access token'ı üretir. Rol claim'leri DB'den alınır, token'a yazılır.
         /// </summary>
-        private (string Token, DateTime Expiry) BuildAccessToken(AppUser user)
+        private async Task<(string Token, DateTime Expiry)> BuildAccessTokenAsync(AppUser user)
         {
             var claims = new List<Claim>
             {
@@ -141,6 +142,11 @@ namespace SubGuard.Service.Services
                 new(ClaimTypes.Name, user.FullName!),
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
+
+            // Kullanıcının rollerini claim olarak ekle ([Authorize(Roles="Admin")] için gerekli)
+            var roles = await _userManager.GetRolesAsync(user);
+            foreach (var role in roles)
+                claims.Add(new Claim(ClaimTypes.Role, role));
 
             var keyString = _configuration["JwtSettings:SecretKey"];
             var key = new SymmetricSecurityKey(Convert.FromBase64String(keyString!));

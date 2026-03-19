@@ -24,11 +24,12 @@ export interface ApiResponse<T> {
 
 export interface UserSubscription {
   id: string;
+  createdDate?: string;   // ISO string — BaseEntity'den gelir, trend hesabı için gerekli
   catalogId?: number;
   userId?: string;
   name: string;
   logoUrl?: string;
-  colorCode?: string;
+  colorCode?: string | null;
   price: number;
   currency: string;
   category: string;
@@ -52,6 +53,8 @@ export interface UserSubscription {
 
   // Backend usage log: /api/usersubscriptions/{id}/usage endpoint'i (backend UsageLogDto[])
   usageLogs?: ApiUsageLog[];
+
+  notes?: string | null;
 
   isActive: boolean;
   // Backend'de CancelledDate (PascalCase) → camelCase'de cancelledDate
@@ -95,11 +98,13 @@ export interface AddSubscriptionPayload {
   contractStartDate?: string;
   contractEndDate?: string;
   sharedWith?: string[];
+  notes?: string;
 }
 
 // Backend API'den gelen raw UserSubscription response shape
 export interface RawSubscriptionApiItem {
   id: number | string;
+  createdDate?: string;
   catalogId?: number;
   userId?: string;
   name: string;
@@ -107,18 +112,36 @@ export interface RawSubscriptionApiItem {
   currency: string;
   category: string;
   billingDay: number;
-  billingPeriod?: string;
+  billingPeriod?: 'Monthly' | 'Yearly';
   colorCode?: string | null;
   hasContract: boolean;
   contractStartDate?: string | null;
   contractEndDate?: string | null;
   sharedWithJson?: string | null;
   usageHistoryJson?: string | null;
+  notes?: string | null;
   isActive: boolean;
-  status?: string;
+  status?: 'Active' | 'Paused' | 'Cancelled';
   pausedDate?: string | null;
   cancelledDate?: string | null;
   cancelledAt?: string | null;
+}
+
+export interface CategoryBudget {
+  category: string;
+  monthlyLimit: number;
+  spent: number;
+  currency: string;
+  remaining: number;
+  isOverBudget: boolean;
+  isNearLimit: boolean;
+}
+
+export interface PriceHistoryEntry {
+  oldPrice: number;
+  newPrice: number;
+  currency: string;
+  changedAt: string; // ISO string (UTC)
 }
 
 export interface CatalogState {
@@ -136,6 +159,7 @@ export interface NotificationDto {
   createdDate: string;
   scheduledDate: string;
   readDate?: string | null;
+  type?: 'Payment' | 'Budget' | 'Shared';
 }
 
 // ─── DASHBOARD (SubGuard.Core.DTOs.DashboardDto ile birebir) ─────────────────

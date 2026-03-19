@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,10 @@ import {
   ActivityIndicator,
   Alert,
   Dimensions,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
+import { CategoryBudget } from '../types';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -30,24 +33,51 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
   const colors = useThemeColors();
   const isDarkMode = useSettingsStore((s) => s.isDarkMode);
   const { budgetAlertThreshold, setBudgetAlertThreshold, monthlyBudget, setMonthlyBudget } = useSettingsStore();
+
+  // Eşik backend'e senkronize edilir (Fix 21)
+  const handleThresholdChange = async (t: number) => {
+    setBudgetAlertThreshold(t);
+    try {
+      await agent.Auth.updateProfile({ budgetAlertThreshold: t });
+    } catch {} // Sessizce başarısız ol — yerel ayar zaten güncellendi
+  };
   const { subscriptions } = useUserSubscriptionStore();
   const [budgetCurrency, setBudgetCurrency] = useState('TRY');
   const [budgetInput, setBudgetInput] = useState('');
+
+  // Para birimi sembolü
+  const currencySymbol = budgetCurrency === 'USD' ? '$' : budgetCurrency === 'EUR' ? '€' : '₺';
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
 
+  // Kategori bütçeleri
+  const [categoryBudgets, setCategoryBudgets] = useState<CategoryBudget[]>([]);
+  const [editingCategory, setEditingCategory] = useState<string | null>(null);
+  const [catLimitInput, setCatLimitInput] = useState('');
+  const [savingCat, setSavingCat] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
+
   useEffect(() => {
     // Seed input from store while API loads
     if (monthlyBudget > 0) setBudgetInput(monthlyBudget.toString());
-    agent.Auth.getProfile()
-      .then((res) => {
-        const budget = res?.data?.monthlyBudget ?? 0;
-        if (budget > 0) {
-          setMonthlyBudget(budget);
-          setBudgetInput(budget.toString());
+    Promise.all([
+      agent.Auth.getProfile(),
+      agent.CategoryBudgets.getAll(),
+    ])
+      .then(([profileRes, catRes]) => {
+        const data = profileRes?.data;
+        if (data) {
+          if (data.monthlyBudget > 0) {
+            setMonthlyBudget(data.monthlyBudget);
+            setBudgetInput(data.monthlyBudget.toString());
+          }
+          setBudgetCurrency(data.monthlyBudgetCurrency ?? 'TRY');
+          if (data.budgetAlertThreshold > 0) {
+            setBudgetAlertThreshold(data.budgetAlertThreshold);
+          }
         }
-        setBudgetCurrency(res?.data?.monthlyBudgetCurrency ?? 'TRY');
+        setCategoryBudgets(catRes?.data ?? []);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -94,7 +124,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
     }
     setSaving(true);
     try {
-      await agent.Auth.updateProfile({ monthlyBudget: parsed, monthlyBudgetCurrency: budgetCurrency });
+      await agent.Budget.updateSettings({ monthlyBudget: parsed, monthlyBudgetCurrency: budgetCurrency });
       setMonthlyBudget(parsed); // updates store → HomeScreen sees new value immediately
       setEditMode(false);
     } catch {
@@ -102,6 +132,62 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
     } finally {
       setSaving(false);
     }
+  };
+
+  const openCatEdit = (category: string, prefill: string) => {
+    setCatLimitInput(prefill);
+    setEditingCategory(category);
+    // Klavye açılınca input görünür kalması için sona scroll
+    setTimeout(() => {
+      scrollRef.current?.scrollToEnd({ animated: true });
+    }, 150);
+  };
+
+  const handleSaveCatBudget = async (category: string) => {
+    const parsed = parseFloat(catLimitInput.replace(',', '.'));
+    if (isNaN(parsed) || parsed <= 0) {
+      Alert.alert('Hatalı Değer', 'Geçerli bir limit girin.');
+      return;
+    }
+    setSavingCat(true);
+    try {
+      const res = await agent.CategoryBudgets.upsert({ category, monthlyLimit: parsed });
+      const updated: CategoryBudget = res?.data;
+      if (updated) {
+        setCategoryBudgets((prev) => {
+          const exists = prev.find((b) => b.category === category);
+          return exists
+            ? prev.map((b) => (b.category === category ? updated : b))
+            : [...prev, updated];
+        });
+      }
+      setEditingCategory(null);
+      setCatLimitInput('');
+    } catch {
+      // agent.ts interceptor hatayı gösterir
+    } finally {
+      setSavingCat(false);
+    }
+  };
+
+  const handleDeleteCatBudget = async (category: string) => {
+    Alert.alert(
+      'Limiti Kaldır',
+      `${category} kategorisi için belirlenen limiti kaldırmak istiyor musun?`,
+      [
+        { text: 'Vazgeç', style: 'cancel' },
+        {
+          text: 'Kaldır',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await agent.CategoryBudgets.remove(category);
+              setCategoryBudgets((prev) => prev.filter((b) => b.category !== category));
+            } catch {}
+          },
+        },
+      ]
+    );
   };
 
   if (loading) {
@@ -113,6 +199,11 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
   }
 
   return (
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+    >
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]} edges={embedded ? [] : ['top']}>
       <StatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
@@ -130,12 +221,17 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
         <Text style={styles.headerTitle}>Bütçe Yönetimi</Text>
         <Text style={styles.headerSub}>
           {monthlyBudget > 0
-            ? `Hedef: ₺${monthlyBudget.toLocaleString('tr-TR')}`
+            ? `Hedef: ${currencySymbol}${monthlyBudget.toLocaleString('tr-TR')}`
             : 'Henüz bütçe belirlenmedi'}
         </Text>
       </LinearGradient>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        ref={scrollRef}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
 
         {/* RING CHART */}
         <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
@@ -181,7 +277,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
             <View style={styles.statBox}>
               <Text style={[styles.statLabel, { color: colors.textSec }]}>Bu Ay Harcama</Text>
               <Text style={[styles.statValue, { color: colors.textMain }]}>
-                ₺{totalExpense.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                {currencySymbol}{totalExpense.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </Text>
             </View>
             <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
@@ -189,7 +285,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
               <Text style={[styles.statLabel, { color: colors.textSec }]}>Bütçe Hedefi</Text>
               <Text style={[styles.statValue, { color: colors.textMain }]}>
                 {monthlyBudget > 0
-                  ? `₺${monthlyBudget.toLocaleString('tr-TR')}`
+                  ? `${currencySymbol}${monthlyBudget.toLocaleString('tr-TR')}`
                   : '—'}
               </Text>
             </View>
@@ -205,7 +301,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
                 ]}
               >
                 {monthlyBudget > 0
-                  ? `₺${Math.abs(monthlyBudget - totalExpense).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                  ? `${currencySymbol}${Math.abs(monthlyBudget - totalExpense).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                   : '—'}
               </Text>
             </View>
@@ -231,7 +327,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
               />
               <Text style={[styles.warningText, { color: isOverBudget ? '#EF4444' : (isDarkMode ? '#FBBF24' : '#B45309') }]}>
                 {isOverBudget
-                  ? `Bütçen ₺${(totalExpense - monthlyBudget).toFixed(2)} aşıldı!`
+                  ? `Bütçen ${currencySymbol}${(totalExpense - monthlyBudget).toFixed(2)} aşıldı!`
                   : `Bütçenin %${percentDisplay}'ini kullandın.`}
               </Text>
             </View>
@@ -259,7 +355,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
           {editMode ? (
             <View style={styles.editRow}>
               <View style={[styles.inputWrap, { backgroundColor: colors.inputBg, borderColor: colors.border }]}>
-                <Text style={[styles.inputPrefix, { color: colors.textSec }]}>₺</Text>
+                <Text style={[styles.inputPrefix, { color: colors.textSec }]}>{currencySymbol}</Text>
                 <TextInput
                   style={[styles.budgetInput, { color: colors.textMain }]}
                   value={budgetInput}
@@ -290,7 +386,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
             </View>
           ) : (
             <Text style={[styles.currentBudgetText, { color: monthlyBudget > 0 ? colors.accent : colors.textSec }]}>
-              {monthlyBudget > 0 ? `₺${monthlyBudget.toLocaleString('tr-TR')} / ay` : 'Henüz belirlenmedi'}
+              {monthlyBudget > 0 ? `${currencySymbol}${monthlyBudget.toLocaleString('tr-TR')} / ay` : 'Henüz belirlenmedi'}
             </Text>
           )}
         </View>
@@ -317,7 +413,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
                       budgetAlertThreshold === t ? colors.accent : colors.border,
                   },
                 ]}
-                onPress={() => setBudgetAlertThreshold(t)}
+                onPress={() => handleThresholdChange(t)}
               >
                 <Text
                   style={[
@@ -344,29 +440,112 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
           ) : (
             categoryBreakdown.map(({ category, amount }) => {
               const pct = totalExpense > 0 ? amount / totalExpense : 0;
-              const color = getCategoryColor(category);
+              const dotColor = getCategoryColor(category);
+              const catBudget = categoryBudgets.find((b) => b.category === category);
+              const isEditing = editingCategory === category;
+
+              // Bar değerleri: bütçe varsa spent/limit, yoksa toplam içindeki pay
+              const barPct = catBudget
+                ? Math.min(amount / catBudget.monthlyLimit, 1)
+                : pct;
+              const barColor = catBudget
+                ? catBudget.isOverBudget
+                  ? '#EF4444'
+                  : catBudget.isNearLimit
+                    ? '#F59E0B'
+                    : '#10B981'
+                : dotColor;
+
               return (
                 <View key={category} style={styles.catRow}>
+                  {/* Başlık satırı */}
                   <View style={styles.catLabelRow}>
-                    <View style={[styles.catDot, { backgroundColor: color }]} />
+                    <View style={[styles.catDot, { backgroundColor: dotColor }]} />
                     <Text style={[styles.catName, { color: colors.textMain }]} numberOfLines={1}>
                       {category}
                     </Text>
-                    <Text style={[styles.catPct, { color: colors.textSec }]}>
-                      %{(pct * 100).toFixed(0)}
-                    </Text>
-                    <Text style={[styles.catAmount, { color: color }]}>
-                      ₺{amount.toFixed(2)}
-                    </Text>
+                    {catBudget ? (
+                      <>
+                        <Text style={[styles.catAmount, { color: barColor, flex: 1, textAlign: 'right' }]}>
+                          {currencySymbol}{amount.toFixed(0)} / {currencySymbol}{catBudget.monthlyLimit.toFixed(0)}
+                        </Text>
+                        <TouchableOpacity
+                          onPress={() => isEditing
+                            ? setEditingCategory(null)
+                            : openCatEdit(category, catBudget.monthlyLimit.toString())}
+                          style={styles.catIconBtn}
+                        >
+                          <Ionicons name="pencil-outline" size={14} color={colors.textSec} />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => handleDeleteCatBudget(category)}
+                          style={styles.catIconBtn}
+                        >
+                          <Ionicons name="trash-outline" size={14} color={colors.error} />
+                        </TouchableOpacity>
+                      </>
+                    ) : (
+                      <>
+                        <Text style={[styles.catPct, { color: colors.textSec }]}>
+                          %{(pct * 100).toFixed(0)}
+                        </Text>
+                        <Text style={[styles.catAmount, { color: dotColor }]}>
+                          {currencySymbol}{amount.toFixed(2)}
+                        </Text>
+                        <TouchableOpacity
+                          onPress={() => isEditing
+                            ? setEditingCategory(null)
+                            : openCatEdit(category, '')}
+                          style={[styles.catIconBtn, { backgroundColor: colors.inputBg, borderRadius: 8 }]}
+                        >
+                          <Ionicons name="add" size={16} color={colors.accent} />
+                        </TouchableOpacity>
+                      </>
+                    )}
                   </View>
+
+                  {/* Progress bar */}
                   <View style={[styles.catBarBg, { backgroundColor: colors.inputBg }]}>
                     <View
                       style={[
                         styles.catBarFill,
-                        { width: `${pct * 100}%`, backgroundColor: color },
+                        { width: `${barPct * 100}%`, backgroundColor: barColor },
                       ]}
                     />
                   </View>
+
+                  {/* Inline düzenleme */}
+                  {isEditing && (
+                    <View style={[styles.catEditRow, { borderTopColor: colors.border }]}>
+                      <View style={[styles.catInputWrap, { backgroundColor: colors.inputBg, borderColor: colors.border }]}>
+                        <Text style={[styles.inputPrefix, { color: colors.textSec }]}>{currencySymbol}</Text>
+                        <TextInput
+                          style={[styles.budgetInput, { color: colors.textMain }]}
+                          value={catLimitInput}
+                          onChangeText={setCatLimitInput}
+                          keyboardType="numeric"
+                          placeholder="Limit"
+                          placeholderTextColor={colors.textSec}
+                          autoFocus
+                        />
+                      </View>
+                      <TouchableOpacity
+                        style={[styles.catSaveBtn, { backgroundColor: colors.accent, opacity: savingCat ? 0.7 : 1 }]}
+                        onPress={() => handleSaveCatBudget(category)}
+                        disabled={savingCat}
+                      >
+                        {savingCat
+                          ? <ActivityIndicator size="small" color="#FFF" />
+                          : <Text style={styles.saveBtnText}>Kaydet</Text>}
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[styles.cancelBtn, { borderColor: colors.border }]}
+                        onPress={() => setEditingCategory(null)}
+                      >
+                        <Text style={[styles.cancelBtnText, { color: colors.textSec }]}>İptal</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
                 </View>
               );
             })
@@ -376,6 +555,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
         <View style={{ height: 40 }} />
       </ScrollView>
     </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -497,13 +677,38 @@ const styles = StyleSheet.create({
   thresholdBtnText: { fontSize: 15, fontWeight: '700' },
 
   // Category
-  catRow: { marginBottom: 12 },
-  catLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
-  catDot: { width: 10, height: 10, borderRadius: 5 },
-  catName: { flex: 1, fontSize: 13, fontWeight: '600' },
+  catRow: { marginBottom: 14 },
+  catLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 },
+  catDot: { width: 10, height: 10, borderRadius: 5, flexShrink: 0 },
+  catName: { fontSize: 13, fontWeight: '600', flexShrink: 1 },
   catPct: { fontSize: 12 },
   catAmount: { fontSize: 13, fontWeight: '700', minWidth: 70, textAlign: 'right' },
   catBarBg: { height: 6, borderRadius: 3, overflow: 'hidden' },
   catBarFill: { height: '100%', borderRadius: 3 },
+  catIconBtn: { padding: 4 },
+  catEditRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+  },
+  catInputWrap: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 10,
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    height: 38,
+  },
+  catSaveBtn: {
+    paddingHorizontal: 14,
+    height: 38,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 
 });

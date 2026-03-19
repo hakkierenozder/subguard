@@ -1,15 +1,16 @@
-import React, { useMemo, useRef, useEffect, useState } from 'react';
+import React, { useMemo, useRef, useEffect, useState, useCallback } from 'react';
 import {
   View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView,
   Alert, Dimensions, StatusBar, Platform, DimensionValue, Animated, Image,
 } from 'react-native';
 import Toast from 'react-native-toast-message';
-import { UserSubscription, ApiUsageLog } from '../types';
+import { UserSubscription, ApiUsageLog, PriceHistoryEntry } from '../types';
 import { Ionicons } from '@expo/vector-icons';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useThemeColors } from '../constants/theme';
 import { useCatalogStore } from '../store/useCatalogStore';
+import agent from '../api/agent';
 
 function DetailLogo({ logoUrl, brandColor, name, size = 80 }: { logoUrl?: string; brandColor: string; name: string; size?: number }) {
     const [imgFailed, setImgFailed] = useState(false);
@@ -70,10 +71,23 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
         Animated.timing(heroOpacity, { toValue: target, duration: 300, useNativeDriver: true }).start();
     }, [currentStatus]);
 
-    // Modal açıldığında backend kullanım loglarını çek
+    const [usageLogsError, setUsageLogsError] = useState(false);
+    const [priceHistory, setPriceHistory] = useState<PriceHistoryEntry[]>([]);
+
+    // Modal açıldığında backend kullanım loglarını ve fiyat geçmişini çek
     useEffect(() => {
         if (visible && subscription?.id) {
-            fetchUsageLogs(subscription.id);
+            setUsageLogsError(false);
+            fetchUsageLogs(subscription.id).then(ok => {
+                if (!ok) setUsageLogsError(true);
+            });
+            // Fiyat geçmişini çek
+            agent.UserSubscriptions.priceHistory(subscription.id).then((res: any) => {
+                if (res?.data) setPriceHistory(res.data);
+                else setPriceHistory([]);
+            }).catch(() => setPriceHistory([]));
+        } else if (!visible) {
+            setPriceHistory([]);
         }
     }, [visible, subscription?.id]);
 
@@ -282,6 +296,8 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                         <View style={styles.statusTabRow}>
                             {statusTabs.map((tab) => {
                                 const isSelected = currentStatus === tab.key;
+                                // Cancelled terminal state: Active ve Paused butonları devre dışı
+                                const isDisabled = currentStatus === 'cancelled' && tab.key !== 'cancelled';
                                 return (
                                     <TouchableOpacity
                                         key={tab.key}
@@ -290,10 +306,11 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                                             {
                                                 backgroundColor: isSelected ? tab.color + '1A' : colors.inputBg,
                                                 borderColor: isSelected ? tab.color : colors.border,
+                                                opacity: isDisabled ? 0.35 : 1,
                                             },
                                         ]}
-                                        onPress={() => handleStatusChange(tab.key)}
-                                        activeOpacity={0.7}
+                                        onPress={() => !isDisabled && handleStatusChange(tab.key)}
+                                        activeOpacity={isDisabled ? 1 : 0.7}
                                     >
                                         <Ionicons
                                             name={tab.icon as any}
@@ -414,13 +431,22 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                     </View>
 
                     {/* 6. BACKEND KULLANIM LOGLARI */}
-                    {(subscription.usageLogs && subscription.usageLogs.length > 0) && (
+                    {(usageLogsError || (subscription.usageLogs && subscription.usageLogs.length > 0)) && (
                         <View style={[styles.sectionContainer, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
                             <View style={styles.sectionHeader}>
                                 <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Kayıtlı Kullanımlar</Text>
-                                <Text style={[styles.sectionSubtitle, { color: colors.textSec }]}>{subscription.usageLogs.length} kayıt</Text>
+                                {!usageLogsError && (
+                                    <Text style={[styles.sectionSubtitle, { color: colors.textSec }]}>{subscription.usageLogs!.length} kayıt</Text>
+                                )}
                             </View>
-                            {subscription.usageLogs.map((log: ApiUsageLog) => (
+                            {usageLogsError ? (
+                                <View style={[styles.errorRow, { backgroundColor: colors.error + '12' }]}>
+                                    <Ionicons name="alert-circle-outline" size={18} color={colors.error} />
+                                    <Text style={[styles.errorText, { color: colors.error }]}>
+                                        Kullanım kayıtları yüklenemedi.
+                                    </Text>
+                                </View>
+                            ) : subscription.usageLogs!.map((log: ApiUsageLog) => (
                                 <View key={log.id} style={[styles.detailItem, { borderBottomColor: colors.border, borderBottomWidth: 1 }]}>
                                     <View style={styles.detailLeft}>
                                         <View style={[styles.iconBox, { backgroundColor: colors.inputBg }]}>
@@ -446,7 +472,57 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                     {/* 7. TAAHHÜT BİLGİSİ */}
                     {renderContractInfo()}
 
-                    {/* 8. DETAYLAR */}
+                    {/* 8. FİYAT GEÇMİŞİ */}
+                    {priceHistory.length > 0 && (
+                        <View style={[styles.sectionContainer, { backgroundColor: colors.cardBg, borderColor: colors.border, marginTop: 0 }]}>
+                            <View style={styles.sectionHeader}>
+                                <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Fiyat Geçmişi</Text>
+                                <Ionicons name="trending-up-outline" size={18} color={colors.textSec} />
+                            </View>
+                            {priceHistory.map((entry, idx) => (
+                                <View
+                                    key={idx}
+                                    style={[
+                                        styles.priceHistoryRow,
+                                        idx < priceHistory.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border },
+                                    ]}
+                                >
+                                    <View style={[styles.iconBox, { backgroundColor: colors.inputBg }]}>
+                                        <Ionicons name="swap-vertical-outline" size={18} color={colors.primary} />
+                                    </View>
+                                    <View style={{ flex: 1 }}>
+                                        <View style={styles.priceHistoryPrices}>
+                                            <Text style={[styles.priceHistoryOld, { color: colors.textSec }]}>
+                                                {entry.oldPrice} {entry.currency}
+                                            </Text>
+                                            <Ionicons name="arrow-forward" size={14} color={entry.newPrice > entry.oldPrice ? colors.error : colors.success} style={{ marginHorizontal: 6 }} />
+                                            <Text style={[styles.priceHistoryNew, { color: entry.newPrice > entry.oldPrice ? colors.error : colors.success }]}>
+                                                {entry.newPrice} {entry.currency}
+                                            </Text>
+                                        </View>
+                                        <Text style={[styles.priceHistoryDate, { color: colors.textSec }]}>
+                                            {new Date(entry.changedAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                        </Text>
+                                    </View>
+                                </View>
+                            ))}
+                        </View>
+                    )}
+
+                    {/* 9. NOTLAR (eski 8) */}
+                    {subscription.notes && subscription.notes.trim().length > 0 && (
+                        <View style={[styles.sectionContainer, { backgroundColor: colors.cardBg, borderColor: colors.border, marginTop: 0 }]}>
+                            <View style={styles.sectionHeader}>
+                                <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Notlar</Text>
+                                <Ionicons name="create-outline" size={18} color={colors.textSec} />
+                            </View>
+                            <Text style={{ fontSize: 14, color: colors.textSec, lineHeight: 22 }}>
+                                {subscription.notes}
+                            </Text>
+                        </View>
+                    )}
+
+                    {/* 9. DETAYLAR */}
                     <View style={[styles.sectionContainer, { backgroundColor: colors.cardBg, borderColor: colors.border, paddingVertical: 8 }]}>
                         <View style={[styles.detailItem, { borderBottomColor: colors.border, borderBottomWidth: 1 }]}>
                             <View style={styles.detailLeft}>
@@ -704,4 +780,42 @@ const styles = StyleSheet.create({
     divider: { width: 1, height: 40, marginHorizontal: 10 },
 
     scrollContent: { paddingBottom: 40 },
+
+    // Fiyat Geçmişi
+    priceHistoryRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 12,
+    },
+    priceHistoryPrices: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 2,
+    },
+    priceHistoryOld: {
+        fontSize: 14,
+        fontWeight: '500',
+        textDecorationLine: 'line-through',
+    },
+    priceHistoryNew: {
+        fontSize: 14,
+        fontWeight: '700',
+    },
+    priceHistoryDate: {
+        fontSize: 11,
+        fontWeight: '500',
+        marginTop: 2,
+    },
+
+    errorRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 12,
+        borderRadius: 12,
+        gap: 8,
+    },
+    errorText: {
+        fontSize: 13,
+        fontWeight: '600',
+    },
 });

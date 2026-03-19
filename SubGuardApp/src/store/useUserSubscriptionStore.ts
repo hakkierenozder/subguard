@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { UserSubscription, UsageStatus, UsageLog, ApiUsageLog, AddSubscriptionPayload, RawSubscriptionApiItem } from '../types';
+import { getDaysLeft } from '../utils/dateUtils';
 import agent from '../api/agent';
 import { getUserId } from '../utils/AuthManager';
 import { convertToTRY } from '../utils/CurrencyService';
@@ -31,7 +32,7 @@ interface UserSubscriptionState {
   updateSubscription: (id: string, updatedData: Partial<UserSubscription>) => Promise<void>;
 
   logUsage: (id: string, status: UsageStatus) => Promise<void>;
-  fetchUsageLogs: (id: string) => Promise<void>;
+  fetchUsageLogs: (id: string) => Promise<boolean>;
   getPendingSurvey: () => UserSubscription | null;
   getTotalExpense: () => number;
   getNextPayment: () => UserSubscription | null;
@@ -75,25 +76,31 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
   totalCount: 0,
   hasMore: false,
 
+  // Fallback kurlar — sadece API çağrısı başarısız olursa kullanılır.
+  // Uygulama açılışında fetchExchangeRates() gerçek kurları yükler (Fix 15 & 16).
   exchangeRates: {
-      USD: 34.50,
-      EUR: 37.20,
-      GBP: 43.10,
+      USD: 38.0,
+      EUR: 41.0,
+      GBP: 48.0,
       TRY: 1.0
   },
 
-  // Survey verilerini AsyncStorage'dan yükleyip store'daki aboneliklere uygula
+  // Survey verilerini AsyncStorage'dan yükleyip store'daki aboneliklere uygula.
+  // #36: AsyncStorage'da kayıt yoksa sunucudan gelen usageHistoryJson fallback olarak kullanılır.
   _restoreSurveyHistory: async (items: UserSubscription[]): Promise<UserSubscription[]> => {
     const keys = items.map(s => surveyKey(s.id));
     const pairs = await AsyncStorage.multiGet(keys);
     return items.map((sub, i) => {
       const raw = pairs[i][1];
-      if (!raw) return sub;
-      try {
-        return { ...sub, usageHistory: JSON.parse(raw) as UsageLog[] };
-      } catch {
-        return sub;
+      if (raw) {
+        try {
+          return { ...sub, usageHistory: JSON.parse(raw) as UsageLog[] };
+        } catch {}
       }
+      // AsyncStorage'da yoksa backend'den gelen usageHistoryJson'ı dene
+      const serverHistory = safeJsonParse((sub as any).usageHistoryJson, null);
+      if (serverHistory) return { ...sub, usageHistory: serverHistory as UsageLog[] };
+      return sub;
     });
   },
 
@@ -174,9 +181,11 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
   },
 
   // BENİMLE PAYLAŞILANLAR
+  // #34: pageSize=100 — SharedSubscriptionsScreen'de pagination uygulanmıyor;
+  // tüm kayıtları tek istekte çekmek için varsayılan 20 yerine 100 kullanılır.
   fetchSharedWithMe: async () => {
     try {
-      const response = await agent.UserSubscriptions.sharedWithMe();
+      const response = await agent.UserSubscriptions.sharedWithMe(1, 100);
       if (response && response.data) {
         const raw = response.data;
         const rawItems: any[] = Array.isArray(raw) ? raw : (raw?.items ?? []);
@@ -215,6 +224,7 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
         : null,
       
       isActive: true,
+      notes: newSub.notes ?? null,
       sharedWithJson: newSub.sharedWith ? JSON.stringify(newSub.sharedWith) : null
     };
 
@@ -237,19 +247,25 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
 
   // 3. SİL
   removeSubscription: async (id) => {
+    // Rollback için mevcut listeyi sakla
+    const previousSubscriptions = get().subscriptions;
+    const subToRemove = previousSubscriptions.find(s => s.id === id);
+
+    // Bildirimden iptal et
+    if (subToRemove?.notificationId) {
+      await cancelNotification(subToRemove.notificationId);
+    }
+
+    // Optimistic: UI'dan hemen kaldır
+    set({ subscriptions: previousSubscriptions.filter(s => s.id !== id) });
+
     try {
-      const subToRemove = get().subscriptions.find(s => s.id === id);
-      if (subToRemove?.notificationId) {
-        await cancelNotification(subToRemove.notificationId);
-      }
-
-      const currentList = get().subscriptions;
-      set({ subscriptions: currentList.filter(s => s.id !== id) });
-
       await agent.UserSubscriptions.delete(id);
     } catch (error) {
+      // API hatası → listeyi geri yükle
       console.error("Silme hatası:", error);
-      Alert.alert("Hata", "Silinemedi.");
+      set({ subscriptions: previousSubscriptions });
+      Alert.alert("Hata", "Abonelik silinemedi. Lütfen tekrar deneyin.");
     }
   },
 
@@ -299,6 +315,7 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
           isActive: newSub.isActive !== undefined ? newSub.isActive : true,
           // Backend DTO field: CancelledDate (camelCase: cancelledDate)
           cancelledDate: newSub.cancelledAt ?? newSub.cancelledDate ?? null,
+          notes: newSub.notes ?? null,
           sharedWithJson: newSub.sharedWith ? JSON.stringify(newSub.sharedWith) : null,
           usageHistoryJson: newSub.usageHistory ? JSON.stringify(newSub.usageHistory) : null,
         };
@@ -335,16 +352,28 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
       newHistory = [...history, { month: currentMonth, status }];
     }
 
-    // Survey verisi SADECE yerel state + AsyncStorage'a kaydedilir, backend'e gönderilmez
+    // Yerel state güncellenir
     set((state) => ({
       subscriptions: state.subscriptions.map(s =>
         s.id === id ? { ...s, usageHistory: newHistory } : s
       ),
     }));
+
+    // AsyncStorage'a yedekle (offline erişim)
     try {
       await AsyncStorage.setItem(surveyKey(id), JSON.stringify(newHistory));
     } catch (e) {
-      console.error('Survey kaydedilemedi:', e);
+      console.error('Survey AsyncStorage kaydedilemedi:', e);
+    }
+
+    // #36 — Backend'e usageHistoryJson olarak sync et.
+    // Telefon değiştirilse veya AsyncStorage temizlense bile sunucudan geri yüklenebilir.
+    try {
+      await agent.UserSubscriptions.update(id, {
+        usageHistoryJson: JSON.stringify(newHistory),
+      } as any);
+    } catch {
+      // Sessizce başarısız ol — yerel veri zaten kaydedildi
     }
   },
 
@@ -357,8 +386,10 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
           s.id === id ? { ...s, usageLogs: logs } : s
         ),
       }));
+      return true;
     } catch (e) {
       console.error('Kullanım logları alınamadı:', e);
+      return false;
     }
   },
 
@@ -398,11 +429,7 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
     const activeSubs = subscriptions.filter(s => s.isActive !== false);
     if (activeSubs.length === 0) return null;
 
-    const today = new Date().getDate();
-    return activeSubs.sort((a, b) => {
-      const dayA = a.billingDay < today ? a.billingDay + 30 : a.billingDay;
-      const dayB = b.billingDay < today ? b.billingDay + 30 : b.billingDay;
-      return dayA - dayB;
-    })[0];
+    // Gerçek takvim hesabı — sabit +30 yerine dateUtils.getDaysLeft kullan (Fix 22)
+    return activeSubs.sort((a, b) => getDaysLeft(a.billingDay) - getDaysLeft(b.billingDay))[0];
   },
 }));

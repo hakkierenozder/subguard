@@ -65,16 +65,17 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
   },
 
   markAllAsRead: async () => {
-    const unread = get().notifications.filter(n => !n.isRead);
-    await Promise.all(unread.map(n => agent.Notifications.markAsRead(n.id)));
-    set((state) => ({
-      notifications: state.notifications.map(n => ({
-        ...n,
-        isRead: true,
-        readDate: n.readDate ?? new Date().toISOString(),
-      })),
-      unreadCount: 0,
-    }));
+    try {
+      await agent.Notifications.markAllAsRead();
+      set((state) => ({
+        notifications: state.notifications.map(n => ({
+          ...n,
+          isRead: true,
+          readDate: n.readDate ?? new Date().toISOString(),
+        })),
+        unreadCount: 0,
+      }));
+    } catch {}
   },
 
   deleteNotification: async (id: number) => {

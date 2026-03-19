@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useRef } from 'react';
+import React, { useEffect, useCallback, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -21,8 +21,14 @@ import { useNotificationStore } from '../store/useNotificationStore';
 import { NotificationDto } from '../types';
 
 // --- Bildirim ikonu ve rengi belirle ---
-function getNotifMeta(title: string): { icon: string; color: string } {
-  const t = title.toLowerCase();
+function getNotifMeta(item: NotificationDto): { icon: string; color: string } {
+  if (item.type === 'Budget')   return { icon: 'wallet-outline',        color: '#EF4444' };
+  if (item.type === 'Payment')  return { icon: 'card-outline',          color: '#4F46E5' };
+  if (item.type === 'Shared')   return { icon: 'people-outline',        color: '#10B981' };
+  if (item.type === 'Contract') return { icon: 'document-text-outline', color: '#8B5CF6' };
+
+  // Fallback: type yoksa (eski kayıtlar) başlıktan tahmin et
+  const t = item.title.toLowerCase();
   if (t.includes('bütçe') || t.includes('butce') || t.includes('aşım') || t.includes('asim')) {
     return { icon: 'wallet-outline', color: '#EF4444' };
   }
@@ -66,7 +72,7 @@ interface NotifItemProps {
 }
 
 function NotifItem({ item, onRead, onDelete, colors, isDarkMode }: NotifItemProps) {
-  const { icon, color } = getNotifMeta(item.title);
+  const { icon, color } = getNotifMeta(item);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const swipeRef = useRef<Swipeable>(null);
 
@@ -180,12 +186,18 @@ export default function NotificationsScreen() {
     deleteNotification,
   } = useNotificationStore();
 
+  // #48: loading store state'inden ayrı refreshing — pull-to-refresh spinner doğru çalışsın.
+  // Eski: `refreshing={loading && notifications.length === 0}` → bildirimler varsa spinner görünmüyordu.
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   useEffect(() => {
     fetchNotifications(true);
   }, []);
 
-  const onRefresh = useCallback(() => {
-    fetchNotifications(true);
+  const onRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    await fetchNotifications(true);
+    setIsRefreshing(false);
   }, []);
 
   const onEndReached = useCallback(() => {
@@ -273,7 +285,7 @@ export default function NotificationsScreen() {
         ListFooterComponent={renderFooter}
         refreshControl={
           <RefreshControl
-            refreshing={loading && notifications.length === 0}
+            refreshing={isRefreshing} // #48: ayrı state — bildirimler yüklüyken de spinner çalışır
             onRefresh={onRefresh}
             tintColor={colors.primary}
             colors={[colors.primary]}

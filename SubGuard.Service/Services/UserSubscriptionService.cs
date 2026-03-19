@@ -21,6 +21,8 @@ namespace SubGuard.Service.Services
         private readonly IMapper _mapper;
         private readonly ILogger<UserSubscriptionService> _logger;
         private readonly UserManager<AppUser> _userManager;
+        private readonly AppDbContext _db;
+        private readonly INotificationService _notificationService;
 
         public UserSubscriptionService(
             IGenericRepository<UserSubscription> repo,
@@ -28,7 +30,9 @@ namespace SubGuard.Service.Services
             IUnitOfWork unitOfWork,
             IMapper mapper,
             ILogger<UserSubscriptionService> logger,
-            UserManager<AppUser> userManager)
+            UserManager<AppUser> userManager,
+            AppDbContext db,
+            INotificationService notificationService)
         {
             _repo = repo;
             _catalogRepo = catalogRepo;
@@ -36,6 +40,8 @@ namespace SubGuard.Service.Services
             _mapper = mapper;
             _logger = logger;
             _userManager = userManager;
+            _db = db;
+            _notificationService = notificationService;
         }
 
         // --- RENK KODU YARDIMCILARI ---
@@ -90,9 +96,11 @@ namespace SubGuard.Service.Services
             }
         }
 
-        public async Task<CustomResponseDto<PagedResponseDto<UserSubscriptionDto>>> GetUserSubscriptionsAsync(string userId, int page, int pageSize)
+        public async Task<CustomResponseDto<PagedResponseDto<UserSubscriptionDto>>> GetUserSubscriptionsAsync(string userId, int page, int pageSize, string? q = null)
         {
-            var query = _repo.Where(x => x.UserId == userId).Include(x => x.Catalog);
+            IQueryable<UserSubscription> query = _repo.Where(x => x.UserId == userId).Include(x => x.Catalog);
+            if (!string.IsNullOrWhiteSpace(q))
+                query = query.Where(x => EF.Functions.ILike(x.Name, $"%{q}%"));
 
             var totalCount = await query.CountAsync();
 
@@ -224,15 +232,31 @@ namespace SubGuard.Service.Services
                 }
 
                 var oldColor = entity.ColorCode;
+                var oldPrice = entity.Price;
                 _mapper.Map(dto, entity);
                 entity.ColorCode = await ResolveColorCodeAsync(entity, oldColor);
+
+                // Fiyat değiştiyse geçmişe kaydet
+                if (oldPrice != entity.Price)
+                {
+                    var priceHistory = new PriceHistory
+                    {
+                        SubscriptionId = entity.Id,
+                        UserId = entity.UserId,
+                        OldPrice = oldPrice,
+                        NewPrice = entity.Price,
+                        Currency = entity.Currency,
+                        ChangedAt = DateTime.UtcNow
+                    };
+                    await _db.PriceHistories.AddAsync(priceHistory);
+                }
 
                 _repo.Update(entity);
                 await _unitOfWork.CommitAsync();
                 await _unitOfWork.CommitTransactionAsync();
 
                 _logger.LogInformation("Abonelik güncellendi. UserId: {UserId}, SubscriptionId: {Id}", dto.UserId, dto.Id);
-                return CustomResponseDto<bool>.Success(204);
+                return CustomResponseDto<bool>.Success(200, true);
             }
             catch (Exception ex)
             {
@@ -262,6 +286,20 @@ namespace SubGuard.Service.Services
             _repo.Update(entity);
             await _unitOfWork.CommitAsync();
 
+            // #13: Hedef kullanıcıya paylaşım bildirimi gönder
+            var owner = await _userManager.FindByIdAsync(ownerId);
+            var ownerName = owner?.FullName ?? owner?.Email ?? "Bir kullanıcı";
+            try
+            {
+                await _notificationService.QueueShareNotificationAsync(
+                    targetUser.Id, id, entity.Name, ownerName);
+            }
+            catch (Exception ex)
+            {
+                // Bildirim hatası paylaşım işlemini geri almasın
+                _logger.LogWarning(ex, "Paylaşım bildirimi kuyruğa eklenemedi. SubscriptionId: {Id}", id);
+            }
+
             _logger.LogInformation("Abonelik paylaşıldı. SubscriptionId: {Id}, Hedef: {Email}", id, targetEmail);
             return CustomResponseDto<bool>.Success(200, true);
         }
@@ -284,29 +322,27 @@ namespace SubGuard.Service.Services
 
         public async Task<CustomResponseDto<PagedResponseDto<UserSubscriptionDto>>> GetSharedWithMeAsync(string userId, int page, int pageSize)
         {
-            // SharedWithJson jsonb tipinde tutulduğundan EF Core'un üreteceği strpos() çağrısı
-            // PostgreSQL tarafından jsonb → text implicit cast hatası verir (22P02).
-            // DB'de yalnızca NULL olmayan kayıtları çekip kesin filtreyi in-memory yapıyoruz.
-            var query = _repo.Where(x => x.IsActive && x.SharedWithJson != null)
-                             .Include(x => x.Catalog);
+            // jsonb @> operatörü ile DB tarafında tam filtre yapılıyor.
+            // EF Core LINQ ile jsonb üzerinde strpos() üretildiğinde 22P02 hatası alındığından
+            // bu sorgu için doğrudan SQL kullanıyoruz.
+            var jsonFilter = $"[\"{userId}\"]";
+            var baseQuery = _db.UserSubscriptions
+                .FromSqlRaw(
+                    @"SELECT * FROM ""UserSubscriptions""
+                      WHERE ""IsDeleted"" = FALSE
+                        AND ""IsActive"" = TRUE
+                        AND ""SharedWithJson"" IS NOT NULL
+                        AND ""SharedWithJson"" @> CAST({0} AS jsonb)",
+                    jsonFilter)
+                .IgnoreQueryFilters()
+                .Include(x => x.Catalog)
+                .OrderByDescending(x => x.CreatedDate);
 
-            var subscriptions = await query
-                .OrderByDescending(x => x.CreatedDate)
-                .ToListAsync();
-
-            // In-memory doğrulama: deserialize ederek kesin eşleşmeyi onayla
-            var filtered = subscriptions.Where(x =>
-            {
-                var list = DeserializeSharedWith(x.SharedWithJson);
-                return list.Contains(userId);
-            }).ToList();
-
-            // Sayfalama doğru sonuç sayısı üzerinden yapılır
-            var totalCount = filtered.Count;
-            var paged = filtered
+            var totalCount = await baseQuery.CountAsync();
+            var paged = await baseQuery
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .ToList();
+                .ToListAsync();
 
             var items = _mapper.Map<List<UserSubscriptionDto>>(paged);
             foreach (var dto in items)
@@ -408,6 +444,59 @@ namespace SubGuard.Service.Services
             await _unitOfWork.CommitAsync();
 
             return CustomResponseDto<bool>.Success(200, true);
+        }
+
+        // --- Fiyat Geçmişi ---
+
+        public async Task<CustomResponseDto<List<PriceHistoryDto>>> GetPriceHistoryAsync(int id, string userId)
+        {
+            var entity = await _repo.GetByIdAsync(id);
+            if (entity == null) return CustomResponseDto<List<PriceHistoryDto>>.Fail(404, "Abonelik bulunamadı.");
+            if (entity.UserId != userId) return CustomResponseDto<List<PriceHistoryDto>>.Fail(403, "Bu aboneliğe erişim yetkiniz yok.");
+
+            var history = await _db.PriceHistories
+                .Where(h => h.SubscriptionId == id && h.UserId == userId)
+                .OrderByDescending(h => h.ChangedAt)
+                .Select(h => new PriceHistoryDto
+                {
+                    OldPrice = h.OldPrice,
+                    NewPrice = h.NewPrice,
+                    Currency = h.Currency,
+                    ChangedAt = h.ChangedAt
+                })
+                .ToListAsync();
+
+            return CustomResponseDto<List<PriceHistoryDto>>.Success(200, history);
+        }
+
+        // --- Klonlama ---
+
+        public async Task<CustomResponseDto<UserSubscriptionDto>> DuplicateSubscriptionAsync(int id, string userId)
+        {
+            var (source, error) = await GetOwnedSubscription<UserSubscriptionDto>(id, userId);
+            if (error != null) return error;
+
+            var copy = new UserSubscription
+            {
+                UserId = userId,
+                CatalogId = source!.CatalogId,
+                Name = $"{source.Name} (Kopya)",
+                Price = source.Price,
+                Currency = source.Currency,
+                BillingDay = source.BillingDay,
+                BillingPeriod = source.BillingPeriod,
+                Category = source.Category,
+                ColorCode = source.ColorCode,
+                HasContract = false,
+                IsActive = true,
+                Status = SubscriptionStatus.Active
+            };
+
+            await _repo.AddAsync(copy);
+            await _unitOfWork.CommitAsync();
+
+            _logger.LogInformation("Abonelik klonlandı. SourceId: {SourceId}, NewId: {NewId}", id, copy.Id);
+            return CustomResponseDto<UserSubscriptionDto>.Success(200, _mapper.Map<UserSubscriptionDto>(copy));
         }
     }
 }

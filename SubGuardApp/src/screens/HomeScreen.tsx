@@ -11,11 +11,13 @@ import { RootStackParamList } from '../../App';
 import AddSubscriptionModal from '../components/AddSubscriptionModal';
 import UsageSurveyModal from '../components/UsageSurveyModal';
 import EmptyState from '../components/EmptyState';
+import { HomeSkeletonLoader } from '../components/SkeletonLoader'; // #42
 import agent from '../api/agent';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemeColors } from '../constants/theme';
 import { useCatalogStore } from '../store/useCatalogStore';
+import { getDaysLeft } from '../utils/dateUtils';
 
 function UpcomingPaymentLogo({ logoUrl, colorCode, name }: { logoUrl?: string; colorCode: string; name: string }) {
   const [imgFailed, setImgFailed] = useState(false);
@@ -39,6 +41,7 @@ function UpcomingPaymentLogo({ logoUrl, colorCode, name }: { logoUrl?: string; c
 export default function HomeScreen() {
     const colors = useThemeColors();
     const isDarkMode = useSettingsStore((state) => state.isDarkMode);
+    const dashboardUpcomingDays = useSettingsStore((state) => state.dashboardUpcomingDays); // #35
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const unreadCount = useNotificationStore((s) => s.unreadCount);
     const { catalogItems, fetchCatalog } = useCatalogStore();
@@ -50,7 +53,8 @@ export default function HomeScreen() {
         fetchUserSubscriptions,
         getTotalExpense,
         getPendingSurvey,
-        logUsage
+        logUsage,
+        exchangeRates,
     } = useUserSubscriptionStore();
 
     // State'ler
@@ -74,7 +78,7 @@ export default function HomeScreen() {
             // Dashboard tek çağrıda hem bütçe özetini hem yaklaşan ödeme verisini döner.
             // Profil sadece kullanıcı adı için çekiliyor.
             const [dashRes, profileRes] = await Promise.allSettled([
-                agent.Dashboard.get(30),
+                agent.Dashboard.get(dashboardUpcomingDays), // #35: sabit 30 yerine kullanıcı tercihi
                 agent.Auth.getProfile(),
             ]);
 
@@ -149,13 +153,7 @@ export default function HomeScreen() {
         outputRange: ['0%', '100%'],
     });
 
-    const today = new Date().getDate();
-
-    const getDaysLeft = (billingDay: number) => {
-        let d = billingDay - today;
-        if (d < 0) d += 30;
-        return d;
-    };
+    // getDaysLeft artık src/utils/dateUtils.ts'ten import ediliyor (Fix 22)
 
     const sortedPayments = [...subscriptions]
         .filter(sub => sub.isActive !== false)
@@ -169,14 +167,21 @@ export default function HomeScreen() {
 
     const categoryCount = new Set(subscriptions.filter(s => s.isActive !== false).map(s => s.category)).size;
 
-    // Animasyon değerleri (max 8 kart)
-    const cardAnims = useRef(
-        Array.from({ length: 8 }, () => new Animated.Value(0))
-    ).current;
+    // #40: Animasyon değerleri — lazy Map tabanlı; kaç kart olursa olsun doğru çalışır.
+    // Eski `Array.from({ length: 8 })` yaklaşımı 8+ abonelikte idx-out-of-bounds veriyordu.
+    const cardAnimsRef = useRef<Map<number, Animated.Value>>(new Map());
+    const getCardAnim = (idx: number): Animated.Value => {
+        if (!cardAnimsRef.current.has(idx)) {
+            cardAnimsRef.current.set(idx, new Animated.Value(0));
+        }
+        return cardAnimsRef.current.get(idx)!;
+    };
 
     useEffect(() => {
-        const anims = cardAnims.slice(0, sortedPayments.length).map((anim, i) =>
-            Animated.timing(anim, {
+        // Tüm mevcut animasyonları sıfırla
+        cardAnimsRef.current.forEach(a => a.setValue(0));
+        const anims = sortedPayments.map((_, i) =>
+            Animated.timing(getCardAnim(i), {
                 toValue: 1,
                 duration: 350,
                 delay: i * 60,
@@ -184,7 +189,6 @@ export default function HomeScreen() {
                 useNativeDriver: true,
             })
         );
-        cardAnims.forEach(a => a.setValue(0));
         Animated.stagger(60, anims).start();
     }, [subscriptions]);
 
@@ -306,7 +310,10 @@ export default function HomeScreen() {
                     )}
                 </LinearGradient>
 
-                {/* 3. BOŞ DURUM */}
+                {/* 3. BOŞ DURUM / SKELETON (#42) */}
+                {loading && subscriptions.length === 0 && (
+                    <HomeSkeletonLoader />
+                )}
                 {!loading && subscriptions.length === 0 && (
                     <EmptyState
                         icon="albums-outline"
@@ -349,7 +356,7 @@ export default function HomeScreen() {
                                     const urgencyColor = daysLeft === 0 ? '#EF4444' : daysLeft <= 2 ? '#EF4444' : '#F97316';
                                     const urgencyBg   = daysLeft <= 2 ? '#FEE2E2' : '#FFEDD5';
                                     const urgencyLabel = daysLeft === 0 ? 'Bugün!' : daysLeft === 1 ? 'Yarın!' : `${daysLeft} gün`;
-                                    const anim = cardAnims[idx] ?? new Animated.Value(1);
+                                    const anim = getCardAnim(idx);
                                     const itemColor = item.colorCode || colors.primary;
                                     const catalogLogoUrl = catalogItems.find(c => c.id === item.catalogId)?.logoUrl;
                                     return (
@@ -370,7 +377,9 @@ export default function HomeScreen() {
                                                 <Text style={[styles.upRowName, { color: colors.textMain }]} numberOfLines={1}>{item.name}</Text>
                                                 <View style={styles.upRowMeta}>
                                                     <Text style={[styles.upRowCycle, { color: colors.textSec }]}>
-                                                        {item.billingDay}. her ay
+                                                        {item.billingPeriod === 'Yearly'
+                                                            ? `${item.billingDay}. her yıl`
+                                                            : `${item.billingDay}. her ay`}
                                                     </Text>
                                                 </View>
                                             </View>
@@ -378,6 +387,11 @@ export default function HomeScreen() {
                                                 <Text style={[styles.upRowPrice, { color: colors.textMain }]}>
                                                     {item.price} {item.currency}
                                                 </Text>
+                                                {item.currency !== 'TRY' && exchangeRates[item.currency] && (
+                                                    <Text style={[styles.upRowCycle, { color: colors.textSec, fontSize: 11 }]}>
+                                                        ≈ {(item.price * exchangeRates[item.currency]).toFixed(0)} ₺
+                                                    </Text>
+                                                )}
                                                 <View style={[styles.upRowBadge, { backgroundColor: urgencyBg }]}>
                                                     <Text style={[styles.upRowBadgeText, { color: urgencyColor }]}>{urgencyLabel}</Text>
                                                 </View>
@@ -402,7 +416,7 @@ export default function HomeScreen() {
                                 {thisMonthPayments.slice(0, 4).map((item, idx) => {
                                     const daysLeft = getDaysLeft(item.billingDay);
                                     const animIdx = thisWeekPayments.length + idx;
-                                    const anim = cardAnims[animIdx] ?? new Animated.Value(1);
+                                    const anim = getCardAnim(animIdx);
                                     const itemColor = item.colorCode || colors.primary;
                                     const catalogLogoUrl = catalogItems.find(c => c.id === item.catalogId)?.logoUrl;
                                     return (
@@ -421,13 +435,20 @@ export default function HomeScreen() {
                                             <View style={{ flex: 1 }}>
                                                 <Text style={[styles.upRowName, { color: colors.textMain }]} numberOfLines={1}>{item.name}</Text>
                                                 <Text style={[styles.upRowCycle, { color: colors.textSec }]}>
-                                                    {item.billingDay}. her ay
+                                                    {item.billingPeriod === 'Yearly'
+                                                        ? `${item.billingDay}. her yıl`
+                                                        : `${item.billingDay}. her ay`}
                                                 </Text>
                                             </View>
                                             <View style={{ alignItems: 'flex-end' }}>
                                                 <Text style={[styles.upRowPrice, { color: colors.textMain }]}>
                                                     {item.price} {item.currency}
                                                 </Text>
+                                                {item.currency !== 'TRY' && exchangeRates[item.currency] && (
+                                                    <Text style={[styles.upRowCycle, { color: colors.textSec, fontSize: 11 }]}>
+                                                        ≈ {(item.price * exchangeRates[item.currency]).toFixed(0)} ₺
+                                                    </Text>
+                                                )}
                                                 <View style={[styles.upRowBadge, { backgroundColor: colors.inputBg }]}>
                                                     <Text style={[styles.upRowBadgeText, { color: colors.primary }]}>{daysLeft} gün</Text>
                                                 </View>

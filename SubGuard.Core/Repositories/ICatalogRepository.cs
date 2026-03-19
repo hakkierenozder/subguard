@@ -12,6 +12,17 @@ namespace SubGuard.Core.Repositories
         // Standart dışı, özel sorgu:
         // Servisi çekerken altındaki Planları da (Join yaparak) tek seferde getir.
         Task<Catalog> GetCatalogWithPlansAsync(int id);
+
+        /// <summary>
+        /// Tüm katalogları planlarıyla birlikte getirir (parametre verilmezse tümü).
+        /// #38: Eskiden tümü RAM'e yüklenip servis katmanında sayfalanıyordu;
+        /// artık Skip/Take DB tarafında uygulanır.
+        /// </summary>
         Task<List<Catalog>> GetAllCatalogsWithPlansAsync();
+
+        /// <summary>
+        /// #38: DB-level pagination — büyük kataloglar için tercih edilir.
+        /// </summary>
+        Task<(List<Catalog> Items, int TotalCount)> GetPagedCatalogsWithPlansAsync(int page, int pageSize);
     }
 }

@@ -145,16 +145,21 @@ const Currencies = {
 };
 
 // ─── Catalogs ─────────────────────────────────────────────────────────────────
+// #41: CachedCatalogService tüm kataloğu önbelleğe alıp in-memory sayfalıyor.
+// Bu yüzden frontend'den pageSize büyük verilirse backend doğrudan önbellekten servis eder.
+// pageSize varsayılanı 200 — katalog büyüdüğünde de tek istekte tüm liste alınır.
 const Catalogs = {
-  list:    ()           => requests.get('/catalogs?page=1&pageSize=100'),
-  details: (id: number) => requests.get(`/catalogs/${id}`),
+  list:     (page = 1, pageSize = 200) => requests.get(`/catalogs?page=${page}&pageSize=${pageSize}`),
+  details:  (id: number)    => requests.get(`/catalogs/${id}`),
+  trending: (limit = 10)    => requests.get(`/catalogs/trending?limit=${limit}`),
 };
 
 // ─── UserSubscriptions ────────────────────────────────────────────────────────
 const UserSubscriptions = {
-  list:           (page = 1, pageSize = 20) => requests.get(`/usersubscriptions?page=${page}&pageSize=${pageSize}`),
+  list:           (page = 1, pageSize = 20, q?: string) =>
+    requests.get(`/usersubscriptions?page=${page}&pageSize=${pageSize}${q ? `&q=${encodeURIComponent(q)}` : ''}`),
   create:         (subscription: any)       => requests.post('/usersubscriptions', subscription),
-  update:         (id: string, subscription: any) => requests.put('/usersubscriptions', subscription),
+  update:         (id: string | number, subscription: any) => requests.put(`/usersubscriptions/${id}`, subscription),
   delete:         (id: number | string)     => requests.del(`/usersubscriptions/${id}`),
 
   // Durum değiştirme (Aktif / Durduruldu / İptal)
@@ -173,17 +178,24 @@ const UserSubscriptions = {
   getUsage:       (id: number | string) => requests.get(`/usersubscriptions/${id}/usage`),
   addUsageLog:    (id: number | string, dto: any) => requests.post(`/usersubscriptions/${id}/usage`, dto),
   deleteUsageLog: (id: number | string, logId: string) => requests.del(`/usersubscriptions/${id}/usage/${logId}`),
+  duplicate:      (id: number | string) => requests.post(`/usersubscriptions/${id}/duplicate`, {}),
+
+  // Fiyat geçmişi
+  priceHistory:   (id: number | string) => requests.get(`/usersubscriptions/${id}/price-history`),
 };
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 const Auth = {
   login:          (body: any) => requests.post('/auth/login', body),
   register:       (body: any) => requests.post('/auth/register', body),
+  confirmEmail:   (userId: string, token: string) =>
+    requests.post('/auth/confirm-email', { userId, token }),
   getProfile:     ()          => requests.get('/auth/profile'),
-  updateProfile:  (body: { fullName?: string; monthlyBudget?: number; monthlyBudgetCurrency?: string }) =>
+  updateProfile:  (body: { fullName?: string; monthlyBudget?: number; monthlyBudgetCurrency?: string; budgetAlertThreshold?: number }) =>
     requests.put('/auth/profile', body),
-  changePassword: (body: any) => requests.post('/auth/change-password', body),
-  deleteAccount:  ()          => requests.del('/auth/me'),
+  changePassword:      (body: any)     => requests.post('/auth/change-password', body),
+  deleteAccount:       ()              => requests.del('/auth/me'),
+  revokeRefreshToken:  (token: string) => requests.post('/auth/revoke-refresh-token', { token }),
 };
 
 // ─── Notifications ────────────────────────────────────────────────────────────
@@ -191,8 +203,52 @@ const Notifications = {
   list:              (page = 1, pageSize = 20) =>
     requests.get(`/notifications?page=${page}&pageSize=${pageSize}`),
   markAsRead:        (id: number)  => requests.put(`/notifications/${id}/read`, {}),
+  markAllAsRead:     ()            => requests.put('/notifications/read-all', {}),
   delete:            (id: number)  => requests.del(`/notifications/${id}`),
-  registerPushToken: (token: string) => requests.put('/notifications/push-token', { token }),
+  registerPushToken:  (token: string) => requests.put('/notifications/push-token', { token }),
+  getPreferences:     ()              => requests.get('/notifications/preferences'),
+  updatePreferences:  (body: { pushEnabled: boolean; emailEnabled: boolean; reminderDaysBefore: number; notifyHour?: number }) =>
+    requests.put('/notifications/preferences', body),   // #33: POST → PUT (idempotent güncelleme)
+};
+
+// ─── Admin ────────────────────────────────────────────────────────────────────
+const Admin = {
+  getStats:      ()                              => requests.get('/admin/stats'),
+  getUsers:      (search = '', page = 1, pageSize = 20) =>
+    requests.get(`/admin/users?search=${encodeURIComponent(search)}&page=${page}&pageSize=${pageSize}`),
+  getUser:       (id: string)                    => requests.get(`/admin/users/${id}`),
+  deactivate:    (id: string)                    => requests.put(`/admin/users/${id}/deactivate`, {}),
+  activate:      (id: string)                    => requests.put(`/admin/users/${id}/activate`, {}),
+  assignRole:    (email: string)                 => requests.post('/admin/assign-role', { email }),
+  // Katalog/Plan CRUD (backend zaten hazır)
+  createCatalog: (dto: Record<string, unknown>)  => requests.post('/admin/catalogs', dto),
+  updateCatalog: (id: number, dto: Record<string, unknown>) => requests.put(`/admin/catalogs/${id}`, dto),
+  deleteCatalog: (id: number)                    => requests.del(`/admin/catalogs/${id}`),
+  createPlan:    (catalogId: number, dto: Record<string, unknown>) => requests.post(`/admin/catalogs/${catalogId}/plans`, dto),
+  updatePlan:    (id: number, dto: Record<string, unknown>) => requests.put(`/admin/plans/${id}`, dto),
+  deletePlan:    (id: number)                    => requests.del(`/admin/plans/${id}`),
+};
+
+// ─── Budget ───────────────────────────────────────────────────────────────────
+// PUT /budget/settings → BudgetController (ayrı endpoint, profile'dan bağımsız)
+const Budget = {
+  updateSettings: (body: { monthlyBudget: number; monthlyBudgetCurrency: string }) =>
+    requests.put('/budget/settings', body),
+};
+
+// ─── Category Budgets ─────────────────────────────────────────────────────────
+const CategoryBudgets = {
+  getAll: () => requests.get('/budget/categories'),
+  upsert: (body: { category: string; monthlyLimit: number }) =>
+    requests.put('/budget/categories', body),
+  remove: (category: string) =>
+    requests.del(`/budget/categories/${encodeURIComponent(category)}`),
+};
+
+// ─── Reports ──────────────────────────────────────────────────────────────────
+const Reports = {
+  spending: (from: string, to: string) =>
+    requests.get(`/reports/spending?from=${from}&to=${to}`),
 };
 
 export default {
@@ -201,5 +257,9 @@ export default {
   UserSubscriptions,
   Currencies,
   Auth,
+  Admin,
+  Budget,
+  CategoryBudgets,
   Notifications,
+  Reports,
 };

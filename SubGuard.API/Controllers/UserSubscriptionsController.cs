@@ -23,9 +23,9 @@ namespace SubGuard.API.Controllers
         private string LoggedInUserId => User.FindFirstValue(ClaimTypes.NameIdentifier);
 
         [HttpGet]
-        public async Task<IActionResult> GetMySubscriptions([FromQuery] PagedRequestDto paged)
+        public async Task<IActionResult> GetMySubscriptions([FromQuery] PagedRequestDto paged, [FromQuery] string? q = null)
         {
-            return CreateActionResult(await _service.GetUserSubscriptionsAsync(LoggedInUserId, paged.Page, paged.PageSize));
+            return CreateActionResult(await _service.GetUserSubscriptionsAsync(LoggedInUserId, paged.Page, paged.PageSize, q));
         }
 
         [HttpPost]
@@ -38,13 +38,19 @@ namespace SubGuard.API.Controllers
             return CreateActionResult(await _service.AddSubscriptionAsync(dto));
         }
 
-        [HttpPut]
-        public async Task<IActionResult> Update([FromBody] UserSubscriptionDto dto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UserSubscriptionDto dto)
         {
             // GÜVENLİK: Güncelleme yaparken de aboneliğin sahibini Token'daki kişi yapıyoruz.
             dto.UserId = LoggedInUserId;
 
-            // Service katmanı, bu ID'li kayıt veritabanında var mı ve sahibi bu kişi mi diye kontrol etmeli.
+            // Route ID ile body ID çelişiyorsa reddet
+            if (dto.Id != 0 && dto.Id != id)
+                return CreateActionResult(CustomResponseDto<bool>.Fail(400, "Route ID ile body ID uyuşmuyor."));
+
+            // Route'taki ID'yi kesin kaynak olarak kullan
+            dto.Id = id;
+
             return CreateActionResult(await _service.UpdateSubscriptionAsync(dto));
         }
 
@@ -101,6 +107,20 @@ namespace SubGuard.API.Controllers
         public async Task<IActionResult> DeleteUsageLog(int id, string logId)
         {
             return CreateActionResult(await _service.DeleteUsageLogAsync(id, LoggedInUserId, logId));
+        }
+
+        // POST api/usersubscriptions/5/duplicate
+        [HttpPost("{id}/duplicate")]
+        public async Task<IActionResult> Duplicate(int id)
+        {
+            return CreateActionResult(await _service.DuplicateSubscriptionAsync(id, LoggedInUserId));
+        }
+
+        // GET api/usersubscriptions/5/price-history
+        [HttpGet("{id}/price-history")]
+        public async Task<IActionResult> GetPriceHistory(int id)
+        {
+            return CreateActionResult(await _service.GetPriceHistoryAsync(id, LoggedInUserId));
         }
     }
 }

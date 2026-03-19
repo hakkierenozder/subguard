@@ -10,7 +10,9 @@ namespace SubGuard.Core.Services
     /// </summary>
     public interface IAuthService
     {
-        Task<CustomResponseDto<TokenDto>> RegisterAsync(RegisterDto registerDto);
+        /// <summary>Başarılı olursa data alanında yeni kullanıcının Id'sini döner.</summary>
+        Task<CustomResponseDto<string>> RegisterAsync(RegisterDto registerDto);
         Task<CustomResponseDto<TokenDto>> LoginAsync(LoginDto loginDto);
+        Task<CustomResponseDto<bool>> ConfirmEmailAsync(string userId, string token);
     }
 }

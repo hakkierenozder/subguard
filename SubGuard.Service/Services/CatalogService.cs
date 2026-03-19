@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.Entities;
 using SubGuard.Core.Repositories;
@@ -12,6 +13,7 @@ namespace SubGuard.Service.Services
         private readonly IGenericRepository<Catalog> _genericRepository;
         private readonly ICatalogRepository _serviceRepository;
         private readonly IGenericRepository<Plan> _planRepository;
+        private readonly IGenericRepository<UserSubscription> _userSubRepo;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
@@ -19,23 +21,23 @@ namespace SubGuard.Service.Services
             IGenericRepository<Catalog> genericRepository,
             ICatalogRepository serviceRepository,
             IGenericRepository<Plan> planRepository,
+            IGenericRepository<UserSubscription> userSubRepo,
             IUnitOfWork unitOfWork,
             IMapper mapper)
         {
             _genericRepository = genericRepository;
             _serviceRepository = serviceRepository;
             _planRepository = planRepository;
+            _userSubRepo = userSubRepo;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
         public async Task<CustomResponseDto<PagedResponseDto<ServiceDto>>> GetAllCatalogsWithPlansAsync(int page, int pageSize)
         {
-            var entities = await _serviceRepository.GetAllCatalogsWithPlansAsync();
-            var dtos = _mapper.Map<List<ServiceDto>>(entities);
-
-            var totalCount = dtos.Count;
-            var items = dtos.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            // #38: Skip/Take artık DB tarafında uygulanıyor — tüm satırlar RAM'e yüklenmiyor.
+            var (entities, totalCount) = await _serviceRepository.GetPagedCatalogsWithPlansAsync(page, pageSize);
+            var items = _mapper.Map<List<ServiceDto>>(entities);
 
             var result = new PagedResponseDto<ServiceDto>
             {
@@ -137,6 +139,35 @@ namespace SubGuard.Service.Services
             _planRepository.Remove(entity);
             await _unitOfWork.CommitAsync();
             return CustomResponseDto<bool>.Success(204);
+        }
+
+        public async Task<CustomResponseDto<List<ServiceDto>>> GetTrendingAsync(int limit = 10)
+        {
+            // Katalog başına abonelik sayısını DB'de grupla, en popülerleri al
+            var topCatalogIds = await _userSubRepo
+                .Where(x => x.CatalogId.HasValue)
+                .GroupBy(x => x.CatalogId!.Value)
+                .Select(g => new { CatalogId = g.Key, Count = g.Count() })
+                .OrderByDescending(x => x.Count)
+                .Take(limit)
+                .Select(x => x.CatalogId)
+                .ToListAsync();
+
+            if (!topCatalogIds.Any())
+            {
+                // Abonelik yoksa en son eklenen katalogları döndür
+                var fallback = await _serviceRepository.GetAllCatalogsWithPlansAsync();
+                var fallbackDtos = _mapper.Map<List<ServiceDto>>(fallback.Take(limit));
+                return CustomResponseDto<List<ServiceDto>>.Success(200, fallbackDtos);
+            }
+
+            var catalogs = await _serviceRepository.GetAllCatalogsWithPlansAsync();
+            var trending = catalogs
+                .Where(c => topCatalogIds.Contains(c.Id))
+                .OrderBy(c => topCatalogIds.IndexOf(c.Id))
+                .ToList();
+
+            return CustomResponseDto<List<ServiceDto>>.Success(200, _mapper.Map<List<ServiceDto>>(trending));
         }
     }
 }

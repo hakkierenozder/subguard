@@ -39,8 +39,18 @@ export default function LoginScreen({ navigation }: Props) {
       } else {
         Toast.show({ type: 'error', text1: 'Hata', text2: 'Giriş yapılamadı.', position: 'bottom' });
       }
-    } catch {
-      // Hata toast'ı agent.ts interceptor'ı tarafından gösterilir
+    } catch (err: any) {
+      // 403 → e-posta doğrulanmamış, özel mesaj göster
+      if (err?.response?.status === 403) {
+        Toast.show({
+          type: 'info',
+          text1: 'E-posta doğrulanmamış',
+          text2: 'Kayıt e-postanızdaki bağlantıya tıklayın.',
+          position: 'bottom',
+          visibilityTime: 5000,
+        });
+      }
+      // Diğer hatalar agent.ts interceptor'ı tarafından gösterilir
     } finally {
       setLoading(false);
     }

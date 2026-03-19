@@ -6,6 +6,7 @@ namespace SubGuard.Core.Services
     {
         Task<CustomResponseDto<PagedResponseDto<ServiceDto>>> GetAllCatalogsWithPlansAsync(int page, int pageSize);
         Task<CustomResponseDto<ServiceDto>> GetCatalogByIdAsync(int id);
+        Task<CustomResponseDto<List<ServiceDto>>> GetTrendingAsync(int limit = 10);
 
         // Admin CRUD - Catalog
         Task<CustomResponseDto<ServiceDto>> CreateCatalogAsync(ServiceDto dto);

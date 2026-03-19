@@ -1,13 +1,13 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView,
-  Switch, StatusBar, Linking, Share,
+  Switch, StatusBar, Linking, Share, Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemeColors } from '../constants/theme';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
-import { logout, removeToken } from '../utils/AuthManager';
+import { logout, removeToken, getRefreshToken } from '../utils/AuthManager';
 import { registerForPushNotificationsAsync, getExpoPushToken, cancelAllNotifications, syncSubscriptionsToCalendar } from '../utils/NotificationManager';
 import agent from '../api/agent';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,6 +15,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import EditProfileModal from '../components/EditProfileModal';
 import ChangePasswordModal from '../components/ChangePasswordModal';
+import PinSetupModal from '../components/PinSetupModal';
+import { clearPin } from '../utils/AppLockManager';
 
 // ─── Yardımcı Bileşenler ────────────────────────────────────────────────────
 
@@ -139,6 +141,7 @@ function InlineToggle({ label, value, onToggle }: { label: string; value: boolea
 export default function SettingsScreen() {
   const navigation = useNavigation<any>();
   const colors = useThemeColors();
+  const fadeAnim = useRef(new Animated.Value(1)).current;
 
   const {
     isDarkMode, notificationsEnabled, toggleNotifications, toggleDarkMode,
@@ -147,24 +150,49 @@ export default function SettingsScreen() {
     defaultCurrency, autoConvert, setDefaultCurrency, setAutoConvert,
     appLockEnabled, appLockMethod, lockAfterMinutes,
     setAppLockEnabled, setAppLockMethod, setLockAfterMinutes,
+    calendarSyncEnabled, setCalendarSyncEnabled,
+    dashboardUpcomingDays, setDashboardUpcomingDays,
+    isAdmin, setIsAdmin,
   } = useSettingsStore();
 
   const { subscriptions, getTotalExpense } = useUserSubscriptionStore();
 
-  const [calendarSyncEnabled, setCalendarSyncEnabled] = useState(false);
+  // calendarSyncEnabled artık useSettingsStore'dan geliyor (Fix 13)
   const [userProfile, setUserProfile] = useState<{ fullName: string; email: string; monthlyBudget: number } | null>(null);
   const [showEditProfile, setShowEditProfile]       = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showNotifPrefs, setShowNotifPrefs]         = useState(false);
+  const [showPinSetup, setShowPinSetup]             = useState(false);
 
   const loadProfile = async () => {
     try {
       const res = await agent.Auth.getProfile();
-      if (res?.data) setUserProfile(res.data);
+      if (res?.data) {
+        setUserProfile(res.data);
+        setIsAdmin(!!res.data.isAdmin);
+      }
     } catch {}
   };
 
-  useFocusEffect(useCallback(() => { loadProfile(); }, []));
+  // #32 — Bildirim tercihleri sunucudan çekilerek yerel store ile senkronize edilir.
+  // Farklı cihazlarda veya yeniden kurulumda tercihler sunucudan geri yüklenir.
+  const loadNotifPrefs = async () => {
+    try {
+      const res = await agent.Notifications.getPreferences();
+      if (res?.data) {
+        const prefs = res.data;
+        if (typeof prefs.pushEnabled === 'boolean') toggleNotifications(prefs.pushEnabled);
+        if (typeof prefs.reminderDaysBefore === 'number' && [1, 3, 7].includes(prefs.reminderDaysBefore))
+          setNotifyDaysBefore(prefs.reminderDaysBefore as 1 | 3 | 7);
+        if (typeof prefs.notifyHour === 'number') setNotifyHour(prefs.notifyHour);
+      }
+    } catch {} // Sessizce başarısız ol — yerel ayar geçerli kalır
+  };
+
+  useFocusEffect(useCallback(() => {
+    loadProfile();
+    loadNotifPrefs();
+  }, []));
 
   // Hesaplamalar
   const activeCount  = subscriptions.filter(s => s.isActive !== false).length;
@@ -177,13 +205,33 @@ export default function SettingsScreen() {
 
   // ── Handlers ────────────────────────────────────────────────────────────────
 
+  const handleDarkModeToggle = () => {
+    Animated.sequence([
+      Animated.timing(fadeAnim, { toValue: 0, duration: 120, useNativeDriver: true }),
+      Animated.timing(fadeAnim, { toValue: 1, duration: 180, useNativeDriver: true }),
+    ]).start();
+    toggleDarkMode();
+  };
+
   const handleCalendarToggle = async (value: boolean) => {
-    setCalendarSyncEnabled(value);
+    setCalendarSyncEnabled(value); // Zustand persist → AsyncStorage'a kaydedilir
     if (value) {
       await syncSubscriptionsToCalendar(subscriptions);
     } else {
       Alert.alert('Bilgi', 'Otomatik senkronizasyon durduruldu.');
     }
+  };
+
+  // Bildirim tercihlerini backend'e senkronize et
+  const syncNotifPrefs = async (opts: { pushEnabled?: boolean; reminderDaysBefore?: number; notifyHour?: number }) => {
+    try {
+      await agent.Notifications.updatePreferences({
+        pushEnabled: opts.pushEnabled ?? notificationsEnabled,
+        emailEnabled: opts.pushEnabled ?? notificationsEnabled,
+        reminderDaysBefore: opts.reminderDaysBefore ?? notifyDaysBefore,
+        notifyHour: opts.notifyHour ?? notifyHour,
+      });
+    } catch {} // Sessizce başarısız ol, yerel ayar zaten kaydedildi
   };
 
   const handleNotificationToggle = async (value: boolean) => {
@@ -195,28 +243,32 @@ export default function SettingsScreen() {
         if (token) {
           try { await agent.Notifications.registerPushToken(token); } catch {}
         }
+        await syncNotifPrefs({ pushEnabled: true });
         Alert.alert('Bildirimler açıldı', 'Ödeme günlerinde hatırlatma alacaksınız.');
       }
     } else {
       await cancelAllNotifications();
       toggleNotifications(false);
       setShowNotifPrefs(false);
+      await syncNotifPrefs({ pushEnabled: false });
     }
   };
 
+  const handleNotifyDaysChange = (days: number) => {
+    setNotifyDaysBefore(days);
+    syncNotifPrefs({ reminderDaysBefore: days });
+  };
+
   const handleAppLockToggle = (value: boolean) => {
-    if (value && appLockMethod === 'biometric') {
-      Alert.alert(
-        'Biyometrik Doğrulama',
-        'Biyometrik kilit için expo-local-authentication paketinin kurulu olması gerekir. PIN kilidi kullanmak ister misiniz?',
-        [
-          { text: 'İptal', style: 'cancel' },
-          { text: 'PIN Kullan', onPress: () => { setAppLockMethod('pin'); setAppLockEnabled(true); } },
-        ]
-      );
-      return;
+    if (value) {
+      // PIN kurulum modalını aç — başarıyla kaydedilince kilidi etkinleştir
+      setAppLockMethod('pin');
+      setShowPinSetup(true);
+    } else {
+      // Kilidi kapat ve PIN'i sil
+      setAppLockEnabled(false);
+      clearPin().catch(() => {});
     }
-    setAppLockEnabled(value);
   };
 
   const handleExportData = async () => {
@@ -231,7 +283,7 @@ export default function SettingsScreen() {
         '',
         `--- Abonelikler (${subscriptions.length} adet) ---`,
         ...subscriptions.map(s =>
-          `• ${s.name} | ${s.price} ${s.currency}/ay | ${s.category} | ${s.isActive !== false ? 'Aktif' : s.cancelledAt ? 'İptal' : 'Durdurulmuş'}`
+          `• ${s.name} | ${s.price} ${s.currency}/${s.billingPeriod === 'Yearly' ? 'yıl' : 'ay'} | ${s.category} | ${s.isActive !== false ? 'Aktif' : s.cancelledAt ? 'İptal' : 'Durdurulmuş'}`
         ),
       ];
       await Share.share({ message: lines.join('\n'), title: 'SubGuard Verilerim' });
@@ -261,7 +313,12 @@ export default function SettingsScreen() {
                   onPress: async () => {
                     try {
                       await agent.Auth.deleteAccount();
-                      await removeToken();
+                      // Hesap silindikten sonra refresh token'ı da iptal et
+                      try {
+                        const refreshToken = await getRefreshToken();
+                        if (refreshToken) await agent.Auth.revokeRefreshToken(refreshToken);
+                      } catch {}
+                      await logout();
                       navigation.getParent()?.reset({ index: 0, routes: [{ name: 'Login' }] });
                     } catch {
                       // Hata toast'ı agent.ts interceptor tarafından gösterilir
@@ -283,6 +340,13 @@ export default function SettingsScreen() {
         text: 'Çıkış Yap',
         style: 'destructive',
         onPress: async () => {
+          // Refresh token'ı sunucu tarafında geçersiz kıl
+          try {
+            const refreshToken = await getRefreshToken();
+            if (refreshToken) await agent.Auth.revokeRefreshToken(refreshToken);
+          } catch {
+            // Revoke başarısız olsa bile local logout devam eder
+          }
           await logout();
           navigation.getParent()?.reset({ index: 0, routes: [{ name: 'Login' }] });
         },
@@ -297,6 +361,7 @@ export default function SettingsScreen() {
         backgroundColor="transparent"
         translucent
       />
+      <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
 
       {/* ── HEADER ─────────────────────────────────── */}
       <LinearGradient
@@ -354,8 +419,15 @@ export default function SettingsScreen() {
           <MenuItem
             icon="lock-closed-outline" iconColor="#64748B" iconBg={isDarkMode ? '#1E293B' : '#F1F5F9'}
             title="Şifre Değiştir" subtitle="Hesap güvenliğini güncelle"
-            onPress={() => setShowChangePassword(true)} isLast
+            onPress={() => setShowChangePassword(true)} isLast={!isAdmin}
           />
+          {isAdmin && (
+            <MenuItem
+              icon="shield-checkmark-outline" iconColor="#10B981" iconBg={isDarkMode ? '#064E3B' : '#D1FAE5'}
+              title="Admin Paneli" subtitle="Kullanıcılar, kataloglar, istatistikler"
+              onPress={() => navigation.navigate('AdminPanel')} isLast
+            />
+          )}
         </View>
 
         {/* ── BİLDİRİM TERCİHLERİ ── */}
@@ -397,14 +469,14 @@ export default function SettingsScreen() {
                     label="Kaç gün önce uyarılsın?"
                     options={[1, 3, 7] as const}
                     value={notifyDaysBefore}
-                    onSelect={setNotifyDaysBefore}
+                    onSelect={handleNotifyDaysChange}
                     formatLabel={v => `${v} gün`}
                   />
                   <ChipRow
                     label="Uyarı saati"
                     options={[8, 10, 12, 18, 20]}
                     value={notifyHour}
-                    onSelect={setNotifyHour}
+                    onSelect={(v) => { setNotifyHour(v); syncNotifPrefs({ notifyHour: v }); }}
                     formatLabel={v => `${v}:00`}
                   />
                   <InlineToggle
@@ -430,7 +502,7 @@ export default function SettingsScreen() {
           <MenuItem
             icon={isDarkMode ? 'moon' : 'moon-outline'} iconColor="#6366F1" iconBg={isDarkMode ? '#1E1B4B' : '#EEF2FF'}
             title="Karanlık Mod" subtitle={isDarkMode ? 'Açık' : 'Kapalı'}
-            hasSwitch value={isDarkMode} onToggle={toggleDarkMode} isLast
+            hasSwitch value={isDarkMode} onToggle={handleDarkModeToggle} isLast
           />
         </View>
 
@@ -444,7 +516,8 @@ export default function SettingsScreen() {
             <View style={{ flex: 1 }}>
               <Text style={[styles.menuText, { color: colors.textMain }]}>Varsayılan Para Birimi</Text>
               <View style={[styles.chipRow, { marginTop: 10 }]}>
-                {(['TRY', 'USD', 'EUR'] as const).map(cur => {
+                {/* #49: GBP eklendi — exchangeRates'te zaten mevcut, backend GBP abonelik destekliyor */}
+                {(['TRY', 'USD', 'EUR', 'GBP'] as const).map(cur => {
                   const selected = defaultCurrency === cur;
                   return (
                     <TouchableOpacity
@@ -469,6 +542,40 @@ export default function SettingsScreen() {
             subtitle={autoConvert ? 'Tüm fiyatlar TRY olarak gösterilir' : 'Orijinal para birimi gösterilir'}
             hasSwitch value={autoConvert} onToggle={setAutoConvert} isLast
           />
+        </View>
+
+        {/* ── 35. GÖRÜNÜM — Dashboard Aralığı ── */}
+        <Text style={[styles.sectionLabel, { color: colors.textSec }]}>GÖRÜNÜM</Text>
+        <View style={[styles.section, { borderColor: colors.border }]}>
+          <View style={[styles.menuItem, { backgroundColor: colors.cardBg }]}>
+            <View style={[styles.iconBox, { backgroundColor: isDarkMode ? '#1E293B' : '#E0F2FE' }]}>
+              <Ionicons name="time-outline" size={19} color="#0EA5E9" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.menuText, { color: colors.textMain }]}>Yaklaşan Ödemeler Aralığı</Text>
+              <Text style={[styles.menuSub, { color: colors.textSec }]}>Ana ekranda kaç günlük ödemeler gösterilsin</Text>
+              <View style={[styles.chipRow, { marginTop: 10 }]}>
+                {([7, 14, 30] as const).map(day => {
+                  const selected = dashboardUpcomingDays === day;
+                  return (
+                    <TouchableOpacity
+                      key={day}
+                      style={[
+                        styles.chip,
+                        { borderColor: selected ? colors.primary : colors.border },
+                        selected && { backgroundColor: colors.primary },
+                      ]}
+                      onPress={() => setDashboardUpcomingDays(day)}
+                    >
+                      <Text style={[styles.chipText, { color: selected ? colors.white : colors.textSec }]}>
+                        {day} gün
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+          </View>
         </View>
 
         {/* ── 22. GÜVENLİK / UYGULAMA KİLİDİ ── */}
@@ -498,11 +605,6 @@ export default function SettingsScreen() {
               />
             </View>
           )}
-          <MenuItem
-            icon="finger-print-outline" iconColor="#0EA5E9" iconBg={isDarkMode ? '#0C4A6E' : '#E0F2FE'}
-            title="Şifre Değiştir" subtitle="Hesap güvenliğini güncelle"
-            onPress={() => setShowChangePassword(true)} isLast
-          />
         </View>
 
         {/* ── 21. VERİ & GİZLİLİK ── */}
@@ -556,6 +658,15 @@ export default function SettingsScreen() {
         visible={showChangePassword}
         onClose={() => setShowChangePassword(false)}
       />
+      <PinSetupModal
+        visible={showPinSetup}
+        onSuccess={() => {
+          setShowPinSetup(false);
+          setAppLockEnabled(true);
+        }}
+        onCancel={() => setShowPinSetup(false)}
+      />
+      </Animated.View>
     </SafeAreaView>
   );
 }

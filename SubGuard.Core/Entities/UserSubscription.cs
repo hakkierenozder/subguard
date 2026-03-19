@@ -34,6 +34,9 @@ namespace SubGuard.Core.Entities
         // Frontend'deki UsageLog[] usageHistory dizisini JSON string olarak tutacağız
         public string? UsageHistoryJson { get; set; }
 
+        // Kullanıcı notları (isteğe bağlı, 500 karakter)
+        public string? Notes { get; set; }
+
         public bool IsActive { get; set; } = true;
 
         public SubscriptionStatus Status { get; set; } = SubscriptionStatus.Active;

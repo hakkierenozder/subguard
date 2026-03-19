@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.Services;
 using System.Security.Claims;
+// NotificationPreferencesDto ve RegisterPushTokenDto → SubGuard.Core.DTOs namespace'inde
 
 namespace SubGuard.API.Controllers
 {
@@ -32,6 +33,28 @@ namespace SubGuard.API.Controllers
         public async Task<IActionResult> MarkAsRead(int id)
         {
             return CreateActionResult(await _notificationService.MarkAsReadAsync(id, LoggedInUserId));
+        }
+
+        // PUT api/notifications/read-all  (alias: mark-all-read)
+        [HttpPut("read-all")]
+        [HttpPut("mark-all-read")]
+        public async Task<IActionResult> MarkAllAsRead()
+        {
+            return CreateActionResult(await _notificationService.MarkAllAsReadAsync(LoggedInUserId));
+        }
+
+        // GET api/notifications/preferences
+        [HttpGet("preferences")]
+        public async Task<IActionResult> GetPreferences()
+        {
+            return CreateActionResult(await _notificationService.GetPreferencesAsync(LoggedInUserId));
+        }
+
+        // PUT api/notifications/preferences  (#33: idempotent güncelleme → POST → PUT)
+        [HttpPut("preferences")]
+        public async Task<IActionResult> UpdatePreferences([FromBody] NotificationPreferencesDto dto)
+        {
+            return CreateActionResult(await _notificationService.UpdatePreferencesAsync(LoggedInUserId, dto));
         }
 
         // DELETE api/notifications/5

@@ -5,6 +5,7 @@ namespace SubGuard.Core.DTOs
 {
     public class UserSubscriptionDto : BaseDto
     {
+        public DateTime CreatedDate { get; set; }
         public string UserId { get; set; }
         public int? CatalogId { get; set; }
         public string Name { get; set; }
@@ -23,6 +24,8 @@ namespace SubGuard.Core.DTOs
 
         public string? SharedWithJson { get; set; }
         public string? UsageHistoryJson { get; set; }
+
+        public string? Notes { get; set; }
 
         public bool IsActive { get; set; }
         public SubscriptionStatus Status { get; set; }

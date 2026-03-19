@@ -127,5 +127,17 @@ namespace SubGuard.Service.Services.Decorators
             if (result.StatusCode == 204) InvalidateCache();
             return result;
         }
+
+        // Trending — kısa TTL cache (5 dk)
+        public async Task<CustomResponseDto<List<ServiceDto>>> GetTrendingAsync(int limit = 10)
+        {
+            var key = $"trending:{limit}";
+            if (_memoryCache.TryGetValue(key, out CustomResponseDto<List<ServiceDto>>? cached))
+                return cached!;
+
+            var result = await _innerService.GetTrendingAsync(limit);
+            _memoryCache.Set(key, result, TimeSpan.FromMinutes(5));
+            return result;
+        }
     }
 }

@@ -14,5 +14,16 @@ namespace SubGuard.Core.Entities
         public decimal MonthlyBudget { get; set; } = 0;
         public string? MonthlyBudgetCurrency { get; set; }
         public string? ExpoPushToken { get; set; }
+
+        // Bildirim tercihleri
+        public bool NotifPushEnabled { get; set; } = true;
+        public bool NotifEmailEnabled { get; set; } = true;
+        public int NotifReminderDays { get; set; } = 3;
+
+        // Bütçe uyarı eşiği (0–100 arası yüzde, varsayılan %80)
+        public int BudgetAlertThreshold { get; set; } = 80;
+
+        // Bildirim saati (0–23 arası, varsayılan 9 = sabah 9)
+        public int NotifyHour { get; set; } = 9;
     }
 }

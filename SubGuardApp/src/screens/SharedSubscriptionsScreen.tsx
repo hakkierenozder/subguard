@@ -57,6 +57,11 @@ function ManagePartnersPanel({ sub, colors, onClose, onUpdate }: ManageModalProp
   const [partners, setPartners] = useState<string[]>(sub.sharedWith ?? []);
   const [inputText, setInputText] = useState('');
 
+  // Dışarıdan sub.sharedWith değişirse (örn. store optimistic update) yerel state senkronize et (Fix 23)
+  useEffect(() => {
+    setPartners(sub.sharedWith ?? []);
+  }, [sub.id]); // sub değiştiğinde (farklı abonelik açıldığında) yeniden başlat
+
   const addPartner = () => {
     const trimmed = inputText.trim();
     if (!trimmed) return;
@@ -175,7 +180,7 @@ function ManagePartnersPanel({ sub, colors, onClose, onUpdate }: ManageModalProp
 export default function SharedSubscriptionsScreen() {
   const colors = useThemeColors();
   const isDarkMode = useSettingsStore((s) => s.isDarkMode);
-  const { subscriptions, sharedWithMe, exchangeRates, updateSubscription, fetchSharedWithMe } = useUserSubscriptionStore();
+  const { subscriptions, sharedWithMe, exchangeRates, updateSubscription, fetchSharedWithMe, fetchUserSubscriptions } = useUserSubscriptionStore();
 
   const [activeTab, setActiveTab] = useState<Tab>('subs');
   const [managingSub, setManagingSub] = useState<UserSubscription | null>(null);
@@ -217,9 +222,12 @@ export default function SharedSubscriptionsScreen() {
 
   const handleUpdatePartners = useCallback(
     (id: string, partners: string[]) => {
+      // Optimistic update — UI anında güncellenir (Fix 23)
       updateSubscription(id, { sharedWith: partners });
+      // Arka planda sunucu durumunu senkronize et
+      fetchUserSubscriptions();
     },
-    [updateSubscription],
+    [updateSubscription, fetchUserSubscriptions],
   );
 
   // --- Render: Paylaştıklarım Sekmesi ---

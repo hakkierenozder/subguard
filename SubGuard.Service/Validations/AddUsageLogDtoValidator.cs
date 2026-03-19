@@ -12,7 +12,7 @@ namespace SubGuard.Service.Validations
                 .When(x => x.Note != null);
 
             RuleFor(x => x.Amount)
-                .GreaterThan(0).WithMessage("Kullanım miktarı 0'dan büyük olmalıdır.")
+                .GreaterThanOrEqualTo(0).WithMessage("Kullanım miktarı 0 veya daha büyük olmalıdır.")
                 .When(x => x.Amount.HasValue);
 
             RuleFor(x => x.Unit)

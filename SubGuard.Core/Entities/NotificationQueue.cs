@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
+using SubGuard.Core.Enums;
 
 namespace SubGuard.Core.Entities
 {
@@ -8,11 +9,11 @@ namespace SubGuard.Core.Entities
         // Kime gönderilecek?
         public string UserId { get; set; }
 
-        // Hangi abonelik ile ilgili?
-        public int UserSubscriptionId { get; set; }
+        // Hangi abonelik ile ilgili? (Budget ve paylaşım bildirimleri için null olabilir)
+        public int? UserSubscriptionId { get; set; }
 
         [ForeignKey("UserSubscriptionId")]
-        public UserSubscription UserSubscription { get; set; }
+        public UserSubscription? UserSubscription { get; set; }
 
         // Mesaj içeriği veya başlığı
         public string Title { get; set; }
@@ -28,6 +29,9 @@ namespace SubGuard.Core.Entities
         // Kullanıcı tarafından okundu mu?
         public bool IsRead { get; set; } = false;
         public DateTime? ReadDate { get; set; }
+
+        // Bildirim türü
+        public NotificationType Type { get; set; } = NotificationType.Payment;
 
         // Hata durumunda
         public string? ErrorMessage { get; set; }

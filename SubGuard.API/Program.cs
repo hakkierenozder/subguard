@@ -24,6 +24,7 @@ using SubGuard.Service.Mapping;
 using SubGuard.Service.Services;
 using SubGuard.Service.Validations;
 using System.Reflection;
+using System.Security.Claims;
 using System.Threading.RateLimiting;
 
 // 1. Serilog Kurulumu (Builder'dan �nce)
@@ -131,6 +132,33 @@ try
             ValidAudience = jwtSettings["Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(key)
         };
+
+        // Silinen/iptal edilmiş kullanıcıların token'larını reddet
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async ctx =>
+            {
+                var userId = ctx.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (userId == null) return;
+
+                // 1. Katman: In-memory revoke store (hızlı — hesap silme anında set edilir)
+                var revokedStore = ctx.HttpContext.RequestServices
+                    .GetRequiredService<IRevokedUserStore>();
+                if (revokedStore.IsRevoked(userId))
+                {
+                    ctx.Fail("Token geçersiz kılınmış.");
+                    return;
+                }
+
+                // 2. Katman: DB kontrolü — API yeniden başlatılsa bile silinmiş kullanıcıyı yakalar.
+                // In-memory cache sıfırlansa dahi kullanıcı AspNetUsers'da yoksa reddedilir.
+                var userManager = ctx.HttpContext.RequestServices
+                    .GetRequiredService<UserManager<AppUser>>();
+                var user = await userManager.FindByIdAsync(userId);
+                if (user == null)
+                    ctx.Fail("Kullanıcı bulunamadı veya hesap silinmiş.");
+            }
+        };
     });
 
     // CORS
@@ -201,12 +229,16 @@ try
         // Decorator i�ine as�l servisi ve cache'i vererek instance olu�tur
         return new SubGuard.Service.Services.Decorators.CachedCatalogService(actualService, memoryCache);
     });
+    builder.Services.AddSingleton<IRevokedUserStore, InMemoryRevokedUserStore>();
+    builder.Services.AddScoped<IReportService, ReportService>();
     builder.Services.AddScoped<IUserSubscriptionService, UserSubscriptionService>();
     builder.Services.AddScoped<IAuthService, AuthService>();
     builder.Services.AddScoped<ITokenService, TokenService>();
     builder.Services.AddScoped<IUserProfileService, UserProfileService>();
     builder.Services.AddScoped<INotificationService, NotificationService>();
     builder.Services.AddScoped<IDashboardService, DashboardService>();
+    builder.Services.AddScoped<IAdminService, AdminService>();
+    builder.Services.AddScoped<ICategoryBudgetService, CategoryBudgetService>();
     builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
     builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
     builder.Services.AddHttpClient("expo");
@@ -283,17 +315,41 @@ try
         .FirstOrDefault(tz => tz.Id == "Turkey Standard Time" || tz.Id == "Europe/Istanbul")
         ?? TimeZoneInfo.Utc;
 
+    // Her saat başı çalışır; iç filtre kullanıcının NotifyHour'una bakarak uygun kullanıcıları seçer
     RecurringJob.AddOrUpdate<INotificationService>(
         "daily-payment-check",
-        service => service.CheckAndQueueUpcomingPaymentsAsync(3), // 3 gün öncesi
-        "0 9 * * *", // Her gün 09:00 TRT
+        service => service.CheckAndQueueUpcomingPaymentsAsync(3),
+        "0 * * * *",
+        new RecurringJobOptions { TimeZone = trTimeZone }
+    );
+
+    // #12: Kontrat sona erme — 7 gün ve 1 gün öncesi uyarı (saatlik, NotifyHour filtreli)
+    RecurringJob.AddOrUpdate<INotificationService>(
+        "daily-contract-expiry-7d",
+        service => service.CheckAndQueueContractExpiriesAsync(7),
+        "0 * * * *",
+        new RecurringJobOptions { TimeZone = trTimeZone }
+    );
+
+    RecurringJob.AddOrUpdate<INotificationService>(
+        "daily-contract-expiry-1d",
+        service => service.CheckAndQueueContractExpiriesAsync(1),
+        "0 * * * *",
+        new RecurringJobOptions { TimeZone = trTimeZone }
+    );
+
+    // #11: Bütçe aşım kontrolü — ayın 1'i sabah 09:00
+    RecurringJob.AddOrUpdate<INotificationService>(
+        "monthly-budget-alert",
+        service => service.CheckAndQueueBudgetAlertsAsync(),
+        "0 9 1 * *",
         new RecurringJobOptions { TimeZone = trTimeZone }
     );
 
     RecurringJob.AddOrUpdate<INotificationService>(
         "process-notification-queue",
         service => service.ProcessNotificationQueueAsync(),
-        "0 9 * * *" // Her sabah 09:00 (UTC)
+        "0 9 * * *"
     );
 
     RecurringJob.AddOrUpdate<ITokenService>(

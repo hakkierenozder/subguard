@@ -5,6 +5,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BarChart } from 'react-native-chart-kit';
+import { File, Paths } from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -77,7 +79,11 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
     );
   }, [selectedCategory, subscriptions]);
 
-  // --- TREND GRAFİĞİ (Son 6 ay) ---
+  // --- TREND GRAFİĞİ (Son 6 ay) — Fix #14 ---
+  // Her geçmiş ay için aboneliklerin o ayda aktif olup olmadığını doğru hesapla:
+  //   • createdDate bu ayın sonundan sonraysa henüz yoktu → dışla
+  //   • cancelledDate / cancelledAt bu ayın BAŞINDAN önce ise zaten iptalse → dışla
+  //   (ayın ortasında iptal edilen abonelik o ay için sayılır)
   const trendData = useMemo(() => {
     const labels: string[] = [];
     const data: number[] = [];
@@ -86,14 +92,20 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
       const d = new Date();
       d.setDate(1);
       d.setMonth(d.getMonth() - i);
-      const monthEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+      // UTC sınırlarını kullan — backend ISO tarihlerini (UTC) yerel zamanla
+      // karşılaştırırken gece yarısı sınırında yanlış aya düşmesin (Fix 19)
+      const monthStart = Date.UTC(d.getFullYear(), d.getMonth(), 1);
+      const monthEnd   = Date.UTC(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59);
 
       labels.push(d.toLocaleDateString('tr-TR', { month: 'short' }));
 
       const monthTotal = subscriptions
         .filter(s => {
-          // İptal tarihi bu aydan önce ise dahil etme
-          if (s.cancelledAt && new Date(s.cancelledAt) < monthEnd) return false;
+          // Bu aydan sonra oluşturulmuşsa o ayda yoktu
+          if (s.createdDate && new Date(s.createdDate).getTime() > monthEnd) return false;
+          // Bu ayın başından önce iptal edildiyse o ayda yoktu
+          const cancelDate = s.cancelledDate || s.cancelledAt;
+          if (cancelDate && new Date(cancelDate).getTime() < monthStart) return false;
           return true;
         })
         .reduce((sum, s) => {
@@ -107,6 +119,47 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
     }
 
     return { labels, data };
+  }, [subscriptions, exchangeRates]);
+
+  // --- YILLIK PROJEKSİYON — Fix #15 ---
+  // totalMonthlyExpense * 12 yerine her abonelik için kalan ödeme aylarını hesapla:
+  //   • Yıllık abonelik (Yearly): bu yıl içinde bir kez ödenir
+  //   • Aylık abonelik: bu aydan yıl sonuna kadar kalan ay sayısı × aylık tutar
+  //   • contractEndDate varsa sözleşme bitince dahil edilmez
+  //   • Pasif / iptal abonelikler sayılmaz
+  const yearlyProjection = useMemo(() => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth(); // 0-tabanlı
+
+    return subscriptions
+      .filter(s => s.isActive !== false && s.status !== 'Cancelled' && s.status !== 'Paused')
+      .reduce((total, s) => {
+        const rate = exchangeRates[s.currency] || 1;
+        const amountInTry = s.price * rate;
+        const partnerCount = s.sharedWith?.length || 0;
+        const myShare = amountInTry / (partnerCount + 1);
+
+        if (s.billingPeriod === 'Yearly') {
+          // Yıllık: bu yıl için tek seferlik ödeme
+          total += myShare;
+        } else {
+          // Aylık: bu ay dahil yıl sonuna kadar kaç ay kaldı?
+          let remainingMonths = 12 - currentMonth;
+
+          if (s.contractEndDate) {
+            const contractEnd = new Date(s.contractEndDate);
+            if (contractEnd < now) return total; // Sözleşme zaten sona erdi
+            const monthsUntilEnd =
+              (contractEnd.getFullYear() - currentYear) * 12 +
+              contractEnd.getMonth() - currentMonth + 1;
+            remainingMonths = Math.min(remainingMonths, Math.max(0, monthsUntilEnd));
+          }
+
+          total += myShare * remainingMonths;
+        }
+        return total;
+      }, 0);
   }, [subscriptions, exchangeRates]);
 
   const trendChartConfig = {
@@ -130,35 +183,67 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
     },
   };
 
-  // --- DIŞA AKTAR ---
+  // --- CSV DIŞA AKTAR — Fix #16 ---
+  // Metin paylaşımı yerine gerçek CSV dosyası oluşturur ve paylaşım sayfasını açar.
+  // iOS: Files uygulamasına kaydetme, Numbers/Excel'de açma seçeneği sunar.
+  // Android: Download klasörüne kaydetme veya uygulama seçimi sunar.
   const handleExport = async () => {
     try {
-      const lines = [
-        '📊 SubGuard Harcama Raporu',
-        `Tarih: ${new Date().toLocaleDateString('tr-TR')}`,
-        '',
-        `Aylık Toplam : ${totalMonthlyExpense.toFixed(2)} ₺`,
-        `Yıllık Proj. : ${(totalMonthlyExpense * 12).toFixed(2)} ₺`,
-        `Aktif        : ${activeSubsCount} abonelik`,
-        passiveSubsCount > 0 ? `Pasif        : ${passiveSubsCount} abonelik` : '',
-        '',
-        '--- Kategori Dağılımı ---',
-        ...statistics.sortedCategories.map(
-          c => `${c.name.padEnd(16)} ${c.total.toFixed(2)} ₺  (%${c.percentage.toFixed(1)})`
-        ),
-        '',
-        '--- Abonelik Listesi ---',
-        ...subscriptions
-          .filter(s => s.isActive !== false)
-          .map(s => `• ${s.name}: ${s.price} ${s.currency}/ay`),
-      ].filter(l => l !== undefined);
+      const dateStr = new Date().toISOString().slice(0, 10);
 
-      await Share.share({
-        message: lines.join('\n'),
-        title: 'SubGuard Harcama Raporu',
-      });
-    } catch {
-      Alert.alert('Hata', 'Rapor paylaşılamadı.');
+      // — Özet sayfası satırları —
+      const summaryRows = [
+        ['SubGuard Harcama Raporu', ''],
+        ['Rapor Tarihi', dateStr],
+        ['Aylık Toplam (₺)', totalMonthlyExpense.toFixed(2)],
+        ['Yıllık Projeksiyon (₺)', yearlyProjection.toFixed(2)],
+        ['Aktif Abonelik', String(activeSubsCount)],
+        ['Pasif Abonelik', String(passiveSubsCount)],
+        ['', ''],
+        ['Kategori', 'Tutar (₺)', 'Oran (%)'],
+        ...statistics.sortedCategories.map(c => [
+          c.name,
+          c.total.toFixed(2),
+          c.percentage.toFixed(1),
+        ]),
+        ['', '', ''],
+        ['Abonelik Adı', 'Kategori', 'Fiyat', 'Para Birimi', 'Dönem', 'Durum'],
+        ...subscriptions.map(s => [
+          `"${s.name.replace(/"/g, '""')}"`,
+          `"${(s.category || 'Diğer').replace(/"/g, '""')}"`,
+          String(s.price),
+          s.currency,
+          s.billingPeriod === 'Yearly' ? 'Yıllık' : 'Aylık',
+          s.status || (s.isActive ? 'Aktif' : 'Pasif'),
+        ]),
+      ];
+
+      const csvContent = summaryRows.map(row => row.join(',')).join('\n');
+      const fileName = `subguard-rapor-${dateStr}.csv`;
+
+      // expo-file-system v19 class tabanlı API (Paths.document / Paths.cache)
+      // Paths.document yoksa Paths.cache'e, o da yoksa Share ile metin paylaşımına düş.
+      const dir = Paths.document ?? Paths.cache;
+      if (!dir) {
+        await Share.share({ message: csvContent, title: 'SubGuard Harcama Raporu' });
+        return;
+      }
+      const file = new File(dir, fileName);
+      file.write(csvContent); // sync — await gerektirmez
+
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(file.uri, {
+          mimeType: 'text/csv',
+          dialogTitle: 'SubGuard Raporu',
+          UTI: 'public.comma-separated-values-text',
+        });
+      } else {
+        // Paylaşım desteklenmiyorsa düz metin olarak dene
+        await Share.share({ message: csvContent, title: 'SubGuard Harcama Raporu' });
+      }
+    } catch (err) {
+      console.error('CSV export hatası:', err);
+      Alert.alert('Hata', `Rapor dışa aktarılamadı: ${(err as Error)?.message ?? String(err)}`);
     }
   };
 
@@ -249,8 +334,8 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
               style={[styles.exportBtn, { backgroundColor: colors.inputBg, borderColor: colors.border }]}
               onPress={handleExport}
             >
-              <Ionicons name="share-outline" size={18} color={colors.primary} />
-              <Text style={[styles.exportBtnText, { color: colors.primary }]}>Paylaş</Text>
+              <Ionicons name="download-outline" size={18} color={colors.primary} />
+              <Text style={[styles.exportBtnText, { color: colors.primary }]}>CSV İndir</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -264,7 +349,7 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
                 <Text style={styles.heroLabel}>Yıllık Projeksiyon</Text>
                 <View style={styles.heroAmountRow}>
                   <Text style={styles.heroCurrency}>₺</Text>
-                  <Text style={styles.heroAmount}>{(totalMonthlyExpense * 12).toFixed(0)}</Text>
+                  <Text style={styles.heroAmount}>{yearlyProjection.toFixed(0)}</Text>
                 </View>
               </View>
               <View style={styles.heroIconContainer}>
@@ -334,7 +419,7 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
                   withInnerLines
                 />
                 <Text style={[styles.trendNote, { color: colors.textSec }]}>
-                  * Mevcut aboneliklerinize göre hesaplanmıştır.
+                  * Abonelik oluşturma ve iptal tarihleri dikkate alınarak hesaplanmıştır.
                 </Text>
               </View>
 
@@ -344,8 +429,8 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
                 onPress={handleExport}
                 activeOpacity={0.85}
               >
-                <Ionicons name="document-text-outline" size={20} color="#FFF" />
-                <Text style={styles.exportFullBtnText}>Raporu Paylaş</Text>
+                <Ionicons name="download-outline" size={20} color="#FFF" />
+                <Text style={styles.exportFullBtnText}>CSV Olarak Dışa Aktar</Text>
               </TouchableOpacity>
             </>
           )}

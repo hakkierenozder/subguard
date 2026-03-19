@@ -1,0 +1,852 @@
+2026-03-19 00:36:39.799 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 401 in 38.0985 ms
+2026-03-19 00:36:39.799 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 37.9021 ms
+2026-03-19 00:36:39.799 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 401 in 33.5502 ms
+2026-03-19 00:36:39.817 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 56.6827 ms
+2026-03-19 00:36:39.829 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 68.0829 ms
+2026-03-19 00:36:39.877 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 401 in 0.5683 ms
+2026-03-19 00:36:39.881 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 0.8844 ms
+2026-03-19 00:36:39.881 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.7626 ms
+2026-03-19 00:36:44.869 +03:00 [INF] [User: Anonymous] Token atomik olarak yenilendi. UserId: b9e6ff87-3f77-4e13-9691-13b6aab43c65
+2026-03-19 00:36:44.875 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 156.2286 ms
+2026-03-19 00:36:45.287 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.6241 ms
+2026-03-19 00:36:45.296 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 14.5657 ms
+2026-03-19 00:36:45.301 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 17.9319 ms
+2026-03-19 00:36:45.332 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 9.2845 ms
+2026-03-19 00:36:46.604 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.5736 ms
+2026-03-19 00:45:12.330 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.4692 ms
+2026-03-19 00:45:12.335 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 10.4564 ms
+2026-03-19 00:45:12.349 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 0.8616 ms
+2026-03-19 00:45:12.351 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.3644 ms
+2026-03-19 00:45:12.365 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.6837 ms
+2026-03-19 00:45:12.976 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.7767 ms
+2026-03-19 00:45:13.245 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.5788 ms
+2026-03-19 00:45:13.248 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.5201 ms
+2026-03-19 00:45:13.249 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.4955 ms
+2026-03-19 00:45:17.096 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 9.1540 ms
+2026-03-19 00:45:17.110 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.5422 ms
+2026-03-19 00:45:17.324 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.6391 ms
+2026-03-19 00:45:17.326 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.4959 ms
+2026-03-19 00:45:17.334 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.6524 ms
+2026-03-19 00:45:17.358 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.8581 ms
+2026-03-19 00:45:17.365 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.8425 ms
+2026-03-19 00:45:17.365 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.6402 ms
+2026-03-19 00:45:17.383 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.6432 ms
+2026-03-19 00:45:21.395 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 8.1015 ms
+2026-03-19 00:45:21.448 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.3955 ms
+2026-03-19 00:45:21.451 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.9970 ms
+2026-03-19 00:45:21.464 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.3641 ms
+2026-03-19 00:45:21.469 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.3360 ms
+2026-03-19 00:45:21.472 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.7702 ms
+2026-03-19 00:45:21.485 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 3.8596 ms
+2026-03-19 00:45:22.246 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.6666 ms
+2026-03-19 00:45:22.487 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.4470 ms
+2026-03-19 00:45:25.605 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 8.6562 ms
+2026-03-19 00:45:25.613 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.1778 ms
+2026-03-19 00:45:25.626 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.8589 ms
+2026-03-19 00:45:25.853 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.4132 ms
+2026-03-19 00:45:26.266 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.6939 ms
+2026-03-19 00:45:26.271 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 1.2183 ms
+2026-03-19 00:45:26.271 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.4187 ms
+2026-03-19 00:45:26.282 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.1699 ms
+2026-03-19 00:45:26.284 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 3.9895 ms
+2026-03-19 00:45:34.731 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 3.6689 ms
+2026-03-19 00:45:34.733 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.6942 ms
+2026-03-19 00:45:34.941 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 0.4332 ms
+2026-03-19 00:45:34.944 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.4844 ms
+2026-03-19 00:45:34.947 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 7.2383 ms
+2026-03-19 00:45:34.953 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.0543 ms
+2026-03-19 00:45:34.967 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 27.0092 ms
+2026-03-19 00:45:34.977 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 1.9999 ms
+2026-03-19 00:45:34.982 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.4063 ms
+2026-03-19 00:50:34.676 +03:00 [INF] [User: ] Server desktop-25vqrpg:30924:cce6bbe1 caught stopping signal...
+2026-03-19 00:50:34.684 +03:00 [INF] [User: ] Server desktop-25vqrpg:30924:cce6bbe1 All dispatchers stopped
+2026-03-19 00:50:34.699 +03:00 [INF] [User: ] Server desktop-25vqrpg:30924:cce6bbe1 successfully reported itself as stopped in 9,3556 ms
+2026-03-19 00:50:34.700 +03:00 [INF] [User: ] Server desktop-25vqrpg:30924:cce6bbe1 has been stopped in total 22,358 ms
+2026-03-19 00:50:40.724 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 00:50:41.998 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-19 00:50:42.019 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-19 00:50:42.441 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-19 00:50:42.442 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-19 00:50:42.443 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-19 00:50:42.444 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-19 00:50:42.445 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-19 00:50:42.446 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-19 00:50:42.471 +03:00 [INF] [User: ] Server desktop-25vqrpg:24728:416255f0 successfully announced in 10,6251 ms
+2026-03-19 00:50:42.474 +03:00 [INF] [User: ] Server desktop-25vqrpg:24728:416255f0 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-19 00:50:42.482 +03:00 [INF] [User: ] Server desktop-25vqrpg:24728:416255f0 all the dispatchers started
+2026-03-19 01:21:36.349 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-19 01:21:36.482 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 151.2529 ms
+2026-03-19 01:21:36.482 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 401 in 151.2402 ms
+2026-03-19 01:21:36.482 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 401 in 151.2605 ms
+2026-03-19 01:21:36.833 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 504.5701 ms
+2026-03-19 01:21:36.897 +03:00 [INF] [User: Anonymous] Token atomik olarak yenilendi. Email: ba***@gmail.com
+2026-03-19 01:21:36.905 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 384.0491 ms
+2026-03-19 01:21:37.012 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 39.3101 ms
+2026-03-19 01:21:37.038 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 77.4378 ms
+2026-03-19 01:21:37.063 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 95.2178 ms
+2026-03-19 01:21:37.215 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 90.1876 ms
+2026-03-19 01:22:27.833 +03:00 [INF] [User: ] Server desktop-25vqrpg:24728:416255f0 caught stopping signal...
+2026-03-19 01:22:27.837 +03:00 [INF] [User: ] Server desktop-25vqrpg:24728:416255f0 All dispatchers stopped
+2026-03-19 01:22:27.842 +03:00 [INF] [User: ] Server desktop-25vqrpg:24728:416255f0 successfully reported itself as stopped in 2,5976 ms
+2026-03-19 01:22:27.843 +03:00 [INF] [User: ] Server desktop-25vqrpg:24728:416255f0 has been stopped in total 8,1605 ms
+2026-03-19 01:22:37.778 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 01:22:39.335 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-19 01:22:39.359 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-19 01:22:39.775 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-19 01:22:39.776 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-19 01:22:39.777 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-19 01:22:39.778 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-19 01:22:39.779 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-19 01:22:39.780 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-19 01:22:39.802 +03:00 [INF] [User: ] Server desktop-25vqrpg:23044:bcc370d8 successfully announced in 10,1915 ms
+2026-03-19 01:22:39.805 +03:00 [INF] [User: ] Server desktop-25vqrpg:23044:bcc370d8 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-19 01:22:39.811 +03:00 [INF] [User: ] Server desktop-25vqrpg:23044:bcc370d8 all the dispatchers started
+2026-03-19 01:22:41.642 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-19 01:22:41.733 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 401 in 103.1010 ms
+2026-03-19 01:22:41.733 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 401 in 103.1030 ms
+2026-03-19 01:22:41.733 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 103.0796 ms
+2026-03-19 01:22:42.053 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 424.6312 ms
+2026-03-19 01:22:42.112 +03:00 [INF] [User: Anonymous] Token atomik olarak yenilendi. Email: oz***@gmail.com
+2026-03-19 01:22:42.122 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 307.3773 ms
+2026-03-19 01:22:42.288 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 47.5719 ms
+2026-03-19 01:22:42.311 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 70.8676 ms
+2026-03-19 01:22:42.329 +03:00 [INF] [User: Hakkı Eren Özder] Güncel kurlar çekiliyor...
+2026-03-19 01:22:42.760 +03:00 [INF] [User: Hakkı Eren Özder] Kurlar güncellendi: {"USD":44.221,"EUR":50.854,"GBP":58.864}
+2026-03-19 01:22:42.778 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 537.7678 ms
+2026-03-19 01:22:42.950 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 116.6956 ms
+2026-03-19 01:22:43.701 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.1173 ms
+2026-03-19 01:22:47.034 +03:00 [INF] [User: ] HTTP POST /api/auth/revoke-refresh-token responded 204 in 14.9842 ms
+2026-03-19 01:23:07.963 +03:00 [WRN] [User: Hakkı Eren Özder] Email ayarları eksik (Host veya From boş). Gönderim yapılamadı. Alıcı: ha***@gmail.com
+2026-03-19 01:23:07.965 +03:00 [WRN] [User: Hakkı Eren Özder] Doğrulama e-postası gönderilemedi. UserId: d1d8e668-ae1f-48f7-9ff6-bfb5031f5ce4 | Token: Q2ZESjhJdXlhMVZDUDJSR3VBNVBBWjFFSlBvNTg3MVg1WjViWUkvWHB1SzNRSkY5NXpZc25heWtKMDA4RFlTU2NtcWdXa0h3RG5lRlBHdmhEZkxzdmpJL2hUbzBpSHRHcm9QdStCby9OazVMbHhhcVo1cGdFdU8vckhidkFuMVRZODEyNXpFckQzN3VFMU5ad2RHUHpnblNDNms1Mkl4cHlidTVvYU1uTkU4eG1KL2g3ZVI2NFZCTnppSjdhc0xraitCSEtTWEk2YkpxcTkxK3hhMFRSM09Cb0Y3OHBtalRPUURwRXFSVVQwTFhZUHoxeWNuNWN6bEhodW5VejM2UmlsZ01jQT09
+System.InvalidOperationException: SMTP ayarları eksik. Email gönderilemedi.
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 28
+   at SubGuard.Service.Services.AuthService.SendConfirmationEmailAsync(AppUser user) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\AuthService.cs:line 132
+2026-03-19 01:23:07.983 +03:00 [INF] [User: Hakkı Eren Özder] Yeni kullanıcı kaydı oluşturuldu. Email: ha***@gmail.com
+2026-03-19 01:23:07.985 +03:00 [INF] [User: ] HTTP POST /api/auth/register responded 200 in 282.3399 ms
+2026-03-19 01:24:37.466 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.5385 ms
+2026-03-19 01:25:51.343 +03:00 [INF] [User: ] Server desktop-25vqrpg:23044:bcc370d8 caught stopping signal...
+2026-03-19 01:25:51.346 +03:00 [INF] [User: ] Server desktop-25vqrpg:23044:bcc370d8 All dispatchers stopped
+2026-03-19 01:25:51.351 +03:00 [INF] [User: ] Server desktop-25vqrpg:23044:bcc370d8 successfully reported itself as stopped in 2,5842 ms
+2026-03-19 01:25:51.352 +03:00 [INF] [User: ] Server desktop-25vqrpg:23044:bcc370d8 has been stopped in total 7,4653 ms
+2026-03-19 01:29:32.791 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 01:29:33.996 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-19 01:29:34.023 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-19 01:29:34.419 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-19 01:29:34.420 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-19 01:29:34.421 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-19 01:29:34.422 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-19 01:29:34.423 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-19 01:29:34.425 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-19 01:29:34.447 +03:00 [INF] [User: ] Server desktop-25vqrpg:25852:71556898 successfully announced in 9,3187 ms
+2026-03-19 01:29:34.450 +03:00 [INF] [User: ] Server desktop-25vqrpg:25852:71556898 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-19 01:29:34.456 +03:00 [INF] [User: ] Server desktop-25vqrpg:25852:71556898 all the dispatchers started
+2026-03-19 01:29:34.752 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-19 01:29:34.783 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 42.2877 ms
+2026-03-19 01:29:51.405 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 311.4461 ms
+2026-03-19 01:29:51.431 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 337.9116 ms
+2026-03-19 01:29:51.445 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 322.7105 ms
+2026-03-19 01:29:51.534 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 418.3221 ms
+2026-03-19 01:29:51.615 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 116.0248 ms
+2026-03-19 01:30:07.291 +03:00 [WRN] [User: Anonymous] Kayıt başarısız. Email: ha***@gmail.com. Hatalar: Username 'hako19071@gmail.com' is already taken., Email 'hako19071@gmail.com' is already taken.
+2026-03-19 01:30:07.294 +03:00 [INF] [User: ] HTTP POST /api/auth/register responded 400 in 104.5695 ms
+2026-03-19 01:30:33.897 +03:00 [INF] [User: Anonymous] Email gönderildi. Alıcı: ha***@gmail.com, Konu: SubGuard — E-posta Doğrulama
+2026-03-19 01:30:34.037 +03:00 [INF] [User: Anonymous] Yeni kullanıcı kaydı oluşturuldu. Email: ha***@gmail.com
+2026-03-19 01:30:34.039 +03:00 [INF] [User: ] HTTP POST /api/auth/register responded 200 in 2571.3256 ms
+2026-03-19 01:32:32.748 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2045 ms
+2026-03-19 01:32:39.286 +03:00 [INF] [User: ] Server desktop-25vqrpg:25852:71556898 caught stopping signal...
+2026-03-19 01:32:39.289 +03:00 [INF] [User: ] Server desktop-25vqrpg:25852:71556898 All dispatchers stopped
+2026-03-19 01:32:39.294 +03:00 [INF] [User: ] Server desktop-25vqrpg:25852:71556898 successfully reported itself as stopped in 2,4439 ms
+2026-03-19 01:32:39.295 +03:00 [INF] [User: ] Server desktop-25vqrpg:25852:71556898 has been stopped in total 7,4702 ms
+2026-03-19 01:32:44.469 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 01:32:45.659 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-19 01:32:45.678 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-19 01:32:45.990 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-19 01:32:45.991 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-19 01:32:45.992 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-19 01:32:45.993 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-19 01:32:45.994 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-19 01:32:45.995 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-19 01:32:46.013 +03:00 [INF] [User: ] Server desktop-25vqrpg:372:ab43cdea successfully announced in 8,6112 ms
+2026-03-19 01:32:46.016 +03:00 [INF] [User: ] Server desktop-25vqrpg:372:ab43cdea is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-19 01:32:46.021 +03:00 [INF] [User: ] Server desktop-25vqrpg:372:ab43cdea all the dispatchers started
+2026-03-19 01:32:58.320 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-19 01:32:58.616 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 306.4407 ms
+2026-03-19 01:32:58.646 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 338.3072 ms
+2026-03-19 01:32:58.667 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 359.2435 ms
+2026-03-19 01:32:58.757 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 449.6113 ms
+2026-03-19 01:32:58.833 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 121.9793 ms
+2026-03-19 01:33:27.425 +03:00 [INF] [User: Anonymous] Email gönderildi. Alıcı: ha***@gmail.com, Konu: SubGuard — E-posta Doğrulama
+2026-03-19 01:33:27.566 +03:00 [INF] [User: Anonymous] Yeni kullanıcı kaydı oluşturuldu. Email: ha***@gmail.com
+2026-03-19 01:33:27.568 +03:00 [INF] [User: ] HTTP POST /api/auth/register responded 200 in 2407.4226 ms
+2026-03-19 01:33:37.327 +03:00 [INF] [User: ] HTTP POST /api/auth/confirm-email responded 400 in 13.2542 ms
+2026-03-19 01:33:44.136 +03:00 [INF] [User: Anonymous] E-posta doğrulandı. Email: ha***@gmail.com
+2026-03-19 01:33:44.137 +03:00 [INF] [User: ] HTTP POST /api/auth/confirm-email responded 200 in 20.2066 ms
+2026-03-19 01:33:56.691 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ha***@gmail.com
+2026-03-19 01:33:56.741 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ha***@gmail.com
+2026-03-19 01:33:56.744 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 111.7363 ms
+2026-03-19 01:33:56.900 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.2673 ms
+2026-03-19 01:33:56.901 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.2792 ms
+2026-03-19 01:33:56.903 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.9419 ms
+2026-03-19 01:33:56.903 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 11.7906 ms
+2026-03-19 01:33:56.932 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.5089 ms
+2026-03-19 01:38:36.167 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.4282 ms
+2026-03-19 01:38:36.173 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 12.6154 ms
+2026-03-19 01:38:36.293 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 13.8131 ms
+2026-03-19 01:38:56.215 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 8.7122 ms
+2026-03-19 01:38:56.218 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.9321 ms
+2026-03-19 01:38:56.278 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 5.2001 ms
+2026-03-19 01:38:56.279 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.8938 ms
+2026-03-19 01:38:56.301 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.5974 ms
+2026-03-19 01:42:16.936 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 401 in 12.2998 ms
+2026-03-19 01:42:17.005 +03:00 [INF] [User: Anonymous] Token atomik olarak yenilendi. Email: ba***@gmail.com
+2026-03-19 01:42:17.007 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 49.0644 ms
+2026-03-19 01:42:17.067 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 8.7830 ms
+2026-03-19 01:42:22.533 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 8.4370 ms
+2026-03-19 01:42:36.355 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 9.6727 ms
+2026-03-19 01:42:36.368 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.3730 ms
+2026-03-19 01:42:36.384 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 6.0634 ms
+2026-03-19 01:42:36.494 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.4866 ms
+2026-03-19 01:42:42.703 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 6.4402 ms
+2026-03-19 01:43:53.477 +03:00 [INF] [User: ] Server desktop-25vqrpg:372:ab43cdea caught stopping signal...
+2026-03-19 01:43:53.479 +03:00 [INF] [User: ] Server desktop-25vqrpg:372:ab43cdea All dispatchers stopped
+2026-03-19 01:43:53.485 +03:00 [INF] [User: ] Server desktop-25vqrpg:372:ab43cdea successfully reported itself as stopped in 2,7641 ms
+2026-03-19 01:43:53.486 +03:00 [INF] [User: ] Server desktop-25vqrpg:372:ab43cdea has been stopped in total 7,8738 ms
+2026-03-19 01:43:57.716 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 01:43:58.840 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-19 01:43:58.860 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-19 01:43:59.170 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-19 01:43:59.171 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-19 01:43:59.172 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-19 01:43:59.173 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-19 01:43:59.174 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-19 01:43:59.175 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-19 01:43:59.192 +03:00 [INF] [User: ] Server desktop-25vqrpg:1768:20e4358b successfully announced in 8,551 ms
+2026-03-19 01:43:59.195 +03:00 [INF] [User: ] Server desktop-25vqrpg:1768:20e4358b is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-19 01:43:59.200 +03:00 [INF] [User: ] Server desktop-25vqrpg:1768:20e4358b all the dispatchers started
+2026-03-19 01:44:10.091 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-19 01:44:10.400 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 319.5003 ms
+2026-03-19 01:44:10.435 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 356.2301 ms
+2026-03-19 01:44:10.446 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 367.2838 ms
+2026-03-19 01:44:10.538 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 459.7577 ms
+2026-03-19 01:44:10.612 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 113.8517 ms
+2026-03-19 01:45:13.101 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.8777 ms
+2026-03-19 01:45:13.103 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.0165 ms
+2026-03-19 01:45:13.104 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 7.4265 ms
+2026-03-19 01:45:13.110 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 14.7007 ms
+2026-03-19 01:45:13.133 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.5923 ms
+2026-03-19 01:45:18.984 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.6348 ms
+2026-03-19 01:46:18.442 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.3199 ms
+2026-03-19 01:46:20.580 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.3004 ms
+2026-03-19 01:59:59.819 +03:00 [INF] [User: ] Server desktop-25vqrpg:1768:20e4358b caught stopping signal...
+2026-03-19 01:59:59.822 +03:00 [INF] [User: ] Server desktop-25vqrpg:1768:20e4358b All dispatchers stopped
+2026-03-19 01:59:59.828 +03:00 [INF] [User: ] Server desktop-25vqrpg:1768:20e4358b successfully reported itself as stopped in 2,4739 ms
+2026-03-19 01:59:59.829 +03:00 [INF] [User: ] Server desktop-25vqrpg:1768:20e4358b has been stopped in total 9,0057 ms
+2026-03-19 02:00:14.891 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 02:00:15.033 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 259
+2026-03-19 02:00:30.206 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 02:00:30.317 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 259
+2026-03-19 02:01:20.852 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 02:01:20.968 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 259
+2026-03-19 02:01:32.606 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 02:01:32.721 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 259
+2026-03-19 02:02:23.882 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 02:02:24.009 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 259
+2026-03-19 10:43:06.075 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 10:43:07.860 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-19 10:43:07.881 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-19 10:43:08.417 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-19 10:43:08.419 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-19 10:43:08.420 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-19 10:43:08.421 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-19 10:43:08.422 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-19 10:43:08.423 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-19 10:43:08.448 +03:00 [INF] [User: ] Server desktop-25vqrpg:27792:407a2fd2 successfully announced in 11,9271 ms
+2026-03-19 10:43:08.452 +03:00 [INF] [User: ] Server desktop-25vqrpg:27792:407a2fd2 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-19 10:43:08.458 +03:00 [INF] [User: ] Server desktop-25vqrpg:27792:407a2fd2 all the dispatchers started
+2026-03-19 10:43:08.780 +03:00 [INF] [User: ] Süresi dolmuş 1 refresh token temizlendi.
+2026-03-19 10:43:16.868 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-19 10:43:16.973 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 401 in 117.0219 ms
+2026-03-19 10:43:16.973 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 401 in 117.0480 ms
+2026-03-19 10:43:16.973 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 117.0288 ms
+2026-03-19 10:43:16.985 +03:00 [INF] [User: Anonymous] Güncel kurlar çekiliyor...
+2026-03-19 10:43:17.220 +03:00 [INF] [User: Anonymous] Token atomik olarak yenilendi. Email: ha***@gmail.com
+2026-03-19 10:43:17.228 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 373.9695 ms
+2026-03-19 10:43:17.230 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 218.8715 ms
+2026-03-19 10:43:17.342 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 53.1577 ms
+2026-03-19 10:43:17.345 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 56.1230 ms
+2026-03-19 10:43:17.359 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 74.2794 ms
+2026-03-19 10:43:17.435 +03:00 [INF] [User: Anonymous] Kurlar güncellendi: {"USD":44.221,"EUR":50.854,"GBP":58.864}
+2026-03-19 10:43:17.443 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 588.5761 ms
+2026-03-19 10:43:17.478 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 47.3931 ms
+2026-03-19 10:43:20.407 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 9.4074 ms
+2026-03-19 10:43:20.407 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.7180 ms
+2026-03-19 10:43:26.026 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 5.3791 ms
+2026-03-19 10:43:29.346 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 3.7406 ms
+2026-03-19 10:43:31.302 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 7.1974 ms
+2026-03-19 10:43:42.322 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 5.5474 ms
+2026-03-19 10:43:42.883 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 3.1447 ms
+2026-03-19 10:43:43.714 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 4.4144 ms
+2026-03-19 10:43:44.268 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 3.0642 ms
+2026-03-19 10:43:45.387 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 3.2392 ms
+2026-03-19 10:43:46.346 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 3.4072 ms
+2026-03-19 10:43:47.057 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.5652 ms
+2026-03-19 10:43:47.770 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.2462 ms
+2026-03-19 10:43:49.021 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 3.2533 ms
+2026-03-19 10:43:49.550 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 3.2606 ms
+2026-03-19 10:43:51.328 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 3.6520 ms
+2026-03-19 10:44:02.361 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 3.0800 ms
+2026-03-19 10:44:03.103 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 2.9963 ms
+2026-03-19 10:44:03.956 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 3.4822 ms
+2026-03-19 10:44:06.285 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 3.2565 ms
+2026-03-19 10:44:07.645 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 3.7675 ms
+2026-03-19 10:44:10.903 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 2.9663 ms
+2026-03-19 10:44:11.586 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 3.0839 ms
+2026-03-19 10:44:12.229 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.1507 ms
+2026-03-19 10:44:32.328 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.4949 ms
+2026-03-19 10:44:32.336 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.9459 ms
+2026-03-19 10:44:55.832 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.2908 ms
+2026-03-19 10:44:55.835 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 11.4733 ms
+2026-03-19 10:44:55.920 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.5296 ms
+2026-03-19 10:44:59.806 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.1754 ms
+2026-03-19 10:44:59.809 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.5861 ms
+2026-03-19 10:45:02.956 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 4.0420 ms
+2026-03-19 10:49:24.930 +03:00 [INF] [User: ] Server desktop-25vqrpg:27792:407a2fd2 caught stopping signal...
+2026-03-19 10:49:24.933 +03:00 [INF] [User: ] Server desktop-25vqrpg:27792:407a2fd2 All dispatchers stopped
+2026-03-19 10:49:24.937 +03:00 [INF] [User: ] Server desktop-25vqrpg:27792:407a2fd2 successfully reported itself as stopped in 2,4842 ms
+2026-03-19 10:49:24.938 +03:00 [INF] [User: ] Server desktop-25vqrpg:27792:407a2fd2 has been stopped in total 7,0477 ms
+2026-03-19 10:49:31.471 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 10:49:32.628 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-19 10:49:32.648 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-19 10:49:32.965 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-19 10:49:32.966 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-19 10:49:32.967 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-19 10:49:32.968 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-19 10:49:32.969 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-19 10:49:32.970 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-19 10:49:32.991 +03:00 [INF] [User: ] Server desktop-25vqrpg:31156:0e85f3ea successfully announced in 11,0453 ms
+2026-03-19 10:49:32.994 +03:00 [INF] [User: ] Server desktop-25vqrpg:31156:0e85f3ea is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-19 10:49:33.000 +03:00 [INF] [User: ] Server desktop-25vqrpg:31156:0e85f3ea all the dispatchers started
+2026-03-19 10:50:18.891 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-19 10:50:19.115 +03:00 [INF] [User: Test] Güncel kurlar çekiliyor...
+2026-03-19 10:50:19.230 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 350.3566 ms
+2026-03-19 10:50:19.230 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 350.3476 ms
+2026-03-19 10:50:19.246 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 367.2545 ms
+2026-03-19 10:50:19.341 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 462.1251 ms
+2026-03-19 10:50:19.381 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 61.3042 ms
+2026-03-19 10:50:19.822 +03:00 [INF] [User: Test] Kurlar güncellendi: {"USD":44.221,"EUR":50.854,"GBP":58.864}
+2026-03-19 10:50:19.829 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 950.4580 ms
+2026-03-19 10:50:20.258 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.2419 ms
+2026-03-19 10:50:20.258 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 9.5192 ms
+2026-03-19 10:50:21.580 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 4.9560 ms
+2026-03-19 10:50:23.021 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.2790 ms
+2026-03-19 10:50:24.266 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 2.8823 ms
+2026-03-19 10:50:25.172 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 3.0524 ms
+2026-03-19 10:50:26.168 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 3.1499 ms
+2026-03-19 10:50:26.334 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 3.5200 ms
+2026-03-19 10:50:26.491 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 4.0450 ms
+2026-03-19 10:50:26.659 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 3.7342 ms
+2026-03-19 10:51:07.564 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 3.4564 ms
+2026-03-19 10:51:08.065 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 2.8813 ms
+2026-03-19 10:51:08.615 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 3.1237 ms
+2026-03-19 10:51:09.049 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 4.5138 ms
+2026-03-19 10:51:09.441 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 3.6846 ms
+2026-03-19 10:53:02.936 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 6.8922 ms
+2026-03-19 10:53:02.940 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 10.6622 ms
+2026-03-19 10:53:06.371 +03:00 [INF] [User: ] HTTP POST /api/auth/revoke-refresh-token responded 204 in 99.4521 ms
+2026-03-19 10:53:22.157 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ha***@gmail.com
+2026-03-19 10:53:22.197 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ha***@gmail.com
+2026-03-19 10:53:22.201 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 111.6543 ms
+2026-03-19 10:53:22.318 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.9462 ms
+2026-03-19 10:53:22.320 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.4453 ms
+2026-03-19 10:53:22.321 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 10.0826 ms
+2026-03-19 10:53:22.322 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.1675 ms
+2026-03-19 10:53:22.379 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.8994 ms
+2026-03-19 10:53:25.823 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.4211 ms
+2026-03-19 10:53:25.828 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.5972 ms
+2026-03-19 10:53:32.006 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.0502 ms
+2026-03-19 10:53:34.113 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.2113 ms
+2026-03-19 10:53:34.644 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 2.8889 ms
+2026-03-19 10:55:04.828 +03:00 [INF] [User: ] Server desktop-25vqrpg:31156:0e85f3ea caught stopping signal...
+2026-03-19 10:55:04.831 +03:00 [INF] [User: ] Server desktop-25vqrpg:31156:0e85f3ea All dispatchers stopped
+2026-03-19 10:55:04.837 +03:00 [INF] [User: ] Server desktop-25vqrpg:31156:0e85f3ea successfully reported itself as stopped in 2,8777 ms
+2026-03-19 10:55:04.838 +03:00 [INF] [User: ] Server desktop-25vqrpg:31156:0e85f3ea has been stopped in total 7,9994 ms
+2026-03-19 10:55:11.930 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 10:55:13.281 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-19 10:55:13.300 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-19 10:55:13.641 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-19 10:55:13.643 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-19 10:55:13.644 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-19 10:55:13.645 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-19 10:55:13.646 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-19 10:55:13.647 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-19 10:55:13.665 +03:00 [INF] [User: ] Server desktop-25vqrpg:34284:21a1b485 successfully announced in 9,1285 ms
+2026-03-19 10:55:13.668 +03:00 [INF] [User: ] Server desktop-25vqrpg:34284:21a1b485 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-19 10:55:13.673 +03:00 [INF] [User: ] Server desktop-25vqrpg:34284:21a1b485 all the dispatchers started
+2026-03-19 10:55:35.276 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-19 10:55:35.505 +03:00 [INF] [User: Test] Güncel kurlar çekiliyor...
+2026-03-19 10:55:35.626 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 363.2788 ms
+2026-03-19 10:55:35.626 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 362.4882 ms
+2026-03-19 10:55:35.640 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 377.7675 ms
+2026-03-19 10:55:35.731 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 469.3446 ms
+2026-03-19 10:55:35.787 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 66.0201 ms
+2026-03-19 10:55:35.960 +03:00 [INF] [User: Test] Kurlar güncellendi: {"USD":44.221,"EUR":50.854,"GBP":58.864}
+2026-03-19 10:55:35.967 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 704.7598 ms
+2026-03-19 10:55:36.599 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 9.4991 ms
+2026-03-19 10:55:36.602 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 11.6658 ms
+2026-03-19 10:55:37.999 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 4.7894 ms
+2026-03-19 10:55:38.971 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.1785 ms
+2026-03-19 10:55:39.514 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.1527 ms
+2026-03-19 10:55:39.699 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.9674 ms
+2026-03-19 10:55:39.864 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.1974 ms
+2026-03-19 10:55:40.163 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.2436 ms
+2026-03-19 10:55:40.295 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.4735 ms
+2026-03-19 10:55:40.616 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.3425 ms
+2026-03-19 10:55:40.779 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.2061 ms
+2026-03-19 10:55:41.313 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.2930 ms
+2026-03-19 10:55:41.478 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.4734 ms
+2026-03-19 10:55:42.069 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 3.3170 ms
+2026-03-19 10:55:43.043 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 3.7559 ms
+2026-03-19 10:55:43.212 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 3.2467 ms
+2026-03-19 10:55:43.898 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 6.5609 ms
+2026-03-19 10:55:43.901 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 10.1244 ms
+2026-03-19 10:55:48.560 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.3903 ms
+2026-03-19 10:55:49.300 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.5069 ms
+2026-03-19 10:56:28.541 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 1.9650 ms
+2026-03-19 10:56:28.545 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.4170 ms
+2026-03-19 10:56:33.306 +03:00 [INF] [User: ] HTTP POST /api/auth/revoke-refresh-token responded 204 in 109.4425 ms
+2026-03-19 10:56:45.020 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ha***@gmail.com
+2026-03-19 10:56:45.070 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ha***@gmail.com
+2026-03-19 10:56:45.075 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 120.4408 ms
+2026-03-19 10:56:45.194 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.6500 ms
+2026-03-19 10:56:45.196 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 10.1403 ms
+2026-03-19 10:56:45.198 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.6790 ms
+2026-03-19 10:56:45.201 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 6.8679 ms
+2026-03-19 10:56:45.264 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.1701 ms
+2026-03-19 10:56:48.707 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.9971 ms
+2026-03-19 10:56:48.711 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.8167 ms
+2026-03-19 10:56:50.681 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 62.1424 ms
+2026-03-19 10:56:52.115 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 31.7586 ms
+2026-03-19 10:57:00.763 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 9.1725 ms
+2026-03-19 10:57:25.295 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 8.2485 ms
+2026-03-19 10:57:25.759 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.5005 ms
+2026-03-19 10:57:26.803 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.3505 ms
+2026-03-19 10:57:28.203 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 7.6788 ms
+2026-03-19 11:00:14.071 +03:00 [INF] [User: ] Güncel kurlar çekiliyor...
+2026-03-19 11:00:14.363 +03:00 [INF] [User: ] Kurlar güncellendi: {"USD":44.221,"EUR":50.854,"GBP":58.864}
+2026-03-19 11:01:57.561 +03:00 [INF] [User: ] Server desktop-25vqrpg:34284:21a1b485 caught stopping signal...
+2026-03-19 11:01:57.564 +03:00 [INF] [User: ] Server desktop-25vqrpg:34284:21a1b485 All dispatchers stopped
+2026-03-19 11:01:57.568 +03:00 [INF] [User: ] Server desktop-25vqrpg:34284:21a1b485 successfully reported itself as stopped in 2,4149 ms
+2026-03-19 11:01:57.569 +03:00 [INF] [User: ] Server desktop-25vqrpg:34284:21a1b485 has been stopped in total 7,132 ms
+2026-03-19 11:02:09.073 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 11:02:09.181 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 260
+2026-03-19 11:03:27.299 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 11:03:27.418 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 260
+2026-03-19 11:03:42.274 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 11:03:42.384 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 260
+2026-03-19 11:04:26.029 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 11:04:26.144 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 260
+2026-03-19 11:04:43.772 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 11:04:43.875 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 260
+2026-03-19 11:07:53.412 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 11:07:54.608 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-19 11:07:54.628 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-19 11:07:55.043 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-19 11:07:55.051 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-19 11:07:55.053 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-19 11:07:55.057 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-19 11:07:55.058 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-19 11:07:55.060 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-19 11:07:55.083 +03:00 [INF] [User: ] Server desktop-25vqrpg:8256:18a5950e successfully announced in 12,4253 ms
+2026-03-19 11:07:55.086 +03:00 [INF] [User: ] Server desktop-25vqrpg:8256:18a5950e is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-19 11:07:55.093 +03:00 [INF] [User: ] Server desktop-25vqrpg:8256:18a5950e all the dispatchers started
+2026-03-19 11:08:40.759 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-19 11:08:40.980 +03:00 [INF] [User: Test] Güncel kurlar çekiliyor...
+2026-03-19 11:08:41.097 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 349.7462 ms
+2026-03-19 11:08:41.097 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 350.5108 ms
+2026-03-19 11:08:41.110 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 364.1916 ms
+2026-03-19 11:08:41.206 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 460.4414 ms
+2026-03-19 11:08:41.250 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 62.4912 ms
+2026-03-19 11:08:41.624 +03:00 [INF] [User: Test] Kurlar güncellendi: {"USD":44.221,"EUR":50.854,"GBP":58.864}
+2026-03-19 11:08:41.631 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 885.5760 ms
+2026-03-19 11:08:42.835 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.1628 ms
+2026-03-19 11:08:42.835 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 9.6852 ms
+2026-03-19 11:08:52.497 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.6621 ms
+2026-03-19 11:08:52.501 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.6682 ms
+2026-03-19 11:09:40.380 +03:00 [INF] [User: Test] Abonelik eklendi. UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a, Name: Netflix
+2026-03-19 11:09:40.391 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions responded 200 in 261.2876 ms
+2026-03-19 11:09:44.221 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/71/usage responded 200 in 19.8217 ms
+2026-03-19 11:10:00.123 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/71/usage responded 200 in 5.5580 ms
+2026-03-19 11:14:01.285 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.3804 ms
+2026-03-19 11:14:56.499 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1724 ms
+2026-03-19 11:14:57.564 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/71/usage responded 200 in 5.6788 ms
+2026-03-19 11:18:44.012 +03:00 [INF] [User: ] Server desktop-25vqrpg:8256:18a5950e caught stopping signal...
+2026-03-19 11:18:44.015 +03:00 [INF] [User: ] Server desktop-25vqrpg:8256:18a5950e All dispatchers stopped
+2026-03-19 11:18:44.020 +03:00 [INF] [User: ] Server desktop-25vqrpg:8256:18a5950e successfully reported itself as stopped in 2,7163 ms
+2026-03-19 11:18:44.021 +03:00 [INF] [User: ] Server desktop-25vqrpg:8256:18a5950e has been stopped in total 7,6119 ms
+2026-03-19 11:18:51.991 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 11:18:52.116 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 260
+2026-03-19 11:19:06.003 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 11:19:06.114 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 260
+2026-03-19 11:19:12.005 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 11:19:13.110 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-19 11:19:13.129 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-19 11:19:13.431 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-19 11:19:13.432 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-19 11:19:13.433 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-19 11:19:13.434 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-19 11:19:13.435 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-19 11:19:13.436 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-19 11:19:13.454 +03:00 [INF] [User: ] Server desktop-25vqrpg:30344:47a9ca5a successfully announced in 8,5885 ms
+2026-03-19 11:19:13.456 +03:00 [INF] [User: ] Server desktop-25vqrpg:30344:47a9ca5a is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-19 11:19:13.461 +03:00 [INF] [User: ] Server desktop-25vqrpg:30344:47a9ca5a all the dispatchers started
+2026-03-19 11:20:05.749 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-19 11:20:05.850 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 401 in 111.7043 ms
+2026-03-19 11:20:05.850 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 111.6854 ms
+2026-03-19 11:20:05.850 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 401 in 111.7614 ms
+2026-03-19 11:20:05.857 +03:00 [INF] [User: Anonymous] Güncel kurlar çekiliyor...
+2026-03-19 11:20:06.224 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 487.8394 ms
+2026-03-19 11:20:06.274 +03:00 [INF] [User: Anonymous] Token atomik olarak yenilendi. Email: ha***@gmail.com
+2026-03-19 11:20:06.281 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 377.3657 ms
+2026-03-19 11:20:06.358 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 55.7551 ms
+2026-03-19 11:20:06.359 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 56.8607 ms
+2026-03-19 11:20:06.374 +03:00 [INF] [User: Anonymous] Kurlar güncellendi: {"USD":44.221,"EUR":50.854,"GBP":58.864}
+2026-03-19 11:20:06.382 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 645.5839 ms
+2026-03-19 11:20:06.388 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 85.5255 ms
+2026-03-19 11:20:06.558 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 97.5136 ms
+2026-03-19 11:20:20.796 +03:00 [INF] [User: Test] Abonelik eklendi. UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a, Name: YouTube Premium
+2026-03-19 11:20:20.802 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions responded 200 in 104.3846 ms
+2026-03-19 11:20:24.333 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 4.3536 ms
+2026-03-19 11:20:24.342 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 12.3609 ms
+2026-03-19 11:20:24.819 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.8766 ms
+2026-03-19 11:20:25.917 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/72/usage responded 200 in 20.9151 ms
+2026-03-19 11:20:34.921 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/72/usage responded 200 in 5.7263 ms
+2026-03-19 11:39:36.011 +03:00 [INF] [User: ] Server desktop-25vqrpg:30344:47a9ca5a caught stopping signal...
+2026-03-19 11:39:36.015 +03:00 [INF] [User: ] Server desktop-25vqrpg:30344:47a9ca5a All dispatchers stopped
+2026-03-19 11:39:36.020 +03:00 [INF] [User: ] Server desktop-25vqrpg:30344:47a9ca5a successfully reported itself as stopped in 2,5935 ms
+2026-03-19 11:39:36.021 +03:00 [INF] [User: ] Server desktop-25vqrpg:30344:47a9ca5a has been stopped in total 8,3969 ms
+2026-03-19 11:39:50.266 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 11:39:50.388 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 261
+2026-03-19 11:44:59.708 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 11:44:59.824 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 261
+2026-03-19 11:50:41.483 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 11:50:42.651 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-19 11:50:42.686 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-19 11:50:43.208 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-19 11:50:43.209 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-19 11:50:43.210 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-19 11:50:43.211 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-19 11:50:43.212 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-19 11:50:43.213 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-19 11:50:43.236 +03:00 [INF] [User: ] Server desktop-25vqrpg:20164:aff7c4ea successfully announced in 10,5194 ms
+2026-03-19 11:50:43.239 +03:00 [INF] [User: ] Server desktop-25vqrpg:20164:aff7c4ea is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-19 11:50:43.245 +03:00 [INF] [User: ] Server desktop-25vqrpg:20164:aff7c4ea all the dispatchers started
+2026-03-19 11:51:04.759 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-19 11:51:04.873 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 401 in 127.2899 ms
+2026-03-19 11:51:04.873 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 127.3094 ms
+2026-03-19 11:51:04.873 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 401 in 127.2775 ms
+2026-03-19 11:51:04.892 +03:00 [INF] [User: Anonymous] Güncel kurlar çekiliyor...
+2026-03-19 11:51:05.257 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 513.3931 ms
+2026-03-19 11:51:05.319 +03:00 [INF] [User: Anonymous] Token atomik olarak yenilendi. Email: ha***@gmail.com
+2026-03-19 11:51:05.327 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 347.8059 ms
+2026-03-19 11:51:05.410 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 57.3207 ms
+2026-03-19 11:51:05.411 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 58.1577 ms
+2026-03-19 11:51:05.436 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 80.1304 ms
+2026-03-19 11:51:05.585 +03:00 [INF] [User: Anonymous] Kurlar güncellendi: {"USD":44.221,"EUR":50.854,"GBP":58.864}
+2026-03-19 11:51:05.593 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 848.6232 ms
+2026-03-19 11:51:05.609 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 97.7110 ms
+2026-03-19 11:51:17.056 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 10.0342 ms
+2026-03-19 11:51:17.059 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 12.6713 ms
+2026-03-19 11:52:07.807 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.3998 ms
+2026-03-19 11:52:12.238 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.2265 ms
+2026-03-19 11:52:12.242 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 9.4898 ms
+2026-03-19 11:52:12.940 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/72/usage responded 200 in 22.0684 ms
+2026-03-19 11:52:20.591 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.8429 ms
+2026-03-19 11:52:20.604 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 21.3812 ms
+2026-03-19 11:53:34.141 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2557 ms
+2026-03-19 11:55:56.574 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2279 ms
+2026-03-19 11:58:47.726 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2321 ms
+2026-03-19 11:58:56.949 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 4.3838 ms
+2026-03-19 11:58:56.949 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 4.8384 ms
+2026-03-19 11:58:56.953 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 7.1161 ms
+2026-03-19 11:58:56.955 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 11.4368 ms
+2026-03-19 11:58:56.960 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 17.3701 ms
+2026-03-19 11:58:57.012 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.1348 ms
+2026-03-19 11:59:04.774 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 5.1465 ms
+2026-03-19 11:59:04.777 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.9280 ms
+2026-03-19 11:59:13.421 +03:00 [INF] [User: ] HTTP PUT /api/budget/categories responded 200 in 56.5416 ms
+2026-03-19 11:59:20.752 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 1.9727 ms
+2026-03-19 11:59:20.756 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.4903 ms
+2026-03-19 12:09:13.264 +03:00 [INF] [User: ] Server desktop-25vqrpg:20164:aff7c4ea caught stopping signal...
+2026-03-19 12:09:13.268 +03:00 [INF] [User: ] Server desktop-25vqrpg:20164:aff7c4ea All dispatchers stopped
+2026-03-19 12:09:13.275 +03:00 [INF] [User: ] Server desktop-25vqrpg:20164:aff7c4ea successfully reported itself as stopped in 3,2289 ms
+2026-03-19 12:09:13.276 +03:00 [INF] [User: ] Server desktop-25vqrpg:20164:aff7c4ea has been stopped in total 10,5241 ms
+2026-03-19 12:14:01.155 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 12:14:01.289 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 261
+2026-03-19 12:14:13.937 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 12:14:14.052 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 261
+2026-03-19 12:17:11.671 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 12:17:11.787 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 261
+2026-03-19 12:17:22.712 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 12:17:22.836 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 261
+2026-03-19 12:17:33.617 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 12:17:33.735 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 261
+2026-03-19 12:25:20.335 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 12:25:21.852 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-19 12:25:21.873 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-19 12:25:22.300 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-19 12:25:22.301 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-19 12:25:22.302 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-19 12:25:22.303 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-19 12:25:22.304 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-19 12:25:22.305 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-19 12:25:22.331 +03:00 [INF] [User: ] Server desktop-25vqrpg:27260:224a5f39 successfully announced in 14,0911 ms
+2026-03-19 12:25:22.334 +03:00 [INF] [User: ] Server desktop-25vqrpg:27260:224a5f39 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-19 12:25:22.339 +03:00 [INF] [User: ] Server desktop-25vqrpg:27260:224a5f39 all the dispatchers started
+2026-03-19 12:25:33.876 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-19 12:25:33.979 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 401 in 115.0468 ms
+2026-03-19 12:25:33.979 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 115.0662 ms
+2026-03-19 12:25:33.979 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 401 in 115.0487 ms
+2026-03-19 12:25:33.989 +03:00 [INF] [User: Anonymous] Güncel kurlar çekiliyor...
+2026-03-19 12:25:34.340 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 477.4876 ms
+2026-03-19 12:25:34.390 +03:00 [INF] [User: Anonymous] Token atomik olarak yenilendi. Email: ha***@gmail.com
+2026-03-19 12:25:34.398 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 374.4451 ms
+2026-03-19 12:25:34.449 +03:00 [INF] [User: Anonymous] Kurlar güncellendi: {"USD":44.221,"EUR":50.854,"GBP":58.864}
+2026-03-19 12:25:34.458 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 595.7640 ms
+2026-03-19 12:25:34.473 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 52.5073 ms
+2026-03-19 12:25:34.476 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 55.1919 ms
+2026-03-19 12:25:34.496 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 76.2359 ms
+2026-03-19 12:25:34.648 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 91.7337 ms
+2026-03-19 12:25:39.679 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 9.0308 ms
+2026-03-19 12:25:39.691 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 12.2185 ms
+2026-03-19 12:25:51.387 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 5.6278 ms
+2026-03-19 12:25:51.388 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.2415 ms
+2026-03-19 12:26:10.394 +03:00 [INF] [User: ] HTTP PUT /api/notifications/preferences responded 200 in 46.7837 ms
+2026-03-19 12:26:12.738 +03:00 [INF] [User: ] HTTP PUT /api/notifications/preferences responded 200 in 10.4495 ms
+2026-03-19 12:26:23.751 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 6.2669 ms
+2026-03-19 12:26:24.451 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.6765 ms
+2026-03-19 12:26:25.246 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.7623 ms
+2026-03-19 12:26:26.901 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 10.3232 ms
+2026-03-19 12:26:26.901 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.0723 ms
+2026-03-19 12:26:26.969 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.0108 ms
+2026-03-19 12:26:30.112 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.9012 ms
+2026-03-19 12:26:30.116 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.0165 ms
+2026-03-19 12:26:38.243 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.4763 ms
+2026-03-19 12:26:38.244 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.8658 ms
+2026-03-19 12:26:38.246 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.3188 ms
+2026-03-19 12:26:38.248 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.3701 ms
+2026-03-19 12:26:38.248 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 10.1649 ms
+2026-03-19 12:26:38.306 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.3912 ms
+2026-03-19 12:26:39.293 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.3094 ms
+2026-03-19 12:26:39.297 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.5333 ms
+2026-03-19 12:26:51.494 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.2697 ms
+2026-03-19 12:26:51.499 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.7825 ms
+2026-03-19 12:26:52.534 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/72/usage responded 200 in 21.6537 ms
+2026-03-19 12:26:52.535 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/72/price-history responded 200 in 22.7342 ms
+2026-03-19 12:27:10.244 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/72/usage responded 200 in 5.7792 ms
+2026-03-19 12:27:10.246 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/72/price-history responded 200 in 7.5806 ms
+2026-03-19 12:27:20.804 +03:00 [INF] [User: Test] Abonelik güncellendi. UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a, SubscriptionId: 72
+2026-03-19 12:27:20.806 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions/72 responded 200 in 124.6784 ms
+2026-03-19 12:27:21.964 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.3875 ms
+2026-03-19 12:27:23.721 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/72/usage responded 200 in 6.3294 ms
+2026-03-19 12:27:23.723 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/72/price-history responded 200 in 7.5454 ms
+2026-03-19 12:30:42.051 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.4020 ms
