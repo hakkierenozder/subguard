@@ -1,9 +1,9 @@
-using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SubGuard.Core.DTOs;
+using SubGuard.Core.DTOs.Admin;
 using SubGuard.Core.Entities;
 using SubGuard.Core.Helpers;
 using SubGuard.Core.Services;
@@ -201,11 +201,4 @@ namespace SubGuard.API.Controllers
         }
     }
 
-    public class AssignRoleDto
-    {
-        [Required(ErrorMessage = "E-posta adresi boş bırakılamaz.")]
-        [EmailAddress(ErrorMessage = "Geçerli bir e-posta adresi giriniz.")]
-        [MaxLength(256)]
-        public string Email { get; set; }
-    }
 }

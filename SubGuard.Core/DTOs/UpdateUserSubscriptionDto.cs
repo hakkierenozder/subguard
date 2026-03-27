@@ -1,0 +1,25 @@
+using SubGuard.Core.Enums;
+
+namespace SubGuard.Core.DTOs
+{
+    /// <summary>
+    /// Mevcut abonelik güncellenirken istemciden alınan payload.
+    /// UserId istemciden gelmez — JWT token'dan okunur.
+    /// Status değişikliği ayrı ChangeStatus endpoint'i üzerinden yapılır.
+    /// </summary>
+    public class UpdateUserSubscriptionDto
+    {
+        public string Name { get; set; }
+        public decimal Price { get; set; }
+        public string Currency { get; set; }
+        public int BillingDay { get; set; }
+        public BillingPeriod BillingPeriod { get; set; } = BillingPeriod.Monthly;
+        public string Category { get; set; }
+        public string? ColorCode { get; set; }
+        public bool HasContract { get; set; }
+        public DateTime? ContractStartDate { get; set; }
+        public DateTime? ContractEndDate { get; set; }
+        public string? SharedWithJson { get; set; }
+        public string? Notes { get; set; }
+    }
+}

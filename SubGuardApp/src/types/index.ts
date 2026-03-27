@@ -159,7 +159,8 @@ export interface NotificationDto {
   createdDate: string;
   scheduledDate: string;
   readDate?: string | null;
-  type?: 'Payment' | 'Budget' | 'Shared';
+  type?: 'Payment' | 'Budget' | 'Shared' | 'Contract';
+  userSubscriptionId?: number | null;
 }
 
 // ─── DASHBOARD (SubGuard.Core.DTOs.DashboardDto ile birebir) ─────────────────

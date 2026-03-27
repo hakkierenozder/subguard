@@ -143,7 +143,7 @@ namespace SubGuard.Service.Services
 
         public async Task<CustomResponseDto<List<ServiceDto>>> GetTrendingAsync(int limit = 10)
         {
-            // Katalog başına abonelik sayısını DB'de grupla, en popülerleri al
+            // 1. Katalog başına abonelik sayısını DB'de grupla — bu sorgu zaten verimli (DB-side GROUP BY)
             var topCatalogIds = await _userSubRepo
                 .Where(x => x.CatalogId.HasValue)
                 .GroupBy(x => x.CatalogId!.Value)
@@ -155,15 +155,16 @@ namespace SubGuard.Service.Services
 
             if (!topCatalogIds.Any())
             {
-                // Abonelik yoksa en son eklenen katalogları döndür
-                var fallback = await _serviceRepository.GetAllCatalogsWithPlansAsync();
-                var fallbackDtos = _mapper.Map<List<ServiceDto>>(fallback.Take(limit));
-                return CustomResponseDto<List<ServiceDto>>.Success(200, fallbackDtos);
+                // Abonelik yoksa ilk `limit` kataloğu döndür — GetPagedCatalogsWithPlansAsync DB-level
+                var (fallbackItems, _) = await _serviceRepository.GetPagedCatalogsWithPlansAsync(1, limit);
+                return CustomResponseDto<List<ServiceDto>>.Success(200, _mapper.Map<List<ServiceDto>>(fallbackItems));
             }
 
-            var catalogs = await _serviceRepository.GetAllCatalogsWithPlansAsync();
+            // 2. Sadece ilgili ID'leri sorgula — tüm tabloyu RAM'e yükleme
+            var catalogs = await _serviceRepository.GetCatalogsByIdsAsync(topCatalogIds);
+
+            // Popülerlik sıralamasını koru (DB sırası rastgele gelebilir)
             var trending = catalogs
-                .Where(c => topCatalogIds.Contains(c.Id))
                 .OrderBy(c => topCatalogIds.IndexOf(c.Id))
                 .ToList();
 

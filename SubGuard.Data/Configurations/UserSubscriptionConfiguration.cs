@@ -15,10 +15,6 @@ namespace SubGuard.Data.Configurations
             builder.Property(x => x.Price).HasColumnType("decimal(18,2)");
             builder.Property(x => x.Name).HasMaxLength(100);
 
-            // JSON alanları PostgreSQL jsonb tipinde saklanır
-            builder.Property(x => x.SharedWithJson).HasColumnType("jsonb");
-            builder.Property(x => x.UsageHistoryJson).HasColumnType("jsonb");
-
             // İlişki: Bir UserSubscription bir Catalog'a aittir.
             builder.HasOne(x => x.Catalog)
                               .WithMany()

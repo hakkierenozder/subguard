@@ -13,6 +13,7 @@ interface SettingsState {
   notifyDaysBefore: 1 | 3 | 7;
   budgetAlertEnabled: boolean;
   sharedAlertEnabled: boolean;
+  emailEnabled: boolean; // F-9: push'tan bağımsız e-posta bildirimi
   notifyHour: number; // 0-23
 
   // 20 — Para Birimi (#49: GBP eklendi)
@@ -21,8 +22,6 @@ interface SettingsState {
 
   // 22 — Uygulama Kilidi
   appLockEnabled: boolean;
-  appLockMethod: 'pin' | 'biometric';
-  lockAfterMinutes: 5 | 15 | 30 | 60;
 
   // 23 — Takvim Senkronizasyonu
   calendarSyncEnabled: boolean;
@@ -42,6 +41,7 @@ interface SettingsState {
   setNotifyDaysBefore: (v: 1 | 3 | 7) => void;
   setBudgetAlertEnabled: (v: boolean) => void;
   setSharedAlertEnabled: (v: boolean) => void;
+  setEmailEnabled: (v: boolean) => void; // F-9
   setNotifyHour: (v: number) => void;
 
   // Actions — 20
@@ -50,8 +50,6 @@ interface SettingsState {
 
   // Actions — 22
   setAppLockEnabled: (v: boolean) => void;
-  setAppLockMethod: (v: 'pin' | 'biometric') => void;
-  setLockAfterMinutes: (v: 5 | 15 | 30 | 60) => void;
 
   // Budget sync
   monthlyBudget: number;
@@ -75,6 +73,7 @@ export const useSettingsStore = create<SettingsState>()(
       notifyDaysBefore: 3,
       budgetAlertEnabled: true,
       sharedAlertEnabled: true,
+      emailEnabled: true, // F-9
       notifyHour: 9,
 
       // 20 defaults
@@ -83,8 +82,6 @@ export const useSettingsStore = create<SettingsState>()(
 
       // 22 defaults
       appLockEnabled: false,
-      appLockMethod: 'pin',
-      lockAfterMinutes: 15,
 
       // 23 defaults
       calendarSyncEnabled: false,
@@ -101,14 +98,13 @@ export const useSettingsStore = create<SettingsState>()(
       setNotifyDaysBefore: (v) => set({ notifyDaysBefore: v }),
       setBudgetAlertEnabled: (v) => set({ budgetAlertEnabled: v }),
       setSharedAlertEnabled: (v) => set({ sharedAlertEnabled: v }),
+      setEmailEnabled: (v) => set({ emailEnabled: v }), // F-9
       setNotifyHour: (v) => set({ notifyHour: v }),
 
       setDefaultCurrency: (v) => set({ defaultCurrency: v }),
       setAutoConvert: (v) => set({ autoConvert: v }),
 
       setAppLockEnabled: (v) => set({ appLockEnabled: v }),
-      setAppLockMethod: (v) => set({ appLockMethod: v }),
-      setLockAfterMinutes: (v) => set({ lockAfterMinutes: v }),
       setCalendarSyncEnabled: (v) => set({ calendarSyncEnabled: v }),
       setDashboardUpcomingDays: (v) => set({ dashboardUpcomingDays: v }),
 

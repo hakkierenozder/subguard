@@ -22,6 +22,8 @@ public class AppDbContext : IdentityDbContext<AppUser>
     public DbSet<CategoryBudget> CategoryBudgets { get; set; }
     public DbSet<PriceHistory> PriceHistories { get; set; } // Fiyat değişikliği geçmişi (silinmez)
     public DbSet<RevokedUserEntry> RevokedUserEntries { get; set; } // JWT revocation kalıcı listesi
+    public DbSet<SubscriptionShare> SubscriptionShares { get; set; }       // T-3: SharedWithJson yerine
+    public DbSet<SubscriptionUsageLog> SubscriptionUsageLogs { get; set; } // T-3: UsageHistoryJson yerine
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -68,5 +70,29 @@ public class AppDbContext : IdentityDbContext<AppUser>
 
         modelBuilder.Entity<NotificationQueue>().HasQueryFilter(x => !x.IsDeleted);
         modelBuilder.Entity<CategoryBudget>().HasQueryFilter(x => !x.IsDeleted);
+
+        // EF Core uyarısını giderir: UserSubscription ile ilişkili entity'lere de
+        // aynı soft-delete filtresi uygulanmalı (go.microsoft.com/fwlink/?linkid=2131316)
+        modelBuilder.Entity<SubscriptionShare>().HasQueryFilter(x => !x.IsDeleted);
+        modelBuilder.Entity<SubscriptionUsageLog>().HasQueryFilter(x => !x.IsDeleted);
+
+        // SubscriptionShare: (SubscriptionId, SharedUserId) çifti benzersiz olmalı
+        modelBuilder.Entity<SubscriptionShare>()
+            .HasIndex(s => new { s.SubscriptionId, s.SharedUserId })
+            .IsUnique()
+            .HasDatabaseName("IX_SubscriptionShares_SubId_UserId");
+
+        modelBuilder.Entity<SubscriptionShare>()
+            .HasOne(s => s.Subscription)
+            .WithMany(sub => sub.Shares)
+            .HasForeignKey(s => s.SubscriptionId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // SubscriptionUsageLog: abonelik silinince loglar da silinsin
+        modelBuilder.Entity<SubscriptionUsageLog>()
+            .HasOne(l => l.Subscription)
+            .WithMany(sub => sub.UsageLogs)
+            .HasForeignKey(l => l.SubscriptionId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

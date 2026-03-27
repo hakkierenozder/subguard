@@ -50,6 +50,8 @@ namespace SubGuard.Service.Services
                 MonthlyBudget = user.MonthlyBudget,
                 MonthlyBudgetCurrency = user.MonthlyBudgetCurrency,
                 BudgetAlertThreshold = user.BudgetAlertThreshold,
+                BudgetAlertEnabled   = user.BudgetAlertEnabled,
+                SharedAlertEnabled   = user.SharedAlertEnabled,
                 IsAdmin = isAdmin
             });
         }
@@ -123,24 +125,11 @@ namespace SubGuard.Service.Services
                     .ToListAsync();
                 _db.UserSubscriptions.RemoveRange(subscriptions);
 
-                // Diğer kullanıcıların paylaşım listelerinden bu userId'yi temizle
-                var sharedSubs = await _db.UserSubscriptions
-                    .Where(s => s.SharedWithJson != null && s.SharedWithJson.Contains(userId))
+                // Diğer kullanıcıların paylaşım listelerinden bu userId'yi temizle (SubscriptionShare tablosu)
+                var sharedEntries = await _db.SubscriptionShares
+                    .Where(s => s.SharedUserId == userId)
                     .ToListAsync();
-
-                foreach (var sub in sharedSubs)
-                {
-                    try
-                    {
-                        var list = JsonSerializer.Deserialize<List<string>>(sub.SharedWithJson!) ?? new();
-                        list.Remove(userId);
-                        sub.SharedWithJson = list.Count > 0 ? JsonSerializer.Serialize(list) : null;
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogWarning(ex, "SharedWithJson temizleme hatası. SubscriptionId: {Id}", sub.Id);
-                    }
-                }
+                _db.SubscriptionShares.RemoveRange(sharedEntries);
 
                 var notifications = await _db.NotificationQueues
                     .IgnoreQueryFilters()

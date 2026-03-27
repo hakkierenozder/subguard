@@ -1,14 +1,14 @@
-import React, { useState, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { View, Text, FlatList, ScrollView, StyleSheet, TouchableOpacity, Alert, Linking, TextInput, RefreshControl, StatusBar, Animated, ActivityIndicator, Modal, Switch, Image } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import AnimatedPressable from '../components/AnimatedPressable';
 import { SubscriptionSkeletonList } from '../components/SkeletonLoader';
 import { hapticError, hapticMedium, hapticLight } from '../utils/haptics';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { UserSubscription } from '../types';
-import { RootStackParamList } from '../../App';
+import { RootStackParamList, MainTabParamList } from '../../App';
 import AddSubscriptionModal from '../components/AddSubscriptionModal';
 import SubscriptionDetailModal from '../components/SubscriptionDetailModal';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
@@ -55,6 +55,7 @@ export default function MySubscriptionsScreen() {
   const colors = useThemeColors();
   const isDarkMode = useSettingsStore((state) => state.isDarkMode);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const route = useRoute<RouteProp<MainTabParamList, 'MySubscriptions'>>();
   const { catalogItems, fetchCatalog } = useCatalogStore();
 
   const {
@@ -82,8 +83,26 @@ export default function MySubscriptionsScreen() {
   // State Yönetimi
   const [editingSub, setEditingSub] = useState<UserSubscription | null>(null);
   const [detailSub, setDetailSub] = useState<UserSubscription | null>(null);
+
+  // Bildirimden deep link: openSubscriptionId route param varsa detail aç
+  const openSubscriptionId = route.params?.openSubscriptionId;
+  React.useEffect(() => {
+    if (!openSubscriptionId) return;
+    const target = subscriptions.find(s => String(s.id) === String(openSubscriptionId));
+    if (target) {
+      setDetailSub(target);
+    }
+  }, [openSubscriptionId, subscriptions]);
   const [refreshing, setRefreshing] = useState(false);
   const [searchText, setSearchText] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleSearch = useCallback((text: string) => {
+    setSearchText(text);
+    if (searchTimer.current) clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(() => setDebouncedQuery(text), 300);
+  }, []);
   const [sortBy, setSortBy] = useState<SortType>('date');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -169,7 +188,7 @@ export default function MySubscriptionsScreen() {
 
   const getFilteredSubscriptions = () => {
     let filtered = subscriptions.filter(sub =>
-      sub.name.toLowerCase().includes(searchText.toLowerCase())
+      sub.name.toLowerCase().includes(debouncedQuery.toLowerCase())
     );
 
     if (selectedCategory) {
@@ -415,10 +434,10 @@ export default function MySubscriptionsScreen() {
               placeholder="Abonelik ara..."
               placeholderTextColor={colors.textSec}
               value={searchText}
-              onChangeText={setSearchText}
+              onChangeText={handleSearch}
             />
             {searchText.length > 0 && (
-              <TouchableOpacity onPress={() => setSearchText('')}>
+              <TouchableOpacity onPress={() => { setSearchText(''); setDebouncedQuery(''); }}>
                 <Ionicons name="close-circle" size={16} color={colors.textSec} />
               </TouchableOpacity>
             )}

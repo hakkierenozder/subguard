@@ -228,9 +228,10 @@ export default function CalendarScreen() {
             </View>
 
             {selectedSubs.length === 0 ? (
-              <View style={styles.emptyDay}>
+              <View style={[styles.emptyDayCard, { backgroundColor: colors.inputBg, borderColor: colors.border }]}>
+                <Ionicons name="calendar-clear-outline" size={24} color={colors.textSec} />
                 <Text style={[styles.emptyDayText, { color: colors.textSec }]}>
-                  Bu gün için planlanmış ödeme bulunmuyor.
+                  Bu gün için planlanmış ödeme yok
                 </Text>
               </View>
             ) : (
@@ -281,7 +282,13 @@ export default function CalendarScreen() {
 
         {/* Bu ayın tüm ödemelerinin özeti */}
         <View style={[styles.summarySection, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
-          <Text style={[styles.summaryTitle, { color: colors.textMain }]}>Bu Ay Ödemeler</Text>
+          <LinearGradient
+            colors={[colors.accent + '12', colors.accent + '05']}
+            style={styles.summaryHeader}
+          >
+            <Ionicons name="list-outline" size={16} color={colors.accent} />
+            <Text style={[styles.summaryTitle, { color: colors.textMain }]}>Bu Ay Ödemeler</Text>
+          </LinearGradient>
           {activeSubs.length === 0 ? (
             <Text style={[styles.emptyDayText, { color: colors.textSec }]}>Aktif abonelik yok.</Text>
           ) : (
@@ -398,7 +405,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   detailTitle: { fontSize: 16, fontWeight: '700' },
-  emptyDay: { paddingVertical: 12 },
+  emptyDayCard: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14, borderRadius: 14, borderWidth: 1 },
   emptyDayText: { fontSize: 14 },
 
   // Abonelik kartı (detay)
@@ -409,6 +416,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 8,
     overflow: 'hidden',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
   },
   subColorBar: { width: 5, alignSelf: 'stretch' },
   subCardContent: { flex: 1, paddingVertical: 12, paddingHorizontal: 12 },
@@ -425,7 +434,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 16,
   },
-  summaryTitle: { fontSize: 15, fontWeight: '800', marginBottom: 12 },
+  summaryHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 12, borderRadius: 12, marginBottom: 4 },
+  summaryTitle: { fontSize: 15, fontWeight: '800' },
   summaryRow: {
     flexDirection: 'row',
     alignItems: 'center',

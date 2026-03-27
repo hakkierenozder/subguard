@@ -4,6 +4,7 @@ import {
   Text,
   StyleSheet,
   FlatList,
+  ScrollView,
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
@@ -19,26 +20,48 @@ import { useThemeColors } from '../constants/theme';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useNotificationStore } from '../store/useNotificationStore';
 import { NotificationDto } from '../types';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../App';
 
 // --- Bildirim ikonu ve rengi belirle ---
-function getNotifMeta(item: NotificationDto): { icon: string; color: string } {
-  if (item.type === 'Budget')   return { icon: 'wallet-outline',        color: '#EF4444' };
-  if (item.type === 'Payment')  return { icon: 'card-outline',          color: '#4F46E5' };
-  if (item.type === 'Shared')   return { icon: 'people-outline',        color: '#10B981' };
-  if (item.type === 'Contract') return { icon: 'document-text-outline', color: '#8B5CF6' };
+// Renk sabitleri — getNotifMeta içinde kullanmak için THEME'den bağımsız sabitler
+const NOTIF_COLORS = {
+  budget: '#EF4444',
+  payment: '#4F46E5',
+  shared: '#10B981',
+  contract: '#8B5CF6',
+  default: '#64748B',
+};
+
+function getNotifMeta(item: NotificationDto): { icon: string; colorKey: keyof typeof NOTIF_COLORS } {
+  if (item.type === 'Budget' || item.type === ('CategoryBudget' as any)) return { icon: 'wallet-outline', colorKey: 'budget' };
+  if (item.type === 'Payment')  return { icon: 'card-outline',          colorKey: 'payment' };
+  if (item.type === 'Shared')   return { icon: 'people-outline',        colorKey: 'shared' };
+  if (item.type === 'Contract') return { icon: 'document-text-outline', colorKey: 'contract' };
 
   // Fallback: type yoksa (eski kayıtlar) başlıktan tahmin et
   const t = item.title.toLowerCase();
   if (t.includes('bütçe') || t.includes('butce') || t.includes('aşım') || t.includes('asim')) {
-    return { icon: 'wallet-outline', color: '#EF4444' };
+    return { icon: 'wallet-outline', colorKey: 'budget' };
   }
   if (t.includes('ödeme') || t.includes('odeme') || t.includes('fatura')) {
-    return { icon: 'card-outline', color: '#4F46E5' };
+    return { icon: 'card-outline', colorKey: 'payment' };
   }
   if (t.includes('paylaş') || t.includes('paylas')) {
-    return { icon: 'people-outline', color: '#10B981' };
+    return { icon: 'people-outline', colorKey: 'shared' };
   }
-  return { icon: 'notifications-outline', color: '#64748B' };
+  return { icon: 'notifications-outline', colorKey: 'default' };
+}
+
+function getNotifColor(colorKey: keyof typeof NOTIF_COLORS, colors: ReturnType<typeof useThemeColors>): string {
+  switch (colorKey) {
+    case 'budget': return colors.error;
+    case 'payment': return colors.accent;
+    case 'shared': return colors.success;
+    case 'contract': return colors.purple;
+    default: return colors.textSec;
+  }
 }
 
 // --- Tarih formatla ---
@@ -67,12 +90,15 @@ interface NotifItemProps {
   item: NotificationDto;
   onRead: (id: number) => void;
   onDelete: (id: number) => void;
+  onNavigateToSub: (subscriptionId: number) => void;
+  onNavigateToAnalytics: () => void;
   colors: ReturnType<typeof useThemeColors>;
   isDarkMode: boolean;
 }
 
-function NotifItem({ item, onRead, onDelete, colors, isDarkMode }: NotifItemProps) {
-  const { icon, color } = getNotifMeta(item);
+function NotifItem({ item, onRead, onDelete, onNavigateToSub, onNavigateToAnalytics, colors, isDarkMode }: NotifItemProps) {
+  const { icon, colorKey } = getNotifMeta(item);
+  const color = getNotifColor(colorKey, colors);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const swipeRef = useRef<Swipeable>(null);
 
@@ -108,11 +134,18 @@ function NotifItem({ item, onRead, onDelete, colors, isDarkMode }: NotifItemProp
           style={[
             styles.notifCard,
             {
-              backgroundColor: item.isRead ? colors.cardBg : (isDarkMode ? '#1E2D45' : '#EEF2FF'),
+              backgroundColor: item.isRead ? colors.cardBg : (colors.accent + '15'),
               borderColor: colors.border,
             },
           ]}
-          onPress={() => !item.isRead && onRead(item.id)}
+          onPress={() => {
+            if (!item.isRead) onRead(item.id);
+            if (item.userSubscriptionId) {
+              onNavigateToSub(item.userSubscriptionId);
+            } else if (item.type === 'Budget' || item.type === ('CategoryBudget' as any)) {
+              onNavigateToAnalytics();
+            }
+          }}
           activeOpacity={0.75}
         >
           {/* Sol: İkon */}
@@ -174,6 +207,7 @@ function EmptyState({ colors }: { colors: ReturnType<typeof useThemeColors> }) {
 export default function NotificationsScreen() {
   const colors = useThemeColors();
   const isDarkMode = useSettingsStore((s) => s.isDarkMode);
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const {
     notifications,
@@ -187,8 +221,52 @@ export default function NotificationsScreen() {
   } = useNotificationStore();
 
   // #48: loading store state'inden ayrı refreshing — pull-to-refresh spinner doğru çalışsın.
-  // Eski: `refreshing={loading && notifications.length === 0}` → bildirimler varsa spinner görünmüyordu.
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Undo snackbar state
+  const [deletedItem, setDeletedItem] = useState<NotificationDto | null>(null);
+  const [snackVisible, setSnackVisible] = useState(false);
+  const snackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleDeleteWithUndo = useCallback((item: NotificationDto) => {
+    // Anlık store silme
+    deleteNotification(item.id);
+    setDeletedItem(item);
+    setSnackVisible(true);
+    if (snackTimer.current) clearTimeout(snackTimer.current);
+    snackTimer.current = setTimeout(() => {
+      setSnackVisible(false);
+      setDeletedItem(null);
+    }, 4000);
+  }, [deleteNotification]);
+
+  const handleUndoDelete = useCallback(() => {
+    if (snackTimer.current) clearTimeout(snackTimer.current);
+    setSnackVisible(false);
+    // Listeyi yeniden çek (silinen item zaten API'dan silindi ama optimistic undo için re-fetch en güvenli yol)
+    fetchNotifications(true);
+    setDeletedItem(null);
+  }, [fetchNotifications]);
+
+  // U-3: Tip bazlı filtre
+  type NotifFilter = 'All' | 'Payment' | 'Budget' | 'Shared' | 'Contract';
+  const [activeFilter, setActiveFilter] = useState<NotifFilter>('All');
+
+  const FILTER_TABS: { key: NotifFilter; label: string; icon: string }[] = [
+    { key: 'All',      label: 'Tümü',    icon: 'list-outline' },
+    { key: 'Payment',  label: 'Ödeme',   icon: 'card-outline' },
+    { key: 'Budget',   label: 'Bütçe',   icon: 'wallet-outline' },
+    { key: 'Shared',   label: 'Paylaşım',icon: 'people-outline' },
+    { key: 'Contract', label: 'Kontrat', icon: 'document-text-outline' },
+  ];
+
+  const filteredNotifications = activeFilter === 'All'
+    ? notifications
+    : notifications.filter(n =>
+        activeFilter === 'Budget'
+          ? (n.type === 'Budget' || n.type === ('CategoryBudget' as any))
+          : n.type === activeFilter
+      );
 
   useEffect(() => {
     fetchNotifications(true);
@@ -204,6 +282,17 @@ export default function NotificationsScreen() {
     if (hasMore && !loading) fetchNotifications(false);
   }, [hasMore, loading]);
 
+  const handleNavigateToSub = useCallback((subscriptionId: number) => {
+    navigation.navigate('Main', {
+      screen: 'MySubscriptions',
+      params: { openSubscriptionId: String(subscriptionId) },
+    } as any);
+  }, [navigation]);
+
+  const handleNavigateToAnalytics = useCallback(() => {
+    navigation.navigate('Main', { screen: 'Analytics' } as any);
+  }, [navigation]);
+
   const handleMarkAllRead = () => {
     if (unreadCount === 0) return;
     Alert.alert('Tümünü Okundu İşaretle', `${unreadCount} bildirimi okundu olarak işaretlemek istiyor musunuz?`, [
@@ -217,12 +306,18 @@ export default function NotificationsScreen() {
       <NotifItem
         item={item}
         onRead={markAsRead}
-        onDelete={deleteNotification}
+        onDelete={(id) => {
+          const found = notifications.find(n => n.id === id);
+          if (found) handleDeleteWithUndo(found);
+          else deleteNotification(id);
+        }}
+        onNavigateToSub={handleNavigateToSub}
+        onNavigateToAnalytics={handleNavigateToAnalytics}
         colors={colors}
         isDarkMode={isDarkMode}
       />
     ),
-    [colors, isDarkMode, markAsRead, deleteNotification]
+    [colors, isDarkMode, markAsRead, deleteNotification, handleDeleteWithUndo, handleNavigateToSub, handleNavigateToAnalytics, notifications]
   );
 
   const renderFooter = () => {
@@ -272,9 +367,59 @@ export default function NotificationsScreen() {
         </View>
       </LinearGradient>
 
+      {/* U-3: FİLTRE CHIPS */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10, gap: 8 }}
+        style={{ flexGrow: 0 }}
+      >
+        {FILTER_TABS.map(tab => {
+          const isActive = activeFilter === tab.key;
+          return (
+            <TouchableOpacity
+              key={tab.key}
+              onPress={() => setActiveFilter(tab.key)}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 5,
+                paddingHorizontal: 14,
+                paddingVertical: 7,
+                borderRadius: 20,
+                borderWidth: 1,
+                borderColor: isActive ? colors.accent : colors.border,
+                backgroundColor: isActive ? colors.accent : colors.cardBg,
+              }}
+            >
+              <Ionicons name={tab.icon as any} size={13} color={isActive ? '#FFF' : colors.textSec} />
+              <Text style={{ fontSize: 12, fontWeight: '700', color: isActive ? '#FFF' : colors.textSec }}>
+                {tab.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+
+      {/* SKELETON LOADING */}
+      {loading && notifications.length === 0 && (
+        <View style={{ paddingHorizontal: 20, paddingTop: 12 }}>
+          {[1,2,3,4,5].map(i => (
+            <View key={i} style={[styles.skeletonItem, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+              <View style={[styles.skeletonIcon, { backgroundColor: colors.inputBg }]} />
+              <View style={{ flex: 1, gap: 8 }}>
+                <View style={[styles.skeletonLine, { backgroundColor: colors.inputBg, width: '70%' }]} />
+                <View style={[styles.skeletonLine, { backgroundColor: colors.inputBg, width: '90%' }]} />
+                <View style={[styles.skeletonLine, { backgroundColor: colors.inputBg, width: '40%' }]} />
+              </View>
+            </View>
+          ))}
+        </View>
+      )}
+
       {/* LİSTE */}
       <FlatList
-        data={notifications}
+        data={filteredNotifications}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
         contentContainerStyle={[
@@ -296,6 +441,16 @@ export default function NotificationsScreen() {
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
       />
+
+      {/* Undo Snackbar */}
+      {snackVisible && (
+        <Animated.View style={[styles.snackbar, { backgroundColor: colors.cardBg, shadowColor: colors.textMain }]}>
+          <Text style={[styles.snackText, { color: colors.textMain }]}>Bildirim silindi</Text>
+          <TouchableOpacity onPress={handleUndoDelete} style={[styles.snackBtn, { backgroundColor: colors.accent + '15' }]}>
+            <Text style={[styles.snackBtnText, { color: colors.accent }]}>Geri Al</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      )}
     </SafeAreaView>
   );
 }
@@ -399,7 +554,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   swipeDeleteBtn: {
-    backgroundColor: '#EF4444',
+    backgroundColor: '#EF4444', // kept as literal for StyleSheet (cannot use hook here)
     justifyContent: 'center',
     alignItems: 'center',
     width: 72,
@@ -418,6 +573,22 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     alignItems: 'center',
   },
+
+  // Skeleton
+  skeletonItem: { flexDirection: 'row', gap: 12, padding: 14, borderRadius: 16, borderWidth: 1, marginBottom: 10 },
+  skeletonIcon: { width: 44, height: 44, borderRadius: 14 },
+  skeletonLine: { height: 12, borderRadius: 6 },
+
+  // Snackbar
+  snackbar: {
+    position: 'absolute', bottom: 24, left: 20, right: 20,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: 16, paddingVertical: 14, borderRadius: 16,
+    shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 12, elevation: 8,
+  },
+  snackText: { fontSize: 14, fontWeight: '600' },
+  snackBtn: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 10 },
+  snackBtnText: { fontSize: 14, fontWeight: '700' },
 
   // Boş durum
   emptyWrap: {

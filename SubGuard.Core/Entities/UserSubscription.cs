@@ -29,11 +29,6 @@ namespace SubGuard.Core.Entities
         public DateTime? ContractStartDate { get; set; }
         public DateTime? ContractEndDate { get; set; }
 
-        public string? SharedWithJson { get; set; }
-
-        // Frontend'deki UsageLog[] usageHistory dizisini JSON string olarak tutacağız
-        public string? UsageHistoryJson { get; set; }
-
         // Kullanıcı notları (isteğe bağlı, 500 karakter)
         public string? Notes { get; set; }
 
@@ -42,6 +37,10 @@ namespace SubGuard.Core.Entities
         public SubscriptionStatus Status { get; set; } = SubscriptionStatus.Active;
         public DateTime? PausedDate { get; set; }
         public DateTime? CancelledDate { get; set; }
+
+        // Navigation properties (ilişkisel tablolar)
+        public ICollection<SubscriptionShare> Shares { get; set; } = new List<SubscriptionShare>();
+        public ICollection<SubscriptionUsageLog> UsageLogs { get; set; } = new List<SubscriptionUsageLog>();
 
     }
 }

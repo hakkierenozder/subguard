@@ -79,15 +79,15 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
   },
 
   deleteNotification: async (id: number) => {
+    const previous = get().notifications;
+    // Optimistic: hemen state'ten kaldır
+    const updated = previous.filter(n => n.id !== id);
+    set({ notifications: updated, unreadCount: updated.filter(n => !n.isRead).length });
     try {
       await agent.Notifications.delete(id);
-      set((state) => {
-        const updated = state.notifications.filter(n => n.id !== id);
-        return {
-          notifications: updated,
-          unreadCount: updated.filter(n => !n.isRead).length,
-        };
-      });
-    } catch {}
+    } catch {
+      // API hatası → listeyi geri yükle
+      set({ notifications: previous, unreadCount: previous.filter(n => !n.isRead).length });
+    }
   },
 }));

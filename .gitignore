@@ -19,3 +19,9 @@ node_modules/
 .expo/
 dist/
 web-build/
+
+# Environment — hassas veri içerir, commit edilmemeli
+# .env.example dosyasını şablon olarak kullan
+SubGuardApp/.env
+SubGuardApp/.env.local
+SubGuardApp/.env.*.local

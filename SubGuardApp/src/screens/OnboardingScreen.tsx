@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   Alert,
   Platform,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -79,6 +80,7 @@ export default function OnboardingScreen({ navigation }: Props) {
   const { setOnboardingCompleted } = useSettingsStore();
   const flatListRef = useRef<FlatList>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const dotAnims = useRef(PAGES.map((_, i) => new Animated.Value(i === 0 ? 24 : 8))).current;
   const [budgetInput, setBudgetInput] = useState('');
   const [savingBudget, setSavingBudget] = useState(false);
   const [notifGranted, setNotifGranted] = useState<boolean | null>(null);
@@ -93,6 +95,13 @@ export default function OnboardingScreen({ navigation }: Props) {
     const next = currentIndex + 1;
     flatListRef.current?.scrollToIndex({ index: next, animated: true });
     setCurrentIndex(next);
+    dotAnims.forEach((anim, i) => {
+      Animated.timing(anim, {
+        toValue: i === next ? 24 : 8,
+        duration: 200,
+        useNativeDriver: false,
+      }).start();
+    });
   };
 
   const finish = async () => {
@@ -215,11 +224,14 @@ export default function OnboardingScreen({ navigation }: Props) {
         {/* Dot göstergesi */}
         <View style={styles.dots}>
           {PAGES.map((_, i) => (
-            <View
+            <Animated.View
               key={i}
               style={[
                 styles.dot,
-                i === currentIndex ? styles.dotActive : styles.dotInactive,
+                {
+                  width: dotAnims[i],
+                  backgroundColor: i === currentIndex ? '#4F46E5' : '#CBD5E1',
+                },
               ]}
             />
           ))}
@@ -360,8 +372,6 @@ const styles = StyleSheet.create({
   },
   dots: { flexDirection: 'row', justifyContent: 'center', gap: 8 },
   dot: { height: 8, borderRadius: 4 },
-  dotActive: { width: 24, backgroundColor: '#4F46E5' },
-  dotInactive: { width: 8, backgroundColor: '#CBD5E1' },
 
   nextBtn: {
     flexDirection: 'row',

@@ -87,11 +87,12 @@ export async function syncLocalNotifications(subscriptions: UserSubscription[]) 
 
 export const requestCalendarPermissions = async (): Promise<boolean> => {
   const { status } = await Calendar.requestCalendarPermissionsAsync();
-  if (status === 'granted') {
-    const remindersStatus = await Calendar.requestRemindersPermissionsAsync();
-    return remindersStatus.status === 'granted';
+  if (status !== 'granted') return false;
+  // iOS: Reminders izni istenir ama reddedilse bile takvim işlemleri devam eder
+  if (Platform.OS === 'ios') {
+    await Calendar.requestRemindersPermissionsAsync();
   }
-  return false;
+  return true;
 };
 
 // Cihazda 'SubGuard' adında bir takvim var mı bakar, yoksa oluşturur.
@@ -116,7 +117,7 @@ const ensureSubGuardCalendar = async (): Promise<string | null> => {
       sourceId: defaultCalendarSource.id,
       source: defaultCalendarSource,
       name: 'SubGuard',
-      ownerAccount: 'personal',
+      ownerAccount: defaultCalendarSource.name,
       accessLevel: Calendar.CalendarAccessLevel.OWNER,
     });
 
@@ -151,28 +152,34 @@ export const syncSubscriptionsToCalendar = async (subscriptions: UserSubscriptio
 
     // 2. Aktif abonelikleri ekle
     const activeSubs = subscriptions.filter(s => s.isActive !== false);
+    const deviceTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     for (const sub of activeSubs) {
+      // billingDay geçersizse atla
+      if (!sub.billingDay || sub.billingDay < 1) continue;
+
       // Bir sonraki ödeme tarihini hesapla
       const today = new Date();
       let eventDate = new Date(today.getFullYear(), today.getMonth(), sub.billingDay);
-      
+
       // Eğer bu ayki gün geçtiyse, gelecek aya at
       if (eventDate < today) {
          eventDate.setMonth(eventDate.getMonth() + 1);
       }
+
+      const safeBillingDay = sub.billingDay > 28 ? 28 : sub.billingDay;
 
       // Etkinlik oluştur
       await Calendar.createEventAsync(calendarId, {
         title: `${sub.name} Ödemesi`,
         startDate: eventDate,
         endDate: new Date(eventDate.getTime() + 60 * 60 * 1000), // 1 saatlik etkinlik
-        timeZone: 'GMT',
+        timeZone: deviceTimeZone,
         notes: `Tutar: ${sub.price} ${sub.currency}`,
         recurrenceRule: {
           frequency: Calendar.Frequency.MONTHLY,
           interval: 1,
-          daysOfTheMonth: [sub.billingDay > 28 ? 28 : sub.billingDay] 
+          daysOfTheMonth: [safeBillingDay],
         },
       });
     }

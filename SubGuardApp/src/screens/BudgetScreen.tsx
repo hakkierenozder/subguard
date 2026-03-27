@@ -114,7 +114,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
   const isNearLimit = !isOverBudget && budgetPercentage * 100 >= budgetAlertThreshold;
 
   const ringColor =
-    isOverBudget ? '#EF4444' : isNearLimit ? '#F59E0B' : '#4F46E5';
+    isOverBudget ? colors.error : isNearLimit ? colors.warning : colors.accent;
 
   const handleSaveBudget = async () => {
     const parsed = parseFloat(budgetInput.replace(',', '.'));
@@ -297,7 +297,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
               <Text
                 style={[
                   styles.statValue,
-                  { color: isOverBudget ? '#EF4444' : '#10B981' },
+                  { color: isOverBudget ? colors.error : colors.success },
                 ]}
               >
                 {monthlyBudget > 0
@@ -314,18 +314,18 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
                 styles.warningBanner,
                 {
                   backgroundColor: isOverBudget
-                    ? (isDarkMode ? 'rgba(239,68,68,0.15)' : '#FEF2F2')
-                    : (isDarkMode ? 'rgba(245,158,11,0.15)' : '#FFFBEB'),
-                  borderColor: isOverBudget ? '#EF4444' : '#F59E0B',
+                    ? colors.error + '18'
+                    : colors.warning + '18',
+                  borderColor: isOverBudget ? colors.error : colors.warning,
                 },
               ]}
             >
               <Ionicons
                 name={isOverBudget ? 'alert-circle-outline' : 'warning-outline'}
                 size={16}
-                color={isOverBudget ? '#EF4444' : '#F59E0B'}
+                color={isOverBudget ? colors.error : colors.warning}
               />
-              <Text style={[styles.warningText, { color: isOverBudget ? '#EF4444' : (isDarkMode ? '#FBBF24' : '#B45309') }]}>
+              <Text style={[styles.warningText, { color: isOverBudget ? colors.error : colors.warning }]}>
                 {isOverBudget
                   ? `Bütçen ${currencySymbol}${(totalExpense - monthlyBudget).toFixed(2)} aşıldı!`
                   : `Bütçenin %${percentDisplay}'ini kullandın.`}
@@ -450,10 +450,10 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
                 : pct;
               const barColor = catBudget
                 ? catBudget.isOverBudget
-                  ? '#EF4444'
+                  ? colors.error
                   : catBudget.isNearLimit
-                    ? '#F59E0B'
-                    : '#10B981'
+                    ? colors.warning
+                    : colors.success
                 : dotColor;
 
               return (

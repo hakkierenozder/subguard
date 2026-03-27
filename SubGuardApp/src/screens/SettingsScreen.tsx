@@ -15,8 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import EditProfileModal from '../components/EditProfileModal';
 import ChangePasswordModal from '../components/ChangePasswordModal';
-import PinSetupModal from '../components/PinSetupModal';
-import { clearPin } from '../utils/AppLockManager';
+import * as LocalAuthentication from 'expo-local-authentication';
 
 // ─── Yardımcı Bileşenler ────────────────────────────────────────────────────
 
@@ -145,14 +144,14 @@ export default function SettingsScreen() {
 
   const {
     isDarkMode, notificationsEnabled, toggleNotifications, toggleDarkMode,
-    notifyDaysBefore, budgetAlertEnabled, sharedAlertEnabled, notifyHour,
-    setNotifyDaysBefore, setBudgetAlertEnabled, setSharedAlertEnabled, setNotifyHour,
+    notifyDaysBefore, budgetAlertEnabled, sharedAlertEnabled, emailEnabled, notifyHour,
+    setNotifyDaysBefore, setBudgetAlertEnabled, setSharedAlertEnabled, setEmailEnabled, setNotifyHour,
     defaultCurrency, autoConvert, setDefaultCurrency, setAutoConvert,
-    appLockEnabled, appLockMethod, lockAfterMinutes,
-    setAppLockEnabled, setAppLockMethod, setLockAfterMinutes,
+    appLockEnabled, setAppLockEnabled,
     calendarSyncEnabled, setCalendarSyncEnabled,
     dashboardUpcomingDays, setDashboardUpcomingDays,
     isAdmin, setIsAdmin,
+    budgetAlertThreshold, setBudgetAlertThreshold,
   } = useSettingsStore();
 
   const { subscriptions, getTotalExpense } = useUserSubscriptionStore();
@@ -162,7 +161,8 @@ export default function SettingsScreen() {
   const [showEditProfile, setShowEditProfile]       = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showNotifPrefs, setShowNotifPrefs]         = useState(false);
-  const [showPinSetup, setShowPinSetup]             = useState(false);
+  // U-6: dinamik biyometrik etiket
+  const [biometricLabel, setBiometricLabel] = useState('Biyometrik Kilit');
 
   const loadProfile = async () => {
     try {
@@ -170,6 +170,14 @@ export default function SettingsScreen() {
       if (res?.data) {
         setUserProfile(res.data);
         setIsAdmin(!!res.data.isAdmin);
+        // T-6: Backend değerleriyle store'u senkronize et
+        // (farklı cihazda değiştirilmiş ayarlar doğru yansısın)
+        if (typeof res.data.budgetAlertThreshold === 'number')
+          setBudgetAlertThreshold(res.data.budgetAlertThreshold);
+        if (typeof res.data.budgetAlertEnabled === 'boolean')
+          setBudgetAlertEnabled(res.data.budgetAlertEnabled);
+        if (typeof res.data.sharedAlertEnabled === 'boolean')
+          setSharedAlertEnabled(res.data.sharedAlertEnabled);
       }
     } catch {}
   };
@@ -193,6 +201,14 @@ export default function SettingsScreen() {
     loadProfile();
     loadNotifPrefs();
   }, []));
+
+  // U-6: Cihazın desteklediği biyometrik türü belirle
+  useEffect(() => {
+    LocalAuthentication.supportedAuthenticationTypesAsync().then(types => {
+      const hasFaceId = types.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION);
+      setBiometricLabel(hasFaceId ? 'Face ID ile Aç' : 'Parmak İzi ile Aç');
+    }).catch(() => {});
+  }, []);
 
   // Hesaplamalar
   const activeCount  = subscriptions.filter(s => s.isActive !== false).length;
@@ -223,11 +239,20 @@ export default function SettingsScreen() {
   };
 
   // Bildirim tercihlerini backend'e senkronize et
-  const syncNotifPrefs = async (opts: { pushEnabled?: boolean; reminderDaysBefore?: number; notifyHour?: number }) => {
+  const syncNotifPrefs = async (opts: {
+    pushEnabled?: boolean;
+    emailEnabled?: boolean; // F-9: push'tan bağımsız
+    budgetAlertEnabled?: boolean; // F-10
+    sharedAlertEnabled?: boolean; // F-10
+    reminderDaysBefore?: number;
+    notifyHour?: number;
+  }) => {
     try {
       await agent.Notifications.updatePreferences({
         pushEnabled: opts.pushEnabled ?? notificationsEnabled,
-        emailEnabled: opts.pushEnabled ?? notificationsEnabled,
+        emailEnabled: opts.emailEnabled ?? emailEnabled, // F-9: kendi state'ini kullan
+        budgetAlertEnabled: opts.budgetAlertEnabled ?? budgetAlertEnabled, // F-10
+        sharedAlertEnabled: opts.sharedAlertEnabled ?? sharedAlertEnabled, // F-10
         reminderDaysBefore: opts.reminderDaysBefore ?? notifyDaysBefore,
         notifyHour: opts.notifyHour ?? notifyHour,
       });
@@ -255,19 +280,32 @@ export default function SettingsScreen() {
   };
 
   const handleNotifyDaysChange = (days: number) => {
-    setNotifyDaysBefore(days);
+    setNotifyDaysBefore(days as 1 | 3 | 7);
     syncNotifPrefs({ reminderDaysBefore: days });
   };
 
-  const handleAppLockToggle = (value: boolean) => {
+  const handleAppLockToggle = async (value: boolean) => {
     if (value) {
-      // PIN kurulum modalını aç — başarıyla kaydedilince kilidi etkinleştir
-      setAppLockMethod('pin');
-      setShowPinSetup(true);
+      const compatible = await LocalAuthentication.hasHardwareAsync();
+      const enrolled = await LocalAuthentication.isEnrolledAsync();
+      if (!compatible || !enrolled) {
+        Alert.alert(
+          'Biyometrik Kullanılamıyor',
+          'Cihazınızda Face ID veya parmak izi kaydı bulunamadı. Lütfen cihaz ayarlarından biyometrik kimlik ekleyin.',
+        );
+        return;
+      }
+      setAppLockEnabled(true);
     } else {
-      // Kilidi kapat ve PIN'i sil
-      setAppLockEnabled(false);
-      clearPin().catch(() => {});
+      // F-7: kilidi kapatmak için de biyometrik doğrulama gerekli
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: 'Uygulama kilidini kapatmak için kimliğinizi doğrulayın',
+      });
+      if (result.success) {
+        setAppLockEnabled(false);
+      } else {
+        Alert.alert('Doğrulama Başarısız', 'Uygulama kilidi kapatılamadı.');
+      }
     }
   };
 
@@ -482,12 +520,43 @@ export default function SettingsScreen() {
                   <InlineToggle
                     label="Bütçe uyarısı"
                     value={budgetAlertEnabled}
-                    onToggle={setBudgetAlertEnabled}
+                    onToggle={(v) => { setBudgetAlertEnabled(v); syncNotifPrefs({ budgetAlertEnabled: v }); }} // F-10
                   />
+                  {/* U-10: Bütçe eşiği seçici — sadece bütçe uyarısı açıkken göster */}
+                  {budgetAlertEnabled && (
+                    <View style={[styles.chipRowContainer, { marginTop: 4 }]}>
+                      <Text style={[styles.chipRowLabel, { color: colors.textSec }]}>
+                        Uyarı eşiği: %{budgetAlertThreshold}
+                      </Text>
+                      <View style={styles.chipRow}>
+                        {[50, 70, 80, 90].map(pct => {
+                          const selected = budgetAlertThreshold === pct;
+                          return (
+                            <TouchableOpacity
+                              key={pct}
+                              style={[
+                                styles.chip,
+                                { borderColor: selected ? colors.primary : colors.border },
+                                selected && { backgroundColor: colors.primary },
+                              ]}
+                              onPress={() => {
+                                setBudgetAlertThreshold(pct);
+                                agent.Auth.updateProfile({ budgetAlertThreshold: pct }).catch(() => {});
+                              }}
+                            >
+                              <Text style={[styles.chipText, { color: selected ? colors.white : colors.textSec }]}>
+                                %{pct}
+                              </Text>
+                            </TouchableOpacity>
+                          );
+                        })}
+                      </View>
+                    </View>
+                  )}
                   <InlineToggle
                     label="Paylaşım bildirimleri"
                     value={sharedAlertEnabled}
-                    onToggle={setSharedAlertEnabled}
+                    onToggle={(v) => { setSharedAlertEnabled(v); syncNotifPrefs({ sharedAlertEnabled: v }); }} // F-10
                   />
                 </View>
               )}
@@ -542,7 +611,7 @@ export default function SettingsScreen() {
           <MenuItem
             icon="swap-horizontal-outline" iconColor="#10B981" iconBg={isDarkMode ? '#064E3B' : '#D1FAE5'}
             title="Otomatik Dönüştürme"
-            subtitle={autoConvert ? 'Tüm fiyatlar TRY olarak gösterilir' : 'Orijinal para birimi gösterilir'}
+            subtitle={autoConvert ? `Tüm fiyatlar ${defaultCurrency} olarak gösterilir` : 'Orijinal para birimi gösterilir'}
             hasSwitch value={autoConvert} onToggle={setAutoConvert} isLast
           />
         </View>
@@ -585,29 +654,11 @@ export default function SettingsScreen() {
         <Text style={[styles.sectionLabel, { color: colors.textSec }]}>GÜVENLİK</Text>
         <View style={[styles.section, { borderColor: colors.border }]}>
           <MenuItem
-            icon="shield-checkmark-outline" iconColor="#6366F1" iconBg={isDarkMode ? '#1E1B4B' : '#EEF2FF'}
-            title="Uygulama Kilidi"
-            subtitle={appLockEnabled ? `Açık — ${appLockMethod === 'pin' ? 'PIN' : 'Biyometrik'}` : 'Kapalı'}
-            hasSwitch value={appLockEnabled} onToggle={handleAppLockToggle}
+            icon="finger-print-outline" iconColor="#6366F1" iconBg={isDarkMode ? '#1E1B4B' : '#EEF2FF'}
+            title={biometricLabel}
+            subtitle={appLockEnabled ? 'Açık — uygulama açılışında kimlik doğrulama' : 'Kapalı'}
+            hasSwitch value={appLockEnabled} onToggle={handleAppLockToggle} isLast
           />
-          {appLockEnabled && (
-            <View style={[styles.prefsPanel, { backgroundColor: colors.inputBg, borderBottomColor: colors.border }]}>
-              <ChipRow
-                label="Kilit yöntemi"
-                options={['pin', 'biometric'] as const}
-                value={appLockMethod}
-                onSelect={setAppLockMethod}
-                formatLabel={v => v === 'pin' ? 'PIN Kodu' : 'Biyometrik'}
-              />
-              <ChipRow
-                label="Sonra kilitle"
-                options={[5, 15, 30, 60] as const}
-                value={lockAfterMinutes}
-                onSelect={setLockAfterMinutes}
-                formatLabel={v => v < 60 ? `${v} dk` : '1 saat'}
-              />
-            </View>
-          )}
         </View>
 
         {/* ── 21. VERİ & GİZLİLİK ── */}
@@ -660,14 +711,6 @@ export default function SettingsScreen() {
       <ChangePasswordModal
         visible={showChangePassword}
         onClose={() => setShowChangePassword(false)}
-      />
-      <PinSetupModal
-        visible={showPinSetup}
-        onSuccess={() => {
-          setShowPinSetup(false);
-          setAppLockEnabled(true);
-        }}
-        onCancel={() => setShowPinSetup(false)}
       />
       </Animated.View>
     </SafeAreaView>

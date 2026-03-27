@@ -2,12 +2,12 @@ import { create } from 'zustand';
 import { UserSubscription, UsageStatus, UsageLog, ApiUsageLog, AddSubscriptionPayload, RawSubscriptionApiItem } from '../types';
 import { getDaysLeft } from '../utils/dateUtils';
 import agent from '../api/agent';
-import { getUserId } from '../utils/AuthManager';
 import { convertToTRY } from '../utils/CurrencyService';
 import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { scheduleSubscriptionNotification, cancelNotification, syncLocalNotifications } from '../utils/NotificationManager';
+import { scheduleSubscriptionNotification, cancelNotification, syncLocalNotifications, syncSubscriptionsToCalendar } from '../utils/NotificationManager';
 import { saveCache, loadCache } from '../utils/offlineCache';
+import { useSettingsStore } from './useSettingsStore';
 
 // Survey verisinin AsyncStorage anahtar şeması
 const surveyKey = (id: string) => `@survey_${id}`;
@@ -22,10 +22,12 @@ interface UserSubscriptionState {
   totalCount: number;
   hasMore: boolean;
   exchangeRates: Record<string, number>;
+  searchQuery: string; // F-5: backend araması için
 
   _restoreSurveyHistory: (items: UserSubscription[]) => Promise<UserSubscription[]>;
   fetchUserSubscriptions: () => Promise<void>;
   loadMoreSubscriptions: () => Promise<void>;
+  setSearchQuery: (q: string) => void; // F-5: arama sorgusunu güncelle
   fetchSharedWithMe: () => Promise<void>;
   addSubscription: (sub: AddSubscriptionPayload) => Promise<void>;
   removeSubscription: (id: string) => Promise<void>;
@@ -66,6 +68,16 @@ const formatItems = (rawItems: RawSubscriptionApiItem[]): UserSubscription[] =>
     usageLogs: [],
   }));
 
+// F-2: Yıllık abonelik için sonraki ödemeye kaç gün kaldığını hesapla
+const getDaysUntilNextBilling = (sub: UserSubscription): number => {
+  if (sub.billingPeriod !== 'Yearly') return getDaysLeft(sub.billingDay);
+  const now = new Date();
+  const anchor = sub.contractStartDate ? new Date(sub.contractStartDate) : now;
+  let next = new Date(now.getFullYear(), anchor.getMonth(), anchor.getDate());
+  if (next.getTime() <= now.getTime()) next.setFullYear(next.getFullYear() + 1);
+  return Math.ceil((next.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+};
+
 export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get) => ({
   subscriptions: [],
   sharedWithMe: [],
@@ -75,6 +87,7 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
   pageSize: PAGE_SIZE,
   totalCount: 0,
   hasMore: false,
+  searchQuery: '', // F-5
 
   // Fallback kurlar — sadece API çağrısı başarısız olursa kullanılır.
   // Uygulama açılışında fetchExchangeRates() gerçek kurları yükler (Fix 15 & 16).
@@ -104,11 +117,15 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
     });
   },
 
+  // F-5: arama sorgusunu güncelle — fetchUserSubscriptions çağrısı ekranın sorumluluğunda
+  setSearchQuery: (q: string) => set({ searchQuery: q }),
+
   // 1. VERİLERİ ÇEK — sayfa 1'den başlar, listeyi sıfırlar
   fetchUserSubscriptions: async () => {
     set({ loading: true });
+    const q = get().searchQuery || undefined; // F-5: backend araması
     try {
-      const response = await agent.UserSubscriptions.list(1, PAGE_SIZE);
+      const response = await agent.UserSubscriptions.list(1, PAGE_SIZE, q);
       if (response && response.data) {
         const raw = response.data;
         const rawItems: any[] = Array.isArray(raw) ? raw : (raw?.items ?? []);
@@ -151,7 +168,9 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
         const rawItems: any[] = Array.isArray(raw) ? raw : (raw?.items ?? []);
         const totalCount: number = raw?.totalCount ?? 0;
         const newItems = formatItems(rawItems);
-        const merged = [...subscriptions, ...newItems];
+        // F-3: survey geçmişini geri yükle (fetchUserSubscriptions ile tutarlı)
+        const withSurveys = await (get() as any)._restoreSurveyHistory(newItems);
+        const merged = [...subscriptions, ...withSurveys];
         set({
           subscriptions: merged,
           page: nextPage,
@@ -200,11 +219,9 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
   // 2. ABONELİK EKLE
   addSubscription: async (newSub) => {
   try {
-    const currentUserId = await getUserId();
-
-    // Backend'e gidecek veri
+    // AddUserSubscriptionDto'daki field'larla birebir eşleşen payload.
+    // userId JWT token'dan alınıyor, isActive/Status entity default'larıyla başlıyor.
     const payload = {
-      userId: currentUserId,
       catalogId: newSub.catalogId,
       name: newSub.name,
       price: newSub.price,
@@ -214,30 +231,31 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
       category: newSub.category,
       colorCode: newSub.colorCode,
       hasContract: newSub.hasContract,
-      
-      // Tarih alanlarını düzgün formatlayarak gönder
-      contractStartDate: newSub.contractStartDate 
-        ? new Date(newSub.contractStartDate).toISOString() 
+      contractStartDate: newSub.contractStartDate
+        ? new Date(newSub.contractStartDate).toISOString()
         : null,
-      contractEndDate: newSub.contractEndDate 
-        ? new Date(newSub.contractEndDate).toISOString() 
+      contractEndDate: newSub.contractEndDate
+        ? new Date(newSub.contractEndDate).toISOString()
         : null,
-      
-      isActive: true,
       notes: newSub.notes ?? null,
-      sharedWithJson: newSub.sharedWith ? JSON.stringify(newSub.sharedWith) : null
+      sharedWithJson: newSub.sharedWith ? JSON.stringify(newSub.sharedWith) : null,
     };
 
-    console.log('Payload gönderildi:', payload); // DEBUG için ekle
     const response = await agent.UserSubscriptions.create(payload);
 
       if (response && response.data) {
         const createdSub = {
           ...response.data,
           id: response.data.id.toString(),
-          sharedWith: safeJsonParse(response.data.sharedWithJson, [])
+          sharedWith: safeJsonParse(response.data.sharedWithJson, []),
+          usageHistory: [],
+          usageLogs: [],
         };
         set((state) => ({ subscriptions: [...state.subscriptions, createdSub] }));
+        // F-8: takvim senkronizasyonu
+        if (useSettingsStore.getState().calendarSyncEnabled) {
+          await syncSubscriptionsToCalendar(get().subscriptions);
+        }
       }
     } catch (error) {
       console.error("Ekleme hatası:", error);
@@ -261,11 +279,15 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
 
     try {
       await agent.UserSubscriptions.delete(id);
+      // F-8: takvim senkronizasyonu
+      if (useSettingsStore.getState().calendarSyncEnabled) {
+        await syncSubscriptionsToCalendar(get().subscriptions);
+      }
     } catch (error) {
-      // API hatası → listeyi geri yükle
+      // API hatası → listeyi geri yükle ve hatayı yukarı ilet
       console.error("Silme hatası:", error);
       set({ subscriptions: previousSubscriptions });
-      Alert.alert("Hata", "Abonelik silinemedi. Lütfen tekrar deneyin.");
+      throw error;
     }
   },
 
@@ -282,26 +304,25 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
       ),
     }));
 
-    try {
-      // Sadece durum alanları değişiyorsa → PATCH /status kullan
-      const STATUS_FIELDS: (keyof UserSubscription)[] = ['isActive', 'cancelledAt', 'cancelledDate', 'status', 'pausedDate'];
-      const changedKeys = Object.keys(updatedData) as (keyof UserSubscription)[];
-      const isStatusOnlyChange = changedKeys.length > 0 && changedKeys.every(k => STATUS_FIELDS.includes(k));
-
-      if (isStatusOnlyChange) {
-        // cancelledAt veya cancelledDate dolu ise → Cancelled; isActive true ise → Active; yoksa → Paused
-        const apiStatus = newSub.isActive
+    // B-18: catch scope için try dışına alındı
+    const STATUS_FIELDS: (keyof UserSubscription)[] = ['isActive', 'cancelledAt', 'cancelledDate', 'status', 'pausedDate'];
+    const changedKeys = Object.keys(updatedData) as (keyof UserSubscription)[];
+    const isStatusOnlyChange = changedKeys.length > 0 && changedKeys.every(k => STATUS_FIELDS.includes(k));
+    const apiStatus = isStatusOnlyChange
+      ? (newSub.isActive
           ? 'Active'
           : (newSub.cancelledAt || newSub.cancelledDate)
             ? 'Cancelled'
-            : 'Paused';
-        await agent.UserSubscriptions.changeStatus(id, apiStatus);
+            : 'Paused')
+      : null;
+
+    try {
+      if (isStatusOnlyChange) {
+        await agent.UserSubscriptions.changeStatus(id, apiStatus!);
       } else {
-        const currentUserId = await getUserId();
+        // UpdateUserSubscriptionDto'daki field'larla birebir eşleşen payload.
+        // id, userId, isActive, cancelledDate, usageHistoryJson DTO'da olmadığı için gönderilmiyor.
         const payload = {
-          id: Number(newSub.id),
-          userId: currentUserId,
-          catalogId: newSub.catalogId,
           name: newSub.name,
           price: newSub.price,
           currency: newSub.currency,
@@ -312,24 +333,54 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
           hasContract: newSub.hasContract,
           contractStartDate: newSub.contractStartDate ?? null,
           contractEndDate: newSub.contractEndDate ?? null,
-          isActive: newSub.isActive !== undefined ? newSub.isActive : true,
-          // Backend DTO field: CancelledDate (camelCase: cancelledDate)
-          cancelledDate: newSub.cancelledAt ?? newSub.cancelledDate ?? null,
           notes: newSub.notes ?? null,
           sharedWithJson: newSub.sharedWith ? JSON.stringify(newSub.sharedWith) : null,
-          usageHistoryJson: newSub.usageHistory ? JSON.stringify(newSub.usageHistory) : null,
         };
         await agent.UserSubscriptions.update(id, payload);
       }
+      // F-8: takvim senkronizasyonu
+      if (useSettingsStore.getState().calendarSyncEnabled) {
+        await syncSubscriptionsToCalendar(get().subscriptions);
+      }
+    } catch (error: any) {
+      // B-18: 409 = kontratlı abonelik erken iptal → onay dialog'u göster
+      if (isStatusOnlyChange && apiStatus === 'Cancelled' && error?.response?.status === 409) {
+        set((state) => ({
+          subscriptions: state.subscriptions.map((s) => s.id === id ? oldSub : s),
+        }));
+        Alert.alert(
+          'Aktif Kontrat',
+          'Bu aboneliğin sözleşmesi henüz bitmedi. Yine de erken iptal etmek istiyor musunuz?',
+          [
+            { text: 'Vazgeç', style: 'cancel' },
+            {
+              text: 'Yine de İptal Et',
+              style: 'destructive',
+              onPress: async () => {
+                try {
+                  await agent.UserSubscriptions.changeStatus(id, 'Cancelled', true);
+                  set((state) => ({
+                    subscriptions: state.subscriptions.map((s) =>
+                      s.id === id
+                        ? { ...s, isActive: false, status: 'Cancelled', cancelledDate: new Date().toISOString() }
+                        : s
+                    ),
+                  }));
+                } catch {
+                  Alert.alert('Hata', 'İptal işlemi gerçekleştirilemedi. Lütfen tekrar deneyin.');
+                }
+              },
+            },
+          ]
+        );
+        return;
+      }
 
-    } catch (error) {
       console.error("Güncelleme hatası:", error);
-      // Hata olursa UI'ı geri al
       set((state) => ({
-        subscriptions: state.subscriptions.map((s) =>
-          s.id === id ? oldSub : s
-        ),
+        subscriptions: state.subscriptions.map((s) => s.id === id ? oldSub : s),
       }));
+      Alert.alert('Hata', 'Değişiklikler kaydedilemedi. Lütfen tekrar deneyin.');
     }
   },
 
@@ -366,14 +417,13 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
       console.error('Survey AsyncStorage kaydedilemedi:', e);
     }
 
-    // #36 — Backend'e usageHistoryJson olarak sync et.
-    // Telefon değiştirilse veya AsyncStorage temizlense bile sunucudan geri yüklenebilir.
+    // Backend'e survey geçmişini sync et — dedicated PATCH /survey endpoint kullanılıyor.
+    // PUT /usersubscriptions/{id} yerine bu endpoint kullanılır çünkü PUT tüm alanları gerektirir;
+    // sadece usageHistoryJson göndermek abonelik verisini bozardı.
     try {
-      await agent.UserSubscriptions.update(id, {
-        usageHistoryJson: JSON.stringify(newHistory),
-      } as any);
+      await agent.UserSubscriptions.updateSurvey(id, JSON.stringify(newHistory));
     } catch {
-      // Sessizce başarısız ol — yerel veri zaten kaydedildi
+      // Sessizce başarısız ol — yerel veri AsyncStorage'a zaten kaydedildi
     }
   },
 
@@ -410,14 +460,14 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
   },
 
   getTotalExpense: () => {
-    const { subscriptions, exchangeRates } = get(); // Store'daki kurları kullan
+    const { subscriptions, exchangeRates } = get();
     return subscriptions
       .filter(sub => sub.isActive !== false)
       .reduce((total, sub) => {
-        // Dinamik kur çevirimi
         const rate = exchangeRates[sub.currency] || 1;
-        const priceInTry = sub.price * rate;
-        
+        // F-1: yıllık aboneliği aylık eşdeğerine çevir
+        const monthlyPrice = sub.billingPeriod === 'Yearly' ? sub.price / 12 : sub.price;
+        const priceInTry = monthlyPrice * rate;
         const partnerCount = (sub.sharedWith?.length || 0);
         const myShare = priceInTry / (partnerCount + 1);
         return total + myShare;
@@ -429,7 +479,7 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
     const activeSubs = subscriptions.filter(s => s.isActive !== false);
     if (activeSubs.length === 0) return null;
 
-    // Gerçek takvim hesabı — sabit +30 yerine dateUtils.getDaysLeft kullan (Fix 22)
-    return activeSubs.sort((a, b) => getDaysLeft(a.billingDay) - getDaysLeft(b.billingDay))[0];
+    // F-2: yıllık abonelikler için yıl-bazlı gün hesabı kullan
+    return activeSubs.sort((a, b) => getDaysUntilNextBilling(a) - getDaysUntilNextBilling(b))[0];
   },
 }));

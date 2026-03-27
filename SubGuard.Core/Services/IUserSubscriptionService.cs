@@ -7,8 +7,8 @@ namespace SubGuard.Core.Services
     {
         Task<CustomResponseDto<PagedResponseDto<UserSubscriptionDto>>> GetUserSubscriptionsAsync(string userId, int page, int pageSize, string? q = null);
         Task<CustomResponseDto<UserSubscriptionDto>> DuplicateSubscriptionAsync(int id, string userId);
-        Task<CustomResponseDto<UserSubscriptionDto>> AddSubscriptionAsync(UserSubscriptionDto dto);
-        Task<CustomResponseDto<bool>> UpdateSubscriptionAsync(UserSubscriptionDto dto);
+        Task<CustomResponseDto<UserSubscriptionDto>> AddSubscriptionAsync(AddUserSubscriptionDto dto, string userId);
+        Task<CustomResponseDto<bool>> UpdateSubscriptionAsync(int id, UpdateUserSubscriptionDto dto, string userId);
         Task<CustomResponseDto<bool>> RemoveSubscriptionAsync(int id, string userId);
         Task<CustomResponseDto<bool>> ChangeStatusAsync(int id, string userId, SubscriptionStatus newStatus, bool forceCancel = false);
 
@@ -21,6 +21,9 @@ namespace SubGuard.Core.Services
         Task<CustomResponseDto<List<UsageLogDto>>> GetUsageHistoryAsync(int id, string userId);
         Task<CustomResponseDto<UsageLogDto>> AddUsageLogAsync(int id, string userId, AddUsageLogDto dto);
         Task<CustomResponseDto<bool>> DeleteUsageLogAsync(int id, string userId, string logId);
+
+        // Survey Geçmişi (kullanım anketi JSON sync)
+        Task<CustomResponseDto<bool>> UpdateSurveyHistoryAsync(int id, string userId, string usageHistoryJson);
 
         // Fiyat Geçmişi
         Task<CustomResponseDto<List<PriceHistoryDto>>> GetPriceHistoryAsync(int id, string userId);

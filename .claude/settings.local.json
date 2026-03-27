@@ -125,7 +125,29 @@
       "Bash(grep \"\\\\.cs$\")",
       "Bash(find /c/Projects/SubGuard/SubGuard/SubGuardApp/src -type f -name *category* -o -name *constant*)",
       "Bash(taskkill /PID 20164 /F)",
-      "Bash(taskkill //PID 20164 //F)"
+      "Bash(taskkill //PID 20164 //F)",
+      "Bash(grep -rn LocalRequestsOnly --include=*.cs --include=*.dll)",
+      "Bash(powershell -Command \"Add-Type -Path ''''Hangfire.Core.dll''''; [Hangfire.Dashboard.LocalRequestsOnlyDashboardAuthorizationFilter]\")",
+      "Read(//c/Program Files/dotnet/**)",
+      "Bash(dotnet-ildasm C:ProjectsSubGuardSubGuardSubGuard.APIbinDebugnet7.0Hangfire.Core.dll)",
+      "Bash(setOnboardingCompleted\" \"C:ProjectsSubGuardSubGuardSubGuardAppsrc\"\")",
+      "Bash(Remove-Item \"C:\\\\Projects\\\\SubGuard\\\\SubGuard\\\\.git\\\\index.lock\" -Force)",
+      "Bash(Write-Host \"Lock removed\")",
+      "Bash(find C:/Projects/SubGuard/SubGuard/.claude/worktrees/agent-afd0118e -name *.tsx)",
+      "Bash(grep -l \"OtpBoxInput\\\\|dotAnims\\\\|snackbar\\\\|debouncedQuery\\\\|accentLight\\\\|AUTH_GRADIENT\" C:/Projects/SubGuard/SubGuard/.claude/worktrees/agent-afd0118e/SubGuardApp/src/screens/*.tsx)",
+      "Bash(grep -l OtpBoxInput C:/Projects/SubGuard/SubGuard/.claude/worktrees/agent-afd0118e/SubGuardApp/src/screens/*.tsx)",
+      "Bash(grep -n \"PagedRequestDto\\\\|PagedResponseDto\" /c/Projects/SubGuard/SubGuard/SubGuard.Core/DTOs/*.cs)",
+      "Bash(ipconfig)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://192.168.1.5:5046/api/catalog)",
+      "Bash(curl -s http://192.168.1.5:5046/api/catalog/all)",
+      "Bash(netsh advfirewall:*)",
+      "Bash(xargs grep:*)",
+      "Bash(dir \"C:\\\\Projects\\\\SubGuard\\\\SubGuard\\\\SubGuard.Data\\\\Migrations\" /b /o-d)",
+      "Bash(Get-ChildItem \"C:\\\\Projects\\\\SubGuard\\\\SubGuard\\\\SubGuard.Data\\\\Migrations\")",
+      "Bash(Sort-Object LastWriteTime -Descending)",
+      "Bash(Select-Object -First 4)",
+      "Bash(Format-Table Name)",
+      "Bash(ls C:/Projects/SubGuard/SubGuard/SubGuardApp/*.gitignore)"
     ]
   }
 }

@@ -1,0 +1,247 @@
+2026-03-27 16:49:05.591 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-27 16:49:07.298 +03:00 [WRN] [User: ] Entity 'UserSubscription' has a global query filter defined and is the required end of a relationship with the entity 'SubscriptionShare'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-27 16:49:07.302 +03:00 [WRN] [User: ] Entity 'UserSubscription' has a global query filter defined and is the required end of a relationship with the entity 'SubscriptionUsageLog'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-27 16:49:08.199 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-27 16:49:08.219 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-27 16:49:08.899 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-27 16:49:08.900 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-27 16:49:08.901 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-27 16:49:08.902 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-27 16:49:08.903 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-27 16:49:08.905 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-27 16:49:08.931 +03:00 [INF] [User: ] Server desktop-25vqrpg:33692:521ab3a1 successfully announced in 12,729 ms
+2026-03-27 16:49:08.935 +03:00 [INF] [User: ] Server desktop-25vqrpg:33692:521ab3a1 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-27 16:49:08.941 +03:00 [INF] [User: ] 1 servers were removed due to timeout
+2026-03-27 16:49:08.941 +03:00 [INF] [User: ] Server desktop-25vqrpg:33692:521ab3a1 all the dispatchers started
+2026-03-27 16:49:08.973 +03:00 [INF] [User: ] Removed 12 outdated record(s) from 'aggregatedcounter' table.
+2026-03-27 16:49:09.242 +03:00 [INF] [User: ] Güncel kurlar çekiliyor...
+2026-03-27 16:49:09.507 +03:00 [INF] [User: ] Süresi dolmuş 1 refresh token ve 0 revocation kaydı temizlendi.
+2026-03-27 16:49:09.561 +03:00 [INF] [User: ] Güncel kurlar çekiliyor...
+2026-03-27 16:49:09.817 +03:00 [INF] [User: ] Kurlar güncellendi: {"USD":44.367,"EUR":51.195,"GBP":59.175}
+2026-03-27 16:49:09.817 +03:00 [INF] [User: ] Kurlar güncellendi: {"USD":44.367,"EUR":51.195,"GBP":59.175}
+2026-03-27 16:49:10.001 +03:00 [INF] [User: ] Removed 48 outdated record(s) from 'job' table.
+2026-03-27 16:54:55.571 +03:00 [INF] [User: ] Server desktop-25vqrpg:33692:521ab3a1 caught stopping signal...
+2026-03-27 16:54:55.574 +03:00 [INF] [User: ] Server desktop-25vqrpg:33692:521ab3a1 All dispatchers stopped
+2026-03-27 16:54:55.579 +03:00 [INF] [User: ] Server desktop-25vqrpg:33692:521ab3a1 successfully reported itself as stopped in 2,7628 ms
+2026-03-27 16:54:55.580 +03:00 [INF] [User: ] Server desktop-25vqrpg:33692:521ab3a1 has been stopped in total 7,5962 ms
+2026-03-27 16:55:02.998 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-27 16:55:04.106 +03:00 [WRN] [User: ] Entity 'UserSubscription' has a global query filter defined and is the required end of a relationship with the entity 'SubscriptionShare'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-27 16:55:04.110 +03:00 [WRN] [User: ] Entity 'UserSubscription' has a global query filter defined and is the required end of a relationship with the entity 'SubscriptionUsageLog'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-27 16:55:04.828 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-27 16:55:04.844 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-27 16:55:05.309 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-27 16:55:05.310 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-27 16:55:05.311 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-27 16:55:05.312 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-27 16:55:05.313 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-27 16:55:05.314 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-27 16:55:05.335 +03:00 [INF] [User: ] Server desktop-25vqrpg:29332:fd014691 successfully announced in 9,7214 ms
+2026-03-27 16:55:05.338 +03:00 [INF] [User: ] Server desktop-25vqrpg:29332:fd014691 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-27 16:55:05.344 +03:00 [INF] [User: ] Server desktop-25vqrpg:29332:fd014691 all the dispatchers started
+2026-03-27 16:59:13.811 +03:00 [INF] [User: ] Server desktop-25vqrpg:29332:fd014691 caught stopping signal...
+2026-03-27 16:59:13.814 +03:00 [INF] [User: ] Server desktop-25vqrpg:29332:fd014691 All dispatchers stopped
+2026-03-27 16:59:13.820 +03:00 [INF] [User: ] Server desktop-25vqrpg:29332:fd014691 successfully reported itself as stopped in 3,0894 ms
+2026-03-27 16:59:13.821 +03:00 [INF] [User: ] Server desktop-25vqrpg:29332:fd014691 has been stopped in total 8,9374 ms
+2026-03-27 16:59:18.613 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-27 16:59:20.102 +03:00 [WRN] [User: ] Entity 'UserSubscription' has a global query filter defined and is the required end of a relationship with the entity 'SubscriptionShare'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-27 16:59:20.107 +03:00 [WRN] [User: ] Entity 'UserSubscription' has a global query filter defined and is the required end of a relationship with the entity 'SubscriptionUsageLog'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-27 16:59:20.830 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-27 16:59:20.853 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-27 16:59:21.215 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-27 16:59:21.217 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-27 16:59:21.218 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-27 16:59:21.219 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-27 16:59:21.220 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-27 16:59:21.222 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-27 16:59:21.243 +03:00 [INF] [User: ] Server desktop-25vqrpg:29228:5851c203 successfully announced in 9,7289 ms
+2026-03-27 16:59:21.246 +03:00 [INF] [User: ] Server desktop-25vqrpg:29228:5851c203 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-27 16:59:21.254 +03:00 [INF] [User: ] Server desktop-25vqrpg:29228:5851c203 all the dispatchers started
+2026-03-27 16:59:47.661 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-27 16:59:47.703 +03:00 [INF] [User: ] HTTP GET /api/catalog responded 404 in 58.2604 ms
+2026-03-27 16:59:51.250 +03:00 [INF] [User: ] HTTP GET /api/catalog/all responded 404 in 2.6461 ms
+2026-03-27 17:02:21.291 +03:00 [WRN] [User: ] Server desktop-25vqrpg:29228:5851c203 encountered an exception while sending heartbeat
+Npgsql.NpgsqlException (0x80004005): Exception while reading from stream
+ ---> System.IO.IOException: Unable to read data from the transport connection: Kurulan bir bağlantı, ana makinenizdeki yazılım tarafından iptal edildi..
+ ---> System.Net.Sockets.SocketException (10053): Kurulan bir bağlantı, ana makinenizdeki yazılım tarafından iptal edildi.
+   at System.Net.Sockets.NetworkStream.Read(Byte[] buffer, Int32 offset, Int32 count)
+   --- End of inner exception stack trace ---
+   at System.Net.Sockets.NetworkStream.Read(Byte[] buffer, Int32 offset, Int32 count)
+   at Npgsql.Internal.NpgsqlReadBuffer.<Ensure>g__EnsureLong|42_0(NpgsqlReadBuffer buffer, Int32 count, Boolean async, Boolean readingNotifications)
+   at Npgsql.Internal.NpgsqlReadBuffer.<Ensure>g__EnsureLong|42_0(NpgsqlReadBuffer buffer, Int32 count, Boolean async, Boolean readingNotifications)
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteNonQuery(Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteNonQuery()
+   at Dapper.SqlMapper.ExecuteCommand(IDbConnection cnn, CommandDefinition& command, Action`2 paramReader) in /_/Dapper/SqlMapper.cs:line 2848
+   at Dapper.SqlMapper.ExecuteImpl(IDbConnection cnn, CommandDefinition& command) in /_/Dapper/SqlMapper.cs:line 581
+   at Dapper.SqlMapper.Execute(IDbConnection cnn, String sql, Object param, IDbTransaction transaction, Nullable`1 commandTimeout, Nullable`1 commandType) in /_/Dapper/SqlMapper.cs:line 452
+   at Hangfire.PostgreSql.PostgreSqlConnection.<>c__DisplayClass21_0.<Heartbeat>b__0(DbConnection connection)
+   at Hangfire.PostgreSql.PostgreSqlStorage.UseConnection[T](DbConnection dedicatedConnection, Func`2 func)
+   at Hangfire.PostgreSql.PostgreSqlConnection.Heartbeat(String serverId)
+   at Hangfire.Server.ServerHeartbeatProcess.Execute(BackgroundProcessContext context) in C:\projects\hangfire-525\src\Hangfire.Core\Server\ServerHeartbeatProcess.cs:line 50
+2026-03-27 17:02:30.303 +03:00 [INF] [User: ] Server desktop-25vqrpg:29228:5851c203 caught stopping signal...
+2026-03-27 17:02:30.306 +03:00 [INF] [User: ] Server desktop-25vqrpg:29228:5851c203 All dispatchers stopped
+2026-03-27 17:02:30.312 +03:00 [INF] [User: ] Server desktop-25vqrpg:29228:5851c203 successfully reported itself as stopped in 3,7527 ms
+2026-03-27 17:02:30.313 +03:00 [INF] [User: ] Server desktop-25vqrpg:29228:5851c203 has been stopped in total 8,7817 ms
+2026-03-27 17:02:35.052 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-27 17:02:35.753 +03:00 [WRN] [User: ] Entity 'UserSubscription' has a global query filter defined and is the required end of a relationship with the entity 'SubscriptionShare'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-27 17:02:35.758 +03:00 [WRN] [User: ] Entity 'UserSubscription' has a global query filter defined and is the required end of a relationship with the entity 'SubscriptionUsageLog'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-27 17:02:36.317 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-27 17:02:36.336 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-27 17:02:36.640 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-27 17:02:36.641 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-27 17:02:36.642 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-27 17:02:36.643 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-27 17:02:36.644 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-27 17:02:36.645 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-27 17:02:36.663 +03:00 [INF] [User: ] Server desktop-25vqrpg:33076:e8e86848 successfully announced in 8,9448 ms
+2026-03-27 17:02:36.666 +03:00 [INF] [User: ] Server desktop-25vqrpg:33076:e8e86848 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-27 17:02:36.671 +03:00 [INF] [User: ] Server desktop-25vqrpg:33076:e8e86848 all the dispatchers started
+2026-03-27 17:03:24.121 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-27 17:03:24.245 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 401 in 138.5228 ms
+2026-03-27 17:03:24.245 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 138.5499 ms
+2026-03-27 17:03:24.245 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 401 in 138.5625 ms
+2026-03-27 17:03:24.258 +03:00 [INF] [User: Anonymous] Güncel kurlar çekiliyor...
+2026-03-27 17:03:24.413 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.5670 ms
+2026-03-27 17:03:24.612 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 507.1783 ms
+2026-03-27 17:03:24.653 +03:00 [INF] [User: Anonymous] Kurlar güncellendi: {"USD":44.367,"EUR":51.195,"GBP":59.175}
+2026-03-27 17:03:24.662 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 557.2985 ms
+2026-03-27 17:03:24.665 +03:00 [INF] [User: Anonymous] Token atomik olarak yenilendi. Email: ha***@gmail.com
+2026-03-27 17:03:24.673 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 392.9495 ms
+2026-03-27 17:03:24.776 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 72.3424 ms
+2026-03-27 17:03:24.778 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 74.0600 ms
+2026-03-27 17:03:24.782 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 78.7503 ms
+2026-03-27 17:03:24.951 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 104.6939 ms
+2026-03-27 17:03:26.041 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 5.7815 ms
+2026-03-27 17:03:26.046 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 10.8107 ms
+2026-03-27 17:04:13.081 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ha***@gmail.com
+2026-03-27 17:04:13.091 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ha***@gmail.com
+2026-03-27 17:04:13.094 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 108.3088 ms
+2026-03-27 17:04:13.542 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 14.7089 ms
+2026-03-27 17:04:13.546 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 11.5533 ms
+2026-03-27 17:04:13.550 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 13.2608 ms
+2026-03-27 17:04:13.552 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 6.8074 ms
+2026-03-27 17:04:13.559 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 14.4091 ms
+2026-03-27 17:04:13.816 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 16.2998 ms
+2026-03-27 17:04:37.664 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.1924 ms
+2026-03-27 17:04:37.666 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 11.6878 ms
+2026-03-27 17:04:39.404 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.5712 ms
+2026-03-27 17:04:39.407 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 9.5749 ms
+2026-03-27 17:04:45.601 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 11.9203 ms
+2026-03-27 17:04:45.668 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 73.0954 ms
+2026-03-27 17:05:23.837 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2158 ms
+2026-03-27 17:05:26.070 +03:00 [INF] [User: ] HTTP GET /api/reports/spending responded 200 in 21.9628 ms
+2026-03-27 17:05:27.120 +03:00 [INF] [User: ] HTTP GET /api/reports/spending responded 200 in 16.3783 ms
+2026-03-27 17:05:27.933 +03:00 [INF] [User: ] HTTP GET /api/reports/spending responded 200 in 6.3526 ms
+2026-03-27 17:05:28.569 +03:00 [INF] [User: ] HTTP GET /api/reports/spending responded 200 in 5.8956 ms
+2026-03-27 17:05:29.218 +03:00 [INF] [User: ] HTTP GET /api/reports/spending responded 200 in 7.5702 ms
+2026-03-27 17:05:30.244 +03:00 [INF] [User: ] HTTP GET /api/reports/spending responded 200 in 5.9937 ms
+2026-03-27 17:05:31.073 +03:00 [INF] [User: ] HTTP GET /api/reports/spending responded 200 in 5.8264 ms
+2026-03-27 17:05:31.690 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 7.0511 ms
+2026-03-27 17:05:31.692 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.7448 ms
+2026-03-27 17:05:36.125 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/71/price-history responded 200 in 29.8822 ms
+2026-03-27 17:05:36.130 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/71/usage responded 200 in 35.1729 ms
+2026-03-27 17:05:51.927 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/74/usage responded 200 in 11.8852 ms
+2026-03-27 17:05:51.931 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/74/price-history responded 200 in 16.2262 ms
+2026-03-27 17:06:14.563 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/74/usage responded 200 in 9.3363 ms
+2026-03-27 17:06:14.563 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/74/price-history responded 200 in 9.3364 ms
+2026-03-27 17:06:29.025 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/71/price-history responded 200 in 8.0410 ms
+2026-03-27 17:06:29.025 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/71/usage responded 200 in 8.0240 ms
+2026-03-27 17:06:35.335 +03:00 [INF] [User: ] HTTP GET /api/catalogs/trending responded 200 in 54.0727 ms
+2026-03-27 17:07:53.389 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 11.1548 ms
+2026-03-27 17:07:59.590 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 4.2799 ms
+2026-03-27 17:07:59.596 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 11.2544 ms
+2026-03-27 17:08:38.549 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 64.9050 ms
+2026-03-27 17:08:50.307 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 42.9405 ms
+2026-03-27 17:09:05.735 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 13.6754 ms
+2026-03-27 17:09:11.792 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 6.3374 ms
+2026-03-27 17:09:29.985 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 11.4044 ms
+2026-03-27 17:09:33.701 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 10.5742 ms
+2026-03-27 17:09:35.008 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 4.3622 ms
+2026-03-27 17:09:35.014 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 10.8160 ms
+2026-03-27 17:10:10.592 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 4.4728 ms
+2026-03-27 17:10:10.596 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 10.7499 ms
+2026-03-27 17:10:40.906 +03:00 [INF] [User: ] HTTP DELETE /api/budget/categories/Streaming responded 200 in 27.8110 ms
+2026-03-27 17:11:05.987 +03:00 [INF] [User: ] HTTP PUT /api/budget/categories responded 200 in 34.3290 ms
+2026-03-27 17:11:33.223 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1776 ms
+2026-03-27 17:11:56.440 +03:00 [INF] [User: ] HTTP GET /api/catalogs/trending responded 200 in 10.2976 ms
+2026-03-27 17:12:00.838 +03:00 [INF] [User: ] HTTP GET /api/catalogs/trending responded 200 in 5.5627 ms
+2026-03-27 17:12:20.348 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/71/usage responded 200 in 10.6148 ms
+2026-03-27 17:12:20.362 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/71/price-history responded 200 in 13.8766 ms
+2026-03-27 17:12:29.440 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/72/usage responded 200 in 9.2875 ms
+2026-03-27 17:12:29.456 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/72/price-history responded 200 in 9.0118 ms
+2026-03-27 17:12:54.650 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.6638 ms
+2026-03-27 17:12:54.650 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.5656 ms
+2026-03-27 17:12:54.975 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 9.9837 ms
+2026-03-27 17:13:07.543 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 11.0382 ms
+2026-03-27 17:13:07.549 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 6.6235 ms
+2026-03-27 17:13:54.693 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 8.7300 ms
+2026-03-27 17:13:56.672 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 15.5072 ms
+2026-03-27 17:13:59.827 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 10.5471 ms
+2026-03-27 17:14:00.783 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 11.3152 ms
+2026-03-27 17:14:05.705 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 5.1205 ms
+2026-03-27 17:14:30.348 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 10.5747 ms
+2026-03-27 17:14:31.828 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 4.5254 ms
+2026-03-27 17:14:32.311 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 9.5391 ms
+2026-03-27 17:14:36.263 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 9.2734 ms
+2026-03-27 17:15:14.313 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1640 ms
+2026-03-27 17:15:18.326 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/71/usage responded 200 in 7.2738 ms
+2026-03-27 17:15:18.327 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/71/price-history responded 200 in 5.1930 ms
+2026-03-27 17:15:20.404 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/71/price-history responded 200 in 6.5405 ms
+2026-03-27 17:15:20.404 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/71/usage responded 200 in 6.5405 ms
+2026-03-27 17:15:24.620 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 5.8497 ms
+2026-03-27 17:15:24.622 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.0371 ms
+2026-03-27 17:15:35.403 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 8.7419 ms
+2026-03-27 17:16:35.282 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 8.8205 ms
+2026-03-27 17:16:38.314 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 9.9536 ms
+2026-03-27 17:16:52.538 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 8.8700 ms
+2026-03-27 17:16:56.803 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 8.7219 ms
+2026-03-27 17:17:07.065 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.9533 ms
+2026-03-27 17:17:07.068 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.6379 ms
+2026-03-27 17:17:08.653 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 9.0255 ms
+2026-03-27 17:17:09.918 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 10.0696 ms
+2026-03-27 17:17:10.470 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 4.4460 ms
+2026-03-27 17:17:10.903 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 8.1635 ms
+2026-03-27 17:17:14.360 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 4.0201 ms
+2026-03-27 17:17:17.032 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 4.2321 ms
+2026-03-27 17:17:17.037 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.6642 ms
+2026-03-27 17:17:28.078 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 10.1324 ms
+2026-03-27 17:17:29.804 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.8854 ms
+2026-03-27 17:17:31.479 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 8.4909 ms
+2026-03-27 17:17:52.868 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 5.1415 ms
+2026-03-27 17:18:31.567 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2148 ms
+2026-03-27 18:03:08.894 +03:00 [INF] [User: ] Server desktop-25vqrpg:33076:e8e86848 caught stopping signal...
+2026-03-27 18:03:08.898 +03:00 [INF] [User: ] Server desktop-25vqrpg:33076:e8e86848 All dispatchers stopped
+2026-03-27 18:03:08.903 +03:00 [INF] [User: ] Server desktop-25vqrpg:33076:e8e86848 successfully reported itself as stopped in 2,7774 ms
+2026-03-27 18:03:08.904 +03:00 [INF] [User: ] Server desktop-25vqrpg:33076:e8e86848 has been stopped in total 8,4292 ms
+2026-03-27 18:03:23.689 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-27 18:03:23.964 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 273

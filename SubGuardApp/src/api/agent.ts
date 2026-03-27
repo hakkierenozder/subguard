@@ -112,8 +112,8 @@ axiosInstance.interceptors.response.use(
       setNetworkStatus(false);
       Toast.show({
         type: 'error',
-        text1: 'Çevrimdışı',
-        text2: 'Sunucuya erişilemiyor. Önbellek gösteriliyor.',
+        text1: 'Bağlantı Hatası',
+        text2: 'Sunucuya erişilemiyor. İnternet bağlantınızı kontrol edin.',
         position: 'bottom',
       });
     } else {
@@ -163,8 +163,9 @@ const UserSubscriptions = {
   delete:         (id: number | string)     => requests.del(`/usersubscriptions/${id}`),
 
   // Durum değiştirme (Aktif / Durduruldu / İptal)
-  changeStatus:   (id: number | string, status: string) =>
-    requests.patch(`/usersubscriptions/${id}/status`, { status }),
+  // forceCancel: kontratlı aboneliği erken iptal etmek için true gönderilir
+  changeStatus:   (id: number | string, status: string, forceCancel = false) =>
+    requests.patch(`/usersubscriptions/${id}/status`, { status, forceCancel }),
 
   // Paylaşım
   sharedWithMe:   (page = 1, pageSize = 20) =>
@@ -182,20 +183,29 @@ const UserSubscriptions = {
 
   // Fiyat geçmişi
   priceHistory:   (id: number | string) => requests.get(`/usersubscriptions/${id}/price-history`),
+
+  // Survey geçmişi (kullanım anketi) — ayrı PATCH endpoint, PUT abonelik verisine dokunmaz
+  updateSurvey:   (id: number | string, usageHistoryJson: string) =>
+    requests.patch(`/usersubscriptions/${id}/survey`, { usageHistoryJson }),
 };
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 const Auth = {
   login:          (body: any) => requests.post('/auth/login', body),
   register:       (body: any) => requests.post('/auth/register', body),
-  confirmEmail:   (userId: string, token: string) =>
+  confirmEmail:          (userId: string, token: string) =>
     requests.post('/auth/confirm-email', { userId, token }),
+  resendConfirmationEmail: (userId: string) =>
+    requests.post('/auth/resend-confirmation-email', { userId }),
   getProfile:     ()          => requests.get('/auth/profile'),
   updateProfile:  (body: { fullName?: string; monthlyBudget?: number; monthlyBudgetCurrency?: string; budgetAlertThreshold?: number }) =>
     requests.put('/auth/profile', body),
   changePassword:      (body: any)     => requests.post('/auth/change-password', body),
   deleteAccount:       ()              => requests.del('/auth/me'),
   revokeRefreshToken:  (token: string) => requests.post('/auth/revoke-refresh-token', { token }),
+  forgotPassword:      (email: string) => requests.post('/auth/forgot-password', { email }),
+  resetPassword:       (userId: string, otp: string, newPassword: string) =>
+    requests.post('/auth/reset-password', { userId, otp, newPassword }),
 };
 
 // ─── Notifications ────────────────────────────────────────────────────────────
@@ -207,7 +217,7 @@ const Notifications = {
   delete:            (id: number)  => requests.del(`/notifications/${id}`),
   registerPushToken:  (token: string) => requests.put('/notifications/push-token', { token }),
   getPreferences:     ()              => requests.get('/notifications/preferences'),
-  updatePreferences:  (body: { pushEnabled: boolean; emailEnabled: boolean; reminderDaysBefore: number; notifyHour?: number }) =>
+  updatePreferences:  (body: { pushEnabled: boolean; emailEnabled: boolean; budgetAlertEnabled?: boolean; sharedAlertEnabled?: boolean; reminderDaysBefore: number; notifyHour?: number }) =>
     requests.put('/notifications/preferences', body),   // #33: POST → PUT (idempotent güncelleme)
 };
 

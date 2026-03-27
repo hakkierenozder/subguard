@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.DTOs.Auth;
@@ -16,24 +15,20 @@ namespace SubGuard.Service.Services
         private readonly UserManager<AppUser> _userManager;
         private readonly ITokenService _tokenService;
         private readonly IEmailSender _emailSender;
-        private readonly IMemoryCache _cache;
         private readonly ILogger<AuthService> _logger;
 
-        // Cache key prefix — çakışmayı önler
-        private const string OtpCachePrefix = "email_otp:";
+        // OTP geçerlilik süresi — DB'deki OtpExpiry için kullanılır
         private static readonly TimeSpan OtpTtl = TimeSpan.FromMinutes(15);
 
         public AuthService(
             UserManager<AppUser> userManager,
             ITokenService tokenService,
             IEmailSender emailSender,
-            IMemoryCache cache,
             ILogger<AuthService> logger)
         {
             _userManager = userManager;
             _tokenService = tokenService;
             _emailSender = emailSender;
-            _cache = cache;
             _logger = logger;
         }
 
@@ -108,16 +103,20 @@ namespace SubGuard.Service.Services
             if (user == null)
                 return CustomResponseDto<bool>.Fail(404, "Kullanıcı bulunamadı.");
 
-            // Cache'den OTP → gerçek token eşleşmesini al
-            var cacheKey = OtpCachePrefix + userId;
-            if (!_cache.TryGetValue(cacheKey, out string? cached) || cached == null)
+            // DB'den OTP doğrula
+            if (user.OtpType != "email_confirm"
+                || user.OtpCode == null
+                || user.OtpToken == null
+                || user.OtpExpiry == null
+                || user.OtpExpiry < DateTime.UtcNow)
+            {
                 return CustomResponseDto<bool>.Fail(400, "Doğrulama kodu geçersiz veya süresi dolmuş. Lütfen yeniden kayıt olun.");
+            }
 
-            var parts = cached.Split('|', 2);
-            if (parts.Length != 2 || parts[0] != otp.Trim())
+            if (user.OtpCode != otp.Trim())
                 return CustomResponseDto<bool>.Fail(400, "Doğrulama kodu hatalı.");
 
-            var encodedToken = parts[1];
+            var encodedToken = user.OtpToken;
             var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(encodedToken));
             var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
 
@@ -128,11 +127,128 @@ namespace SubGuard.Service.Services
                 return CustomResponseDto<bool>.Fail(400, errors);
             }
 
-            // Başarılı doğrulama sonrası OTP'yi cache'den temizle
-            _cache.Remove(cacheKey);
+            // Başarılı doğrulama sonrası OTP alanlarını temizle
+            user.OtpCode = null;
+            user.OtpToken = null;
+            user.OtpType = null;
+            user.OtpExpiry = null;
+            await _userManager.UpdateAsync(user);
 
             _logger.LogInformation("E-posta doğrulandı. Email: {Email}",
                 PiiSanitizer.MaskEmail(user.Email));
+            return CustomResponseDto<bool>.Success(200, true);
+        }
+
+        public async Task<CustomResponseDto<string>> ForgotPasswordAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email.Trim().ToLower());
+            // Güvenlik: kullanıcı bulunamasa da aynı yanıt verilir (e-posta numaralandırma önlemi)
+            if (user == null || !user.EmailConfirmed)
+            {
+                _logger.LogInformation("Şifre sıfırlama isteği: kullanıcı bulunamadı veya e-posta doğrulanmamış. Email: {Email}",
+                    PiiSanitizer.MaskEmail(email));
+                return CustomResponseDto<string>.Success(200, string.Empty);
+            }
+
+            var rawToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken));
+            var otp = Random.Shared.Next(100000, 1000000).ToString();
+
+            // OTP'yi DB'ye yaz
+            user.OtpCode = otp;
+            user.OtpToken = encodedToken;
+            user.OtpType = "pwd_reset";
+            user.OtpExpiry = DateTime.UtcNow.Add(OtpTtl);
+            await _userManager.UpdateAsync(user);
+
+            try
+            {
+                var body = $@"<!DOCTYPE html>
+<html>
+<body style=""font-family:Arial,sans-serif;background:#f4f4f4;padding:24px;"">
+  <div style=""max-width:480px;margin:0 auto;background:#fff;border-radius:12px;padding:32px;"">
+    <h2 style=""color:#6C63FF;margin-top:0;"">SubGuard — Şifre Sıfırlama</h2>
+    <p>Merhaba <b>{user.FullName}</b>,</p>
+    <p>Şifrenizi sıfırlamak için aşağıdaki <b>6 haneli kodu</b> girin:</p>
+    <div style=""background:#f0eeff;border-radius:8px;padding:24px;text-align:center;margin:24px 0;"">
+      <p style=""margin:0 0 8px;font-size:13px;color:#666;"">Sıfırlama Kodunuz</p>
+      <p style=""margin:0;font-size:36px;font-weight:bold;color:#6C63FF;letter-spacing:10px;"">{otp}</p>
+    </div>
+    <p style=""font-size:13px;color:#888;"">Bu kod <b>15 dakika</b> geçerlidir. Eğer bu isteği siz yapmadıysanız güvenle yok sayabilirsiniz.</p>
+  </div>
+</body>
+</html>";
+                await _emailSender.SendAsync(user.Email!, user.FullName!, "SubGuard — Şifre Sıfırlama", body);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Şifre sıfırlama e-postası gönderilemedi. UserId: {UserId}", user.Id);
+            }
+
+            _logger.LogInformation("Şifre sıfırlama OTP üretildi. UserId: {UserId}", user.Id);
+            return CustomResponseDto<string>.Success(200, user.Id);
+        }
+
+        public async Task<CustomResponseDto<bool>> ResetPasswordAsync(string userId, string otp, string newPassword)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return CustomResponseDto<bool>.Fail(404, "Kullanıcı bulunamadı.");
+
+            // DB'den OTP doğrula
+            if (user.OtpType != "pwd_reset"
+                || user.OtpCode == null
+                || user.OtpToken == null
+                || user.OtpExpiry == null
+                || user.OtpExpiry < DateTime.UtcNow)
+            {
+                return CustomResponseDto<bool>.Fail(400, "Kod geçersiz veya süresi dolmuş. Lütfen tekrar 'Şifremi Unuttum' işlemini başlatın.");
+            }
+
+            if (user.OtpCode != otp.Trim())
+                return CustomResponseDto<bool>.Fail(400, "Girilen kod hatalı.");
+
+            var encodedToken = user.OtpToken;
+            var rawToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(encodedToken));
+            var result = await _userManager.ResetPasswordAsync(user, rawToken, newPassword);
+
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors.Select(x => x.Description).ToList();
+                return CustomResponseDto<bool>.Fail(400, errors);
+            }
+
+            // Başarılı sıfırlama sonrası OTP alanlarını temizle
+            user.OtpCode = null;
+            user.OtpToken = null;
+            user.OtpType = null;
+            user.OtpExpiry = null;
+            await _userManager.UpdateAsync(user);
+
+            _logger.LogInformation("Şifre sıfırlandı. UserId: {UserId}", userId);
+            return CustomResponseDto<bool>.Success(200, true);
+        }
+
+        public async Task<CustomResponseDto<bool>> ResendConfirmationEmailAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return CustomResponseDto<bool>.Fail(404, "Kullanıcı bulunamadı.");
+
+            if (user.EmailConfirmed)
+                return CustomResponseDto<bool>.Fail(400, "Bu e-posta adresi zaten doğrulanmış.");
+
+            // Mevcut OTP süresi dolmamışsa tekrar gönderimi engelle (spam koruması)
+            if (user.OtpType == "email_confirm"
+                && user.OtpExpiry.HasValue
+                && user.OtpExpiry.Value > DateTime.UtcNow.AddMinutes(10))
+            {
+                return CustomResponseDto<bool>.Fail(429, "Kodu yeni gönderdik. Lütfen birkaç dakika bekleyip tekrar deneyin.");
+            }
+
+            await SendConfirmationEmailAsync(user);
+
+            _logger.LogInformation("Doğrulama e-postası yeniden gönderildi. UserId: {UserId}", user.Id);
             return CustomResponseDto<bool>.Success(200, true);
         }
 
@@ -142,13 +258,14 @@ namespace SubGuard.Service.Services
         {
             var rawToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(rawToken));
-
-            // 6 haneli OTP üret (100000–999999)
             var otp = Random.Shared.Next(100000, 1000000).ToString();
 
-            // OTP → gerçek token eşleşmesini 15 dk cache'le
-            var cacheKey = OtpCachePrefix + user.Id;
-            _cache.Set(cacheKey, $"{otp}|{encodedToken}", OtpTtl);
+            // OTP'yi DB'ye yaz (restart-safe, multi-instance uyumlu)
+            user.OtpCode = otp;
+            user.OtpToken = encodedToken;
+            user.OtpType = "email_confirm";
+            user.OtpExpiry = DateTime.UtcNow.Add(OtpTtl);
+            await _userManager.UpdateAsync(user);
 
             try
             {

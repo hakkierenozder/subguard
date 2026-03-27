@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using SubGuard.Core.DTOs.Auth;
 using SubGuard.Core.Services;
 using System.Security.Claims;
+// ResendConfirmationDto aynı namespace'de, ek using gerekmez
 
 namespace SubGuard.API.Controllers
 {
@@ -34,6 +35,11 @@ namespace SubGuard.API.Controllers
         [EnableRateLimiting("auth")]
         public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailDto dto)
             => CreateActionResult(await _authService.ConfirmEmailAsync(dto.UserId, dto.Token));
+
+        [HttpPost("resend-confirmation-email")]
+        [EnableRateLimiting("auth")]
+        public async Task<IActionResult> ResendConfirmationEmail([FromBody] ResendConfirmationDto dto)
+            => CreateActionResult(await _authService.ResendConfirmationEmailAsync(dto.UserId));
 
         [HttpPost("login")]
         [EnableRateLimiting("auth")]
@@ -81,5 +87,16 @@ namespace SubGuard.API.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return CreateActionResult(await _profileService.DeleteAccountAsync(userId!));
         }
+
+        // U-2: Şifre Sıfırlama
+        [HttpPost("forgot-password")]
+        [EnableRateLimiting("auth")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
+            => CreateActionResult(await _authService.ForgotPasswordAsync(dto.Email));
+
+        [HttpPost("reset-password")]
+        [EnableRateLimiting("auth")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
+            => CreateActionResult(await _authService.ResetPasswordAsync(dto.UserId, dto.Otp, dto.NewPassword));
     }
 }

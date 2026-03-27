@@ -1,0 +1,546 @@
+2026-03-20 13:53:55.238 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-20 13:53:57.693 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-20 13:53:57.722 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-20 13:53:58.339 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-20 13:53:58.339 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-20 13:53:58.341 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-20 13:53:58.344 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-20 13:53:58.345 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-20 13:53:58.346 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-20 13:53:58.397 +03:00 [INF] [User: ] Server desktop-25vqrpg:25456:55e45f49 successfully announced in 24,1517 ms
+2026-03-20 13:53:58.404 +03:00 [INF] [User: ] Server desktop-25vqrpg:25456:55e45f49 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-20 13:53:58.416 +03:00 [INF] [User: ] 1 servers were removed due to timeout
+2026-03-20 13:53:58.474 +03:00 [INF] [User: ] Server desktop-25vqrpg:25456:55e45f49 all the dispatchers started
+2026-03-20 13:53:58.476 +03:00 [INF] [User: ] Removed 4 outdated record(s) from 'aggregatedcounter' table.
+2026-03-20 13:53:58.760 +03:00 [INF] [User: ] Güncel kurlar çekiliyor...
+2026-03-20 13:53:58.832 +03:00 [ERR] [User: ] Failed executing DbCommand (12ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT a."Id", a."AccessFailedCount", a."BudgetAlertEnabled", a."BudgetAlertThreshold", a."ConcurrencyStamp", a."Email", a."EmailConfirmed", a."ExpoPushToken", a."FullName", a."LockoutEnabled", a."LockoutEnd", a."MonthlyBudget", a."MonthlyBudgetCurrency", a."NormalizedEmail", a."NormalizedUserName", a."NotifEmailEnabled", a."NotifPushEnabled", a."NotifReminderDays", a."NotifyHour", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."SharedAlertEnabled", a."TwoFactorEnabled", a."UserName"
+FROM "AspNetUsers" AS a
+WHERE a."MonthlyBudget" > 0.0 AND (a."MonthlyBudgetCurrency" IS NOT NULL) AND a."BudgetAlertEnabled"
+2026-03-20 13:53:58.858 +03:00 [ERR] [User: ] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column a.BudgetAlertEnabled does not exist
+
+POSITION: 39
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.BudgetAlertEnabled does not exist
+    Position: 39
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+Npgsql.PostgresException (0x80004005): 42703: column a.BudgetAlertEnabled does not exist
+
+POSITION: 39
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.BudgetAlertEnabled does not exist
+    Position: 39
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-20 13:53:58.881 +03:00 [WRN] [User: ] Failed to process the job '75': an exception occurred. Retry attempt 1 of 10 will be performed in 00:00:35.
+Npgsql.PostgresException (0x80004005): 42703: column a.BudgetAlertEnabled does not exist
+
+POSITION: 39
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.NotificationService.CheckAndQueueBudgetAlertsAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 119
+   at InvokeStub_TaskAwaiter.GetResult(Object, Object, IntPtr*)
+   at System.Reflection.MethodInvoker.Invoke(Object obj, IntPtr* args, BindingFlags invokeAttr)
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.BudgetAlertEnabled does not exist
+    Position: 39
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-20 13:53:58.883 +03:00 [INF] [User: ] Süresi dolmuş 1 refresh token ve 0 revocation kaydı temizlendi.
+2026-03-20 13:53:58.917 +03:00 [ERR] [User: ] Failed executing DbCommand (100ms) [Parameters=[@__userIds_0='?' (DbType = Object)], CommandType='"Text"', CommandTimeout='30']
+SELECT a."Id", a."AccessFailedCount", a."BudgetAlertEnabled", a."BudgetAlertThreshold", a."ConcurrencyStamp", a."Email", a."EmailConfirmed", a."ExpoPushToken", a."FullName", a."LockoutEnabled", a."LockoutEnd", a."MonthlyBudget", a."MonthlyBudgetCurrency", a."NormalizedEmail", a."NormalizedUserName", a."NotifEmailEnabled", a."NotifPushEnabled", a."NotifReminderDays", a."NotifyHour", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."SharedAlertEnabled", a."TwoFactorEnabled", a."UserName"
+FROM "AspNetUsers" AS a
+WHERE a."Id" = ANY (@__userIds_0)
+2026-03-20 13:53:58.921 +03:00 [ERR] [User: ] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column a.BudgetAlertEnabled does not exist
+
+POSITION: 39
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.BudgetAlertEnabled does not exist
+    Position: 39
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+Npgsql.PostgresException (0x80004005): 42703: column a.BudgetAlertEnabled does not exist
+
+POSITION: 39
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.BudgetAlertEnabled does not exist
+    Position: 39
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-20 13:53:58.935 +03:00 [WRN] [User: ] Failed to process the job '70': an exception occurred. Retry attempt 1 of 10 will be performed in 00:00:29.
+Npgsql.PostgresException (0x80004005): 42703: column a.BudgetAlertEnabled does not exist
+
+POSITION: 39
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToDictionaryAsync[TSource,TKey,TElement](IQueryable`1 source, Func`2 keySelector, Func`2 elementSelector, IEqualityComparer`1 comparer, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToDictionaryAsync[TSource,TKey,TElement](IQueryable`1 source, Func`2 keySelector, Func`2 elementSelector, IEqualityComparer`1 comparer, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.NotificationService.CheckAndQueueUpcomingPaymentsAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 70
+   at InvokeStub_TaskAwaiter.GetResult(Object, Object, IntPtr*)
+   at System.Reflection.MethodInvoker.Invoke(Object obj, IntPtr* args, BindingFlags invokeAttr)
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.BudgetAlertEnabled does not exist
+    Position: 39
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-20 13:53:59.198 +03:00 [INF] [User: ] Kurlar güncellendi: {"USD":44.321,"EUR":50.92,"GBP":58.943}
+2026-03-20 13:53:59.517 +03:00 [INF] [User: ] Removed 9 outdated record(s) from 'job' table.
+2026-03-20 13:54:28.561 +03:00 [ERR] [User: ] Failed executing DbCommand (3ms) [Parameters=[@__userIds_0='?' (DbType = Object)], CommandType='"Text"', CommandTimeout='30']
+SELECT a."Id", a."AccessFailedCount", a."BudgetAlertEnabled", a."BudgetAlertThreshold", a."ConcurrencyStamp", a."Email", a."EmailConfirmed", a."ExpoPushToken", a."FullName", a."LockoutEnabled", a."LockoutEnd", a."MonthlyBudget", a."MonthlyBudgetCurrency", a."NormalizedEmail", a."NormalizedUserName", a."NotifEmailEnabled", a."NotifPushEnabled", a."NotifReminderDays", a."NotifyHour", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."SharedAlertEnabled", a."TwoFactorEnabled", a."UserName"
+FROM "AspNetUsers" AS a
+WHERE a."Id" = ANY (@__userIds_0)
+2026-03-20 13:54:28.565 +03:00 [ERR] [User: ] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column a.BudgetAlertEnabled does not exist
+
+POSITION: 39
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.BudgetAlertEnabled does not exist
+    Position: 39
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+Npgsql.PostgresException (0x80004005): 42703: column a.BudgetAlertEnabled does not exist
+
+POSITION: 39
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.BudgetAlertEnabled does not exist
+    Position: 39
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-20 13:54:28.580 +03:00 [WRN] [User: ] Failed to process the job '70': an exception occurred. Retry attempt 2 of 10 will be performed in 00:00:52.
+Npgsql.PostgresException (0x80004005): 42703: column a.BudgetAlertEnabled does not exist
+
+POSITION: 39
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToDictionaryAsync[TSource,TKey,TElement](IQueryable`1 source, Func`2 keySelector, Func`2 elementSelector, IEqualityComparer`1 comparer, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToDictionaryAsync[TSource,TKey,TElement](IQueryable`1 source, Func`2 keySelector, Func`2 elementSelector, IEqualityComparer`1 comparer, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.NotificationService.CheckAndQueueUpcomingPaymentsAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 70
+   at InvokeStub_TaskAwaiter.GetResult(Object, Object, IntPtr*)
+   at System.Reflection.MethodInvoker.Invoke(Object obj, IntPtr* args, BindingFlags invokeAttr)
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.BudgetAlertEnabled does not exist
+    Position: 39
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-20 13:54:43.573 +03:00 [ERR] [User: ] Failed executing DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT a."Id", a."AccessFailedCount", a."BudgetAlertEnabled", a."BudgetAlertThreshold", a."ConcurrencyStamp", a."Email", a."EmailConfirmed", a."ExpoPushToken", a."FullName", a."LockoutEnabled", a."LockoutEnd", a."MonthlyBudget", a."MonthlyBudgetCurrency", a."NormalizedEmail", a."NormalizedUserName", a."NotifEmailEnabled", a."NotifPushEnabled", a."NotifReminderDays", a."NotifyHour", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."SharedAlertEnabled", a."TwoFactorEnabled", a."UserName"
+FROM "AspNetUsers" AS a
+WHERE a."MonthlyBudget" > 0.0 AND (a."MonthlyBudgetCurrency" IS NOT NULL) AND a."BudgetAlertEnabled"
+2026-03-20 13:54:43.576 +03:00 [ERR] [User: ] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column a.BudgetAlertEnabled does not exist
+
+POSITION: 39
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.BudgetAlertEnabled does not exist
+    Position: 39
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+Npgsql.PostgresException (0x80004005): 42703: column a.BudgetAlertEnabled does not exist
+
+POSITION: 39
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.BudgetAlertEnabled does not exist
+    Position: 39
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-20 13:54:43.590 +03:00 [WRN] [User: ] Failed to process the job '75': an exception occurred. Retry attempt 2 of 10 will be performed in 00:00:38.
+Npgsql.PostgresException (0x80004005): 42703: column a.BudgetAlertEnabled does not exist
+
+POSITION: 39
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.NotificationService.CheckAndQueueBudgetAlertsAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 119
+   at InvokeStub_TaskAwaiter.GetResult(Object, Object, IntPtr*)
+   at System.Reflection.MethodInvoker.Invoke(Object obj, IntPtr* args, BindingFlags invokeAttr)
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.BudgetAlertEnabled does not exist
+    Position: 39
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-20 13:55:04.443 +03:00 [INF] [User: ] Server desktop-25vqrpg:25456:55e45f49 caught stopping signal...
+2026-03-20 13:55:04.446 +03:00 [INF] [User: ] Server desktop-25vqrpg:25456:55e45f49 All dispatchers stopped
+2026-03-20 13:55:04.450 +03:00 [INF] [User: ] Server desktop-25vqrpg:25456:55e45f49 successfully reported itself as stopped in 2,4607 ms
+2026-03-20 13:55:04.451 +03:00 [INF] [User: ] Server desktop-25vqrpg:25456:55e45f49 has been stopped in total 6,908 ms
+2026-03-20 13:55:11.621 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-20 13:55:11.728 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 273
+2026-03-20 13:56:08.199 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-20 13:56:08.311 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 273
+2026-03-20 13:57:56.618 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-20 13:57:57.808 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-20 13:57:57.830 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-20 13:57:58.149 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-20 13:57:58.150 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-20 13:57:58.151 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-20 13:57:58.152 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-20 13:57:58.153 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-20 13:57:58.154 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-20 13:57:58.172 +03:00 [INF] [User: ] Server desktop-25vqrpg:2664:b5992563 successfully announced in 9,1438 ms
+2026-03-20 13:57:58.175 +03:00 [INF] [User: ] Server desktop-25vqrpg:2664:b5992563 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-20 13:57:58.180 +03:00 [INF] [User: ] Server desktop-25vqrpg:2664:b5992563 all the dispatchers started
+2026-03-20 13:57:58.460 +03:00 [INF] [User: ] Güncel kurlar çekiliyor...
+2026-03-20 13:57:58.832 +03:00 [INF] [User: ] Kurlar güncellendi: {"USD":44.321,"EUR":50.92,"GBP":58.943}
+2026-03-20 13:58:44.483 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-20 13:58:44.696 +03:00 [WRN] [User: Anonymous] Başarısız giriş denemesi. Email: ha***@gmail.com
+2026-03-20 13:58:44.714 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 400 in 242.8318 ms
+2026-03-20 13:59:52.573 +03:00 [INF] [User: Anonymous] Email gönderildi. Alıcı: ha***@gmail.com, Konu: SubGuard — Şifre Sıfırlama
+2026-03-20 13:59:52.711 +03:00 [INF] [User: Anonymous] Şifre sıfırlama OTP üretildi. UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-20 13:59:52.715 +03:00 [INF] [User: ] HTTP POST /api/auth/forgot-password responded 200 in 2434.3186 ms
+2026-03-20 14:00:15.978 +03:00 [INF] [User: Anonymous] Şifre sıfırlandı. UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-20 14:00:15.984 +03:00 [INF] [User: ] HTTP POST /api/auth/reset-password responded 200 in 79.6066 ms
+2026-03-20 14:00:27.969 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ha***@gmail.com
+2026-03-20 14:00:28.095 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ha***@gmail.com
+2026-03-20 14:00:28.102 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 188.1919 ms
+2026-03-20 14:00:28.300 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 46.2148 ms
+2026-03-20 14:00:28.355 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 101.4587 ms
+2026-03-20 14:00:28.357 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 110.4872 ms
+2026-03-20 14:00:28.368 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 113.9874 ms
+2026-03-20 14:00:28.428 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 174.6389 ms
+2026-03-20 14:00:28.448 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 52.1963 ms
+2026-03-20 14:00:33.131 +03:00 [INF] [User: ] HTTP PATCH /api/usersubscriptions/72/survey responded 200 in 29.1231 ms
+2026-03-20 14:00:35.356 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 4.0946 ms
+2026-03-20 14:00:35.361 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 9.6092 ms
+2026-03-20 14:00:36.126 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.4228 ms
+2026-03-20 14:00:36.148 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 31.6660 ms
+2026-03-20 14:00:38.023 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.8096 ms
+2026-03-20 14:00:38.025 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 9.8302 ms
+2026-03-20 14:00:43.882 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.2172 ms
+2026-03-20 14:00:43.883 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.6260 ms
+2026-03-20 14:00:43.970 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.9049 ms
+2026-03-20 14:00:56.582 +03:00 [INF] [User: ] HTTP GET /api/reports/spending responded 200 in 18.6241 ms
+2026-03-20 14:00:57.563 +03:00 [INF] [User: ] HTTP GET /api/reports/spending responded 200 in 7.0965 ms
+2026-03-20 14:00:58.061 +03:00 [INF] [User: ] HTTP GET /api/reports/spending responded 200 in 5.8877 ms
+2026-03-20 14:00:58.833 +03:00 [INF] [User: ] HTTP GET /api/reports/spending responded 200 in 6.6370 ms
+2026-03-20 14:19:35.854 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.3513 ms
+2026-03-20 14:19:36.840 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 401 in 6.0550 ms
+2026-03-20 14:19:36.840 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 2.9283 ms
+2026-03-20 14:19:36.882 +03:00 [INF] [User: Anonymous] Token atomik olarak yenilendi. Email: ha***@gmail.com
+2026-03-20 14:19:36.883 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 31.3130 ms
+2026-03-20 14:19:36.911 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.8156 ms
+2026-03-20 14:19:36.912 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.8543 ms
+2026-03-20 14:19:37.022 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.3553 ms
+2026-03-20 14:19:39.557 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.4416 ms
+2026-03-20 14:19:39.561 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.9708 ms
+2026-03-20 14:19:42.019 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 5.7956 ms
+2026-03-20 14:19:42.021 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.1368 ms
+2026-03-20 14:19:43.735 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 6.0127 ms
+2026-03-20 14:19:43.736 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.2162 ms
+2026-03-20 14:19:43.841 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.1521 ms
+2026-03-20 14:19:46.906 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 4.4290 ms
+2026-03-20 14:19:46.909 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.5686 ms
+2026-03-20 14:26:32.931 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2072 ms
+2026-03-20 14:29:48.414 +03:00 [INF] [User: ] Server desktop-25vqrpg:2664:b5992563 caught stopping signal...
+2026-03-20 14:29:48.417 +03:00 [INF] [User: ] Server desktop-25vqrpg:2664:b5992563 All dispatchers stopped
+2026-03-20 14:29:48.421 +03:00 [INF] [User: ] Server desktop-25vqrpg:2664:b5992563 successfully reported itself as stopped in 2,4298 ms
+2026-03-20 14:29:48.422 +03:00 [INF] [User: ] Server desktop-25vqrpg:2664:b5992563 has been stopped in total 7,0389 ms
+2026-03-20 14:29:57.817 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-20 14:29:58.601 +03:00 [WRN] [User: ] Entity 'UserSubscription' has a global query filter defined and is the required end of a relationship with the entity 'SubscriptionShare'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-20 14:29:58.605 +03:00 [WRN] [User: ] Entity 'UserSubscription' has a global query filter defined and is the required end of a relationship with the entity 'SubscriptionUsageLog'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-20 14:29:59.342 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-20 14:29:59.362 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-20 14:29:59.701 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-20 14:29:59.702 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-20 14:29:59.703 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-20 14:29:59.704 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-20 14:29:59.705 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-20 14:29:59.706 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-20 14:29:59.725 +03:00 [INF] [User: ] Server desktop-25vqrpg:27068:82af757b successfully announced in 9,0052 ms
+2026-03-20 14:29:59.728 +03:00 [INF] [User: ] Server desktop-25vqrpg:27068:82af757b is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-20 14:29:59.733 +03:00 [INF] [User: ] Server desktop-25vqrpg:27068:82af757b all the dispatchers started
+2026-03-20 14:29:59.738 +03:00 [INF] [User: ] Removed 1 outdated record(s) from 'aggregatedcounter' table.
+2026-03-20 14:30:00.766 +03:00 [INF] [User: ] Removed 3 outdated record(s) from 'job' table.
+2026-03-20 14:30:26.662 +03:00 [INF] [User: ] Server desktop-25vqrpg:27068:82af757b caught stopping signal...
+2026-03-20 14:30:26.665 +03:00 [INF] [User: ] Server desktop-25vqrpg:27068:82af757b All dispatchers stopped
+2026-03-20 14:30:26.670 +03:00 [INF] [User: ] Server desktop-25vqrpg:27068:82af757b successfully reported itself as stopped in 2,9552 ms
+2026-03-20 14:30:26.671 +03:00 [INF] [User: ] Server desktop-25vqrpg:27068:82af757b has been stopped in total 7,6323 ms
+2026-03-20 14:30:30.478 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-20 14:30:31.143 +03:00 [WRN] [User: ] Entity 'UserSubscription' has a global query filter defined and is the required end of a relationship with the entity 'SubscriptionShare'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-20 14:30:31.146 +03:00 [WRN] [User: ] Entity 'UserSubscription' has a global query filter defined and is the required end of a relationship with the entity 'SubscriptionUsageLog'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-20 14:30:31.675 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-20 14:30:31.692 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-20 14:30:31.994 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-20 14:30:31.996 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-20 14:30:31.997 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-20 14:30:31.997 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-20 14:30:31.998 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-20 14:30:31.999 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-20 14:30:32.019 +03:00 [INF] [User: ] Server desktop-25vqrpg:30968:36defd4f successfully announced in 10,8137 ms
+2026-03-20 14:30:32.022 +03:00 [INF] [User: ] Server desktop-25vqrpg:30968:36defd4f is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-20 14:30:32.028 +03:00 [INF] [User: ] Server desktop-25vqrpg:30968:36defd4f all the dispatchers started
+2026-03-20 14:31:00.709 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-20 14:31:00.961 +03:00 [INF] [User: Test] Güncel kurlar çekiliyor...
+2026-03-20 14:31:01.070 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 371.7699 ms
+2026-03-20 14:31:01.070 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 371.7789 ms
+2026-03-20 14:31:01.096 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 399.1453 ms
+2026-03-20 14:31:01.192 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 495.5229 ms
+2026-03-20 14:31:01.307 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 142.2495 ms
+2026-03-20 14:31:01.415 +03:00 [INF] [User: Test] Kurlar güncellendi: {"USD":44.321,"EUR":50.92,"GBP":58.943}
+2026-03-20 14:31:01.422 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 724.7743 ms
+2026-03-20 14:31:02.747 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 5.7325 ms
+2026-03-20 14:31:02.752 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 10.4023 ms
+2026-03-20 14:31:03.773 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/72/price-history responded 200 in 34.5206 ms
+2026-03-20 14:31:03.776 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/72/usage responded 200 in 38.2573 ms
+2026-03-20 14:31:08.606 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/71/price-history responded 200 in 8.9951 ms
+2026-03-20 14:31:08.606 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/71/usage responded 200 in 8.9951 ms
+2026-03-20 14:31:12.111 +03:00 [INF] [User: ] HTTP GET /api/catalogs/trending responded 200 in 37.4013 ms
+2026-03-20 14:31:27.621 +03:00 [INF] [User: Test] Abonelik eklendi. UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a, Name: Apple TV+
+2026-03-20 14:31:27.625 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions responded 201 in 184.0354 ms
+2026-03-20 14:31:35.805 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.7239 ms
+2026-03-20 14:31:35.806 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.7908 ms
+2026-03-20 14:31:35.878 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.7144 ms
+2026-03-20 14:31:40.203 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/74/usage responded 200 in 7.2903 ms
+2026-03-20 14:31:40.203 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/74/price-history responded 200 in 5.6332 ms
+2026-03-20 14:31:44.586 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/74/usage responded 200 in 6.7065 ms
+2026-03-20 14:31:44.586 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/74/price-history responded 200 in 6.5584 ms
+2026-03-20 14:31:54.403 +03:00 [INF] [User: ] HTTP PATCH /api/usersubscriptions/74/status responded 400 in 15.0195 ms
+2026-03-20 14:31:59.423 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.9647 ms
+2026-03-20 14:56:34.488 +03:00 [INF] [User: ] Server desktop-25vqrpg:30968:36defd4f caught stopping signal...
+2026-03-20 14:56:34.491 +03:00 [INF] [User: ] Server desktop-25vqrpg:30968:36defd4f All dispatchers stopped
+2026-03-20 14:56:34.496 +03:00 [INF] [User: ] Server desktop-25vqrpg:30968:36defd4f successfully reported itself as stopped in 2,3824 ms
+2026-03-20 14:56:34.497 +03:00 [INF] [User: ] Server desktop-25vqrpg:30968:36defd4f has been stopped in total 7,3807 ms
+2026-03-20 14:56:39.713 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-20 14:56:40.373 +03:00 [WRN] [User: ] Entity 'UserSubscription' has a global query filter defined and is the required end of a relationship with the entity 'SubscriptionShare'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-20 14:56:40.376 +03:00 [WRN] [User: ] Entity 'UserSubscription' has a global query filter defined and is the required end of a relationship with the entity 'SubscriptionUsageLog'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+2026-03-20 14:56:40.927 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-20 14:56:40.945 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-20 14:56:41.271 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-20 14:56:41.272 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-20 14:56:41.274 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-20 14:56:41.275 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-20 14:56:41.276 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-20 14:56:41.277 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-20 14:56:41.294 +03:00 [INF] [User: ] Server desktop-25vqrpg:29832:9c5cadb4 successfully announced in 8,6194 ms
+2026-03-20 14:56:41.296 +03:00 [INF] [User: ] Server desktop-25vqrpg:29832:9c5cadb4 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-20 14:56:41.301 +03:00 [INF] [User: ] Server desktop-25vqrpg:29832:9c5cadb4 all the dispatchers started
+2026-03-20 14:57:10.707 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-20 14:57:10.805 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 401 in 109.4521 ms
+2026-03-20 14:57:10.805 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 401 in 109.3931 ms
+2026-03-20 14:57:10.805 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 109.3580 ms
+2026-03-20 14:57:10.813 +03:00 [INF] [User: Anonymous] Güncel kurlar çekiliyor...
+2026-03-20 14:57:11.152 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 457.3344 ms
+2026-03-20 14:57:11.196 +03:00 [INF] [User: Anonymous] Token atomik olarak yenilendi. Email: ha***@gmail.com
+2026-03-20 14:57:11.203 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 367.4526 ms
+2026-03-20 14:57:11.252 +03:00 [INF] [User: Anonymous] Kurlar güncellendi: {"USD":44.321,"EUR":50.92,"GBP":58.943}
+2026-03-20 14:57:11.260 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 565.5751 ms
+2026-03-20 14:57:11.292 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 67.5786 ms
+2026-03-20 14:57:11.292 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 67.7229 ms
+2026-03-20 14:57:11.295 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 69.4178 ms
+2026-03-20 14:57:11.439 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 91.3630 ms
+2026-03-20 14:57:16.967 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 4.4456 ms
+2026-03-20 14:57:16.972 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 10.9424 ms
+2026-03-20 14:57:18.317 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/74/price-history responded 200 in 29.2153 ms
+2026-03-20 14:57:18.321 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/74/usage responded 200 in 33.3367 ms
+2026-03-20 14:57:26.323 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 12.2045 ms
+2026-03-20 14:57:26.349 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 37.9349 ms
+2026-03-20 14:57:31.460 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 6.6683 ms
+2026-03-20 14:57:31.461 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.8708 ms
+2026-03-20 14:57:35.889 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.6102 ms
+2026-03-20 14:57:35.891 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 10.5736 ms
+2026-03-20 14:57:47.350 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.7736 ms
+2026-03-20 14:57:47.353 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.0069 ms
+2026-03-20 14:57:57.598 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 4.6276 ms
+2026-03-20 14:57:57.602 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.7758 ms
+2026-03-20 14:58:04.979 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.3213 ms
+2026-03-20 15:03:12.828 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2304 ms

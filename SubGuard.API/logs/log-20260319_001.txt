@@ -820,3 +820,1631 @@ POSITION: 41
 2026-03-19 17:10:14.730 +03:00 [ERR] [User: ] HTTP GET /api/notifications/preferences responded 500 in 59.4340 ms
 2026-03-19 20:09:41.460 +03:00 [INF] [User: ] Removed 1 outdated record(s) from 'aggregatedcounter' table.
 2026-03-19 20:09:42.484 +03:00 [INF] [User: ] Removed 4 outdated record(s) from 'job' table.
+2026-03-19 21:37:21.307 +03:00 [INF] [User: ] Server desktop-25vqrpg:10624:269c5edb caught stopping signal...
+2026-03-19 21:37:21.314 +03:00 [INF] [User: ] Server desktop-25vqrpg:10624:269c5edb All dispatchers stopped
+2026-03-19 21:37:21.326 +03:00 [INF] [User: ] Server desktop-25vqrpg:10624:269c5edb successfully reported itself as stopped in 7,4118 ms
+2026-03-19 21:37:21.328 +03:00 [INF] [User: ] Server desktop-25vqrpg:10624:269c5edb has been stopped in total 17,9528 ms
+2026-03-19 21:37:41.759 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 21:37:44.455 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-19 21:37:44.480 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-19 21:37:45.094 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-19 21:37:45.095 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-19 21:37:45.096 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-19 21:37:45.097 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-19 21:37:45.098 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-19 21:37:45.100 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-19 21:37:45.123 +03:00 [INF] [User: ] Server desktop-25vqrpg:35380:673dae5d successfully announced in 10,7882 ms
+2026-03-19 21:37:45.127 +03:00 [INF] [User: ] Server desktop-25vqrpg:35380:673dae5d is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-19 21:37:45.134 +03:00 [INF] [User: ] Server desktop-25vqrpg:35380:673dae5d all the dispatchers started
+2026-03-19 21:38:10.303 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-19 21:38:10.416 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 401 in 126.2816 ms
+2026-03-19 21:38:10.416 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 401 in 126.3013 ms
+2026-03-19 21:38:10.416 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 126.2026 ms
+2026-03-19 21:38:10.434 +03:00 [INF] [User: Anonymous] Güncel kurlar çekiliyor...
+2026-03-19 21:38:10.599 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2800 ms
+2026-03-19 21:38:10.762 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 472.8013 ms
+2026-03-19 21:38:10.803 +03:00 [INF] [User: Anonymous] Token atomik olarak yenilendi. Email: ha***@gmail.com
+2026-03-19 21:38:10.811 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 360.6176 ms
+2026-03-19 21:38:10.869 +03:00 [ERR] [User: ] Failed executing DbCommand (6ms) [Parameters=[@__userId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "RevokedUserEntries" AS r
+    WHERE r."UserId" = @__userId_0 AND r."ExpiresAt" > now())
+2026-03-19 21:38:10.869 +03:00 [ERR] [User: ] Failed executing DbCommand (6ms) [Parameters=[@__userId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "RevokedUserEntries" AS r
+    WHERE r."UserId" = @__userId_0 AND r."ExpiresAt" > now())
+2026-03-19 21:38:10.869 +03:00 [ERR] [User: ] Failed executing DbCommand (6ms) [Parameters=[@__userId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "RevokedUserEntries" AS r
+    WHERE r."UserId" = @__userId_0 AND r."ExpiresAt" > now())
+2026-03-19 21:38:10.888 +03:00 [ERR] [User: ] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:38:10.888 +03:00 [ERR] [User: ] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:38:10.889 +03:00 [ERR] [User: ] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:38:10.898 +03:00 [ERR] [User: ] Exception occurred while processing message.
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+   at System.Linq.Enumerable.TryGetSingle[TSource](IEnumerable`1 source, Boolean& found)
+   at lambda_method562(Closure, QueryContext)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.Execute[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.Execute[TResult](Expression expression)
+   at SubGuard.Service.Services.DbRevokedUserStore.IsRevoked(String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\DbRevokedUserStore.cs:line 71
+   at Program.<>c.<<<Main>$>b__0_25>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 147
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:38:10.905 +03:00 [ERR] [User: ] Exception occurred while processing message.
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+   at System.Linq.Enumerable.TryGetSingle[TSource](IEnumerable`1 source, Boolean& found)
+   at lambda_method562(Closure, QueryContext)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.Execute[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.Execute[TResult](Expression expression)
+   at SubGuard.Service.Services.DbRevokedUserStore.IsRevoked(String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\DbRevokedUserStore.cs:line 71
+   at Program.<>c.<<<Main>$>b__0_25>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 147
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:38:10.912 +03:00 [ERR] [User: ] Exception occurred while processing message.
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+   at System.Linq.Enumerable.TryGetSingle[TSource](IEnumerable`1 source, Boolean& found)
+   at lambda_method562(Closure, QueryContext)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.Execute[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.Execute[TResult](Expression expression)
+   at SubGuard.Service.Services.DbRevokedUserStore.IsRevoked(String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\DbRevokedUserStore.cs:line 71
+   at Program.<>c.<<<Main>$>b__0_25>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 147
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:38:10.935 +03:00 [ERR] [User: ] Bir hata oluştu: 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+   at System.Linq.Enumerable.TryGetSingle[TSource](IEnumerable`1 source, Boolean& found)
+   at lambda_method562(Closure, QueryContext)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.Execute[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.Execute[TResult](Expression expression)
+   at SubGuard.Service.Services.DbRevokedUserStore.IsRevoked(String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\DbRevokedUserStore.cs:line 71
+   at Program.<>c.<<<Main>$>b__0_25>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 147
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.AuthenticationHandler`1.AuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.AuthenticationService.AuthenticateAsync(HttpContext context, String scheme)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:38:10.943 +03:00 [ERR] [User: ] Bir hata oluştu: 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+   at System.Linq.Enumerable.TryGetSingle[TSource](IEnumerable`1 source, Boolean& found)
+   at lambda_method562(Closure, QueryContext)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.Execute[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.Execute[TResult](Expression expression)
+   at SubGuard.Service.Services.DbRevokedUserStore.IsRevoked(String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\DbRevokedUserStore.cs:line 71
+   at Program.<>c.<<<Main>$>b__0_25>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 147
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.AuthenticationHandler`1.AuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.AuthenticationService.AuthenticateAsync(HttpContext context, String scheme)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:38:10.951 +03:00 [ERR] [User: ] Bir hata oluştu: 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+   at System.Linq.Enumerable.TryGetSingle[TSource](IEnumerable`1 source, Boolean& found)
+   at lambda_method562(Closure, QueryContext)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.Execute[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.Execute[TResult](Expression expression)
+   at SubGuard.Service.Services.DbRevokedUserStore.IsRevoked(String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\DbRevokedUserStore.cs:line 71
+   at Program.<>c.<<<Main>$>b__0_25>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 147
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.AuthenticationHandler`1.AuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.AuthenticationService.AuthenticateAsync(HttpContext context, String scheme)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:38:10.966 +03:00 [ERR] [User: ] HTTP GET /api/notifications responded 500 in 128.5718 ms
+2026-03-19 21:38:10.973 +03:00 [ERR] [User: ] HTTP GET /api/auth/profile responded 500 in 135.3448 ms
+2026-03-19 21:38:10.982 +03:00 [ERR] [User: ] HTTP GET /api/dashboard responded 500 in 144.6457 ms
+2026-03-19 21:38:11.076 +03:00 [ERR] [User: ] Failed executing DbCommand (1ms) [Parameters=[@__userId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "RevokedUserEntries" AS r
+    WHERE r."UserId" = @__userId_0 AND r."ExpiresAt" > now())
+2026-03-19 21:38:11.079 +03:00 [ERR] [User: ] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:38:11.087 +03:00 [ERR] [User: ] Exception occurred while processing message.
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+   at System.Linq.Enumerable.TryGetSingle[TSource](IEnumerable`1 source, Boolean& found)
+   at lambda_method562(Closure, QueryContext)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.Execute[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.Execute[TResult](Expression expression)
+   at SubGuard.Service.Services.DbRevokedUserStore.IsRevoked(String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\DbRevokedUserStore.cs:line 71
+   at Program.<>c.<<<Main>$>b__0_25>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 147
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:38:11.096 +03:00 [ERR] [User: ] Bir hata oluştu: 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+   at System.Linq.Enumerable.TryGetSingle[TSource](IEnumerable`1 source, Boolean& found)
+   at lambda_method562(Closure, QueryContext)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.Execute[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.Execute[TResult](Expression expression)
+   at SubGuard.Service.Services.DbRevokedUserStore.IsRevoked(String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\DbRevokedUserStore.cs:line 71
+   at Program.<>c.<<<Main>$>b__0_25>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 147
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.AuthenticationHandler`1.AuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.AuthenticationService.AuthenticateAsync(HttpContext context, String scheme)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:38:11.108 +03:00 [ERR] [User: ] HTTP GET /api/usersubscriptions responded 500 in 36.1148 ms
+2026-03-19 21:38:11.188 +03:00 [INF] [User: Anonymous] Kurlar güncellendi: {"USD":44.321,"EUR":50.92,"GBP":58.943}
+2026-03-19 21:38:11.195 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 906.3324 ms
+2026-03-19 21:39:25.919 +03:00 [INF] [User: ] Server desktop-25vqrpg:35380:673dae5d caught stopping signal...
+2026-03-19 21:39:25.922 +03:00 [INF] [User: ] Server desktop-25vqrpg:35380:673dae5d All dispatchers stopped
+2026-03-19 21:39:25.928 +03:00 [INF] [User: ] Server desktop-25vqrpg:35380:673dae5d successfully reported itself as stopped in 2,943 ms
+2026-03-19 21:39:25.930 +03:00 [INF] [User: ] Server desktop-25vqrpg:35380:673dae5d has been stopped in total 10,0893 ms
+2026-03-19 21:39:33.463 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 21:39:33.604 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 271
+2026-03-19 21:39:38.903 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 21:39:39.063 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 271
+2026-03-19 21:39:52.923 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 21:39:54.228 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-19 21:39:54.248 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-19 21:39:54.576 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-19 21:39:54.578 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-19 21:39:54.579 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-19 21:39:54.580 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-19 21:39:54.581 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-19 21:39:54.582 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-19 21:39:54.605 +03:00 [INF] [User: ] Server desktop-25vqrpg:28096:7720363f successfully announced in 12,8111 ms
+2026-03-19 21:39:54.608 +03:00 [INF] [User: ] Server desktop-25vqrpg:28096:7720363f is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-19 21:39:54.614 +03:00 [INF] [User: ] Server desktop-25vqrpg:28096:7720363f all the dispatchers started
+2026-03-19 21:41:03.061 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-19 21:41:03.096 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 48.3747 ms
+2026-03-19 21:41:15.184 +03:00 [ERR] [User: ] Failed executing DbCommand (5ms) [Parameters=[@__userId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "RevokedUserEntries" AS r
+    WHERE r."UserId" = @__userId_0 AND r."ExpiresAt" > now())
+2026-03-19 21:41:15.184 +03:00 [ERR] [User: ] Failed executing DbCommand (5ms) [Parameters=[@__userId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "RevokedUserEntries" AS r
+    WHERE r."UserId" = @__userId_0 AND r."ExpiresAt" > now())
+2026-03-19 21:41:15.184 +03:00 [ERR] [User: ] Failed executing DbCommand (5ms) [Parameters=[@__userId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "RevokedUserEntries" AS r
+    WHERE r."UserId" = @__userId_0 AND r."ExpiresAt" > now())
+2026-03-19 21:41:15.184 +03:00 [ERR] [User: ] Failed executing DbCommand (5ms) [Parameters=[@__userId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "RevokedUserEntries" AS r
+    WHERE r."UserId" = @__userId_0 AND r."ExpiresAt" > now())
+2026-03-19 21:41:15.184 +03:00 [ERR] [User: ] Failed executing DbCommand (5ms) [Parameters=[@__userId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "RevokedUserEntries" AS r
+    WHERE r."UserId" = @__userId_0 AND r."ExpiresAt" > now())
+2026-03-19 21:41:15.199 +03:00 [ERR] [User: ] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:41:15.199 +03:00 [ERR] [User: ] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:41:15.199 +03:00 [ERR] [User: ] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:41:15.199 +03:00 [ERR] [User: ] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:41:15.199 +03:00 [ERR] [User: ] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:41:15.209 +03:00 [ERR] [User: ] Exception occurred while processing message.
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+   at System.Linq.Enumerable.TryGetSingle[TSource](IEnumerable`1 source, Boolean& found)
+   at lambda_method112(Closure, QueryContext)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.Execute[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.Execute[TResult](Expression expression)
+   at SubGuard.Service.Services.DbRevokedUserStore.IsRevoked(String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\DbRevokedUserStore.cs:line 71
+   at Program.<>c.<<<Main>$>b__0_25>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 147
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:41:15.215 +03:00 [ERR] [User: ] Exception occurred while processing message.
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+   at System.Linq.Enumerable.TryGetSingle[TSource](IEnumerable`1 source, Boolean& found)
+   at lambda_method112(Closure, QueryContext)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.Execute[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.Execute[TResult](Expression expression)
+   at SubGuard.Service.Services.DbRevokedUserStore.IsRevoked(String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\DbRevokedUserStore.cs:line 71
+   at Program.<>c.<<<Main>$>b__0_25>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 147
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:41:15.222 +03:00 [ERR] [User: ] Exception occurred while processing message.
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+   at System.Linq.Enumerable.TryGetSingle[TSource](IEnumerable`1 source, Boolean& found)
+   at lambda_method112(Closure, QueryContext)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.Execute[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.Execute[TResult](Expression expression)
+   at SubGuard.Service.Services.DbRevokedUserStore.IsRevoked(String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\DbRevokedUserStore.cs:line 71
+   at Program.<>c.<<<Main>$>b__0_25>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 147
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:41:15.230 +03:00 [ERR] [User: ] Exception occurred while processing message.
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+   at System.Linq.Enumerable.TryGetSingle[TSource](IEnumerable`1 source, Boolean& found)
+   at lambda_method112(Closure, QueryContext)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.Execute[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.Execute[TResult](Expression expression)
+   at SubGuard.Service.Services.DbRevokedUserStore.IsRevoked(String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\DbRevokedUserStore.cs:line 71
+   at Program.<>c.<<<Main>$>b__0_25>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 147
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:41:15.237 +03:00 [ERR] [User: ] Exception occurred while processing message.
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+   at System.Linq.Enumerable.TryGetSingle[TSource](IEnumerable`1 source, Boolean& found)
+   at lambda_method112(Closure, QueryContext)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.Execute[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.Execute[TResult](Expression expression)
+   at SubGuard.Service.Services.DbRevokedUserStore.IsRevoked(String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\DbRevokedUserStore.cs:line 71
+   at Program.<>c.<<<Main>$>b__0_25>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 147
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:41:15.254 +03:00 [ERR] [User: ] Bir hata oluştu: 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+   at System.Linq.Enumerable.TryGetSingle[TSource](IEnumerable`1 source, Boolean& found)
+   at lambda_method112(Closure, QueryContext)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.Execute[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.Execute[TResult](Expression expression)
+   at SubGuard.Service.Services.DbRevokedUserStore.IsRevoked(String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\DbRevokedUserStore.cs:line 71
+   at Program.<>c.<<<Main>$>b__0_25>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 147
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.AuthenticationHandler`1.AuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.AuthenticationService.AuthenticateAsync(HttpContext context, String scheme)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:41:15.261 +03:00 [ERR] [User: ] Bir hata oluştu: 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+   at System.Linq.Enumerable.TryGetSingle[TSource](IEnumerable`1 source, Boolean& found)
+   at lambda_method112(Closure, QueryContext)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.Execute[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.Execute[TResult](Expression expression)
+   at SubGuard.Service.Services.DbRevokedUserStore.IsRevoked(String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\DbRevokedUserStore.cs:line 71
+   at Program.<>c.<<<Main>$>b__0_25>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 147
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.AuthenticationHandler`1.AuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.AuthenticationService.AuthenticateAsync(HttpContext context, String scheme)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:41:15.269 +03:00 [ERR] [User: ] Bir hata oluştu: 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+   at System.Linq.Enumerable.TryGetSingle[TSource](IEnumerable`1 source, Boolean& found)
+   at lambda_method112(Closure, QueryContext)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.Execute[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.Execute[TResult](Expression expression)
+   at SubGuard.Service.Services.DbRevokedUserStore.IsRevoked(String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\DbRevokedUserStore.cs:line 71
+   at Program.<>c.<<<Main>$>b__0_25>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 147
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.AuthenticationHandler`1.AuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.AuthenticationService.AuthenticateAsync(HttpContext context, String scheme)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:41:15.277 +03:00 [ERR] [User: ] Bir hata oluştu: 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+   at System.Linq.Enumerable.TryGetSingle[TSource](IEnumerable`1 source, Boolean& found)
+   at lambda_method112(Closure, QueryContext)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.Execute[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.Execute[TResult](Expression expression)
+   at SubGuard.Service.Services.DbRevokedUserStore.IsRevoked(String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\DbRevokedUserStore.cs:line 71
+   at Program.<>c.<<<Main>$>b__0_25>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 147
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.AuthenticationHandler`1.AuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.AuthenticationService.AuthenticateAsync(HttpContext context, String scheme)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:41:15.286 +03:00 [ERR] [User: ] Bir hata oluştu: 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+   at System.Linq.Enumerable.TryGetSingle[TSource](IEnumerable`1 source, Boolean& found)
+   at lambda_method112(Closure, QueryContext)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.Execute[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.Execute[TResult](Expression expression)
+   at SubGuard.Service.Services.DbRevokedUserStore.IsRevoked(String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\DbRevokedUserStore.cs:line 71
+   at Program.<>c.<<<Main>$>b__0_25>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 147
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.AuthenticationHandler`1.AuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.AuthenticationService.AuthenticateAsync(HttpContext context, String scheme)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:41:15.326 +03:00 [ERR] [User: ] HTTP GET /api/notifications responded 500 in 276.1162 ms
+2026-03-19 21:41:15.326 +03:00 [ERR] [User: ] HTTP GET /api/auth/profile responded 500 in 278.8877 ms
+2026-03-19 21:41:15.326 +03:00 [ERR] [User: ] HTTP GET /api/dashboard responded 500 in 278.8970 ms
+2026-03-19 21:41:15.326 +03:00 [ERR] [User: ] HTTP GET /api/currencies responded 500 in 276.0961 ms
+2026-03-19 21:41:15.336 +03:00 [ERR] [User: ] HTTP GET /api/catalogs responded 500 in 287.1600 ms
+2026-03-19 21:41:15.436 +03:00 [ERR] [User: ] Failed executing DbCommand (1ms) [Parameters=[@__userId_0='?'], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "RevokedUserEntries" AS r
+    WHERE r."UserId" = @__userId_0 AND r."ExpiresAt" > now())
+2026-03-19 21:41:15.437 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.3331 ms
+2026-03-19 21:41:15.440 +03:00 [ERR] [User: ] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:41:15.449 +03:00 [ERR] [User: ] Exception occurred while processing message.
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+   at System.Linq.Enumerable.TryGetSingle[TSource](IEnumerable`1 source, Boolean& found)
+   at lambda_method112(Closure, QueryContext)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.Execute[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.Execute[TResult](Expression expression)
+   at SubGuard.Service.Services.DbRevokedUserStore.IsRevoked(String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\DbRevokedUserStore.cs:line 71
+   at Program.<>c.<<<Main>$>b__0_25>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 147
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:41:15.458 +03:00 [ERR] [User: ] Bir hata oluştu: 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+Npgsql.PostgresException (0x80004005): 42P01: relation "RevokedUserEntries" does not exist
+
+POSITION: 41
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult()
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReader(CommandBehavior behavior)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReader(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.InitializeReader(Enumerator enumerator)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.<>c.<MoveNext>b__21_0(DbContext _, Enumerator enumerator)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.Enumerator.MoveNext()
+   at System.Linq.Enumerable.TryGetSingle[TSource](IEnumerable`1 source, Boolean& found)
+   at lambda_method112(Closure, QueryContext)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.Execute[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.Execute[TResult](Expression expression)
+   at SubGuard.Service.Services.DbRevokedUserStore.IsRevoked(String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\DbRevokedUserStore.cs:line 71
+   at Program.<>c.<<<Main>$>b__0_25>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 147
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler.HandleAuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.AuthenticationHandler`1.AuthenticateAsync()
+   at Microsoft.AspNetCore.Authentication.AuthenticationService.AuthenticateAsync(HttpContext context, String scheme)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+  Exception data:
+    Severity: ERROR
+    SqlState: 42P01
+    MessageText: relation "RevokedUserEntries" does not exist
+    Position: 41
+    File: parse_relation.c
+    Line: 1466
+    Routine: parserOpenTable
+2026-03-19 21:41:15.470 +03:00 [ERR] [User: ] HTTP GET /api/usersubscriptions responded 500 in 47.8011 ms
+2026-03-19 21:43:54.610 +03:00 [INF] [User: ] Server desktop-25vqrpg:28096:7720363f caught stopping signal...
+2026-03-19 21:43:54.614 +03:00 [INF] [User: ] Server desktop-25vqrpg:28096:7720363f All dispatchers stopped
+2026-03-19 21:43:54.619 +03:00 [INF] [User: ] Server desktop-25vqrpg:28096:7720363f successfully reported itself as stopped in 2,9275 ms
+2026-03-19 21:43:54.620 +03:00 [INF] [User: ] Server desktop-25vqrpg:28096:7720363f has been stopped in total 8,65 ms
+2026-03-19 21:44:51.178 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 21:44:52.401 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-19 21:44:52.422 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-19 21:44:52.754 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-19 21:44:52.756 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-19 21:44:52.757 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-19 21:44:52.758 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-19 21:44:52.759 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-19 21:44:52.760 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-19 21:44:52.781 +03:00 [INF] [User: ] Server desktop-25vqrpg:35008:653b6f15 successfully announced in 9,3239 ms
+2026-03-19 21:44:52.784 +03:00 [INF] [User: ] Server desktop-25vqrpg:35008:653b6f15 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-19 21:44:52.790 +03:00 [INF] [User: ] Server desktop-25vqrpg:35008:653b6f15 all the dispatchers started
+2026-03-19 21:45:54.100 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-19 21:45:54.372 +03:00 [INF] [User: Test] Güncel kurlar çekiliyor...
+2026-03-19 21:45:54.436 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 3.9370 ms
+2026-03-19 21:45:54.506 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 419.1386 ms
+2026-03-19 21:45:54.506 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 419.1535 ms
+2026-03-19 21:45:54.523 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 436.0176 ms
+2026-03-19 21:45:54.640 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 552.8253 ms
+2026-03-19 21:45:54.730 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 144.4572 ms
+2026-03-19 21:45:54.837 +03:00 [INF] [User: Test] Kurlar güncellendi: {"USD":44.321,"EUR":50.92,"GBP":58.943}
+2026-03-19 21:45:54.846 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 758.8310 ms
+2026-03-19 21:46:05.287 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 11.6485 ms
+2026-03-19 21:46:05.288 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 10.7896 ms
+2026-03-19 21:46:15.233 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2170 ms
+2026-03-19 21:46:16.841 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1871 ms
+2026-03-19 21:46:21.562 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1866 ms
+2026-03-19 21:46:29.653 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 6.3266 ms
+2026-03-19 21:46:29.653 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 6.6308 ms
+2026-03-19 21:46:29.661 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 13.6597 ms
+2026-03-19 21:46:29.661 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 13.6961 ms
+2026-03-19 21:46:29.662 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 15.2494 ms
+2026-03-19 21:46:29.729 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 9.6209 ms
+2026-03-19 21:46:30.647 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.8748 ms
+2026-03-19 21:46:30.650 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.7185 ms
+2026-03-19 21:46:31.912 +03:00 [INF] [User: ] HTTP PUT /api/notifications/preferences responded 200 in 124.7755 ms
+2026-03-19 21:46:32.788 +03:00 [INF] [User: ] HTTP PUT /api/notifications/preferences responded 200 in 12.3580 ms
+2026-03-19 21:46:48.073 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 23.3829 ms
+2026-03-19 21:46:48.076 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 25.8831 ms
+2026-03-19 21:46:48.076 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 26.0041 ms
+2026-03-19 21:46:48.078 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 28.3741 ms
+2026-03-19 21:46:48.079 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 29.1194 ms
+2026-03-19 21:46:48.145 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.3707 ms
+2026-03-19 21:46:48.449 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1770 ms
+2026-03-19 21:46:49.172 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.1911 ms
+2026-03-19 21:46:49.174 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.0881 ms
+2026-03-19 21:47:35.093 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1731 ms
+2026-03-19 22:48:10.877 +03:00 [INF] [User: ] Server desktop-25vqrpg:35008:653b6f15 caught stopping signal...
+2026-03-19 22:48:10.907 +03:00 [INF] [User: ] Server desktop-25vqrpg:35008:653b6f15 All dispatchers stopped
+2026-03-19 22:48:10.914 +03:00 [INF] [User: ] Server desktop-25vqrpg:35008:653b6f15 successfully reported itself as stopped in 2,6122 ms
+2026-03-19 22:48:10.915 +03:00 [INF] [User: ] Server desktop-25vqrpg:35008:653b6f15 has been stopped in total 36,2825 ms
+2026-03-19 22:48:31.503 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 22:48:34.189 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-19 22:48:34.214 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-19 22:48:34.847 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-19 22:48:34.848 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-19 22:48:34.850 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-19 22:48:34.852 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-19 22:48:34.853 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-19 22:48:34.855 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-19 22:48:34.882 +03:00 [INF] [User: ] Server desktop-25vqrpg:29100:db4afb91 successfully announced in 12,9447 ms
+2026-03-19 22:48:34.886 +03:00 [INF] [User: ] Server desktop-25vqrpg:29100:db4afb91 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-19 22:48:34.894 +03:00 [INF] [User: ] Server desktop-25vqrpg:29100:db4afb91 all the dispatchers started
+2026-03-19 22:48:59.716 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-19 22:48:59.850 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 147.6845 ms
+2026-03-19 22:48:59.850 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 401 in 147.6888 ms
+2026-03-19 22:48:59.850 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 401 in 147.6971 ms
+2026-03-19 22:48:59.867 +03:00 [INF] [User: Anonymous] Güncel kurlar çekiliyor...
+2026-03-19 22:49:00.011 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.3927 ms
+2026-03-19 22:49:00.254 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 554.6974 ms
+2026-03-19 22:49:00.294 +03:00 [INF] [User: Anonymous] Kurlar güncellendi: {"USD":44.321,"EUR":50.92,"GBP":58.943}
+2026-03-19 22:49:00.306 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 606.0133 ms
+2026-03-19 22:49:00.317 +03:00 [INF] [User: Anonymous] Token atomik olarak yenilendi. Email: ha***@gmail.com
+2026-03-19 22:49:00.323 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 2.7473 ms
+2026-03-19 22:49:00.323 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 401 in 2.7638 ms
+2026-03-19 22:49:00.328 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 444.9943 ms
+2026-03-19 22:49:00.430 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 69.3106 ms
+2026-03-19 22:49:00.481 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 121.9149 ms
+2026-03-19 22:49:00.481 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 121.5681 ms
+2026-03-19 22:49:00.484 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 124.6916 ms
+2026-03-19 22:49:00.507 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 149.5809 ms
+2026-03-19 22:49:00.670 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 101.5923 ms
+2026-03-19 22:49:07.379 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions/71 responded 400 in 22.6873 ms
+2026-03-19 22:49:19.856 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 5.4322 ms
+2026-03-19 22:49:19.864 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 13.9365 ms
+2026-03-19 22:49:20.679 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/71/usage responded 200 in 23.2391 ms
+2026-03-19 22:49:20.681 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/71/price-history responded 200 in 22.9904 ms
+2026-03-19 22:49:26.333 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/72/usage responded 200 in 9.0956 ms
+2026-03-19 22:49:26.335 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/72/price-history responded 200 in 10.6811 ms
+2026-03-19 22:49:33.925 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 10.8237 ms
+2026-03-19 22:49:33.972 +03:00 [ERR] [User: ] Bir hata oluştu: The LINQ expression 'RelationalGroupByShaperExpression:
+KeySelector: u.Category, 
+ElementSelector: EntityShaperExpression: 
+    SubGuard.Core.Entities.UserSubscription
+    ValueBufferExpression: 
+        ProjectionBindingExpression: EmptyProjectionMember
+    IsNullable: False
+, 
+GroupingEnumerable:ShapedQueryExpression: 
+    QueryExpression: 
+        Projection Mapping:
+            EmptyProjectionMember -> EntityProjectionExpression: UserSubscription
+        SELECT 1
+        FROM UserSubscriptions AS u
+        WHERE (Not(u.IsDeleted) && (((u.UserId == @__userId_0) && (u.Status == 1)) && (u.Currency == @__currency_1))) && (u.Category == u.Category)
+    ShaperExpression: EntityShaperExpression: 
+            SubGuard.Core.Entities.UserSubscription
+            ValueBufferExpression: 
+                ProjectionBindingExpression: EmptyProjectionMember
+            IsNullable: False
+
+    .AsQueryable()
+    .Sum(e => BillingPriceHelper.ToMonthlyEquivalent(
+        price: e.Price, 
+        period: e.BillingPeriod))' could not be translated. Additional information: Translation of method 'SubGuard.Core.Helpers.BillingPriceHelper.ToMonthlyEquivalent' failed. If this method can be mapped to your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to 'AsEnumerable', 'AsAsyncEnumerable', 'ToList', or 'ToListAsync'. See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.
+System.InvalidOperationException: The LINQ expression 'RelationalGroupByShaperExpression:
+KeySelector: u.Category, 
+ElementSelector: EntityShaperExpression: 
+    SubGuard.Core.Entities.UserSubscription
+    ValueBufferExpression: 
+        ProjectionBindingExpression: EmptyProjectionMember
+    IsNullable: False
+, 
+GroupingEnumerable:ShapedQueryExpression: 
+    QueryExpression: 
+        Projection Mapping:
+            EmptyProjectionMember -> EntityProjectionExpression: UserSubscription
+        SELECT 1
+        FROM UserSubscriptions AS u
+        WHERE (Not(u.IsDeleted) && (((u.UserId == @__userId_0) && (u.Status == 1)) && (u.Currency == @__currency_1))) && (u.Category == u.Category)
+    ShaperExpression: EntityShaperExpression: 
+            SubGuard.Core.Entities.UserSubscription
+            ValueBufferExpression: 
+                ProjectionBindingExpression: EmptyProjectionMember
+            IsNullable: False
+
+    .AsQueryable()
+    .Sum(e => BillingPriceHelper.ToMonthlyEquivalent(
+        price: e.Price, 
+        period: e.BillingPeriod))' could not be translated. Additional information: Translation of method 'SubGuard.Core.Helpers.BillingPriceHelper.ToMonthlyEquivalent' failed. If this method can be mapped to your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to 'AsEnumerable', 'AsAsyncEnumerable', 'ToList', or 'ToListAsync'. See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.
+   at Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.<VisitMethodCall>g__CheckTranslated|15_0(ShapedQueryExpression translated, <>c__DisplayClass15_0&)
+   at Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.VisitMethodCall(MethodCallExpression methodCallExpression)
+   at Microsoft.EntityFrameworkCore.Query.RelationalQueryableMethodTranslatingExpressionVisitor.VisitMethodCall(MethodCallExpression methodCallExpression)
+   at Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.TranslateSubquery(Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.RelationalSqlTranslatingExpressionVisitor.VisitMethodCall(MethodCallExpression methodCallExpression)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Query.Internal.NpgsqlSqlTranslatingExpressionVisitor.VisitMethodCall(MethodCallExpression methodCall)
+   at Microsoft.EntityFrameworkCore.Query.RelationalSqlTranslatingExpressionVisitor.TranslateInternal(Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.RelationalSqlTranslatingExpressionVisitor.Translate(Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.Internal.RelationalProjectionBindingExpressionVisitor.Visit(Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.Internal.RelationalProjectionBindingExpressionVisitor.VisitNew(NewExpression newExpression)
+   at Microsoft.EntityFrameworkCore.Query.Internal.RelationalProjectionBindingExpressionVisitor.Visit(Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.Internal.RelationalProjectionBindingExpressionVisitor.Translate(SelectExpression selectExpression, Expression expression)
+   at Microsoft.EntityFrameworkCore.Query.RelationalQueryableMethodTranslatingExpressionVisitor.TranslateSelect(ShapedQueryExpression source, LambdaExpression selector)
+   at Microsoft.EntityFrameworkCore.Query.QueryableMethodTranslatingExpressionVisitor.VisitMethodCall(MethodCallExpression methodCallExpression)
+   at Microsoft.EntityFrameworkCore.Query.RelationalQueryableMethodTranslatingExpressionVisitor.VisitMethodCall(MethodCallExpression methodCallExpression)
+   at Microsoft.EntityFrameworkCore.Query.QueryCompilationContext.CreateQueryExecutor[TResult](Expression query)
+   at Microsoft.EntityFrameworkCore.Storage.Database.CompileQuery[TResult](Expression query, Boolean async)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.CompileQueryCore[TResult](IDatabase database, Expression query, IModel model, Boolean async)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.<>c__DisplayClass12_0`1.<ExecuteAsync>b__0()
+   at Microsoft.EntityFrameworkCore.Query.Internal.CompiledQueryCache.GetOrAddQuery[TResult](Object cacheKey, Func`1 compiler)
+   at Microsoft.EntityFrameworkCore.Query.Internal.QueryCompiler.ExecuteAsync[TResult](Expression query, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryProvider.ExecuteAsync[TResult](Expression expression, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.EntityQueryable`1.GetAsyncEnumerator(CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.ConfiguredCancelableAsyncEnumerable`1.GetAsyncEnumerator()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToDictionaryAsync[TSource,TKey,TElement](IQueryable`1 source, Func`2 keySelector, Func`2 elementSelector, IEqualityComparer`1 comparer, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.CategoryBudgetService.GetAllAsync(String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\CategoryBudgetService.cs:line 43
+   at SubGuard.API.Controllers.BudgetController.GetCategories() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Controllers\BudgetController.cs:line 35
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_19>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 403
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.RateLimiting.RateLimitingMiddleware.InvokeInternal(HttpContext context, EnableRateLimitingAttribute enableRateLimitingAttribute)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+2026-03-19 22:49:34.024 +03:00 [ERR] [User: ] HTTP GET /api/budget/categories responded 500 in 109.8609 ms
+2026-03-19 22:50:08.337 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 5.0628 ms
+2026-03-19 22:50:08.342 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.9918 ms
+2026-03-19 22:50:11.457 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 48.6127 ms
+2026-03-19 22:50:14.659 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 41.4016 ms
+2026-03-19 22:50:24.591 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 5.2975 ms
+2026-03-19 22:50:29.058 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 12.9831 ms
+2026-03-19 22:50:31.155 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 10.5961 ms
+2026-03-19 22:50:32.971 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 11.0109 ms
+2026-03-19 22:50:34.178 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 10.4877 ms
+2026-03-19 22:50:35.307 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 11.2116 ms
+2026-03-19 22:50:39.315 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 5.3066 ms
+2026-03-19 22:50:39.319 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 12.1001 ms
+2026-03-19 22:50:41.251 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.2714 ms
+2026-03-19 22:50:41.251 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 10.7191 ms
+2026-03-19 22:50:41.356 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 10.2563 ms
+2026-03-19 23:17:26.168 +03:00 [INF] [User: ] Server desktop-25vqrpg:29100:db4afb91 caught stopping signal...
+2026-03-19 23:17:26.171 +03:00 [INF] [User: ] Server desktop-25vqrpg:29100:db4afb91 All dispatchers stopped
+2026-03-19 23:17:26.176 +03:00 [INF] [User: ] Server desktop-25vqrpg:29100:db4afb91 successfully reported itself as stopped in 2,7021 ms
+2026-03-19 23:17:26.177 +03:00 [INF] [User: ] Server desktop-25vqrpg:29100:db4afb91 has been stopped in total 8,1389 ms
+2026-03-19 23:17:33.617 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-19 23:17:35.321 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-19 23:17:35.349 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-19 23:17:35.781 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-19 23:17:35.783 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-19 23:17:35.784 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-19 23:17:35.786 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-19 23:17:35.787 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-19 23:17:35.788 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-19 23:17:35.814 +03:00 [INF] [User: ] Server desktop-25vqrpg:33516:e95765ab successfully announced in 12,8576 ms
+2026-03-19 23:17:35.817 +03:00 [INF] [User: ] Server desktop-25vqrpg:33516:e95765ab is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-19 23:17:35.827 +03:00 [INF] [User: ] Server desktop-25vqrpg:33516:e95765ab all the dispatchers started
+2026-03-19 23:18:39.354 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-19 23:18:39.470 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 130.0328 ms
+2026-03-19 23:18:39.470 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 401 in 130.0127 ms
+2026-03-19 23:18:39.470 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 401 in 129.9897 ms
+2026-03-19 23:18:39.478 +03:00 [INF] [User: Anonymous] Güncel kurlar çekiliyor...
+2026-03-19 23:18:39.881 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 543.1185 ms
+2026-03-19 23:18:39.930 +03:00 [INF] [User: Anonymous] Token atomik olarak yenilendi. Email: ha***@gmail.com
+2026-03-19 23:18:39.940 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 427.8348 ms
+2026-03-19 23:18:40.042 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 78.2077 ms
+2026-03-19 23:18:40.044 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 80.4636 ms
+2026-03-19 23:18:40.048 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 84.0131 ms
+2026-03-19 23:18:40.250 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 129.7627 ms
+2026-03-19 23:18:40.646 +03:00 [INF] [User: Anonymous] Kurlar güncellendi: {"USD":44.321,"EUR":50.92,"GBP":58.943}
+2026-03-19 23:18:40.655 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 1317.3011 ms
+2026-03-19 23:18:47.682 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 6.1734 ms
+2026-03-19 23:18:47.687 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 10.8956 ms
+2026-03-19 23:18:51.459 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/71/usage responded 200 in 29.3410 ms
+2026-03-19 23:18:51.461 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/71/price-history responded 200 in 31.0925 ms
+2026-03-19 23:18:55.658 +03:00 [INF] [User: Test] Abonelik klonlandı. SourceId: 71, NewId: 73
+2026-03-19 23:18:55.663 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions/71/duplicate responded 200 in 48.2528 ms
+2026-03-19 23:18:55.753 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 10.3449 ms
+2026-03-19 23:18:59.832 +03:00 [INF] [User: Test] Abonelik silindi. UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a, SubscriptionId: 73
+2026-03-19 23:18:59.834 +03:00 [INF] [User: ] HTTP DELETE /api/usersubscriptions/73 responded 204 in 31.9225 ms
+2026-03-19 23:19:01.399 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 13.0312 ms
+2026-03-19 23:19:01.447 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 60.2782 ms
+2026-03-19 23:19:10.846 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 7.4092 ms
+2026-03-19 23:19:10.846 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.4846 ms
+2026-03-19 23:19:16.261 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 7.3194 ms
+2026-03-19 23:20:09.472 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.3117 ms
+2026-03-19 23:54:05.195 +03:00 [INF] [User: ] Server desktop-25vqrpg:33516:e95765ab caught stopping signal...
+2026-03-19 23:54:05.201 +03:00 [INF] [User: ] Server desktop-25vqrpg:33516:e95765ab All dispatchers stopped
+2026-03-19 23:54:05.211 +03:00 [INF] [User: ] Server desktop-25vqrpg:33516:e95765ab successfully reported itself as stopped in 5,001 ms
+2026-03-19 23:54:05.212 +03:00 [INF] [User: ] Server desktop-25vqrpg:33516:e95765ab has been stopped in total 14,8859 ms

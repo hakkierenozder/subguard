@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -161,6 +161,15 @@ export default function DiscoverScreen({ navigation }: Props) {
   }, []);
 
   const [searchText, setSearchText] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleSearch = useCallback((text: string) => {
+    setSearchText(text);
+    if (searchTimer.current) clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(() => setDebouncedQuery(text), 300);
+  }, []);
+
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [addingItem, setAddingItem] = useState<CatalogItem | null>(null);
   const [trendingItems, setTrendingItems] = useState<CatalogItem[]>([]);
@@ -189,22 +198,22 @@ export default function DiscoverScreen({ navigation }: Props) {
   // Filtrelenmiş items
   const filteredItems = useMemo(() => {
     let items = catalogItems;
-    if (searchText) {
+    if (debouncedQuery) {
       items = items.filter(
         (i) =>
-          i.name.toLowerCase().includes(searchText.toLowerCase()) ||
-          i.category.toLowerCase().includes(searchText.toLowerCase()),
+          i.name.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
+          i.category.toLowerCase().includes(debouncedQuery.toLowerCase()),
       );
     }
     if (selectedCategory) {
       items = items.filter((i) => i.category === selectedCategory);
     }
     return items;
-  }, [catalogItems, searchText, selectedCategory]);
+  }, [catalogItems, debouncedQuery, selectedCategory]);
 
   // Section'lar
   const sections = useMemo(() => {
-    if (searchText || selectedCategory) {
+    if (debouncedQuery || selectedCategory) {
       return [{ title: 'Sonuçlar', items: filteredItems }];
     }
     const recommended = filteredItems.filter(
@@ -219,7 +228,7 @@ export default function DiscoverScreen({ navigation }: Props) {
     if (others.length > 0) result.push({ title: 'Popüler Servisler', items: others });
     if (subscribed.length > 0) result.push({ title: 'Zaten Abone Olduklarım', items: subscribed });
     return result;
-  }, [filteredItems, searchText, selectedCategory, userCategories, subscribedCatalogIds]);
+  }, [filteredItems, debouncedQuery, selectedCategory, userCategories, subscribedCatalogIds]);
 
   // FlatList için düz veri (header + satır çiftleri)
   const listData = useMemo((): ListRow[] => {
@@ -304,10 +313,10 @@ export default function DiscoverScreen({ navigation }: Props) {
             placeholder="Servis ara..."
             placeholderTextColor="rgba(255,255,255,0.6)"
             value={searchText}
-            onChangeText={setSearchText}
+            onChangeText={handleSearch}
           />
           {searchText.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchText('')}>
+            <TouchableOpacity onPress={() => { setSearchText(''); setDebouncedQuery(''); }}>
               <Ionicons name="close-circle" size={16} color="rgba(255,255,255,0.8)" />
             </TouchableOpacity>
           )}
@@ -349,7 +358,7 @@ export default function DiscoverScreen({ navigation }: Props) {
       </ScrollView>
 
       {/* TREND OLAN SERVİSLER */}
-      {trendingItems.length > 0 && !searchText && !selectedCategory && (
+      {trendingItems.length > 0 && !debouncedQuery && !selectedCategory && (
         <View style={styles.trendingSection}>
           <Text style={[styles.trendingTitle, { color: colors.textMain }]}>🔥 Trend</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.trendingList}>

@@ -34,5 +34,16 @@ namespace SubGuard.Data.Repositories
         {
             return await _context.Catalogs.Include(x => x.Plans).FirstOrDefaultAsync(x => x.Id == id);
         }
+
+        /// <summary>
+        /// Sadece belirtilen ID'leri sorgular — GetTrendingAsync'te tüm tabloyu RAM'e yüklemekten kaçınır.
+        /// </summary>
+        public async Task<List<Catalog>> GetCatalogsByIdsAsync(List<int> ids)
+        {
+            return await _context.Catalogs
+                .Where(c => ids.Contains(c.Id))
+                .Include(c => c.Plans)
+                .ToListAsync();
+        }
     }
 }

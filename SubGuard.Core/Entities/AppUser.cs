@@ -25,5 +25,15 @@ namespace SubGuard.Core.Entities
 
         // Bildirim saati (0–23 arası, varsayılan 9 = sabah 9)
         public int NotifyHour { get; set; } = 9;
+
+        // F-10: Bütçe ve paylaşım bildirim tercihleri
+        public bool BudgetAlertEnabled { get; set; } = true;
+        public bool SharedAlertEnabled { get; set; } = true;
+
+        // OTP — e-posta doğrulama ve şifre sıfırlama (restart-safe, multi-instance uyumlu)
+        public string? OtpCode { get; set; }           // 6 haneli kod
+        public string? OtpToken { get; set; }          // Base64Url'li Identity token
+        public string? OtpType { get; set; }           // "email_confirm" | "pwd_reset"
+        public DateTime? OtpExpiry { get; set; }       // UTC son geçerlilik tarihi
     }
 }

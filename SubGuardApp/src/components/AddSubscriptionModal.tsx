@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Modal, StyleSheet, TouchableOpacity, TextInput, ScrollView, Switch, Alert, Platform, KeyboardAvoidingView, Image } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, Modal, StyleSheet, TouchableOpacity, TextInput, ScrollView, Switch, Alert, Platform, KeyboardAvoidingView, Image, Animated } from 'react-native';
 import { CatalogItem, UserSubscription, Plan, AddSubscriptionPayload } from '../types';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import { useThemeColors } from '../constants/theme';
@@ -65,6 +65,15 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
   const { addSubscription, updateSubscription } = useUserSubscriptionStore();
 
   const [step, setStep] = useState(1);
+  const stepAnim = useRef(new Animated.Value(1)).current;
+
+  const animateStep = (newStep: number) => {
+    Animated.sequence([
+      Animated.timing(stepAnim, { toValue: 0, duration: 120, useNativeDriver: true }),
+      Animated.timing(stepAnim, { toValue: 1, duration: 180, useNativeDriver: true }),
+    ]).start();
+    setStep(newStep);
+  };
 
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
@@ -96,6 +105,7 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
   useEffect(() => {
     if (visible) {
       setImgFailed(false);
+      stepAnim.setValue(1);
       setStep(1);
       if (subscriptionToEdit) {
         setName(subscriptionToEdit.name);
@@ -104,8 +114,14 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
         setCategory(subscriptionToEdit.category || 'Other');
 
         const now = new Date();
+        let targetYear = now.getFullYear();
         let targetMonth = now.getDate() > subscriptionToEdit.billingDay ? now.getMonth() + 1 : now.getMonth();
-        const derivedDate = new Date(now.getFullYear(), targetMonth, subscriptionToEdit.billingDay);
+        // Ay taşmasını düzelt (örn. Aralık+1 → Ocak yeni yıl)
+        if (targetMonth > 11) { targetMonth = 0; targetYear += 1; }
+        // billingDay o ayda geçersizse (örn. Şubat'ta 29-31) ayın son gününe clamp et
+        const daysInMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
+        const safeDay = Math.min(subscriptionToEdit.billingDay, daysInMonth);
+        const derivedDate = new Date(targetYear, targetMonth, safeDay);
         setBillingDate(derivedDate);
 
         setHasContract(subscriptionToEdit.hasContract || false);
@@ -173,7 +189,7 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
         return;
       }
     }
-    setStep(s => Math.min(s + 1, 3));
+    animateStep(Math.min(step + 1, 3));
   };
 
   const handleSave = async () => {
@@ -340,9 +356,26 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
             </Text>
           </View>
           <Text style={{ fontSize: 12, color: colors.textSec }}>
-            Her ayın {billingDate.getDate()}. günü
+            {billingPeriod === 'Yearly'
+              ? `Her yıl ${billingDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })}`
+              : `Her ayın ${billingDate.getDate()}. günü`}
           </Text>
         </TouchableOpacity>
+
+        {/* U-9: Yıllık abonelik billingDay açıklaması */}
+        {billingPeriod === 'Yearly' && (
+          <View style={{
+            flexDirection: 'row', alignItems: 'flex-start', gap: 6,
+            marginTop: 8, padding: 10, borderRadius: 10,
+            backgroundColor: colors.primary + '15',
+          }}>
+            <Ionicons name="information-circle-outline" size={16} color={colors.primary} style={{ marginTop: 1 }} />
+            <Text style={{ fontSize: 12, color: colors.primary, flex: 1, lineHeight: 17 }}>
+              Yıllık aboneliklerde seçtiğiniz tarih her yıl tekrarlanır.
+              Ödeme ayı olarak bu tarihin ayı kullanılır.
+            </Text>
+          </View>
+        )}
 
         {showBillingDatePicker && (
           <DateTimePicker
@@ -530,21 +563,33 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
           <StepIndicator step={step} colors={colors} />
 
           <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-            {step === 1 && renderStep1()}
-            {step === 2 && renderStep2()}
-            {step === 3 && renderStep3()}
+            <Animated.View style={{ opacity: stepAnim }}>
+              {step === 1 && renderStep1()}
+              {step === 2 && renderStep2()}
+              {step === 3 && renderStep3()}
+            </Animated.View>
 
             {showContractDatePicker && (
               <DateTimePicker
                 value={showContractDatePicker === 'start' ? startDate : endDate}
                 mode="date"
                 display="default"
+                minimumDate={showContractDatePicker === 'end' ? startDate : undefined}
                 onChange={(e, d) => {
                   const mode = showContractDatePicker;
                   setShowContractDatePicker(null);
                   if (d) {
-                    if (mode === 'start') setStartDate(d);
-                    else setEndDate(d);
+                    if (mode === 'start') {
+                      setStartDate(d);
+                      // Başlangıç bitiş tarihini geçerse bitiş tarihini de güncelle
+                      if (d >= endDate) {
+                        const newEnd = new Date(d);
+                        newEnd.setFullYear(newEnd.getFullYear() + 1);
+                        setEndDate(newEnd);
+                      }
+                    } else {
+                      setEndDate(d);
+                    }
                   }
                 }}
               />
@@ -568,7 +613,7 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
               <View style={styles.footerRow}>
                 <TouchableOpacity
                   style={[styles.backButton, { borderColor: colors.border }]}
-                  onPress={() => setStep(s => s - 1)}
+                  onPress={() => animateStep(step - 1)}
                   activeOpacity={0.7}
                 >
                   <Ionicons name="chevron-back" size={18} color={colors.textSec} />

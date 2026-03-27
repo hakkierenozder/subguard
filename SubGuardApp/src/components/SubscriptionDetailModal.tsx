@@ -11,6 +11,7 @@ import { useSettingsStore } from '../store/useSettingsStore';
 import { useThemeColors } from '../constants/theme';
 import { useCatalogStore } from '../store/useCatalogStore';
 import agent from '../api/agent';
+import { CurrencyService } from '../utils/CurrencyService';
 
 function DetailLogo({ logoUrl, brandColor, name, size = 80 }: { logoUrl?: string; brandColor: string; name: string; size?: number }) {
     const [imgFailed, setImgFailed] = useState(false);
@@ -161,31 +162,61 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
             `${subscription.name} aboneliğini silmek istediğine emin misin?`,
             [
                 { text: 'Vazgeç', style: 'cancel' },
-                { text: 'Sil', style: 'destructive', onPress: async () => { await removeSubscription(subscription.id); onClose(); } },
+                {
+                    text: 'Sil',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await removeSubscription(subscription.id);
+                            onClose();
+                        } catch {
+                            Alert.alert('Hata', 'Abonelik silinemedi. Lütfen tekrar deneyin.');
+                        }
+                    },
+                },
             ]
         );
+    };
+
+    const applyStatusChange = (newStatus: SubscriptionStatus) => {
+        let payload: Partial<UserSubscription> = {};
+        if (newStatus === 'active') {
+            payload = { isActive: true, cancelledAt: null };
+            Toast.show({ type: 'success', text1: '✅ Abonelik Aktifleştirildi', text2: `${subscription.name} yeniden aktif.`, position: 'top' });
+        } else if (newStatus === 'paused') {
+            payload = { isActive: false, cancelledAt: null, pausedDate: new Date().toISOString() };
+            Toast.show({ type: 'info', text1: '⏸ Abonelik Durduruldu', text2: `${subscription.name} duraklatıldı.`, position: 'top' });
+        } else {
+            payload = { isActive: false, cancelledAt: new Date().toISOString(), pausedDate: null };
+            Toast.show({ type: 'error', text1: '❌ Abonelik İptal Edildi', text2: `${subscription.name} iptal edildi.`, position: 'top' });
+        }
+        updateSubscription(subscription.id, payload);
     };
 
     const handleStatusChange = (newStatus: SubscriptionStatus) => {
         if (newStatus === currentStatus) return;
 
-        // Animasyon useEffect([currentStatus]) tarafından yönetiliyor —
-        // buradaki manuel tetikleme useEffect ile çakışarak görsel glitch yaratırdı.
-
-        let payload: Partial<UserSubscription> = {};
-
-        if (newStatus === 'active') {
-            payload = { isActive: true, cancelledAt: null };
-            Toast.show({ type: 'success', text1: '✅ Abonelik Aktifleştirildi', text2: `${subscription.name} yeniden aktif.`, position: 'top' });
+        if (newStatus === 'cancelled') {
+            Alert.alert(
+                'Aboneliği İptal Et',
+                `${subscription.name} aboneliğini iptal etmek istediğine emin misin? Bu işlem geri alınamaz.`,
+                [
+                    { text: 'Vazgeç', style: 'cancel' },
+                    { text: 'İptal Et', style: 'destructive', onPress: () => applyStatusChange('cancelled') },
+                ]
+            );
         } else if (newStatus === 'paused') {
-            payload = { isActive: false, cancelledAt: null };
-            Toast.show({ type: 'info', text1: '⏸ Abonelik Durduruldu', text2: `${subscription.name} duraklatıldı.`, position: 'top' });
+            Alert.alert(
+                'Aboneliği Duraklat',
+                `${subscription.name} aboneliğini duraklatmak istiyor musun?`,
+                [
+                    { text: 'Vazgeç', style: 'cancel' },
+                    { text: 'Duraklat', onPress: () => applyStatusChange('paused') },
+                ]
+            );
         } else {
-            payload = { isActive: false, cancelledAt: new Date().toISOString() };
-            Toast.show({ type: 'error', text1: '❌ Abonelik İptal Edildi', text2: `${subscription.name} iptal edildi.`, position: 'top' });
+            applyStatusChange(newStatus);
         }
-
-        updateSubscription(subscription.id, payload);
     };
 
     // --- HESAPLAMALAR ---
@@ -407,6 +438,24 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                         </View>
                     )}
 
+                    {/* 3b. DURDURULDU BİLGİ KARTI (U-11) */}
+                    {currentStatus === 'paused' && subscription.pausedDate && (
+                        <View style={[styles.cancelCard, { backgroundColor: '#F59E0B0D', borderColor: '#F59E0B40' }]}>
+                            <View style={styles.cancelCardHeader}>
+                                <Ionicons name="pause-circle-outline" size={18} color="#F59E0B" />
+                                <Text style={[styles.cancelCardTitle, { color: '#F59E0B' }]}>Durdurma Bilgisi</Text>
+                            </View>
+                            <View style={styles.cancelRows}>
+                                <View style={styles.cancelRow}>
+                                    <Text style={[styles.cancelLabel, { color: colors.textSec }]}>Durdurulma Tarihi</Text>
+                                    <Text style={[styles.cancelValue, { color: colors.textMain }]}>
+                                        {new Date(subscription.pausedDate).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                    </Text>
+                                </View>
+                            </View>
+                        </View>
+                    )}
+
                     {/* 4. SONRAKİ ÖDEME KARTI */}
                     <View style={[styles.nextPaymentCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
                         <View style={styles.cardHeader}>
@@ -527,12 +576,26 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                                     <View style={{ flex: 1 }}>
                                         <View style={styles.priceHistoryPrices}>
                                             <Text style={[styles.priceHistoryOld, { color: colors.textSec }]}>
-                                                {entry.oldPrice} {entry.currency}
+                                                {CurrencyService.format(entry.oldPrice, entry.currency)}
                                             </Text>
                                             <Ionicons name="arrow-forward" size={14} color={entry.newPrice > entry.oldPrice ? colors.error : colors.success} style={{ marginHorizontal: 6 }} />
                                             <Text style={[styles.priceHistoryNew, { color: entry.newPrice > entry.oldPrice ? colors.error : colors.success }]}>
-                                                {entry.newPrice} {entry.currency}
+                                                {CurrencyService.format(entry.newPrice, entry.currency)}
                                             </Text>
+                                            {entry.oldPrice > 0 && (
+                                                <View style={[{
+                                                    marginLeft: 8,
+                                                    paddingHorizontal: 6,
+                                                    paddingVertical: 2,
+                                                    borderRadius: 6,
+                                                    backgroundColor: entry.newPrice > entry.oldPrice ? (colors.error + '18') : (colors.success + '18'),
+                                                }]}>
+                                                    <Text style={{ fontSize: 11, fontWeight: '700', color: entry.newPrice > entry.oldPrice ? colors.error : colors.success }}>
+                                                        {entry.newPrice > entry.oldPrice ? '+' : ''}
+                                                        {(((entry.newPrice - entry.oldPrice) / entry.oldPrice) * 100).toFixed(0)}%
+                                                    </Text>
+                                                </View>
+                                            )}
                                         </View>
                                         <Text style={[styles.priceHistoryDate, { color: colors.textSec }]}>
                                             {new Date(entry.changedAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}

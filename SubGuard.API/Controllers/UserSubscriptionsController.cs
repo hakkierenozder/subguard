@@ -31,29 +31,15 @@ namespace SubGuard.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Save([FromBody] UserSubscriptionDto dto)
+        public async Task<IActionResult> Save([FromBody] AddUserSubscriptionDto dto)
         {
-            // GÜVENLİK: Body'den gelen UserId'yi ez ve Token'dan gelen gerçek ID'yi bas.
-            // Böylece kullanıcı başkası adına kayıt atamaz.
-            dto.UserId = LoggedInUserId;
-
-            return CreateActionResult(await _service.AddSubscriptionAsync(dto));
+            return CreateActionResult(await _service.AddSubscriptionAsync(dto, LoggedInUserId));
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UserSubscriptionDto dto)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateUserSubscriptionDto dto)
         {
-            // GÜVENLİK: Güncelleme yaparken de aboneliğin sahibini Token'daki kişi yapıyoruz.
-            dto.UserId = LoggedInUserId;
-
-            // Route ID ile body ID çelişiyorsa reddet
-            if (dto.Id != 0 && dto.Id != id)
-                return CreateActionResult(CustomResponseDto<bool>.Fail(400, "Route ID ile body ID uyuşmuyor."));
-
-            // Route'taki ID'yi kesin kaynak olarak kullan
-            dto.Id = id;
-
-            return CreateActionResult(await _service.UpdateSubscriptionAsync(dto));
+            return CreateActionResult(await _service.UpdateSubscriptionAsync(id, dto, LoggedInUserId));
         }
 
         [HttpDelete("{id}")]
@@ -123,6 +109,15 @@ namespace SubGuard.API.Controllers
         public async Task<IActionResult> GetPriceHistory(int id)
         {
             return CreateActionResult(await _service.GetPriceHistoryAsync(id, LoggedInUserId));
+        }
+
+        // PATCH api/usersubscriptions/5/survey
+        // Yalnızca UsageHistoryJson (anket geçmişi) günceller — PUT'tan ayrı tutuldu
+        // çünkü PUT tüm abonelik alanlarını gerektirir; kısmi güncellemeye izin vermez.
+        [HttpPatch("{id}/survey")]
+        public async Task<IActionResult> UpdateSurveyHistory(int id, [FromBody] UpdateSurveyHistoryDto dto)
+        {
+            return CreateActionResult(await _service.UpdateSurveyHistoryAsync(id, LoggedInUserId, dto.UsageHistoryJson));
         }
     }
 }

@@ -8,6 +8,8 @@ namespace SubGuard.Core.DTOs.Auth
         public decimal MonthlyBudget { get; set; }
         public string? MonthlyBudgetCurrency { get; set; }
         public int BudgetAlertThreshold { get; set; }
+        public bool BudgetAlertEnabled { get; set; }
+        public bool SharedAlertEnabled { get; set; }
         public bool IsAdmin { get; set; }
     }
 }

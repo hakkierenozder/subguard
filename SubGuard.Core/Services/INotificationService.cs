@@ -4,7 +4,7 @@ namespace SubGuard.Core.Services
 {
     public interface INotificationService
     {
-        Task CheckAndQueueUpcomingPaymentsAsync(int daysBefore);
+        Task CheckAndQueueUpcomingPaymentsAsync();
         Task CheckAndQueueBudgetAlertsAsync();
         Task CheckAndQueueContractExpiriesAsync(int daysBefore);
         Task QueueShareNotificationAsync(string targetUserId, int subscriptionId, string subscriptionName, string ownerName);

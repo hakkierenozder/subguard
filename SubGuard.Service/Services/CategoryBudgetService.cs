@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.Entities;
 using SubGuard.Core.Enums;
+using SubGuard.Core.Helpers;
 using SubGuard.Core.Services;
 using SubGuard.Core.UnitOfWork;
 
@@ -13,15 +14,18 @@ namespace SubGuard.Service.Services
         private readonly AppDbContext _db;
         private readonly UserManager<AppUser> _userManager;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ICurrencyService _currencyService;
 
         public CategoryBudgetService(
             AppDbContext db,
             UserManager<AppUser> userManager,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            ICurrencyService currencyService)
         {
             _db = db;
             _userManager = userManager;
             _unitOfWork = unitOfWork;
+            _currencyService = currencyService;
         }
 
         public async Task<CustomResponseDto<List<CategoryBudgetDto>>> GetAllAsync(string userId)
@@ -38,18 +42,21 @@ namespace SubGuard.Service.Services
                 .Where(b => b.UserId == userId)
                 .ToListAsync();
 
-            // Kategori bazlı aylık harcamayı DB'de GROUP BY + SUM ile hesapla
-            var spendingByCategory = await _db.UserSubscriptions
-                .Where(s => s.UserId == userId
-                         && s.Status == SubscriptionStatus.Active
-                         && s.Currency == currency)
+            // B-9: Tüm para birimlerindeki abonelikleri çek, hedef currency'ye çevir
+            var allSubs = await _db.UserSubscriptions
+                .Where(s => s.UserId == userId && s.Status == SubscriptionStatus.Active)
+                .Select(s => new { s.Category, s.Price, s.Currency, s.BillingPeriod })
+                .ToListAsync();
+
+            var rates = await _currencyService.GetRatesAsync();
+
+            var spendingByCategory = allSubs
                 .GroupBy(s => s.Category)
-                .Select(g => new
-                {
-                    Category = g.Key,
-                    Total = g.Sum(s => s.BillingPeriod == BillingPeriod.Yearly ? s.Price / 12m : s.Price)
-                })
-                .ToDictionaryAsync(x => x.Category, x => x.Total);
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Sum(s => BillingPriceHelper.ConvertToTargetCurrency(
+                        BillingPriceHelper.ToMonthlyEquivalent(s.Price, s.BillingPeriod),
+                        s.Currency, currency, rates)));
 
             var result = budgets.Select(b =>
             {
@@ -97,13 +104,18 @@ namespace SubGuard.Service.Services
 
             await _unitOfWork.CommitAsync();
 
-            // Mevcut harcamayı hesapla
-            var spent = await _db.UserSubscriptions
+            // Mevcut harcamayı hesapla — B-9: tüm para birimleri dahil
+            var subsForCategory = await _db.UserSubscriptions
                 .Where(s => s.UserId == userId
                          && s.Category == dto.Category
-                         && s.Status == SubscriptionStatus.Active
-                         && s.Currency == currency)
-                .SumAsync(s => s.BillingPeriod == BillingPeriod.Yearly ? s.Price / 12m : s.Price);
+                         && s.Status == SubscriptionStatus.Active)
+                .Select(s => new { s.Price, s.Currency, s.BillingPeriod })
+                .ToListAsync();
+
+            var rates = await _currencyService.GetRatesAsync();
+            var spent = subsForCategory.Sum(s => BillingPriceHelper.ConvertToTargetCurrency(
+                BillingPriceHelper.ToMonthlyEquivalent(s.Price, s.BillingPeriod),
+                s.Currency, currency, rates));
 
             var result = new CategoryBudgetDto
             {

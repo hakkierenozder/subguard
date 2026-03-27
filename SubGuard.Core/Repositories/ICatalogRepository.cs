@@ -24,5 +24,11 @@ namespace SubGuard.Core.Repositories
         /// #38: DB-level pagination — büyük kataloglar için tercih edilir.
         /// </summary>
         Task<(List<Catalog> Items, int TotalCount)> GetPagedCatalogsWithPlansAsync(int page, int pageSize);
+
+        /// <summary>
+        /// Belirli ID'lere sahip katalogları planlarıyla birlikte getirir.
+        /// GetTrendingAsync'te tüm katalog RAM'e yüklenmeden, sadece ilgili kayıtlar sorgulanır.
+        /// </summary>
+        Task<List<Catalog>> GetCatalogsByIdsAsync(List<int> ids);
     }
 }

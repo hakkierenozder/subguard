@@ -13,5 +13,6 @@ namespace SubGuard.Core.DTOs
         public DateTime? ReadDate { get; set; }
         public DateTime CreatedDate { get; set; }
         public NotificationType Type { get; set; }
+        public int? UserSubscriptionId { get; set; }
     }
 }

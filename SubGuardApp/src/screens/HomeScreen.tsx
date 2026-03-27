@@ -17,7 +17,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemeColors } from '../constants/theme';
 import { useCatalogStore } from '../store/useCatalogStore';
-import { getDaysLeft } from '../utils/dateUtils';
+import { getDaysLeftForSub } from '../utils/dateUtils';
+import { CurrencyService } from '../utils/CurrencyService';
 
 function UpcomingPaymentLogo({ logoUrl, colorCode, name }: { logoUrl?: string; colorCode: string; name: string }) {
   const [imgFailed, setImgFailed] = useState(false);
@@ -129,10 +130,10 @@ export default function HomeScreen() {
 
     // Bütçe yüzdesine göre renk (yeşil → sarı → turuncu → kırmızı)
     const getBudgetBarColor = () => {
-        if (budgetPercentage >= 100) return '#EF4444';
+        if (budgetPercentage >= 100) return colors.error;
         if (budgetPercentage >= 80)  return '#F97316';
         if (budgetPercentage >= 60)  return '#FBBF24';
-        return '#34D399';
+        return colors.success;
     };
 
     // Animasyonlu progress bar
@@ -153,14 +154,15 @@ export default function HomeScreen() {
         outputRange: ['0%', '100%'],
     });
 
-    // getDaysLeft artık src/utils/dateUtils.ts'ten import ediliyor (Fix 22)
-
     const sortedPayments = [...subscriptions]
         .filter(sub => sub.isActive !== false)
-        .sort((a, b) => getDaysLeft(a.billingDay) - getDaysLeft(b.billingDay));
+        .sort((a, b) => getDaysLeftForSub(a.billingDay, a.billingPeriod, a.createdDate) - getDaysLeftForSub(b.billingDay, b.billingPeriod, b.createdDate));
 
-    const thisWeekPayments  = sortedPayments.filter(s => getDaysLeft(s.billingDay) <= 7);
-    const thisMonthPayments = sortedPayments.filter(s => getDaysLeft(s.billingDay) > 7 && getDaysLeft(s.billingDay) <= 30);
+    const thisWeekPayments  = sortedPayments.filter(s => getDaysLeftForSub(s.billingDay, s.billingPeriod, s.createdDate) <= 7);
+    const thisMonthPayments = sortedPayments.filter(s => {
+        const d = getDaysLeftForSub(s.billingDay, s.billingPeriod, s.createdDate);
+        return d > 7 && d <= 30;
+    });
 
     const thisWeekTotal  = thisWeekPayments.reduce((sum, s) => sum + s.price, 0);
     const thisMonthTotal = thisMonthPayments.reduce((sum, s) => sum + s.price, 0);
@@ -225,7 +227,7 @@ export default function HomeScreen() {
                             {unreadCount > 0 && (
                                 <View style={{
                                     position: 'absolute', top: 6, right: 6,
-                                    backgroundColor: '#EF4444', borderRadius: 7,
+                                    backgroundColor: colors.error, borderRadius: 7,
                                     minWidth: 14, height: 14, alignItems: 'center',
                                     justifyContent: 'center', paddingHorizontal: 2,
                                 }}>
@@ -332,7 +334,7 @@ export default function HomeScreen() {
                         <View style={styles.sectionHeader}>
                             <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Yaklaşan Ödemeler</Text>
                             <TouchableOpacity
-                                onPress={() => (navigation as any).navigate('Calendar')}
+                                onPress={() => navigation.navigate('Calendar')}
                                 style={[styles.calendarBtn, { backgroundColor: colors.inputBg, borderColor: colors.border }]}
                             >
                                 <Ionicons name="calendar-outline" size={13} color={colors.accent} />
@@ -344,7 +346,7 @@ export default function HomeScreen() {
                         {thisWeekPayments.length > 0 && (
                             <>
                                 <View style={styles.upGroupHeader}>
-                                    <View style={[styles.upGroupDot, { backgroundColor: '#EF4444' }]} />
+                                    <View style={[styles.upGroupDot, { backgroundColor: colors.error }]} />
                                     <Text style={[styles.upGroupTitle, { color: colors.textSec }]}>Bu Hafta</Text>
                                     <View style={{ flex: 1 }} />
                                     <Text style={[styles.upGroupTotal, { color: colors.textMain }]}>
@@ -352,24 +354,29 @@ export default function HomeScreen() {
                                     </Text>
                                 </View>
                                 {thisWeekPayments.map((item, idx) => {
-                                    const daysLeft = getDaysLeft(item.billingDay);
-                                    const urgencyColor = daysLeft === 0 ? '#EF4444' : daysLeft <= 2 ? '#EF4444' : '#F97316';
-                                    const urgencyBg   = daysLeft <= 2 ? '#FEE2E2' : '#FFEDD5';
+                                    const daysLeft = getDaysLeftForSub(item.billingDay, item.billingPeriod, item.createdDate);
+                                    const urgencyColor = daysLeft <= 2 ? colors.error : '#F97316';
+                                    const urgencyBg   = daysLeft <= 2 ? (colors.error + '20') : '#F9731620';
                                     const urgencyLabel = daysLeft === 0 ? 'Bugün!' : daysLeft === 1 ? 'Yarın!' : `${daysLeft} gün`;
                                     const anim = getCardAnim(idx);
                                     const itemColor = item.colorCode || colors.primary;
                                     const catalogLogoUrl = catalogItems.find(c => c.id === item.catalogId)?.logoUrl;
+                                    const partnerCount = item.sharedWith?.length ?? 0;
+                                    const myShare = partnerCount > 0 ? item.price / (partnerCount + 1) : null;
+                                    const contractDaysLeft = item.hasContract && item.contractEndDate
+                                        ? Math.ceil((new Date(item.contractEndDate).getTime() - Date.now()) / 86400000)
+                                        : null;
                                     return (
                                         <Animated.View
                                             key={item.id}
                                             style={[styles.upRow, {
                                                 backgroundColor: colors.cardBg,
-                                                borderColor: daysLeft <= 2 ? '#FCA5A5' : '#FDBA74',
+                                                borderColor: daysLeft <= 2 ? (colors.error + '60') : '#F9731660',
                                                 opacity: anim,
                                                 transform: [{ translateX: anim.interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) }],
                                             }]}
                                         >
-                                            {daysLeft <= 2 && <View style={styles.upRowStripe} />}
+                                            {daysLeft <= 2 && <View style={[styles.upRowStripe, { backgroundColor: colors.error }]} />}
                                             <View style={[styles.upRowIcon, { backgroundColor: itemColor + '20', overflow: 'hidden' }]}>
                                                 <UpcomingPaymentLogo logoUrl={catalogLogoUrl} colorCode={itemColor} name={item.name} />
                                             </View>
@@ -381,12 +388,24 @@ export default function HomeScreen() {
                                                             ? `${item.billingDay}. her yıl`
                                                             : `${item.billingDay}. her ay`}
                                                     </Text>
+                                                    {contractDaysLeft !== null && contractDaysLeft <= 30 && (
+                                                        <View style={{ marginLeft: 6, paddingHorizontal: 5, paddingVertical: 1, borderRadius: 5, backgroundColor: contractDaysLeft <= 0 ? (colors.error + '20') : '#F9731620' }}>
+                                                            <Text style={{ fontSize: 10, fontWeight: '700', color: contractDaysLeft <= 0 ? colors.error : '#F97316' }}>
+                                                                {contractDaysLeft <= 0 ? 'Kontrat bitti' : `Kontrat ${contractDaysLeft}g`}
+                                                            </Text>
+                                                        </View>
+                                                    )}
                                                 </View>
                                             </View>
                                             <View style={{ alignItems: 'flex-end' }}>
                                                 <Text style={[styles.upRowPrice, { color: colors.textMain }]}>
-                                                    {item.price} {item.currency}
+                                                    {CurrencyService.format(item.price, item.currency)}
                                                 </Text>
+                                                {myShare !== null && (
+                                                    <Text style={[styles.upRowCycle, { color: colors.textSec, fontSize: 11 }]}>
+                                                        Payınız: {CurrencyService.format(myShare, item.currency)}
+                                                    </Text>
+                                                )}
                                                 {item.currency !== 'TRY' && exchangeRates[item.currency] && (
                                                     <Text style={[styles.upRowCycle, { color: colors.textSec, fontSize: 11 }]}>
                                                         ≈ {(item.price * exchangeRates[item.currency]).toFixed(0)} ₺
@@ -414,11 +433,16 @@ export default function HomeScreen() {
                                     </Text>
                                 </View>
                                 {thisMonthPayments.slice(0, 4).map((item, idx) => {
-                                    const daysLeft = getDaysLeft(item.billingDay);
+                                    const daysLeft = getDaysLeftForSub(item.billingDay, item.billingPeriod, item.createdDate);
                                     const animIdx = thisWeekPayments.length + idx;
                                     const anim = getCardAnim(animIdx);
                                     const itemColor = item.colorCode || colors.primary;
                                     const catalogLogoUrl = catalogItems.find(c => c.id === item.catalogId)?.logoUrl;
+                                    const partnerCount = item.sharedWith?.length ?? 0;
+                                    const myShare = partnerCount > 0 ? item.price / (partnerCount + 1) : null;
+                                    const contractDaysLeft = item.hasContract && item.contractEndDate
+                                        ? Math.ceil((new Date(item.contractEndDate).getTime() - Date.now()) / 86400000)
+                                        : null;
                                     return (
                                         <Animated.View
                                             key={item.id}
@@ -434,16 +458,30 @@ export default function HomeScreen() {
                                             </View>
                                             <View style={{ flex: 1 }}>
                                                 <Text style={[styles.upRowName, { color: colors.textMain }]} numberOfLines={1}>{item.name}</Text>
-                                                <Text style={[styles.upRowCycle, { color: colors.textSec }]}>
-                                                    {item.billingPeriod === 'Yearly'
-                                                        ? `${item.billingDay}. her yıl`
-                                                        : `${item.billingDay}. her ay`}
-                                                </Text>
+                                                <View style={styles.upRowMeta}>
+                                                    <Text style={[styles.upRowCycle, { color: colors.textSec }]}>
+                                                        {item.billingPeriod === 'Yearly'
+                                                            ? `${item.billingDay}. her yıl`
+                                                            : `${item.billingDay}. her ay`}
+                                                    </Text>
+                                                    {contractDaysLeft !== null && contractDaysLeft <= 30 && (
+                                                        <View style={{ marginLeft: 6, paddingHorizontal: 5, paddingVertical: 1, borderRadius: 5, backgroundColor: contractDaysLeft <= 0 ? (colors.error + '20') : '#F9731620' }}>
+                                                            <Text style={{ fontSize: 10, fontWeight: '700', color: contractDaysLeft <= 0 ? colors.error : '#F97316' }}>
+                                                                {contractDaysLeft <= 0 ? 'Kontrat bitti' : `Kontrat ${contractDaysLeft}g`}
+                                                            </Text>
+                                                        </View>
+                                                    )}
+                                                </View>
                                             </View>
                                             <View style={{ alignItems: 'flex-end' }}>
                                                 <Text style={[styles.upRowPrice, { color: colors.textMain }]}>
-                                                    {item.price} {item.currency}
+                                                    {CurrencyService.format(item.price, item.currency)}
                                                 </Text>
+                                                {myShare !== null && (
+                                                    <Text style={[styles.upRowCycle, { color: colors.textSec, fontSize: 11 }]}>
+                                                        Payınız: {CurrencyService.format(myShare, item.currency)}
+                                                    </Text>
+                                                )}
                                                 {item.currency !== 'TRY' && exchangeRates[item.currency] && (
                                                     <Text style={[styles.upRowCycle, { color: colors.textSec, fontSize: 11 }]}>
                                                         ≈ {(item.price * exchangeRates[item.currency]).toFixed(0)} ₺
@@ -459,7 +497,7 @@ export default function HomeScreen() {
                                 {thisMonthPayments.length > 4 && (
                                     <TouchableOpacity
                                         style={[styles.upMoreBtn, { borderColor: colors.border }]}
-                                        onPress={() => (navigation as any).navigate('Calendar')}
+                                        onPress={() => navigation.navigate('Calendar')}
                                     >
                                         <Text style={[styles.upMoreText, { color: colors.textSec }]}>
                                             +{thisMonthPayments.length - 4} daha  →
@@ -656,7 +694,6 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left: 0, top: 0, bottom: 0,
         width: 4,
-        backgroundColor: '#EF4444',
         borderTopLeftRadius: 16,
         borderBottomLeftRadius: 16,
     },

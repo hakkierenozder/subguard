@@ -1,6 +1,7 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Hangfire;
+using Hangfire.Dashboard;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -130,7 +131,8 @@ try
             ValidateIssuerSigningKey = true,
             ValidIssuer = jwtSettings["Issuer"],
             ValidAudience = jwtSettings["Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(key)
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            ClockSkew = TimeSpan.Zero  // B-17: Default 5dk tolerans kaldırıldı — 15dk token gerçekten 15dk geçerli
         };
 
         // Silinen/iptal edilmiş kullanıcıların token'larını reddet
@@ -285,13 +287,15 @@ try
                 "Lütfen 'dotnet user-secrets set' veya environment variable kullanın.");
     }
 
-    // S-6: Production ortamında CORS konfigüre edilmemişse uyar
+    // S-6: Production ortamında CORS konfigüre edilmemişse başlatmayı durdur
     if (!app.Environment.IsDevelopment())
     {
         var corsOrigins = app.Configuration.GetSection("AllowedCorsOrigins").Get<string[]>() ?? Array.Empty<string>();
         if (corsOrigins.Length == 0)
-            Log.Warning("GÜVENLİK UYARISI: Production ortamında 'AllowedCorsOrigins' yapılandırılmamış. " +
-                        "Tüm origin'lere CORS izni veriliyor. appsettings.Production.json'ı güncelleyin.");
+            throw new InvalidOperationException(
+                "GÜVENLİK HATASI: Production ortamında 'AllowedCorsOrigins' yapılandırılmamış. " +
+                "appsettings.Production.json dosyasına izin verilen origin'leri ekleyin. " +
+                "Örnek: \"AllowedCorsOrigins\": [\"https://app.subguard.com\"]");
     }
 
     // Admin rolünü seed et
@@ -312,8 +316,7 @@ try
         app.UseSwaggerUI();
     }
 
-    // 2. HANGFIRE DASHBOARD VE JOB TANIMI
-    app.UseHangfireDashboard("/hangfire"); // Dashboard'a /hangfire adresinden eri�ilebilir
+    // Hangfire recurring job tanımları (dashboard kaydından önce)
 
 
 
@@ -337,7 +340,7 @@ try
     // Her saat başı çalışır; iç filtre kullanıcının NotifyHour'una bakarak uygun kullanıcıları seçer
     RecurringJob.AddOrUpdate<INotificationService>(
         "daily-payment-check",
-        service => service.CheckAndQueueUpcomingPaymentsAsync(3),
+        service => service.CheckAndQueueUpcomingPaymentsAsync(),
         "0 * * * *",
         new RecurringJobOptions { TimeZone = trTimeZone }
     );
@@ -404,6 +407,25 @@ try
         }
     });
     app.UseAuthorization();
+
+    // Hangfire Dashboard: UseAuthentication + UseAuthorization'dan SONRA çağrılmalı.
+    // Aksi hâlde HttpContext.User dolu olmaz ve rol kontrolü her zaman false döner.
+    // Development: localhost'a ek olarak Admin rolü de kontrol edilir.
+    // Production: yalnızca geçerli JWT token'ı olan Admin rolündeki kullanıcılar girebilir.
+    app.UseHangfireDashboard("/hangfire", new DashboardOptions
+    {
+        Authorization = app.Environment.IsDevelopment()
+            ? new IDashboardAuthorizationFilter[]
+              {
+                  new LocalRequestsOnlyAuthorizationFilter(),
+                  new SubGuard.API.Middlewares.HangfireAdminAuthorizationFilter()
+              }
+            : new IDashboardAuthorizationFilter[]
+              {
+                  new SubGuard.API.Middlewares.HangfireAdminAuthorizationFilter()
+              }
+    });
+
     app.MapControllers();
 
     app.Run();

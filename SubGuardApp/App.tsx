@@ -1,12 +1,14 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { StatusBar, View, ActivityIndicator, Platform, AppState, AppStateStatus } from 'react-native';
+import { StatusBar, View, ActivityIndicator, Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
+import * as LocalAuthentication from 'expo-local-authentication';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Ekranlar
 import LoginScreen from './src/screens/LoginScreen';
@@ -22,13 +24,12 @@ import OnboardingScreen from './src/screens/OnboardingScreen';
 import DiscoverScreen from './src/screens/DiscoverScreen';
 import EmailVerificationScreen from './src/screens/EmailVerificationScreen';
 import AdminPanelScreen from './src/screens/AdminPanelScreen';
+import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
 
 // Utils & Components
 import { isLoggedIn, logout } from './src/utils/AuthManager';
-import { hasPin } from './src/utils/AppLockManager';
 import ErrorBoundary from './src/components/ErrorBoundary';
 import OfflineBanner from './src/components/OfflineBanner';
-import AppLockOverlay from './src/components/AppLockOverlay';
 import { THEME, useThemeColors } from './src/constants/theme';
 import { useSettingsStore } from './src/store/useSettingsStore';
 import { useNotificationStore } from './src/store/useNotificationStore';
@@ -38,6 +39,7 @@ export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
   EmailVerification: { email: string; userId: string };
+  ForgotPassword: undefined;
   Onboarding: undefined;
   Main: undefined;
   SharedSubscriptions: undefined;
@@ -49,7 +51,7 @@ export type RootStackParamList = {
 
 export type MainTabParamList = {
   Home: undefined;
-  MySubscriptions: undefined;
+  MySubscriptions: { openSubscriptionId?: string } | undefined;
   Analytics: undefined;
   Settings: undefined;
 };
@@ -110,52 +112,50 @@ function AppTabs() {
 
 export default function App() {
   const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList | null>(null);
-  const [isLoggedInState, setIsLoggedInState] = useState(false);
-  const [isLocked, setIsLocked] = useState(false);
   const isDarkMode = useSettingsStore((state) => state.isDarkMode);
   const onboardingCompleted = useSettingsStore((state) => state.onboardingCompleted);
-  const appLockEnabled = useSettingsStore((state) => state.appLockEnabled);
-  const lockAfterMinutes = useSettingsStore((state) => state.lockAfterMinutes);
   const colors = useThemeColors();
-  const lastBgTimeRef = useRef<number | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const loggedIn = await isLoggedIn();
-        setIsLoggedInState(loggedIn);
-        if (loggedIn) {
-          setInitialRoute(onboardingCompleted ? 'Main' : 'Onboarding');
-        } else {
+        if (!loggedIn) {
           setInitialRoute('Login');
+          return;
         }
+
+        // Uygulama kilidi — soğuk başlatmada biometrik doğrulama
+        try {
+          const settingsRaw = await AsyncStorage.getItem('subguard-settings-storage');
+          const appLockEnabled = settingsRaw
+            ? (JSON.parse(settingsRaw)?.state?.appLockEnabled ?? false)
+            : false;
+
+          if (appLockEnabled) {
+            const result = await LocalAuthentication.authenticateAsync({
+              promptMessage: 'SubGuard\'a erişmek için kimliğinizi doğrulayın',
+              fallbackLabel: 'Şifre Kullan',
+              cancelLabel: 'İptal',
+              disableDeviceFallback: false,
+            });
+            if (!result.success) {
+              await logout();
+              setInitialRoute('Login');
+              return;
+            }
+          }
+        } catch {
+          // Biyometrik hata → kilidi atla, uygulamaya gir
+        }
+
+        setInitialRoute(onboardingCompleted ? 'Main' : 'Onboarding');
       } catch (e) {
         setInitialRoute('Login');
       }
     };
     checkAuth();
   }, []);
-
-  // Uygulama kilidi — arka plana geçince süreyi kaydet, öne gelince kontrol et
-  useEffect(() => {
-    if (!appLockEnabled || !isLoggedInState) return;
-
-    const handleAppStateChange = async (nextState: AppStateStatus) => {
-      if (nextState === 'background' || nextState === 'inactive') {
-        lastBgTimeRef.current = Date.now();
-      } else if (nextState === 'active' && lastBgTimeRef.current !== null) {
-        const elapsedMinutes = (Date.now() - lastBgTimeRef.current) / 60000;
-        lastBgTimeRef.current = null;
-        if (elapsedMinutes >= lockAfterMinutes) {
-          const pinExists = await hasPin();
-          if (pinExists) setIsLocked(true);
-        }
-      }
-    };
-
-    const sub = AppState.addEventListener('change', handleAppStateChange);
-    return () => sub.remove();
-  }, [appLockEnabled, lockAfterMinutes, isLoggedInState]);
 
   if (!initialRoute) {
     return (
@@ -178,6 +178,7 @@ export default function App() {
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Register" component={RegisterScreen} />
             <Stack.Screen name="EmailVerification" component={EmailVerificationScreen} />
+            <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
             <Stack.Screen name="Onboarding" component={OnboardingScreen} />
             <Stack.Screen name="Main" component={AppTabs} />
             <Stack.Screen
@@ -212,17 +213,6 @@ export default function App() {
         <Toast />
         {/* OFFLİNE BANNER */}
         <OfflineBanner />
-        {/* UYGULAMA KİLİDİ OVERLAY */}
-        {isLocked && appLockEnabled && (
-          <AppLockOverlay
-            onUnlock={() => setIsLocked(false)}
-            onForceLogout={async () => {
-              await logout();
-              setIsLocked(false);
-              setIsLoggedInState(false);
-            }}
-          />
-        )}
       </ErrorBoundary>
     </SafeAreaProvider>
     </GestureHandlerRootView>

@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.Entities;
+using SubGuard.Core.Enums;
+using SubGuard.Core.Helpers;
 using SubGuard.Core.Repositories;
 using SubGuard.Core.Services;
 
@@ -31,34 +33,45 @@ namespace SubGuard.Service.Services
 
             var activeCount = await baseQuery.CountAsync();
 
-            var totalByCurrency = await baseQuery
+            // Tüm abonelik verilerini tek sorguda çek — aggregation'lar in-memory yapılıyor
+            // (ToMonthlyEquivalent SQL'e çevrilemiyor, BillingPeriod'a göre hesap gerekiyor)
+            var allSubData = await baseQuery
+                .Select(x => new
+                {
+                    x.Id, x.Name, x.Price, x.Currency, x.BillingDay,
+                    x.ColorCode, x.BillingPeriod, x.Category,
+                    x.CreatedDate, x.ContractStartDate
+                })
+                .ToListAsync();
+
+            var totalByCurrency = allSubData
                 .GroupBy(x => x.Currency)
                 .Select(g => new CurrencyTotalDto
                 {
                     Currency = g.Key,
-                    Total = g.Sum(x => x.Price)
+                    Total = g.Sum(x => BillingPriceHelper.ToMonthlyEquivalent(x.Price, x.BillingPeriod))
                 })
                 .OrderByDescending(x => x.Total)
-                .ToListAsync();
+                .ToList();
 
-            var spendingByCategory = await baseQuery
+            var spendingByCategory = allSubData
                 .GroupBy(x => new { x.Category, x.Currency })
                 .Select(g => new CategorySpendingDto
                 {
                     Category = g.Key.Category,
                     Currency = g.Key.Currency,
-                    Total = g.Sum(x => x.Price),
+                    Total = g.Sum(x => BillingPriceHelper.ToMonthlyEquivalent(x.Price, x.BillingPeriod)),
                     Count = g.Count()
                 })
                 .OrderByDescending(x => x.Total)
-                .ToListAsync();
+                .ToList();
 
-            // UpcomingPayments: BillingDay hesabı uygulama katmanında yapılıyor,
-            // ancak yalnızca gerekli alanlar DB'den çekiliyor (Catalog join yok)
-            var paymentProjections = await baseQuery
+            // UpcomingPayments: BillingPeriod dahil, uygulama katmanında hesaplanıyor
+            var paymentProjections = allSubData
                 .Select(x => new SubscriptionPaymentData(
-                    x.Id, x.Name, x.Price, x.Currency, x.BillingDay, x.ColorCode))
-                .ToListAsync();
+                    x.Id, x.Name, x.Price, x.Currency, x.BillingDay, x.ColorCode,
+                    x.BillingPeriod, x.CreatedDate, x.ContractStartDate))
+                .ToList();
 
             var today = DateTime.UtcNow;
             var upcomingPayments = CalcUpcomingPayments(paymentProjections, today, upcomingDays);
@@ -90,11 +103,13 @@ namespace SubGuard.Service.Services
 
             // Tüm abonelik fiyatlarını bütçe para birimine çevirerek topla
             var allSubs = await baseQuery
-                .Select(x => new { x.Price, x.Currency })
+                .Select(x => new { x.Price, x.Currency, x.BillingPeriod })
                 .ToListAsync();
 
             var totalSpent = allSubs.Sum(x =>
-                ConvertToTargetCurrency(x.Price, x.Currency, user.MonthlyBudgetCurrency, rates));
+                BillingPriceHelper.ConvertToTargetCurrency(
+                    BillingPriceHelper.ToMonthlyEquivalent(x.Price, x.BillingPeriod),
+                    x.Currency, user.MonthlyBudgetCurrency, rates));
 
             return new BudgetSummaryDto
             {
@@ -102,22 +117,6 @@ namespace SubGuard.Service.Services
                 Currency = user.MonthlyBudgetCurrency,
                 TotalSpent = Math.Round(totalSpent, 2)
             };
-        }
-
-        // Frankfurter API kurları EUR bazlıdır: 1 EUR = rates[X] X birimi
-        private static decimal ConvertToTargetCurrency(
-            decimal amount, string fromCurrency, string toCurrency,
-            Dictionary<string, decimal> rates)
-        {
-            if (fromCurrency == toCurrency) return amount;
-
-            decimal fromRate = fromCurrency == "EUR" ? 1m : rates.GetValueOrDefault(fromCurrency, 0m);
-            decimal toRate = toCurrency == "EUR" ? 1m : rates.GetValueOrDefault(toCurrency, 0m);
-
-            if (fromRate == 0) return 0; // Bilinmeyen kaynak para birimi
-
-            // Önce EUR'ya çevir, sonra hedef para birimine
-            return amount / fromRate * toRate;
         }
 
         private static List<UpcomingPaymentDto> CalcUpcomingPayments(
@@ -128,22 +127,45 @@ namespace SubGuard.Service.Services
 
             foreach (var sub in subs)
             {
-                // Bir sonraki fatura tarihini hesapla — yıl/ay geçişlerini doğru ele alır
-                int clampedThisMonth = Math.Min(sub.BillingDay, DateTime.DaysInMonth(todayDate.Year, todayDate.Month));
                 DateTime nextBilling;
 
-                if (clampedThisMonth >= todayDate.Day)
+                if (sub.BillingPeriod == BillingPeriod.Yearly)
                 {
-                    // Bu ay içinde
-                    nextBilling = new DateTime(todayDate.Year, todayDate.Month, clampedThisMonth);
+                    // Yıllık abonelik: ödeme ayını ContractStartDate'den yoksa CreatedDate'den çıkar
+                    var billingMonth = sub.ContractStartDate?.Month ?? sub.CreatedDate.Month;
+
+                    var thisYearDate = new DateTime(
+                        todayDate.Year, billingMonth,
+                        Math.Min(sub.BillingDay, DateTime.DaysInMonth(todayDate.Year, billingMonth)));
+
+                    if (thisYearDate >= todayDate)
+                    {
+                        nextBilling = thisYearDate;
+                    }
+                    else
+                    {
+                        int nextYear = todayDate.Year + 1;
+                        nextBilling = new DateTime(
+                            nextYear, billingMonth,
+                            Math.Min(sub.BillingDay, DateTime.DaysInMonth(nextYear, billingMonth)));
+                    }
                 }
                 else
                 {
-                    // Sonraki ay (Aralık → Ocak yıl geçişi dahil)
-                    int nextMonth = todayDate.Month == 12 ? 1 : todayDate.Month + 1;
-                    int nextYear = todayDate.Month == 12 ? todayDate.Year + 1 : todayDate.Year;
-                    int clampedNextMonth = Math.Min(sub.BillingDay, DateTime.DaysInMonth(nextYear, nextMonth));
-                    nextBilling = new DateTime(nextYear, nextMonth, clampedNextMonth);
+                    // Aylık abonelik: bir sonraki BillingDay tarihini hesapla
+                    int clampedThisMonth = Math.Min(sub.BillingDay, DateTime.DaysInMonth(todayDate.Year, todayDate.Month));
+
+                    if (clampedThisMonth >= todayDate.Day)
+                    {
+                        nextBilling = new DateTime(todayDate.Year, todayDate.Month, clampedThisMonth);
+                    }
+                    else
+                    {
+                        int nextMonth = todayDate.Month == 12 ? 1 : todayDate.Month + 1;
+                        int nextYear  = todayDate.Month == 12 ? todayDate.Year + 1 : todayDate.Year;
+                        int clampedNextMonth = Math.Min(sub.BillingDay, DateTime.DaysInMonth(nextYear, nextMonth));
+                        nextBilling = new DateTime(nextYear, nextMonth, clampedNextMonth);
+                    }
                 }
 
                 int daysUntil = (int)(nextBilling - todayDate).TotalDays;
@@ -166,8 +188,9 @@ namespace SubGuard.Service.Services
             return result.OrderBy(x => x.DaysUntilPayment).ToList();
         }
 
-        // Yalnızca UpcomingPayments hesabı için gerekli alanları taşır
+        // UpcomingPayments hesabı için gerekli alanları taşır
         private record SubscriptionPaymentData(
-            int Id, string Name, decimal Price, string Currency, int BillingDay, string? ColorCode);
+            int Id, string Name, decimal Price, string Currency, int BillingDay, string? ColorCode,
+            BillingPeriod BillingPeriod, DateTime CreatedDate, DateTime? ContractStartDate);
     }
 }

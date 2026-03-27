@@ -95,7 +95,7 @@ function ManagePartnersPanel({ sub, colors, onClose, onUpdate }: ManageModalProp
     <View style={[styles.panel, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
       {/* Panel Başlığı */}
       <View style={styles.panelHeader}>
-        <View style={[styles.panelColorBar, { backgroundColor: sub.colorCode || '#4F46E5' }]} />
+        <View style={[styles.panelColorBar, { backgroundColor: sub.colorCode || colors.accent }]} />
         <View style={{ flex: 1 }}>
           <Text style={[styles.panelTitle, { color: colors.textMain }]}>{sub.name}</Text>
           <Text style={[styles.panelSub, { color: colors.textSec }]}>
@@ -146,11 +146,11 @@ function ManagePartnersPanel({ sub, colors, onClose, onUpdate }: ManageModalProp
               {/* Hatırlatma butonları */}
               <TouchableOpacity
                 onPress={() => isEmail ? sendEmail(sub, p) : sendWhatsApp(sub, p)}
-                style={[styles.partnerAction, { backgroundColor: isEmail ? '#EFF6FF' : '#DCFCE7' }]}
+                style={[styles.partnerAction, { backgroundColor: isEmail ? colors.accent + '18' : '#25D366' + '22' }]}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
                 {isEmail
-                  ? <Ionicons name="mail-outline" size={14} color="#3B82F6" />
+                  ? <Ionicons name="mail-outline" size={14} color={colors.accent} />
                   : <FontAwesome5 name="whatsapp" size={14} color="#25D366" />}
               </TouchableOpacity>
               <TouchableOpacity
@@ -158,7 +158,7 @@ function ManagePartnersPanel({ sub, colors, onClose, onUpdate }: ManageModalProp
                 style={styles.removeBtn}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
-                <Ionicons name="trash-outline" size={16} color="#EF4444" />
+                <Ionicons name="trash-outline" size={16} color={colors.error} />
               </TouchableOpacity>
             </View>
           );
@@ -239,7 +239,7 @@ export default function SharedSubscriptionsScreen() {
 
     return (
       <View style={[styles.subCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
-        <View style={[styles.subColorBar, { backgroundColor: item.colorCode || '#4F46E5' }]} />
+        <View style={[styles.subColorBar, { backgroundColor: item.colorCode || colors.accent }]} />
         <View style={styles.subCardBody}>
           <View style={styles.subCardTop}>
             <View style={{ flex: 1 }}>
@@ -276,11 +276,11 @@ export default function SharedSubscriptionsScreen() {
               <Text style={[styles.actionBtnText, { color: colors.accent }]}>Yönet</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.actionBtn, { backgroundColor: '#DCFCE7', borderColor: '#BBF7D0' }]}
+              style={[styles.actionBtn, { backgroundColor: '#25D366' + '22', borderColor: '#25D366' + '44' }]}
               onPress={() => sendWhatsApp(item)}
             >
-              <FontAwesome5 name="whatsapp" size={13} color="#16A34A" />
-              <Text style={[styles.actionBtnText, { color: '#16A34A' }]}>WhatsApp</Text>
+              <FontAwesome5 name="whatsapp" size={13} color="#25D366" />
+              <Text style={[styles.actionBtnText, { color: '#25D366' }]}>WhatsApp</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -322,7 +322,7 @@ export default function SharedSubscriptionsScreen() {
           const share = (sub.price * rate) / (sub.sharedWith!.length + 1);
           return (
             <View key={sub.id} style={[styles.personSubRow, { borderTopColor: colors.border }]}>
-              <View style={[styles.personSubDot, { backgroundColor: sub.colorCode || '#4F46E5' }]} />
+              <View style={[styles.personSubDot, { backgroundColor: sub.colorCode || colors.accent }]} />
               <Text style={[styles.personSubName, { color: colors.textMain }]} numberOfLines={1}>
                 {sub.name}
               </Text>
@@ -336,19 +336,19 @@ export default function SharedSubscriptionsScreen() {
         {/* Hatırlatma butonları */}
         <View style={[styles.personActions, { borderTopColor: colors.border }]}>
           <TouchableOpacity
-            style={[styles.actionBtn, { backgroundColor: '#DCFCE7', borderColor: '#BBF7D0' }]}
+            style={[styles.actionBtn, { backgroundColor: '#25D366' + '22', borderColor: '#25D366' + '44' }]}
             onPress={() => sendWhatsApp(data.subs[0], person)}
           >
-            <FontAwesome5 name="whatsapp" size={13} color="#16A34A" />
-            <Text style={[styles.actionBtnText, { color: '#16A34A' }]}>WhatsApp</Text>
+            <FontAwesome5 name="whatsapp" size={13} color="#25D366" />
+            <Text style={[styles.actionBtnText, { color: '#25D366' }]}>WhatsApp</Text>
           </TouchableOpacity>
           {isEmail && (
             <TouchableOpacity
-              style={[styles.actionBtn, { backgroundColor: '#EFF6FF', borderColor: '#BFDBFE' }]}
+              style={[styles.actionBtn, { backgroundColor: colors.accent + '18', borderColor: colors.accent + '35' }]}
               onPress={() => sendEmail(data.subs[0], person)}
             >
-              <Ionicons name="mail-outline" size={14} color="#3B82F6" />
-              <Text style={[styles.actionBtnText, { color: '#3B82F6' }]}>E-posta</Text>
+              <Ionicons name="mail-outline" size={14} color={colors.accent} />
+              <Text style={[styles.actionBtnText, { color: colors.accent }]}>E-posta</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -464,7 +464,7 @@ export default function SharedSubscriptionsScreen() {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <View style={[styles.subCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
-              <View style={[styles.subColorBar, { backgroundColor: item.colorCode || '#4F46E5' }]} />
+              <View style={[styles.subColorBar, { backgroundColor: item.colorCode || colors.accent }]} />
               <View style={styles.subCardBody}>
                 <View style={styles.subCardTop}>
                   <View style={{ flex: 1 }}>

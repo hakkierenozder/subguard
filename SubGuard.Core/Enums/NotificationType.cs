@@ -8,6 +8,7 @@ namespace SubGuard.Core.Enums
         Payment = 1,
         Budget = 2,
         Shared = 3,
-        Contract = 4
+        Contract = 4,
+        CategoryBudget = 5
     }
 }
