@@ -14,6 +14,8 @@ namespace SubGuard.Service.Services
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly IGenericRepository<UserSubscription> _subRepo;
+        // TODO: Teknik borç — AppDbContext doğrudan enjekte ediliyor.
+        // SubscriptionShare, NotificationQueue, RefreshToken için IGenericRepository<T> kullanılmalı.
         private readonly AppDbContext _db;
         private readonly ILogger<UserProfileService> _logger;
         private readonly IRevokedUserStore _revokedUserStore;

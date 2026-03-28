@@ -24,6 +24,8 @@ namespace SubGuard.Service.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
         private readonly ILogger<TokenService> _logger;
+        // TODO: Teknik borç — AppDbContext doğrudan enjekte ediliyor.
+        // RevokedUserEntry için IGenericRepository<T> kullanılmalı.
         private readonly AppDbContext _db;
 
         public TokenService(

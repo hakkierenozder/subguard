@@ -150,8 +150,8 @@ export default function HomeScreen() {
     // Bütçe yüzdesine göre renk (yeşil → sarı → turuncu → kırmızı)
     const getBudgetBarColor = () => {
         if (budgetPercentage >= 100) return colors.error;
-        if (budgetPercentage >= 80)  return '#F97316';
-        if (budgetPercentage >= 60)  return '#FBBF24';
+        if (budgetPercentage >= 80)  return colors.orange;
+        if (budgetPercentage >= 60)  return colors.warning;
         return colors.success;
     };
 
@@ -398,8 +398,8 @@ export default function HomeScreen() {
                                 </View>
                                 {thisWeekPayments.map((item, idx) => {
                                     const daysLeft = getDaysLeftForSub(item.billingDay, item.billingPeriod, item.createdDate);
-                                    const urgencyColor = daysLeft <= 2 ? colors.error : '#F97316';
-                                    const urgencyBg   = daysLeft <= 2 ? (colors.error + '20') : '#F9731620';
+                                    const urgencyColor = daysLeft <= 2 ? colors.error : colors.orange;
+                                    const urgencyBg   = daysLeft <= 2 ? (colors.error + '20') : (colors.orange + '20');
                                     const urgencyLabel = daysLeft === 0 ? 'Bugün!' : daysLeft === 1 ? 'Yarın!' : `${daysLeft} gün`;
                                     const anim = getCardAnim(idx);
                                     const itemColor = item.colorCode || colors.primary;
@@ -414,7 +414,7 @@ export default function HomeScreen() {
                                             key={item.id}
                                             style={[styles.upRow, {
                                                 backgroundColor: colors.cardBg,
-                                                borderColor: daysLeft <= 2 ? (colors.error + '60') : '#F9731660',
+                                                borderColor: daysLeft <= 2 ? (colors.error + '60') : (colors.orange + '60'),
                                                 opacity: anim,
                                                 transform: [{ translateX: anim.interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) }],
                                             }]}
@@ -523,8 +523,8 @@ export default function HomeScreen() {
                                                         </View>
                                                     )}
                                                     {contractDaysLeft !== null && contractDaysLeft <= 30 && (
-                                                        <View style={{ marginLeft: 6, paddingHorizontal: 5, paddingVertical: 1, borderRadius: 5, backgroundColor: contractDaysLeft <= 0 ? (colors.error + '20') : '#F9731620' }}>
-                                                            <Text style={{ fontSize: 10, fontWeight: '700', color: contractDaysLeft <= 0 ? colors.error : '#F97316' }}>
+                                                        <View style={{ marginLeft: 6, paddingHorizontal: 5, paddingVertical: 1, borderRadius: 5, backgroundColor: contractDaysLeft <= 0 ? (colors.error + '20') : (colors.orange + '20') }}>
+                                                            <Text style={{ fontSize: 10, fontWeight: '700', color: contractDaysLeft <= 0 ? colors.error : colors.orange }}>
                                                                 {contractDaysLeft <= 0 ? 'Kontrat bitti' : `Kontrat ${contractDaysLeft}g`}
                                                             </Text>
                                                         </View>

@@ -1,4 +1,5 @@
 ﻿using SubGuard.Core.Enums;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SubGuard.Core.Entities
@@ -6,6 +7,7 @@ namespace SubGuard.Core.Entities
     public class UserSubscription : BaseEntity
     {
         // Hangi Kullanıcı? (Şimdilik DeviceId veya basit bir UserId tutabiliriz)
+        [Required]
         public string UserId { get; set; }
 
         // Hangi Servis? (İlişkili Veri)
@@ -14,14 +16,17 @@ namespace SubGuard.Core.Entities
         public Catalog Catalog { get; set; }
 
         // Özelleştirilmiş Veriler
+        [Required]
         public string Name { get; set; } // Kullanıcı ismini değiştirebilir
         public decimal Price { get; set; }
 
         public string? ColorCode { get; set; }
 
+        [Required]
         public string Currency { get; set; }
         public int BillingDay { get; set; } // Fatura Günü (1-31)
         public BillingPeriod BillingPeriod { get; set; } = BillingPeriod.Monthly;
+        [Required]
         public string Category { get; set; }
 
         // Sözleşme Bilgileri

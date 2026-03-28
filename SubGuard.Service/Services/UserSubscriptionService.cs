@@ -21,6 +21,8 @@ namespace SubGuard.Service.Services
         private readonly IMapper _mapper;
         private readonly ILogger<UserSubscriptionService> _logger;
         private readonly UserManager<AppUser> _userManager;
+        // TODO: Teknik borç — AppDbContext doğrudan enjekte ediliyor.
+        // PriceHistory, SubscriptionShare, SubscriptionUsageLog için IGenericRepository<T> kullanılmalı.
         private readonly AppDbContext _db;
         private readonly INotificationService _notificationService;
 

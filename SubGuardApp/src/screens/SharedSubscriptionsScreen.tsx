@@ -23,7 +23,7 @@ import { UserSubscription } from '../types';
 
 type Tab = 'subs' | 'people' | 'benimle';
 
-const WHATSAPP_GREEN = WHATSAPP_GREEN;
+const WHATSAPP_GREEN = '#25D366';
 
 // --- Yardımcılar ---
 
@@ -188,7 +188,10 @@ function ManagePartnersPanel({ sub, colors, onClose, onUpdate }: ManageModalProp
 export default function SharedSubscriptionsScreen() {
   const colors = useThemeColors();
   const isDarkMode = useSettingsStore((s) => s.isDarkMode);
-  const { subscriptions, sharedWithMe, exchangeRates, updateSubscription, fetchSharedWithMe, fetchUserSubscriptions } = useUserSubscriptionStore();
+  const {
+    subscriptions, sharedWithMe, sharedWithMeHasMore, loadingSharedWithMe,
+    exchangeRates, updateSubscription, fetchSharedWithMe, loadMoreSharedWithMe, fetchUserSubscriptions,
+  } = useUserSubscriptionStore();
 
   const [activeTab, setActiveTab] = useState<Tab>('subs');
   const [managingSub, setManagingSub] = useState<UserSubscription | null>(null);
@@ -565,6 +568,9 @@ export default function SharedSubscriptionsScreen() {
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+          onEndReached={() => { if (sharedWithMeHasMore) loadMoreSharedWithMe(); }}
+          onEndReachedThreshold={0.3}
+          ListFooterComponent={loadingSharedWithMe ? <ActivityIndicator color={colors.accent} style={{ marginVertical: 12 }} /> : null}
           ListEmptyComponent={
             <View style={styles.emptyWrap}>
               <Ionicons name="share-social-outline" size={52} color={colors.textSec} />

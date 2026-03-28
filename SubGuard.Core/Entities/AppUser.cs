@@ -36,5 +36,6 @@ namespace SubGuard.Core.Entities
         public string? OtpToken { get; set; }          // Base64Url'li Identity token
         public string? OtpType { get; set; }           // "email_confirm" | "pwd_reset"
         public DateTime? OtpExpiry { get; set; }       // UTC son geçerlilik tarihi
+        public int OtpFailedAttempts { get; set; } = 0; // Hatalı OTP deneme sayacı (5'e ulaşınca OTP geçersiz kılınır)
     }
 }

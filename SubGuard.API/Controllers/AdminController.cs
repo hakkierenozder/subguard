@@ -199,6 +199,37 @@ namespace SubGuard.API.Controllers
             _logger.LogWarning("[AUDIT] Admin {AdminId} kullanıcıya Admin rolü atadı. TargetEmail: {Email}", AdminId, PiiSanitizer.MaskEmail(dto.Email));
             return CreateActionResult(CustomResponseDto<bool>.Success(200, true));
         }
+
+        /// <summary>Belirtilen kullanıcıdan Admin rolünü kaldırır.</summary>
+        // DELETE api/admin/assign-role
+        [HttpDelete("assign-role")]
+        [Consumes("application/json")]
+        [ProducesResponseType(typeof(CustomResponseDto<bool>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(CustomResponseDto<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(CustomResponseDto<object>), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> RemoveAdminRole([FromBody] AssignRoleDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto?.Email))
+                return CreateActionResult(CustomResponseDto<bool>.Fail(400, "E-posta adresi gereklidir."));
+
+            var user = await _userManager.FindByEmailAsync(dto.Email);
+            if (user == null)
+                return CreateActionResult(CustomResponseDto<bool>.Fail(404, "Kullanıcı bulunamadı."));
+
+            if (!await _userManager.IsInRoleAsync(user, "Admin"))
+                return CreateActionResult(CustomResponseDto<bool>.Fail(400, "Kullanıcı Admin rolüne sahip değil."));
+
+            // Kendini Admin'den düşürmeyi engelle
+            if (user.Id == AdminId)
+                return CreateActionResult(CustomResponseDto<bool>.Fail(400, "Kendi Admin rolünüzü kaldıramazsınız."));
+
+            var result = await _userManager.RemoveFromRoleAsync(user, "Admin");
+            if (!result.Succeeded)
+                return CreateActionResult(CustomResponseDto<bool>.Fail(400, result.Errors.Select(e => e.Description).ToList()));
+
+            _logger.LogWarning("[AUDIT] Admin {AdminId} kullanıcıdan Admin rolünü kaldırdı. TargetEmail: {Email}", AdminId, PiiSanitizer.MaskEmail(dto.Email));
+            return CreateActionResult(CustomResponseDto<bool>.Success(200, true));
+        }
     }
 
 }

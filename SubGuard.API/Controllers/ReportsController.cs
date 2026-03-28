@@ -20,13 +20,14 @@ namespace SubGuard.API.Controllers
             _reportService = reportService;
         }
 
-        // GET api/reports/spending?from=2025-01-01&to=2025-12-31
+        // GET api/reports/spending?from=2025-01-01T00:00:00%2B03:00&to=2025-12-31T23:59:59%2B03:00
         [HttpGet("spending")]
         public async Task<IActionResult> GetSpending(
-            [FromQuery] DateTime from,
-            [FromQuery] DateTime to)
+            [FromQuery] DateTimeOffset from,
+            [FromQuery] DateTimeOffset to)
         {
-            return CreateActionResult(await _reportService.GetSpendingReportAsync(LoggedInUserId, from, to));
+            return CreateActionResult(await _reportService.GetSpendingReportAsync(
+                LoggedInUserId, from.UtcDateTime, to.UtcDateTime));
         }
     }
 }

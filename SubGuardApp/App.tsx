@@ -124,6 +124,8 @@ function AppTabs() {
     >
       <Tab.Screen name="Home" component={HomeScreen} options={{ title: 'Ana Sayfa' }} />
       <Tab.Screen name="MySubscriptions" component={MySubscriptionsScreen} options={{ title: 'Abonelikler' }} />
+      {/* AnalyticsScreen: sekme düzeyinde özet grafikler (harcama dağılımı, kategori bazlı).
+          Tarih aralıklı detaylı harcama raporu için bkz. ReportsScreen (Stack içinde). */}
       <Tab.Screen name="Analytics" component={AnalyticsScreen} options={{ title: 'Analiz' }} />
       <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: 'Ayarlar' }} />
     </Tab.Navigator>

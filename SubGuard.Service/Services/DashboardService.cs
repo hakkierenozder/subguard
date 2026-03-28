@@ -81,7 +81,11 @@ namespace SubGuard.Service.Services
             var today = DateTime.UtcNow;
             var upcomingPayments = CalcUpcomingPayments(paymentProjections, today, upcomingDays);
 
-            var budgetSummary = await CalcBudgetSummaryAsync(userId, baseQuery);
+            var budgetCalcItems = allSubData
+                .Select(x => new BudgetCalcItem(x.Price, x.Currency, x.BillingPeriod))
+                .ToList();
+
+            var budgetSummary = await CalcBudgetSummaryAsync(userId, budgetCalcItems);
 
             var dashboard = new DashboardDto
             {
@@ -98,7 +102,8 @@ namespace SubGuard.Service.Services
         }
 
         private async Task<BudgetSummaryDto?> CalcBudgetSummaryAsync(
-            string userId, IQueryable<UserSubscription> baseQuery)
+            string userId,
+            IEnumerable<BudgetCalcItem> preloadedSubs)
         {
             var user = await _userManager.FindByIdAsync(userId);
 
@@ -108,12 +113,8 @@ namespace SubGuard.Service.Services
             // Kur bilgilerini cache'den çek
             var rates = await _currencyService.GetRatesAsync();
 
-            // Tüm abonelik fiyatlarını bütçe para birimine çevirerek topla
-            var allSubs = await baseQuery
-                .Select(x => new { x.Price, x.Currency, x.BillingPeriod })
-                .ToListAsync();
-
-            var totalSpent = allSubs.Sum(x =>
+            // allSubData zaten GetDashboardAsync içinde çekildi — ikinci DB sorgusu yok
+            var totalSpent = preloadedSubs.Sum(x =>
                 BillingPriceHelper.ConvertToTargetCurrency(
                     BillingPriceHelper.ToMonthlyEquivalent(x.Price, x.BillingPeriod),
                     x.Currency, user.MonthlyBudgetCurrency, rates));
@@ -196,6 +197,9 @@ namespace SubGuard.Service.Services
 
             return result.OrderBy(x => x.DaysUntilPayment).ToList();
         }
+
+        // Bütçe hesabı için minimal projeksiyon — GetDashboardAsync'den geçirilir, ikinci DB sorgusu önlenir
+        private record BudgetCalcItem(decimal Price, string Currency, BillingPeriod BillingPeriod);
 
         // UpcomingPayments hesabı için gerekli alanları taşır
         private record SubscriptionPaymentData(

@@ -51,6 +51,7 @@ namespace SubGuard.API.Controllers
         public async Task<IActionResult> CreateTokenByRefreshToken(RefreshTokenDto refreshTokenDto)
             => CreateActionResult(await _tokenService.CreateTokenByRefreshTokenAsync(refreshTokenDto));
 
+        [Authorize]
         [HttpPost("revoke-refresh-token")]
         [EnableRateLimiting("auth")]
         public async Task<IActionResult> RevokeRefreshToken([FromBody] RefreshTokenDto refreshTokenDto)

@@ -20,6 +20,7 @@ import * as Notifications from 'expo-notifications';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
 import { useSettingsStore } from '../store/useSettingsStore';
+import { useThemeColors } from '../constants/theme';
 import agent from '../api/agent';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -77,6 +78,7 @@ const PAGES: OnboardingPage[] = [
 ];
 
 export default function OnboardingScreen({ navigation }: Props) {
+  const colors = useThemeColors();
   const { setOnboardingCompleted } = useSettingsStore();
   const flatListRef = useRef<FlatList>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -157,7 +159,7 @@ export default function OnboardingScreen({ navigation }: Props) {
                 value={budgetInput}
                 onChangeText={setBudgetInput}
                 placeholder="0"
-                placeholderTextColor="#94A3B8"
+                placeholderTextColor={colors.inactive}
                 keyboardType="numeric"
               />
             </View>
@@ -178,13 +180,13 @@ export default function OnboardingScreen({ navigation }: Props) {
               </TouchableOpacity>
             ) : notifGranted ? (
               <View style={styles.notifGranted}>
-                <Ionicons name="checkmark-circle" size={18} color="#10B981" />
-                <Text style={styles.notifGrantedText}>Bildirimler açık!</Text>
+                <Ionicons name="checkmark-circle" size={18} color={colors.success} />
+                <Text style={[styles.notifGrantedText, { color: colors.success }]}>Bildirimler açık!</Text>
               </View>
             ) : (
               <View style={styles.notifGranted}>
-                <Ionicons name="close-circle-outline" size={18} color="#EF4444" />
-                <Text style={[styles.notifGrantedText, { color: '#EF4444' }]}>
+                <Ionicons name="close-circle-outline" size={18} color={colors.error} />
+                <Text style={[styles.notifGrantedText, { color: colors.error }]}>
                   İzin verilmedi. Ayarlardan açabilirsin.
                 </Text>
               </View>
@@ -230,7 +232,7 @@ export default function OnboardingScreen({ navigation }: Props) {
                 styles.dot,
                 {
                   width: dotAnims[i],
-                  backgroundColor: i === currentIndex ? '#4F46E5' : '#CBD5E1',
+                  backgroundColor: i === currentIndex ? colors.accent : colors.border,
                 },
               ]}
             />

@@ -39,7 +39,9 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
     setBudgetAlertThreshold(t);
     try {
       await agent.Auth.updateProfile({ budgetAlertThreshold: t });
-    } catch {} // Sessizce başarısız ol — yerel ayar zaten güncellendi
+    } catch {
+      Alert.alert('Senkronizasyon Hatası', 'Uyarı eşiği sunucuya kaydedilemedi. Bağlantınızı kontrol edin.');
+    }
   };
   const { subscriptions } = useUserSubscriptionStore();
   const [budgetCurrency, setBudgetCurrency] = useState('TRY');

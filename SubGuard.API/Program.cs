@@ -431,11 +431,12 @@ try
     // Production: yalnÄ±zca geÃ§erli JWT token'Ä± olan Admin rolÃ¼ndeki kullanÄ±cÄ±lar girebilir.
     app.UseHangfireDashboard("/hangfire", new DashboardOptions
     {
+        // Development: yalnızca localhost erişimi yeterli — JWT gerektirmez, geliştirici doğrudan açabilir.
+        // Production: geçerli Admin JWT token'ı zorunlu.
         Authorization = app.Environment.IsDevelopment()
             ? new IDashboardAuthorizationFilter[]
               {
-                  new LocalRequestsOnlyAuthorizationFilter(),
-                  new SubGuard.API.Middlewares.HangfireAdminAuthorizationFilter()
+                  new LocalRequestsOnlyAuthorizationFilter()
               }
             : new IDashboardAuthorizationFilter[]
               {

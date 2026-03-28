@@ -173,10 +173,10 @@ function StatsTab() {
     >
       {/* Özet Kartlar */}
       <View style={styles.statsGrid}>
-        <StatCard icon="people" label="Kullanıcı" value={stats?.totalUsers ?? 0} color="#6366F1" bg="#EEF2FF" />
-        <StatCard icon="checkmark-circle" label="Aktif Abonelik" value={stats?.activeSubscriptions ?? 0} color="#10B981" bg="#D1FAE5" />
-        <StatCard icon="card" label="Toplam Abonelik" value={stats?.totalSubscriptions ?? 0} color="#F97316" bg="#FFEDD5" />
-        <StatCard icon="trending-up" label="Kataloğu Olan" value={stats?.topCatalogs?.length ?? 0} color="#8B5CF6" bg="#EDE9FE" />
+        <StatCard icon="people" label="Kullanıcı" value={stats?.totalUsers ?? 0} color={colors.accent} bg={colors.accent + '18'} />
+        <StatCard icon="checkmark-circle" label="Aktif Abonelik" value={stats?.activeSubscriptions ?? 0} color={colors.success} bg={colors.success + '18'} />
+        <StatCard icon="card" label="Toplam Abonelik" value={stats?.totalSubscriptions ?? 0} color={colors.orange} bg={colors.orange + '18'} />
+        <StatCard icon="trending-up" label="Kataloğu Olan" value={stats?.topCatalogs?.length ?? 0} color={colors.purple} bg={colors.purple + '18'} />
       </View>
 
       {/* En Popüler Kataloglar */}
@@ -375,7 +375,7 @@ function UsersTab() {
             {item.fullName || '—'}
           </Text>
           {item.isAdmin && (
-            <View style={styles.adminBadge}>
+            <View style={[styles.adminBadge, { backgroundColor: colors.accent }]}>
               <Text style={styles.adminBadgeText}>Admin</Text>
             </View>
           )}
@@ -383,7 +383,7 @@ function UsersTab() {
         <Text style={[styles.userEmail, { color: colors.textSec }]} numberOfLines={1}>{item.email}</Text>
         <Text style={[styles.userMeta, { color: colors.textSec }]}>{item.subscriptionCount} abonelik</Text>
       </View>
-      <View style={[styles.statusDot, { backgroundColor: item.isActive ? '#10B981' : '#EF4444' }]} />
+      <View style={[styles.statusDot, { backgroundColor: item.isActive ? colors.success : colors.error }]} />
     </TouchableOpacity>
   );
 
@@ -419,7 +419,7 @@ function UsersTab() {
         </View>
       ) : error ? (
         <View style={styles.centered}>
-          <Ionicons name="alert-circle-outline" size={40} color="#EF4444" />
+          <Ionicons name="alert-circle-outline" size={40} color={colors.error} />
           <Text style={[styles.emptyText, { color: colors.textSec, marginTop: 8, textAlign: 'center' }]}>{error}</Text>
           <TouchableOpacity onPress={() => loadUsers(search, 1)} style={{ marginTop: 12 }}>
             <Text style={{ color: colors.accent, fontWeight: '700' }}>Tekrar Dene</Text>
@@ -859,7 +859,7 @@ const styles = StyleSheet.create({
   userInfo: { flex: 1 },
   userNameRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 2 },
   userName: { fontSize: 14, fontWeight: '600', flexShrink: 1 },
-  adminBadge: { backgroundColor: '#4F46E5', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 },
+  adminBadge: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 },
   adminBadgeText: { color: '#fff', fontSize: 9, fontWeight: '700' },
   userEmail: { fontSize: 12, marginBottom: 2 },
   userMeta: { fontSize: 11 },

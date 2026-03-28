@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using SubGuard.Core.Services;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 namespace SubGuard.API.Controllers
@@ -24,7 +25,7 @@ namespace SubGuard.API.Controllers
         // GET api/dashboard
         // GET api/dashboard?upcomingDays=7
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] int upcomingDays = 30)
+        public async Task<IActionResult> Get([FromQuery][Range(1, 365)] int upcomingDays = 30)
         {
             return CreateActionResult(await _dashboardService.GetDashboardAsync(LoggedInUserId, upcomingDays));
         }

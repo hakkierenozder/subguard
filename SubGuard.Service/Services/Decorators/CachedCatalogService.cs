@@ -81,7 +81,8 @@ namespace SubGuard.Service.Services.Decorators
         public async Task<CustomResponseDto<bool>> UpdateCatalogAsync(int id, ServiceDto dto)
         {
             var result = await _innerService.UpdateCatalogAsync(id, dto);
-            if (result.StatusCode == 204)
+            // 200 veya 204 — her iki başarı durumunda da cache'i geçersiz kıl
+            if (result.StatusCode is 200 or 204)
             {
                 InvalidateCache();
                 _memoryCache.Remove($"catalog_{id}");
@@ -92,7 +93,8 @@ namespace SubGuard.Service.Services.Decorators
         public async Task<CustomResponseDto<bool>> DeleteCatalogAsync(int id)
         {
             var result = await _innerService.DeleteCatalogAsync(id);
-            if (result.StatusCode == 204)
+            // 200 veya 204 — her iki başarı durumunda da cache'i geçersiz kıl
+            if (result.StatusCode is 200 or 204)
             {
                 InvalidateCache();
                 _memoryCache.Remove($"catalog_{id}");
@@ -114,7 +116,7 @@ namespace SubGuard.Service.Services.Decorators
         public async Task<CustomResponseDto<bool>> UpdatePlanAsync(int id, PlanDto dto, int? catalogId = null)
         {
             var result = await _innerService.UpdatePlanAsync(id, dto, catalogId);
-            if (result.StatusCode == 204)
+            if (result.StatusCode is 200 or 204)
             {
                 InvalidateCache();
                 if (catalogId.HasValue)
@@ -126,7 +128,7 @@ namespace SubGuard.Service.Services.Decorators
         public async Task<CustomResponseDto<bool>> DeletePlanAsync(int id, int? catalogId = null)
         {
             var result = await _innerService.DeletePlanAsync(id, catalogId);
-            if (result.StatusCode == 204)
+            if (result.StatusCode is 200 or 204)
             {
                 InvalidateCache();
                 if (catalogId.HasValue)

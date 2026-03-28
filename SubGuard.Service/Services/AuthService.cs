@@ -123,8 +123,25 @@ namespace SubGuard.Service.Services
             }
 
             if (user.OtpCode != otp.Trim())
+            {
+                user.OtpFailedAttempts++;
+                if (user.OtpFailedAttempts >= 5)
+                {
+                    // 5 hatalı denemede OTP'yi geçersiz kıl
+                    user.OtpCode = null;
+                    user.OtpToken = null;
+                    user.OtpType = null;
+                    user.OtpExpiry = null;
+                    user.OtpFailedAttempts = 0;
+                    await _userManager.UpdateAsync(user);
+                    _logger.LogWarning("E-posta OTP brute force sınırı aşıldı, OTP sıfırlandı. UserId: {UserId}", user.Id);
+                    return CustomResponseDto<bool>.Fail(400, "Çok fazla hatalı deneme. Lütfen yeni bir doğrulama kodu isteyin.");
+                }
+                await _userManager.UpdateAsync(user);
                 return CustomResponseDto<bool>.Fail(400, "Doğrulama kodu hatalı.");
+            }
 
+            user.OtpFailedAttempts = 0;
             var encodedToken = user.OtpToken;
             var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(encodedToken));
             var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
@@ -141,6 +158,7 @@ namespace SubGuard.Service.Services
             user.OtpToken = null;
             user.OtpType = null;
             user.OtpExpiry = null;
+            user.OtpFailedAttempts = 0;
             await _userManager.UpdateAsync(user);
 
             _logger.LogInformation("E-posta doğrulandı. Email: {Email}",
@@ -220,8 +238,24 @@ namespace SubGuard.Service.Services
             }
 
             if (user.OtpCode != otp.Trim())
+            {
+                user.OtpFailedAttempts++;
+                if (user.OtpFailedAttempts >= 5)
+                {
+                    user.OtpCode = null;
+                    user.OtpToken = null;
+                    user.OtpType = null;
+                    user.OtpExpiry = null;
+                    user.OtpFailedAttempts = 0;
+                    await _userManager.UpdateAsync(user);
+                    _logger.LogWarning("Şifre sıfırlama OTP brute force sınırı aşıldı, OTP sıfırlandı. UserId: {UserId}", userId);
+                    return CustomResponseDto<bool>.Fail(400, "Çok fazla hatalı deneme. Lütfen tekrar 'Şifremi Unuttum' işlemini başlatın.");
+                }
+                await _userManager.UpdateAsync(user);
                 return CustomResponseDto<bool>.Fail(400, "Girilen kod hatalı.");
+            }
 
+            user.OtpFailedAttempts = 0;
             var encodedToken = user.OtpToken;
             var rawToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(encodedToken));
             var result = await _userManager.ResetPasswordAsync(user, rawToken, newPassword);
@@ -237,6 +271,7 @@ namespace SubGuard.Service.Services
             user.OtpToken = null;
             user.OtpType = null;
             user.OtpExpiry = null;
+            user.OtpFailedAttempts = 0;
             await _userManager.UpdateAsync(user);
 
             _logger.LogInformation("Şifre sıfırlandı. UserId: {UserId}", userId);

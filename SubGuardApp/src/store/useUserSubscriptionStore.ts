@@ -15,6 +15,9 @@ const surveyKey = (id: string) => `@survey_${id}`;
 interface UserSubscriptionState {
   subscriptions: UserSubscription[];
   sharedWithMe: UserSubscription[];
+  sharedWithMePage: number;
+  sharedWithMeHasMore: boolean;
+  loadingSharedWithMe: boolean;
   loading: boolean;
   loadingMore: boolean;
   page: number;
@@ -29,6 +32,7 @@ interface UserSubscriptionState {
   loadMoreSubscriptions: () => Promise<void>;
   setSearchQuery: (q: string) => void; // F-5: arama sorgusunu güncelle
   fetchSharedWithMe: () => Promise<void>;
+  loadMoreSharedWithMe: () => Promise<void>;
   addSubscription: (sub: AddSubscriptionPayload) => Promise<void>;
   removeSubscription: (id: string) => Promise<void>;
   updateSubscription: (id: string, updatedData: Partial<UserSubscription>) => Promise<void>;
@@ -79,9 +83,14 @@ const getDaysUntilNextBilling = (sub: UserSubscription): number => {
   return Math.ceil((next.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 };
 
+const SHARED_PAGE_SIZE = 20;
+
 export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get) => ({
   subscriptions: [],
   sharedWithMe: [],
+  sharedWithMePage: 1,
+  sharedWithMeHasMore: false,
+  loadingSharedWithMe: false,
   loading: false,
   loadingMore: false,
   page: 1,
@@ -90,14 +99,9 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
   hasMore: false,
   searchQuery: '', // F-5
 
-  // Fallback kurlar — sadece API çağrısı başarısız olursa kullanılır.
-  // Uygulama açılışında fetchExchangeRates() gerçek kurları yükler (Fix 15 & 16).
-  exchangeRates: {
-      USD: 38.0,
-      EUR: 41.0,
-      GBP: 48.0,
-      TRY: 1.0
-  },
+  // Fallback kurlar — AsyncStorage'dan yüklenene veya API başarılı olana kadar kullanılır.
+  // Gerçek kurlar fetchExchangeRates() sonrası hem store'a hem AsyncStorage'a kaydedilir.
+  exchangeRates: { TRY: 1.0 },
 
   reset: () => set({
     subscriptions: [],
@@ -198,34 +202,74 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
     }
   },
 
-  // YENİ FONKSİYON
   fetchExchangeRates: async () => {
+      // Önce AsyncStorage'dan son bilinen kurları yükle (offline veya API yavaşsa bile doğru kur gösterilir)
+      try {
+          const cached = await AsyncStorage.getItem('@exchange_rates');
+          if (cached) {
+              const parsed = JSON.parse(cached);
+              set(state => ({ exchangeRates: { ...state.exchangeRates, ...parsed, TRY: 1.0 } }));
+          }
+      } catch {}
+      // Ardından API'den güncel kurları çek ve hem store'a hem cache'e yaz
       try {
           const response = await agent.Currencies.list();
           if (response && response.data) {
-              set(state => ({
-                  exchangeRates: { ...state.exchangeRates, ...response.data, TRY: 1.0 }
-              }));
+              const rates = { ...response.data, TRY: 1.0 };
+              set(state => ({ exchangeRates: { ...state.exchangeRates, ...rates } }));
+              await AsyncStorage.setItem('@exchange_rates', JSON.stringify(rates));
           }
       } catch (error) {
-          console.error("Kurlar çekilemedi, varsayılanlar kullanılacak.", error);
+          console.error("Kurlar çekilemedi, son bilinen değerler kullanılıyor.", error);
       }
   },
 
-  // BENİMLE PAYLAŞILANLAR
-  // #34: pageSize=100 — SharedSubscriptionsScreen'de pagination uygulanmıyor;
-  // tüm kayıtları tek istekte çekmek için varsayılan 20 yerine 100 kullanılır.
+  // BENİMLE PAYLAŞILANLAR — ilk sayfa
   fetchSharedWithMe: async () => {
+    set({ loadingSharedWithMe: true });
     try {
-      const response = await agent.UserSubscriptions.sharedWithMe(1, 100);
+      const response = await agent.UserSubscriptions.sharedWithMe(1, SHARED_PAGE_SIZE);
       if (response && response.data) {
         const raw = response.data;
         const rawItems: any[] = Array.isArray(raw) ? raw : (raw?.items ?? []);
+        const totalCount: number = raw?.totalCount ?? rawItems.length;
         const formatted = formatItems(rawItems);
-        set({ sharedWithMe: formatted });
+        set({
+          sharedWithMe: formatted,
+          sharedWithMePage: 1,
+          sharedWithMeHasMore: totalCount > SHARED_PAGE_SIZE,
+        });
       }
     } catch (error) {
       console.error('Benimle paylaşılanlar çekilemedi:', error);
+    } finally {
+      set({ loadingSharedWithMe: false });
+    }
+  },
+
+  // BENİMLE PAYLAŞILANLAR — sonraki sayfa (infinite scroll)
+  loadMoreSharedWithMe: async () => {
+    const { sharedWithMePage, sharedWithMeHasMore, loadingSharedWithMe } = get();
+    if (!sharedWithMeHasMore || loadingSharedWithMe) return;
+    set({ loadingSharedWithMe: true });
+    try {
+      const nextPage = sharedWithMePage + 1;
+      const response = await agent.UserSubscriptions.sharedWithMe(nextPage, SHARED_PAGE_SIZE);
+      if (response && response.data) {
+        const raw = response.data;
+        const rawItems: any[] = Array.isArray(raw) ? raw : (raw?.items ?? []);
+        const totalCount: number = raw?.totalCount ?? 0;
+        const formatted = formatItems(rawItems);
+        set((state) => ({
+          sharedWithMe: [...state.sharedWithMe, ...formatted],
+          sharedWithMePage: nextPage,
+          sharedWithMeHasMore: state.sharedWithMe.length + formatted.length < totalCount,
+        }));
+      }
+    } catch (error) {
+      console.error('Daha fazla paylaşım çekilemedi:', error);
+    } finally {
+      set({ loadingSharedWithMe: false });
     }
   },
 
@@ -349,7 +393,6 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
           contractStartDate: newSub.contractStartDate ?? null,
           contractEndDate: newSub.contractEndDate ?? null,
           notes: newSub.notes ?? null,
-          sharedWithJson: newSub.sharedWith ? JSON.stringify(newSub.sharedWith) : null,
         };
         await agent.UserSubscriptions.update(id, payload);
       }

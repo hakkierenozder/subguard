@@ -24,6 +24,8 @@ namespace SubGuard.Service.Services
         private readonly IEnumerable<INotificationSender> _senders;
         private readonly UserManager<AppUser> _userManager;
         private readonly ILogger<NotificationService> _logger;
+        // TODO: Teknik borç — AppDbContext doğrudan enjekte ediliyor.
+        // CategoryBudget, SubscriptionShare için IGenericRepository<T> kullanılmalı.
         private readonly AppDbContext _db;
         private readonly ICurrencyService _currencyService;
 
@@ -54,7 +56,10 @@ namespace SubGuard.Service.Services
         // B-11: Batch sorgularla N+1 problemi çözüldü
         public async Task CheckAndQueueUpcomingPaymentsAsync()
         {
-            var trTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time");
+            // Windows: "Turkey Standard Time", Linux/Docker: "Europe/Istanbul"
+            var trTimeZone = TimeZoneInfo.GetSystemTimeZones()
+                .FirstOrDefault(tz => tz.Id == "Turkey Standard Time" || tz.Id == "Europe/Istanbul")
+                ?? TimeZoneInfo.Utc;
             var currentHour = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, trTimeZone).Hour;
             var today = DateTime.UtcNow.Date;
 
@@ -290,7 +295,10 @@ namespace SubGuard.Service.Services
         // --- #12 Kontrat sona erme hatırlatması ---
         public async Task CheckAndQueueContractExpiriesAsync(int daysBefore)
         {
-            var trTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time");
+            // Windows: "Turkey Standard Time", Linux/Docker: "Europe/Istanbul"
+            var trTimeZone = TimeZoneInfo.GetSystemTimeZones()
+                .FirstOrDefault(tz => tz.Id == "Turkey Standard Time" || tz.Id == "Europe/Istanbul")
+                ?? TimeZoneInfo.Utc;
             var currentHour = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, trTimeZone).Hour;
 
             var targetDate = DateTime.UtcNow.Date.AddDays(daysBefore);
