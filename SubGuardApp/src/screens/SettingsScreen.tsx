@@ -15,7 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import EditProfileModal from '../components/EditProfileModal';
 import ChangePasswordModal from '../components/ChangePasswordModal';
-import * as LocalAuthentication from 'expo-local-authentication';
+
 
 // ─── Yardımcı Bileşenler ────────────────────────────────────────────────────
 
@@ -147,7 +147,7 @@ export default function SettingsScreen() {
     notifyDaysBefore, budgetAlertEnabled, sharedAlertEnabled, emailEnabled, notifyHour,
     setNotifyDaysBefore, setBudgetAlertEnabled, setSharedAlertEnabled, setEmailEnabled, setNotifyHour,
     defaultCurrency, autoConvert, setDefaultCurrency, setAutoConvert,
-    appLockEnabled, setAppLockEnabled,
+
     calendarSyncEnabled, setCalendarSyncEnabled,
     dashboardUpcomingDays, setDashboardUpcomingDays,
     isAdmin, setIsAdmin,
@@ -157,12 +157,10 @@ export default function SettingsScreen() {
   const { subscriptions, getTotalExpense } = useUserSubscriptionStore();
 
   // calendarSyncEnabled artık useSettingsStore'dan geliyor (Fix 13)
-  const [userProfile, setUserProfile] = useState<{ fullName: string; email: string; monthlyBudget: number } | null>(null);
+  const [userProfile, setUserProfile] = useState<{ fullName: string; email: string; monthlyBudget: number; monthlyBudgetCurrency: string } | null>(null);
   const [showEditProfile, setShowEditProfile]       = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showNotifPrefs, setShowNotifPrefs]         = useState(false);
-  // U-6: dinamik biyometrik etiket
-  const [biometricLabel, setBiometricLabel] = useState('Biyometrik Kilit');
 
   const loadProfile = async () => {
     try {
@@ -202,13 +200,6 @@ export default function SettingsScreen() {
     loadNotifPrefs();
   }, []));
 
-  // U-6: Cihazın desteklediği biyometrik türü belirle
-  useEffect(() => {
-    LocalAuthentication.supportedAuthenticationTypesAsync().then(types => {
-      const hasFaceId = types.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION);
-      setBiometricLabel(hasFaceId ? 'Face ID ile Aç' : 'Parmak İzi ile Aç');
-    }).catch(() => {});
-  }, []);
 
   // Hesaplamalar
   const activeCount  = subscriptions.filter(s => s.isActive !== false).length;
@@ -284,30 +275,6 @@ export default function SettingsScreen() {
     syncNotifPrefs({ reminderDaysBefore: days });
   };
 
-  const handleAppLockToggle = async (value: boolean) => {
-    if (value) {
-      const compatible = await LocalAuthentication.hasHardwareAsync();
-      const enrolled = await LocalAuthentication.isEnrolledAsync();
-      if (!compatible || !enrolled) {
-        Alert.alert(
-          'Biyometrik Kullanılamıyor',
-          'Cihazınızda Face ID veya parmak izi kaydı bulunamadı. Lütfen cihaz ayarlarından biyometrik kimlik ekleyin.',
-        );
-        return;
-      }
-      setAppLockEnabled(true);
-    } else {
-      // F-7: kilidi kapatmak için de biyometrik doğrulama gerekli
-      const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: 'Uygulama kilidini kapatmak için kimliğinizi doğrulayın',
-      });
-      if (result.success) {
-        setAppLockEnabled(false);
-      } else {
-        Alert.alert('Doğrulama Başarısız', 'Uygulama kilidi kapatılamadı.');
-      }
-    }
-  };
 
   const handleExportData = async () => {
     try {
@@ -650,16 +617,6 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        {/* ── 22. GÜVENLİK / UYGULAMA KİLİDİ ── */}
-        <Text style={[styles.sectionLabel, { color: colors.textSec }]}>GÜVENLİK</Text>
-        <View style={[styles.section, { borderColor: colors.border }]}>
-          <MenuItem
-            icon="finger-print-outline" iconColor="#6366F1" iconBg={isDarkMode ? '#1E1B4B' : '#EEF2FF'}
-            title={biometricLabel}
-            subtitle={appLockEnabled ? 'Açık — uygulama açılışında kimlik doğrulama' : 'Kapalı'}
-            hasSwitch value={appLockEnabled} onToggle={handleAppLockToggle} isLast
-          />
-        </View>
 
         {/* ── 21. VERİ & GİZLİLİK ── */}
         <Text style={[styles.sectionLabel, { color: colors.textSec }]}>VERİ & GİZLİLİK</Text>

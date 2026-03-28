@@ -65,6 +65,10 @@ function ManagePartnersPanel({ sub, colors, onClose, onUpdate }: ManageModalProp
   const addPartner = () => {
     const trimmed = inputText.trim();
     if (!trimmed) return;
+    if (!trimmed.includes('@') || trimmed.indexOf('@') === 0 || !trimmed.includes('.', trimmed.indexOf('@'))) {
+      Alert.alert('Geçersiz E-posta', 'Lütfen geçerli bir e-posta adresi girin.');
+      return;
+    }
     if (partners.includes(trimmed)) {
       Alert.alert('Zaten ekli', `"${trimmed}" listede mevcut.`);
       return;
@@ -112,7 +116,7 @@ function ManagePartnersPanel({ sub, colors, onClose, onUpdate }: ManageModalProp
       <View style={[styles.addRow, { borderColor: colors.border }]}>
         <TextInput
           style={[styles.addInput, { color: colors.textMain, backgroundColor: colors.inputBg }]}
-          placeholder="İsim veya e-posta ekle"
+          placeholder="E-posta adresi girin"
           placeholderTextColor={colors.textSec}
           value={inputText}
           onChangeText={setInputText}
@@ -485,11 +489,21 @@ export default function SharedSubscriptionsScreen() {
                 <View style={styles.partnersRow}>
                   <Ionicons name="person-circle-outline" size={14} color={colors.textSec} />
                   <Text style={[styles.partnersText, { color: colors.textSec }]}>
-                    {item.sharedWith && item.sharedWith.length > 0
-                      ? `Sahip + ${item.sharedWith.join(', ')}`
-                      : 'Sahibi tarafından paylaşıldı'}
+                    {item.ownerFullName
+                      ? `Paylaşan: ${item.ownerFullName}`
+                      : item.ownerEmail
+                        ? `Paylaşan: ${item.ownerEmail}`
+                        : 'Sahibi tarafından paylaşıldı'}
                   </Text>
                 </View>
+                {item.sharedAt && (
+                  <View style={[styles.partnersRow, { marginTop: 2 }]}>
+                    <Ionicons name="calendar-outline" size={13} color={colors.textSec} />
+                    <Text style={[styles.partnersText, { color: colors.textSec, fontSize: 11 }]}>
+                      {new Date(item.sharedAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    </Text>
+                  </View>
+                )}
               </View>
             </View>
           )}

@@ -15,9 +15,13 @@ interface Props {
   onForceLogout: () => void;
 }
 
+// 5 başarısız denemeden sonra PIN kilidi açılıp kullanıcı otomatik çıkış yapılır.
+const MAX_ATTEMPTS = 5;
+
 export default function AppLockOverlay({ onUnlock, onForceLogout }: Props) {
   const [entered, setEntered] = useState('');
   const [error, setError] = useState(false);
+  const [attemptCount, setAttemptCount] = useState(0);
   const shakeAnim = useRef(new Animated.Value(0)).current;
 
   const shake = () => {
@@ -41,9 +45,31 @@ export default function AppLockOverlay({ onUnlock, onForceLogout }: Props) {
       if (ok) {
         onUnlock();
       } else {
+        const newCount = attemptCount + 1;
+        setAttemptCount(newCount);
         setError(true);
         shake();
-        setTimeout(() => setEntered(''), 700);
+
+        if (newCount >= MAX_ATTEMPTS) {
+          // Maksimum deneme aşıldı: kullanıcıyı bilgilendirip zorla çıkış yap.
+          setTimeout(() => {
+            Alert.alert(
+              'Çok Fazla Hatalı Deneme',
+              `${MAX_ATTEMPTS} kez hatalı PIN girdiniz. Güvenliğiniz için oturumunuz kapatılıyor.`,
+              [{ text: 'Tamam', style: 'destructive', onPress: async () => { await logout(); onForceLogout(); } }],
+              { cancelable: false }
+            );
+          }, 400);
+        } else {
+          const remaining = MAX_ATTEMPTS - newCount;
+          setTimeout(() => setEntered(''), 700);
+          if (remaining <= 2) {
+            // Son 2 denemede uyarı göster
+            setTimeout(() => {
+              Alert.alert('Uyarı', `${remaining} deneme hakkınız kaldı.`);
+            }, 800);
+          }
+        }
       }
     }
   };
@@ -108,7 +134,9 @@ export default function AppLockOverlay({ onUnlock, onForceLogout }: Props) {
           </Animated.View>
 
           {error && (
-            <Text style={styles.errorText}>Hatalı PIN. Tekrar deneyin.</Text>
+            <Text style={styles.errorText}>
+              {`Hatalı PIN. ${MAX_ATTEMPTS - attemptCount} deneme hakkınız kaldı.`}
+            </Text>
           )}
 
           {/* Numpad */}

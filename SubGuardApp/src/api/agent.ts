@@ -20,6 +20,12 @@ axiosInstance.interceptors.request.use(async (config) => {
 }, (error) => Promise.reject(error));
 
 
+// Refresh token başarısız olduğunda (süresi dolmuş, iptal edilmiş) çağrılacak callback.
+// App.tsx tarafından NavigationContainer hazır olunca set edilir.
+// Kullanıcıyı Login ekranına yönlendirir; token storage zaten temizlenir.
+let _logoutCallback: (() => void) | null = null;
+export const setLogoutCallback = (fn: () => void) => { _logoutCallback = fn; };
+
 let isRefreshing = false;
 let failedQueue: { resolve: (token: string) => void; reject: (err: any) => void }[] = [];
 
@@ -78,6 +84,9 @@ axiosInstance.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
         await removeToken();
+        // Token yenileme başarısız → kullanıcıyı Login'e yönlendir.
+        // Callback set edilmemişse (NavigationContainer henüz hazır değil) sessizce geç.
+        _logoutCallback?.();
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
@@ -219,6 +228,8 @@ const Notifications = {
   getPreferences:     ()              => requests.get('/notifications/preferences'),
   updatePreferences:  (body: { pushEnabled: boolean; emailEnabled: boolean; budgetAlertEnabled?: boolean; sharedAlertEnabled?: boolean; reminderDaysBefore: number; notifyHour?: number }) =>
     requests.put('/notifications/preferences', body),   // #33: POST → PUT (idempotent güncelleme)
+  sendReminder:       (subscriptionId: number | string) =>
+    requests.post(`/notifications/send-reminder/${subscriptionId}`, {}),
 };
 
 // ─── Admin ────────────────────────────────────────────────────────────────────

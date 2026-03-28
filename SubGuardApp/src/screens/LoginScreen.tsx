@@ -78,13 +78,19 @@ export default function LoginScreen({ navigation }: Props) {
       }
     } catch (err: any) {
       if (err?.response?.status === 403) {
+        // Backend 403'te TokenDto.UserId'yi de döndürür (AccessToken/RefreshToken null).
+        // UserId ile EmailVerification ekranına yönlendirip kullanıcının kod girmesini sağlarız.
+        const userId: string = err?.response?.data?.data?.userId || '';
         Toast.show({
           type: 'info',
           text1: 'E-posta doğrulanmamış',
-          text2: 'Kayıt e-postanızdaki bağlantıya tıklayın.',
+          text2: 'Doğrulama ekranına yönlendiriliyorsunuz...',
           position: 'bottom',
-          visibilityTime: 5000,
+          visibilityTime: 2000,
         });
+        setTimeout(() => {
+          navigation.navigate('EmailVerification', { email: data.email, userId });
+        }, 500);
       }
     } finally {
       setLoading(false);

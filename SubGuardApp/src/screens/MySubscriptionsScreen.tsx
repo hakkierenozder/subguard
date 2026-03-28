@@ -18,6 +18,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { convertToTRY } from '../utils/CurrencyService';
 import { useThemeColors } from '../constants/theme';
 import { useCatalogStore } from '../store/useCatalogStore';
+import agent from '../api/agent';
+import Toast from 'react-native-toast-message';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Dosya düzeyinde logo bileşeni — render içinde tanımlanırsa state sıfırlanır
 function SubscriptionLogo({ logoUrl, brandColor, name }: { logoUrl?: string; brandColor: string; name: string }) {
@@ -40,7 +43,7 @@ function SubscriptionLogo({ logoUrl, brandColor, name }: { logoUrl?: string; bra
 }
 
 // Tip tanımları
-type SortType = 'date' | 'price_desc' | 'name';
+type SortType = 'date' | 'price_desc' | 'price_asc' | 'name' | 'created';
 
 type GroupHeader = {
   _type: 'header';
@@ -96,18 +99,53 @@ export default function MySubscriptionsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const SEARCH_HISTORY_KEY = 'sub_search_history';
+
+  // Arama geçmişini AsyncStorage'dan yükle
+  useEffect(() => {
+    AsyncStorage.getItem(SEARCH_HISTORY_KEY).then(raw => {
+      if (raw) { try { setSearchHistory(JSON.parse(raw)); } catch {} }
+    });
+  }, []);
+
+  const saveSearchHistory = useCallback(async (query: string) => {
+    if (!query.trim()) return;
+    setSearchHistory(prev => {
+      const filtered = prev.filter(h => h !== query);
+      const updated = [query, ...filtered].slice(0, 5);
+      AsyncStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
+  const clearSearchHistory = useCallback(() => {
+    setSearchHistory([]);
+    AsyncStorage.removeItem(SEARCH_HISTORY_KEY);
+  }, []);
 
   const handleSearch = useCallback((text: string) => {
     setSearchText(text);
     if (searchTimer.current) clearTimeout(searchTimer.current);
-    searchTimer.current = setTimeout(() => setDebouncedQuery(text), 300);
-  }, []);
+    searchTimer.current = setTimeout(() => {
+      setDebouncedQuery(text);
+      if (text.trim()) saveSearchHistory(text.trim());
+    }, 300);
+  }, [saveSearchHistory]);
   const [sortBy, setSortBy] = useState<SortType>('date');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   // Grup görünümü
   const [groupByCategory, setGroupByCategory] = useState(false);
+
+  // Arşiv modu — pasif abonelikler (dondurulmuş + iptal edilmiş) ayrı gösterilir
+  const [archiveMode, setArchiveMode] = useState(false);
+
+  // Toplu seçim
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   // Filtre modal
   const [showFilterModal, setShowFilterModal] = useState(false);
@@ -125,7 +163,7 @@ export default function MySubscriptionsScreen() {
     if (maxPrice !== '') count++;
     if (selectedCategory) count++;
     if (sortBy !== 'date') count++;
-    // groupByCategory çıkarıldı — artık inline buton
+    // groupByCategory ve archiveMode inline butonlar — badge'e dahil değil
     return count;
   }, [statusFilter, currencyFilter, minPrice, maxPrice, selectedCategory, sortBy]);
 
@@ -137,7 +175,22 @@ export default function MySubscriptionsScreen() {
     setSelectedCategory(null);
     setSortBy('date');
     setGroupByCategory(false);
+    setArchiveMode(false);
   };
+
+  const toggleSelectMode = useCallback(() => {
+    setSelectMode(v => !v);
+    setSelectedIds(new Set());
+  }, []);
+
+  const toggleSelect = useCallback((id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
 
   // Kategoriler
   const categories = useMemo(() => {
@@ -191,6 +244,11 @@ export default function MySubscriptionsScreen() {
       sub.name.toLowerCase().includes(debouncedQuery.toLowerCase())
     );
 
+    // Arşiv modu: sadece pasif abonelikler; normal mod: sadece aktifler (statusFilter override)
+    if (archiveMode) {
+      return filtered.filter(sub => sub.isActive === false);
+    }
+
     if (selectedCategory) {
       filtered = filtered.filter(sub => sub.category === selectedCategory);
     }
@@ -222,8 +280,12 @@ export default function MySubscriptionsScreen() {
            return valA - valB;
         case 'price_desc':
           return convertToTRY(b.price, b.currency) - convertToTRY(a.price, a.currency);
+        case 'price_asc':
+          return convertToTRY(a.price, a.currency) - convertToTRY(b.price, b.currency);
         case 'name':
           return a.name.localeCompare(b.name);
+        case 'created':
+          return new Date(b.createdDate ?? 0).getTime() - new Date(a.createdDate ?? 0).getTime();
         default:
           return 0;
       }
@@ -263,6 +325,66 @@ export default function MySubscriptionsScreen() {
     }
 
     return rows;
+  };
+  // ─────────────────────────────────────────────────────────────────────
+
+  // ─── Toplu Seçim Handlers ─────────────────────────────────────────────
+  const selectAll = useCallback(() => {
+    const allIds = getFilteredSubscriptions().map(s => s.id);
+    setSelectedIds(new Set(allIds));
+  }, [getFilteredSubscriptions]);
+
+  const handleBulkDelete = () => {
+    const count = selectedIds.size;
+    if (count === 0) return;
+    hapticError();
+    Alert.alert(
+      'Toplu Silme',
+      `${count} abonelik silinecek. Bu işlem geri alınamaz.`,
+      [
+        { text: 'Vazgeç', style: 'cancel' },
+        {
+          text: 'Sil',
+          style: 'destructive',
+          onPress: async () => {
+            for (const id of selectedIds) {
+              await removeSubscription(id);
+            }
+            setSelectMode(false);
+            setSelectedIds(new Set());
+          },
+        },
+      ]
+    );
+  };
+
+  const handleBulkPause = () => {
+    const count = selectedIds.size;
+    if (count === 0) return;
+    hapticMedium();
+    // Seçili aktif olanları duraklat, pasif olanları aktifleştir
+    const selected = getFilteredSubscriptions().filter(s => selectedIds.has(s.id));
+    const activeOnes = selected.filter(s => s.isActive !== false);
+    const passiveOnes = selected.filter(s => s.isActive === false);
+    const label = activeOnes.length > 0
+      ? `${activeOnes.length} abonelik duraklatılacak${passiveOnes.length > 0 ? `, ${passiveOnes.length} abonelik aktifleştirilecek` : ''}.`
+      : `${passiveOnes.length} abonelik aktifleştirilecek.`;
+    Alert.alert('Toplu Durum Değiştir', label, [
+      { text: 'Vazgeç', style: 'cancel' },
+      {
+        text: 'Onayla',
+        onPress: async () => {
+          for (const sub of activeOnes) {
+            await updateSubscription(sub.id, { isActive: false });
+          }
+          for (const sub of passiveOnes) {
+            await updateSubscription(sub.id, { isActive: true, cancelledAt: null });
+          }
+          setSelectMode(false);
+          setSelectedIds(new Set());
+        },
+      },
+    ]);
   };
   // ─────────────────────────────────────────────────────────────────────
 
@@ -348,6 +470,16 @@ export default function MySubscriptionsScreen() {
   };
   // ─────────────────────────────────────────────────────────────────────
 
+  const handleSendReminder = async (sub: UserSubscription) => {
+    hapticMedium();
+    try {
+      await agent.Notifications.sendReminder(sub.id);
+      Toast.show({ type: 'success', text1: 'Hatırlatma gönderildi', text2: `${sub.name} için bildirim kuyruğa eklendi.`, position: 'bottom' });
+    } catch {
+      // agent.ts merkezî hata yönetimi Toast gösterir, ek işlem gerekmez
+    }
+  };
+
   const handleEditFromDetail = (sub: UserSubscription) => {
     setDetailSub(null);
     setTimeout(() => {
@@ -427,14 +559,16 @@ export default function MySubscriptionsScreen() {
         </LinearGradient>
 
         {/* Arama */}
-        <View style={[styles.searchContainer, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
-            <Ionicons name="search" size={18} color={colors.textSec} />
+        <View style={[styles.searchContainer, { backgroundColor: colors.cardBg, borderColor: searchFocused ? colors.primary : colors.border }]}>
+            <Ionicons name="search" size={18} color={searchFocused ? colors.primary : colors.textSec} />
             <TextInput
               style={[styles.searchInput, { color: colors.textMain }]}
               placeholder="Abonelik ara..."
               placeholderTextColor={colors.textSec}
               value={searchText}
               onChangeText={handleSearch}
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setSearchFocused(false)}
             />
             {searchText.length > 0 && (
               <TouchableOpacity onPress={() => { setSearchText(''); setDebouncedQuery(''); }}>
@@ -442,6 +576,30 @@ export default function MySubscriptionsScreen() {
               </TouchableOpacity>
             )}
         </View>
+
+        {/* Arama Geçmişi — sadece odaklanıldığında ve arama kutusu boşken göster */}
+        {searchFocused && searchText.length === 0 && searchHistory.length > 0 && (
+          <View style={{ marginHorizontal: 16, marginTop: 4, marginBottom: 2 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <Text style={{ fontSize: 11, fontWeight: '600', color: colors.textSec }}>SON ARAMALAR</Text>
+              <TouchableOpacity onPress={clearSearchHistory} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
+                <Text style={{ fontSize: 11, fontWeight: '600', color: colors.accent }}>Temizle</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }}>
+              {searchHistory.map((h, i) => (
+                <TouchableOpacity
+                  key={i}
+                  onPress={() => handleSearch(h)}
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 16, backgroundColor: colors.inputBg, borderWidth: 1, borderColor: colors.border }}
+                >
+                  <Ionicons name="time-outline" size={12} color={colors.textSec} />
+                  <Text style={{ fontSize: 12, color: colors.textSec, fontWeight: '500' }}>{h}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )}
 
         {/* Kategori Filtreleri */}
         {categoryList.length > 1 && (
@@ -528,6 +686,43 @@ export default function MySubscriptionsScreen() {
             </Text>
           </TouchableOpacity>
 
+          {/* Arşiv butonu — pasif (dondurulmuş/iptal) abonelikler */}
+          <TouchableOpacity
+            style={[styles.filterSortBtn, {
+              backgroundColor: archiveMode ? '#6B7280' : colors.cardBg,
+              borderColor: archiveMode ? '#6B7280' : colors.border,
+            }]}
+            onPress={() => setArchiveMode(v => !v)}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="archive-outline" size={15} color={archiveMode ? '#FFF' : colors.textSec} />
+            <Text style={[styles.filterToggleText, { color: archiveMode ? '#FFF' : colors.textSec }]}>
+              Arşiv
+            </Text>
+            {subscriptions.filter(s => s.isActive === false).length > 0 && (
+              <View style={[styles.filterBadge, { backgroundColor: archiveMode ? 'rgba(255,255,255,0.35)' : colors.inputBg }]}>
+                <Text style={[styles.filterBadgeText, { color: archiveMode ? '#FFF' : colors.textSec }]}>
+                  {subscriptions.filter(s => s.isActive === false).length}
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
+
+          {/* Toplu Seçim */}
+          <TouchableOpacity
+            style={[styles.filterSortBtn, {
+              backgroundColor: selectMode ? colors.primary : colors.cardBg,
+              borderColor: selectMode ? colors.primary : colors.border,
+            }]}
+            onPress={toggleSelectMode}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="checkbox-outline" size={15} color={selectMode ? '#FFF' : colors.textSec} />
+            <Text style={[styles.filterToggleText, { color: selectMode ? '#FFF' : colors.textSec }]}>
+              {selectMode ? 'Seçiliyor' : 'Seç'}
+            </Text>
+          </TouchableOpacity>
+
           {totalBadgeCount > 0 && (
             <TouchableOpacity style={styles.clearInlineBtn} onPress={clearAllFilters} activeOpacity={0.7}>
               <Ionicons name="close-circle" size={14} color={colors.textSec} />
@@ -582,89 +777,137 @@ export default function MySubscriptionsScreen() {
         </View>
     );
 
-    return (
-      <View style={styles.swipeableRow}>
-      <Swipeable
-        ref={(ref) => { swipeRefs.current.set(sub.id, ref); }}
-        renderRightActions={renderRightActions(sub)}
-        renderLeftActions={renderLeftActions(sub)}
-        onSwipeableOpen={() => { hapticLight(); closeOtherRows(sub.id); }}
-        overshootRight={false}
-        overshootLeft={false}
-        friction={2}
-        rightThreshold={40}
-        leftThreshold={40}
+    const cardContent = (
+      <AnimatedPressable
+        onPress={() => selectMode ? toggleSelect(sub.id) : setDetailSub(sub)}
+        onLongPress={() => { if (!selectMode) { hapticMedium(); setSelectMode(true); setSelectedIds(new Set([sub.id])); } }}
+        style={[
+          styles.rowContainer,
+          { backgroundColor: selectMode && selectedIds.has(sub.id) ? (colors.primary + '20') : colors.cardBg, borderColor: selectMode && selectedIds.has(sub.id) ? colors.primary : colors.border },
+          isPassive && !selectMode && { opacity: 0.6, backgroundColor: colors.inputBg },
+        ]}
       >
-        <AnimatedPressable
-          onPress={() => setDetailSub(sub)}
-          style={[
-            styles.rowContainer,
-            { backgroundColor: colors.cardBg, borderColor: colors.border },
-            isPassive && { opacity: 0.6, backgroundColor: colors.inputBg },
-          ]}
-        >
-          <View style={styles.rowLeft}>
-            {renderLogo()}
-            <View style={styles.textContainer}>
-              <Text
-                style={[
-                  styles.serviceName,
-                  { color: colors.textMain },
-                  isPassive && { textDecorationLine: 'line-through', color: colors.textSec },
-                ]}
-                numberOfLines={1}
-              >
-                {sub.name}
-              </Text>
-              <View style={styles.subInfoContainer}>
-                {sub.category && !groupByCategory ? (
-                  <View style={[styles.categoryBadge, { backgroundColor: (sub.colorCode || colors.primary) + '18' }]}>
-                    <Text style={[styles.categoryBadgeText, { color: sub.colorCode || colors.primary }]}>
-                      {sub.category}
-                    </Text>
-                  </View>
-                ) : null}
-                <Ionicons
-                  name="time-outline"
-                  size={11}
-                  color={colors.textSec}
-                  style={{ marginLeft: (sub.category && !groupByCategory) ? 6 : 0, marginRight: 3 }}
-                />
-                <Text style={[styles.nextDateText, { color: colors.textSec }]}>
-                  {isPassive ? 'Donduruldu' : nextPaymentText}
-                </Text>
-              </View>
-            </View>
+        {selectMode && (
+          <View style={{
+            width: 24, height: 24, borderRadius: 12,
+            borderWidth: 2,
+            borderColor: selectedIds.has(sub.id) ? colors.primary : colors.border,
+            backgroundColor: selectedIds.has(sub.id) ? colors.primary : 'transparent',
+            justifyContent: 'center', alignItems: 'center',
+            marginRight: 10, flexShrink: 0,
+          }}>
+            {selectedIds.has(sub.id) && (
+              <Ionicons name="checkmark" size={14} color="#FFF" />
+            )}
           </View>
-
-          <View style={styles.rowRight}>
-            <Text style={[styles.priceText, { color: colors.textMain }, isPassive && { color: colors.textSec }]}>
-              {sub.price}
+        )}
+        <View style={styles.rowLeft}>
+          {renderLogo()}
+          <View style={styles.textContainer}>
+            <Text
+              style={[
+                styles.serviceName,
+                { color: colors.textMain },
+                isPassive && { textDecorationLine: 'line-through', color: colors.textSec },
+              ]}
+              numberOfLines={1}
+            >
+              {sub.name}
             </Text>
-            <View style={styles.currencyAndActionRow}>
-              <Text style={[styles.currencyText, { color: colors.textSec }]}>{sub.currency}</Text>
-
-              {isForeignCurrency && !isPassive && (
-                <View style={{ backgroundColor: colors.primary, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, marginLeft: 6, marginRight: 6 }}>
-                  <Text style={{ color: '#fff', fontSize: 10, fontWeight: 'bold' }}>
-                    ≈ ₺{priceInTry.toFixed(0)}
+            <View style={styles.subInfoContainer}>
+              {sub.category && !groupByCategory ? (
+                <View style={[styles.categoryBadge, { backgroundColor: (sub.colorCode || colors.primary) + '18' }]}>
+                  <Text style={[styles.categoryBadgeText, { color: sub.colorCode || colors.primary }]}>
+                    {sub.category}
                   </Text>
                 </View>
-              )}
-
-              {!isPassive && isShared && (
-                <TouchableOpacity
-                  style={styles.whatsappButton}
-                  onPress={() => handleShareOnWhatsApp(sub)}
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                >
-                  <FontAwesome5 name="whatsapp" size={14} color="#25D366" />
-                </TouchableOpacity>
-              )}
+              ) : null}
+              <Ionicons
+                name="time-outline"
+                size={11}
+                color={colors.textSec}
+                style={{ marginLeft: (sub.category && !groupByCategory) ? 6 : 0, marginRight: 3 }}
+              />
+              <Text style={[styles.nextDateText, { color: colors.textSec }]}>
+                {isPassive ? 'Donduruldu' : nextPaymentText}
+              </Text>
+              {sub.hasContract && sub.contractEndDate && (() => {
+                const cDays = Math.ceil((new Date(sub.contractEndDate).getTime() - Date.now()) / 86400000);
+                if (cDays > 30) return null;
+                return (
+                  <View style={{ marginLeft: 6, paddingHorizontal: 5, paddingVertical: 1, borderRadius: 5, backgroundColor: cDays <= 0 ? (colors.error + '20') : '#F9731620' }}>
+                    <Text style={{ fontSize: 10, fontWeight: '700', color: cDays <= 0 ? colors.error : '#F97316' }}>
+                      {cDays <= 0 ? 'Kontrat bitti' : `Kontrat ${cDays}g`}
+                    </Text>
+                  </View>
+                );
+              })()}
             </View>
           </View>
-        </AnimatedPressable>
-      </Swipeable>
+        </View>
+
+        <View style={styles.rowRight}>
+          <Text style={[styles.priceText, { color: colors.textMain }, isPassive && { color: colors.textSec }]}>
+            {sub.price}
+          </Text>
+          {isShared && !isPassive && (
+            <Text style={[styles.currencyText, { color: colors.textSec, fontSize: 10, marginTop: 1 }]}>
+              {(sub.price / ((sub.sharedWith?.length ?? 0) + 1)).toFixed(2)} kişi başı
+            </Text>
+          )}
+          <View style={styles.currencyAndActionRow}>
+            <Text style={[styles.currencyText, { color: colors.textSec }]}>{sub.currency}</Text>
+
+            {isForeignCurrency && !isPassive && (
+              <View style={{ backgroundColor: colors.primary, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, marginLeft: 6, marginRight: 6 }}>
+                <Text style={{ color: '#fff', fontSize: 10, fontWeight: 'bold' }}>
+                  ≈ ₺{priceInTry.toFixed(0)}
+                </Text>
+              </View>
+            )}
+
+            {!isPassive && isShared && (
+              <TouchableOpacity
+                style={styles.whatsappButton}
+                onPress={() => handleShareOnWhatsApp(sub)}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <FontAwesome5 name="whatsapp" size={14} color="#25D366" />
+              </TouchableOpacity>
+            )}
+            {!isPassive && (
+              <TouchableOpacity
+                style={[styles.whatsappButton, { marginLeft: isShared ? 4 : 6 }]}
+                onPress={() => handleSendReminder(sub)}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Ionicons name="notifications-outline" size={14} color={colors.accent} />
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+      </AnimatedPressable>
+    );
+
+    return (
+      <View style={styles.swipeableRow}>
+        {selectMode ? (
+          cardContent
+        ) : (
+          <Swipeable
+            ref={(ref) => { swipeRefs.current.set(sub.id, ref); }}
+            renderRightActions={renderRightActions(sub)}
+            renderLeftActions={renderLeftActions(sub)}
+            onSwipeableOpen={() => { hapticLight(); closeOtherRows(sub.id); }}
+            overshootRight={false}
+            overshootLeft={false}
+            friction={2}
+            rightThreshold={40}
+            leftThreshold={40}
+          >
+            {cardContent}
+          </Swipeable>
+        )}
       </View>
     );
   };
@@ -709,7 +952,9 @@ export default function MySubscriptionsScreen() {
                 {selectedCategory ? `"${selectedCategory}" bulunamadı` : 'Abonelik yok'}
               </Text>
               <Text style={[styles.emptyText, { color: colors.textSec }]}>
-                {selectedCategory
+                {archiveMode
+                  ? 'Dondurulmuş veya iptal edilmiş abonelik yok.'
+                  : selectedCategory
                   ? 'Bu kategoride aboneliğin bulunmuyor.'
                   : searchText
                   ? 'Arama sonucu bulunamadı.'
@@ -726,6 +971,72 @@ export default function MySubscriptionsScreen() {
             </View>
           }
         />
+        )}
+
+        {/* Toplu İşlem Çubuğu */}
+        {selectMode && (
+          <View style={{
+            position: 'absolute', bottom: 0, left: 0, right: 0,
+            backgroundColor: colors.cardBg,
+            borderTopWidth: 1, borderTopColor: colors.border,
+            paddingHorizontal: 16, paddingVertical: 12,
+            paddingBottom: 24,
+            flexDirection: 'row', alignItems: 'center', gap: 8,
+            shadowColor: '#000', shadowOffset: { width: 0, height: -4 },
+            shadowOpacity: 0.1, shadowRadius: 8, elevation: 12,
+          }}>
+            {/* Seçim bilgisi + Tümünü Seç */}
+            <TouchableOpacity
+              onPress={selectAll}
+              style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6 }}
+            >
+              <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: colors.primary + '20', justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ fontSize: 11, fontWeight: '800', color: colors.primary }}>{selectedIds.size}</Text>
+              </View>
+              <Text style={{ fontSize: 13, fontWeight: '600', color: colors.textSec }}>
+                {selectedIds.size > 0 ? 'seçili · Tümünü Seç' : 'Tümünü Seç'}
+              </Text>
+            </TouchableOpacity>
+
+            {/* Duraklat/Aktifleştir */}
+            <TouchableOpacity
+              onPress={handleBulkPause}
+              disabled={selectedIds.size === 0}
+              style={{
+                flexDirection: 'row', alignItems: 'center', gap: 5,
+                paddingHorizontal: 14, paddingVertical: 9, borderRadius: 12,
+                backgroundColor: selectedIds.size > 0 ? '#F59E0B20' : colors.inputBg,
+              }}
+            >
+              <Ionicons name="pause-circle-outline" size={16} color={selectedIds.size > 0 ? '#F59E0B' : colors.textSec} />
+              <Text style={{ fontSize: 13, fontWeight: '700', color: selectedIds.size > 0 ? '#F59E0B' : colors.textSec }}>Duraklat</Text>
+            </TouchableOpacity>
+
+            {/* Sil */}
+            <TouchableOpacity
+              onPress={handleBulkDelete}
+              disabled={selectedIds.size === 0}
+              style={{
+                flexDirection: 'row', alignItems: 'center', gap: 5,
+                paddingHorizontal: 14, paddingVertical: 9, borderRadius: 12,
+                backgroundColor: selectedIds.size > 0 ? colors.error + '20' : colors.inputBg,
+              }}
+            >
+              <Ionicons name="trash-outline" size={16} color={selectedIds.size > 0 ? colors.error : colors.textSec} />
+              <Text style={{ fontSize: 13, fontWeight: '700', color: selectedIds.size > 0 ? colors.error : colors.textSec }}>Sil</Text>
+            </TouchableOpacity>
+
+            {/* İptal */}
+            <TouchableOpacity
+              onPress={toggleSelectMode}
+              style={{
+                paddingHorizontal: 12, paddingVertical: 9, borderRadius: 12,
+                backgroundColor: colors.inputBg,
+              }}
+            >
+              <Ionicons name="close" size={18} color={colors.textSec} />
+            </TouchableOpacity>
+          </View>
         )}
 
         <AddSubscriptionModal
@@ -771,8 +1082,8 @@ export default function MySubscriptionsScreen() {
                 <Text style={[styles.sheetSectionLabel, { color: colors.textSec }]}>SIRALAMA</Text>
                 <Text style={[styles.sheetSectionDesc, { color: colors.textSec }]}>Listeyi nasıl sıralamak istiyorsun?</Text>
                 <View style={styles.filterChipRow}>
-                  {(['date', 'price_desc', 'name'] as SortType[]).map(s => {
-                    const label = s === 'date' ? '📅 Yaklaşan ödeme' : s === 'price_desc' ? '💰 Fiyat (yüksek→düşük)' : '🔤 A-Z isim';
+                  {(['date', 'price_desc', 'price_asc', 'name', 'created'] as SortType[]).map(s => {
+                    const label = s === 'date' ? '📅 Yaklaşan ödeme' : s === 'price_desc' ? '💰 Fiyat (yüksek→düşük)' : s === 'price_asc' ? '💸 Fiyat (düşük→yüksek)' : s === 'name' ? '🔤 A-Z isim' : '🕒 Eklenme tarihi';
                     const isActive = sortBy === s;
                     return (
                       <TouchableOpacity key={s} style={[styles.advFilterChip, {

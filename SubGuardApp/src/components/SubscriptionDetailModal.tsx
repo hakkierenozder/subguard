@@ -46,7 +46,7 @@ type SubscriptionStatus = 'active' | 'paused' | 'cancelled';
 export default function SubscriptionDetailModal({ visible, subscription: initialSubscription, onClose, onEdit }: Props) {
     const colors = useThemeColors();
     const isDarkMode = useSettingsStore((state) => state.isDarkMode);
-    const { removeSubscription, updateSubscription, fetchUsageLogs, fetchUserSubscriptions } = useUserSubscriptionStore();
+    const { removeSubscription, updateSubscription, fetchUserSubscriptions } = useUserSubscriptionStore();
     const { catalogItems } = useCatalogStore();
 
     // Canlı veri (store'dan)
@@ -72,18 +72,12 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
         Animated.timing(heroOpacity, { toValue: target, duration: 300, useNativeDriver: true }).start();
     }, [currentStatus]);
 
-    const [usageLogsError, setUsageLogsError] = useState(false);
     const [priceHistory, setPriceHistory] = useState<PriceHistoryEntry[]>([]);
     const [isDuplicating, setIsDuplicating] = useState(false);
 
-    // Modal açıldığında backend kullanım loglarını ve fiyat geçmişini çek
+    // Modal açıldığında fiyat geçmişini çek
     useEffect(() => {
         if (visible && subscription?.id) {
-            setUsageLogsError(false);
-            fetchUsageLogs(subscription.id).then(ok => {
-                if (!ok) setUsageLogsError(true);
-            });
-            // Fiyat geçmişini çek
             agent.UserSubscriptions.priceHistory(subscription.id).then((res: any) => {
                 if (res?.data) setPriceHistory(res.data);
                 else setPriceHistory([]);
@@ -229,8 +223,16 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
         const today = new Date();
         const billingDay = subscription.billingDay;
         const safeDay = (billingDay > 0 && billingDay <= 31) ? billingDay : 1;
-        let nextDate = new Date(today.getFullYear(), today.getMonth(), safeDay);
-        if (nextDate < today) nextDate.setMonth(nextDate.getMonth() + 1);
+        const clampToMonth = (year: number, month: number, day: number) =>
+            Math.min(day, new Date(year, month + 1, 0).getDate());
+        const thisMonth = today.getMonth();
+        const thisYear = today.getFullYear();
+        let nextDate = new Date(thisYear, thisMonth, clampToMonth(thisYear, thisMonth, safeDay));
+        if (nextDate <= today) {
+            const nextMonth = thisMonth === 11 ? 0 : thisMonth + 1;
+            const nextYear  = thisMonth === 11 ? thisYear + 1 : thisYear;
+            nextDate = new Date(nextYear, nextMonth, clampToMonth(nextYear, nextMonth, safeDay));
+        }
         const diffTime = Math.abs(nextDate.getTime() - today.getTime());
         const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return { nextDate, daysLeft };
@@ -512,45 +514,6 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                             <View style={styles.legendItem}><View style={[styles.dot, { backgroundColor: colors.error }]} /><Text style={[styles.legendText, { color: colors.textSec }]}>Hiç</Text></View>
                         </View>
                     </View>
-
-                    {/* 6. BACKEND KULLANIM LOGLARI */}
-                    {(usageLogsError || (subscription.usageLogs && subscription.usageLogs.length > 0)) && (
-                        <View style={[styles.sectionContainer, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
-                            <View style={styles.sectionHeader}>
-                                <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Kayıtlı Kullanımlar</Text>
-                                {!usageLogsError && (
-                                    <Text style={[styles.sectionSubtitle, { color: colors.textSec }]}>{subscription.usageLogs!.length} kayıt</Text>
-                                )}
-                            </View>
-                            {usageLogsError ? (
-                                <View style={[styles.errorRow, { backgroundColor: colors.error + '12' }]}>
-                                    <Ionicons name="alert-circle-outline" size={18} color={colors.error} />
-                                    <Text style={[styles.errorText, { color: colors.error }]}>
-                                        Kullanım kayıtları yüklenemedi.
-                                    </Text>
-                                </View>
-                            ) : subscription.usageLogs!.map((log: ApiUsageLog) => (
-                                <View key={log.id} style={[styles.detailItem, { borderBottomColor: colors.border, borderBottomWidth: 1 }]}>
-                                    <View style={styles.detailLeft}>
-                                        <View style={[styles.iconBox, { backgroundColor: colors.inputBg }]}>
-                                            <Ionicons name="time-outline" size={18} color={colors.primary} />
-                                        </View>
-                                        <View>
-                                            <Text style={[styles.detailLabel, { color: colors.textMain }]}>
-                                                {new Date(log.date).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                            </Text>
-                                            {log.note ? <Text style={[styles.legendText, { color: colors.textSec }]}>{log.note}</Text> : null}
-                                        </View>
-                                    </View>
-                                    {log.amount != null && (
-                                        <Text style={[styles.detailValue, { color: colors.textSec }]}>
-                                            {log.amount} {log.unit ?? ''}
-                                        </Text>
-                                    )}
-                                </View>
-                            ))}
-                        </View>
-                    )}
 
                     {/* 7. TAAHHÜT BİLGİSİ */}
                     {renderContractInfo()}

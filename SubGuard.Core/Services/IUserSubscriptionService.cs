@@ -15,7 +15,7 @@ namespace SubGuard.Core.Services
         // Paylaşım
         Task<CustomResponseDto<bool>> ShareSubscriptionAsync(int id, string ownerId, string targetEmail);
         Task<CustomResponseDto<bool>> RemoveShareAsync(int id, string ownerId, string targetUserId);
-        Task<CustomResponseDto<PagedResponseDto<UserSubscriptionDto>>> GetSharedWithMeAsync(string userId, int page, int pageSize);
+        Task<CustomResponseDto<PagedResponseDto<SharedWithMeItemDto>>> GetSharedWithMeAsync(string userId, int page, int pageSize);
 
         // Kullanım Geçmişi
         Task<CustomResponseDto<List<UsageLogDto>>> GetUsageHistoryAsync(int id, string userId);

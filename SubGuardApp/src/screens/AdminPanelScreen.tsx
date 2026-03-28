@@ -28,6 +28,9 @@ interface AdminStats {
   activeSubscriptions: number;
   totalSubscriptions: number;
   topCatalogs: { name: string; logoUrl?: string; count: number }[];
+  totalCatalogs?: number;
+  allCatalogStats?: { name: string; logoUrl?: string; category?: string; count: number }[];
+  categoryDistribution?: { category: string; catalogCount: number; subscriptionCount: number }[];
 }
 
 interface CatalogItem {
@@ -187,6 +190,75 @@ function StatsTab() {
                   <Text style={[styles.rankText, { color: colors.accent }]}>#{i + 1}</Text>
                 </View>
                 <Text style={[styles.catalogName, { color: colors.textMain }]}>{c.name}</Text>
+                <View style={[styles.countBadge, { backgroundColor: colors.accent + '20' }]}>
+                  <Text style={[styles.countText, { color: colors.accent }]}>{c.count}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        </>
+      )}
+
+      {/* KATALOG İSTATİSTİKLERİ */}
+      {(stats?.totalCatalogs ?? 0) > 0 && (
+        <>
+          <Text style={[styles.sectionTitle, { color: colors.textSec, marginTop: 8 }]}>KATALOG İSTATİSTİKLERİ</Text>
+          <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8 }}>
+              <Text style={{ fontSize: 14, color: colors.textMain, fontWeight: '600' }}>Toplam Katalog Sayısı</Text>
+              <View style={[styles.countBadge, { backgroundColor: colors.accent + '20' }]}>
+                <Text style={[styles.countText, { color: colors.accent }]}>{stats!.totalCatalogs}</Text>
+              </View>
+            </View>
+          </View>
+        </>
+      )}
+
+      {/* KATEGORİ DAĞILIMI */}
+      {(stats?.categoryDistribution?.length ?? 0) > 0 && (
+        <>
+          <Text style={[styles.sectionTitle, { color: colors.textSec, marginTop: 8 }]}>KATEGORİ DAĞILIMI</Text>
+          <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+            {stats!.categoryDistribution!.map((cat, i) => {
+              const maxCount = stats!.categoryDistribution![0]?.subscriptionCount || 1;
+              const barPct = Math.round((cat.subscriptionCount / maxCount) * 100);
+              const COLORS = ['#6366F1','#10B981','#F97316','#8B5CF6','#EF4444','#3B82F6','#EC4899'];
+              const color = COLORS[i % COLORS.length];
+              return (
+                <View key={cat.category} style={[{ paddingVertical: 10 }, i < stats!.categoryDistribution!.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border }]}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <Text style={{ fontSize: 13, fontWeight: '600', color: colors.textMain }}>{cat.category}</Text>
+                    <View style={{ flexDirection: 'row', gap: 8 }}>
+                      <Text style={{ fontSize: 11, color: colors.textSec }}>{cat.catalogCount} katalog</Text>
+                      <Text style={{ fontSize: 12, fontWeight: '700', color }}>
+                        {cat.subscriptionCount} abone
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={{ height: 6, borderRadius: 3, backgroundColor: colors.inputBg, overflow: 'hidden' }}>
+                    <View style={{ width: `${barPct}%` as any, height: '100%', borderRadius: 3, backgroundColor: color }} />
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        </>
+      )}
+
+      {/* TÜM KATALOG SIRALAMASI (İlk 20) */}
+      {(stats?.allCatalogStats?.length ?? 0) > 0 && (
+        <>
+          <Text style={[styles.sectionTitle, { color: colors.textSec, marginTop: 8 }]}>TÜM KATALOG SIRALAMASI</Text>
+          <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+            {stats!.allCatalogStats!.map((c, i) => (
+              <View key={i} style={[styles.catalogRow, i < stats!.allCatalogStats!.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border }]}>
+                <View style={[styles.rankBadge, { backgroundColor: colors.inputBg }]}>
+                  <Text style={[styles.rankText, { color: colors.accent }]}>#{i + 1}</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.catalogName, { color: colors.textMain }]}>{c.name}</Text>
+                  {c.category && <Text style={{ fontSize: 11, color: colors.textSec, marginTop: 1 }}>{c.category}</Text>}
+                </View>
                 <View style={[styles.countBadge, { backgroundColor: colors.accent + '20' }]}>
                   <Text style={[styles.countText, { color: colors.accent }]}>{c.count}</Text>
                 </View>

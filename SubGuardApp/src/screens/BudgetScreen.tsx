@@ -122,6 +122,24 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
       Alert.alert('Hatalı Değer', 'Geçerli bir bütçe miktarı girin.');
       return;
     }
+    // Mevcut kategori limitlerinden büyük olanlar varsa uyar
+    const exceedingCats = categoryBudgets.filter(b => parsed > 0 && b.monthlyLimit > parsed);
+    if (exceedingCats.length > 0) {
+      const names = exceedingCats.map(b => `• ${b.category} (${currencySymbol}${b.monthlyLimit.toLocaleString('tr-TR')})`).join('\n');
+      Alert.alert(
+        'Kategori Limitleri Uyarısı',
+        `Aşağıdaki kategori limitleri yeni bütçe hedefini aşıyor:\n\n${names}\n\nBütçeyi kaydetmek istiyor musun?`,
+        [
+          { text: 'Vazgeç', style: 'cancel' },
+          { text: 'Kaydet', onPress: () => saveBudget(parsed) },
+        ],
+      );
+      return;
+    }
+    await saveBudget(parsed);
+  };
+
+  const saveBudget = async (parsed: number) => {
     setSaving(true);
     try {
       await agent.Budget.updateSettings({ monthlyBudget: parsed, monthlyBudgetCurrency: budgetCurrency });
@@ -147,6 +165,13 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
     const parsed = parseFloat(catLimitInput.replace(',', '.'));
     if (isNaN(parsed) || parsed <= 0) {
       Alert.alert('Hatalı Değer', 'Geçerli bir limit girin.');
+      return;
+    }
+    if (monthlyBudget > 0 && parsed > monthlyBudget) {
+      Alert.alert(
+        'Limit Aşıldı',
+        `Kategori limiti, aylık bütçe hedefini (${currencySymbol}${monthlyBudget.toLocaleString('tr-TR')}) aşamaz.`,
+      );
       return;
     }
     setSavingCat(true);
@@ -391,6 +416,64 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
           )}
         </View>
 
+        {/* BÜTÇE LİMİT ÖNERİSİ */}
+        {totalExpense > 0 && (
+          <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+            <View style={styles.cardHeader}>
+              <Ionicons name="bulb-outline" size={18} color="#F59E0B" />
+              <Text style={[styles.cardTitle, { color: colors.textMain }]}>Önerilen Bütçe</Text>
+            </View>
+            <Text style={[{ fontSize: 12, color: colors.textSec, marginBottom: 12, lineHeight: 18 }]}>
+              Mevcut harcamanıza göre uygun bütçe aralıkları:
+            </Text>
+            <View style={{ gap: 8 }}>
+              {[
+                { label: 'Sıkı', multiplier: 1.05, desc: '+%5 tampon' },
+                { label: 'Dengeli', multiplier: 1.15, desc: '+%15 tampon' },
+                { label: 'Rahat', multiplier: 1.30, desc: '+%30 tampon' },
+              ].map(opt => {
+                const suggested = Math.ceil((totalExpense * opt.multiplier) / 50) * 50;
+                const isCurrentMatch = Math.abs(monthlyBudget - suggested) < 25;
+                return (
+                  <TouchableOpacity
+                    key={opt.label}
+                    onPress={() => {
+                      setBudgetInput(suggested.toString());
+                      setEditMode(true);
+                    }}
+                    style={{
+                      flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+                      paddingHorizontal: 14, paddingVertical: 12, borderRadius: 12,
+                      borderWidth: 1,
+                      borderColor: isCurrentMatch ? colors.accent : colors.border,
+                      backgroundColor: isCurrentMatch ? (colors.accent + '12') : colors.inputBg,
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <View>
+                      <Text style={{ fontSize: 13, fontWeight: '700', color: isCurrentMatch ? colors.accent : colors.textMain }}>
+                        {opt.label}
+                      </Text>
+                      <Text style={{ fontSize: 11, color: colors.textSec, marginTop: 2 }}>{opt.desc}</Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                      <Text style={{ fontSize: 16, fontWeight: '800', color: isCurrentMatch ? colors.accent : colors.textMain }}>
+                        {currencySymbol}{suggested.toLocaleString('tr-TR')}
+                      </Text>
+                      {!isCurrentMatch && (
+                        <Ionicons name="chevron-forward" size={14} color={colors.textSec} />
+                      )}
+                      {isCurrentMatch && (
+                        <Ionicons name="checkmark-circle" size={16} color={colors.accent} />
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        )}
+
         {/* UYARI EŞİĞİ */}
         <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
           <View style={styles.cardHeader}>
@@ -515,37 +598,57 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
                   </View>
 
                   {/* Inline düzenleme */}
-                  {isEditing && (
-                    <View style={[styles.catEditRow, { borderTopColor: colors.border }]}>
-                      <View style={[styles.catInputWrap, { backgroundColor: colors.inputBg, borderColor: colors.border }]}>
-                        <Text style={[styles.inputPrefix, { color: colors.textSec }]}>{currencySymbol}</Text>
-                        <TextInput
-                          style={[styles.budgetInput, { color: colors.textMain }]}
-                          value={catLimitInput}
-                          onChangeText={setCatLimitInput}
-                          keyboardType="numeric"
-                          placeholder="Limit"
-                          placeholderTextColor={colors.textSec}
-                          autoFocus
-                        />
+                  {isEditing && (() => {
+                    const catParsed = parseFloat(catLimitInput.replace(',', '.'));
+                    const isOverMain = monthlyBudget > 0 && !isNaN(catParsed) && catParsed > monthlyBudget;
+                    return (
+                      <View style={{ marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: colors.border }}>
+                        <View style={[styles.catEditRow, { marginTop: 0, paddingTop: 0, borderTopWidth: 0 }]}>
+                          <View style={[
+                            styles.catInputWrap,
+                            {
+                              backgroundColor: colors.inputBg,
+                              borderColor: isOverMain ? colors.error : colors.border,
+                            },
+                          ]}>
+                            <Text style={[styles.inputPrefix, { color: colors.textSec }]}>{currencySymbol}</Text>
+                            <TextInput
+                              style={[styles.budgetInput, { color: isOverMain ? colors.error : colors.textMain }]}
+                              value={catLimitInput}
+                              onChangeText={setCatLimitInput}
+                              keyboardType="numeric"
+                              placeholder="Limit"
+                              placeholderTextColor={colors.textSec}
+                              autoFocus
+                            />
+                          </View>
+                          <TouchableOpacity
+                            style={[styles.catSaveBtn, { backgroundColor: isOverMain ? colors.border : colors.accent, opacity: savingCat ? 0.7 : 1 }]}
+                            onPress={() => handleSaveCatBudget(category)}
+                            disabled={savingCat || isOverMain}
+                          >
+                            {savingCat
+                              ? <ActivityIndicator size="small" color="#FFF" />
+                              : <Text style={styles.saveBtnText}>Kaydet</Text>}
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={[styles.cancelBtn, { borderColor: colors.border }]}
+                            onPress={() => setEditingCategory(null)}
+                          >
+                            <Text style={[styles.cancelBtnText, { color: colors.textSec }]}>İptal</Text>
+                          </TouchableOpacity>
+                        </View>
+                        {isOverMain && (
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6 }}>
+                            <Ionicons name="alert-circle-outline" size={13} color={colors.error} />
+                            <Text style={{ fontSize: 11, color: colors.error, fontWeight: '600' }}>
+                              Ana bütçeyi ({currencySymbol}{monthlyBudget.toLocaleString('tr-TR')}) aşamazsın
+                            </Text>
+                          </View>
+                        )}
                       </View>
-                      <TouchableOpacity
-                        style={[styles.catSaveBtn, { backgroundColor: colors.accent, opacity: savingCat ? 0.7 : 1 }]}
-                        onPress={() => handleSaveCatBudget(category)}
-                        disabled={savingCat}
-                      >
-                        {savingCat
-                          ? <ActivityIndicator size="small" color="#FFF" />
-                          : <Text style={styles.saveBtnText}>Kaydet</Text>}
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={[styles.cancelBtn, { borderColor: colors.border }]}
-                        onPress={() => setEditingCategory(null)}
-                      >
-                        <Text style={[styles.cancelBtnText, { color: colors.textSec }]}>İptal</Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
+                    );
+                  })()}
                 </View>
               );
             })

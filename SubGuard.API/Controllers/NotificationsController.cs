@@ -72,5 +72,12 @@ namespace SubGuard.API.Controllers
         {
             return CreateActionResult(await _notificationService.RegisterPushTokenAsync(LoggedInUserId, dto.Token));
         }
+
+        // POST api/notifications/send-reminder/5
+        [HttpPost("send-reminder/{subscriptionId:int}")]
+        public async Task<IActionResult> SendReminder(int subscriptionId)
+        {
+            return CreateActionResult(await _notificationService.SendManualReminderAsync(subscriptionId, LoggedInUserId));
+        }
     }
 }

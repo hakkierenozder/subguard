@@ -67,6 +67,7 @@ export default function HomeScreen() {
 
     const [refreshing, setRefreshing] = useState(false);
     const [surveySub, setSurveySub] = useState<UserSubscription | null>(null);
+    const [inactiveStats, setInactiveStats] = useState({ paused: 0, cancelled: 0 });
     const { monthlyBudget, setMonthlyBudget } = useSettingsStore();
 
     useEffect(() => {
@@ -86,6 +87,15 @@ export default function HomeScreen() {
             // Kullanıcı adı → profil'den
             if (profileRes.status === 'fulfilled' && profileRes.value?.data) {
                 setUserName(profileRes.value.data.fullName);
+            }
+
+            // Paused / Cancelled sayıları → dashboard'dan
+            if (dashRes.status === 'fulfilled' && dashRes.value?.data) {
+                const d = dashRes.value.data;
+                setInactiveStats({
+                    paused:    d.pausedCount    ?? 0,
+                    cancelled: d.cancelledCount ?? 0,
+                });
             }
 
             // Bütçe → dashboard tek kaynak (profil fallback)
@@ -275,6 +285,18 @@ export default function HomeScreen() {
                                         <Text style={styles.dashCountText}>{thisWeekPayments.length} bu hafta</Text>
                                     </View>
                                 )}
+                                {inactiveStats.paused > 0 && (
+                                    <View style={[styles.dashCountBadge, { backgroundColor: 'rgba(251,191,36,0.35)' }]}>
+                                        <Ionicons name="pause-circle-outline" size={11} color="rgba(255,255,255,0.95)" />
+                                        <Text style={styles.dashCountText}>{inactiveStats.paused} durdurulmuş</Text>
+                                    </View>
+                                )}
+                                {inactiveStats.cancelled > 0 && (
+                                    <View style={[styles.dashCountBadge, { backgroundColor: 'rgba(239,68,68,0.35)' }]}>
+                                        <Ionicons name="close-circle-outline" size={11} color="rgba(255,255,255,0.95)" />
+                                        <Text style={styles.dashCountText}>{inactiveStats.cancelled} iptal</Text>
+                                    </View>
+                                )}
                             </View>
                         </View>
                         <View style={styles.budgetBox}>
@@ -388,6 +410,11 @@ export default function HomeScreen() {
                                                             ? `${item.billingDay}. her yıl`
                                                             : `${item.billingDay}. her ay`}
                                                     </Text>
+                                                    {item.billingPeriod === 'Yearly' && (
+                                                        <View style={{ marginLeft: 5, paddingHorizontal: 5, paddingVertical: 1, borderRadius: 5, backgroundColor: colors.accent + '22' }}>
+                                                            <Text style={{ fontSize: 10, fontWeight: '700', color: colors.accent }}>YILLIK</Text>
+                                                        </View>
+                                                    )}
                                                     {contractDaysLeft !== null && contractDaysLeft <= 30 && (
                                                         <View style={{ marginLeft: 6, paddingHorizontal: 5, paddingVertical: 1, borderRadius: 5, backgroundColor: contractDaysLeft <= 0 ? (colors.error + '20') : '#F9731620' }}>
                                                             <Text style={{ fontSize: 10, fontWeight: '700', color: contractDaysLeft <= 0 ? colors.error : '#F97316' }}>
@@ -396,6 +423,11 @@ export default function HomeScreen() {
                                                         </View>
                                                     )}
                                                 </View>
+                                                {!!item.notes && (
+                                                    <Text style={[styles.upRowCycle, { color: colors.textSec, fontSize: 10, marginTop: 2 }]} numberOfLines={1}>
+                                                        📝 {item.notes}
+                                                    </Text>
+                                                )}
                                             </View>
                                             <View style={{ alignItems: 'flex-end' }}>
                                                 <Text style={[styles.upRowPrice, { color: colors.textMain }]}>
@@ -464,6 +496,11 @@ export default function HomeScreen() {
                                                             ? `${item.billingDay}. her yıl`
                                                             : `${item.billingDay}. her ay`}
                                                     </Text>
+                                                    {item.billingPeriod === 'Yearly' && (
+                                                        <View style={{ marginLeft: 5, paddingHorizontal: 5, paddingVertical: 1, borderRadius: 5, backgroundColor: colors.accent + '22' }}>
+                                                            <Text style={{ fontSize: 10, fontWeight: '700', color: colors.accent }}>YILLIK</Text>
+                                                        </View>
+                                                    )}
                                                     {contractDaysLeft !== null && contractDaysLeft <= 30 && (
                                                         <View style={{ marginLeft: 6, paddingHorizontal: 5, paddingVertical: 1, borderRadius: 5, backgroundColor: contractDaysLeft <= 0 ? (colors.error + '20') : '#F9731620' }}>
                                                             <Text style={{ fontSize: 10, fontWeight: '700', color: contractDaysLeft <= 0 ? colors.error : '#F97316' }}>
@@ -472,6 +509,11 @@ export default function HomeScreen() {
                                                         </View>
                                                     )}
                                                 </View>
+                                                {!!item.notes && (
+                                                    <Text style={[styles.upRowCycle, { color: colors.textSec, fontSize: 10, marginTop: 2 }]} numberOfLines={1}>
+                                                        📝 {item.notes}
+                                                    </Text>
+                                                )}
                                             </View>
                                             <View style={{ alignItems: 'flex-end' }}>
                                                 <Text style={[styles.upRowPrice, { color: colors.textMain }]}>

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import React, { useEffect, useRef, useState } from 'react';
+import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -28,6 +28,7 @@ import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
 
 // Utils & Components
 import { isLoggedIn, logout } from './src/utils/AuthManager';
+import { setLogoutCallback } from './src/api/agent';
 import ErrorBoundary from './src/components/ErrorBoundary';
 import OfflineBanner from './src/components/OfflineBanner';
 import { THEME, useThemeColors } from './src/constants/theme';
@@ -115,6 +116,7 @@ export default function App() {
   const isDarkMode = useSettingsStore((state) => state.isDarkMode);
   const onboardingCompleted = useSettingsStore((state) => state.onboardingCompleted);
   const colors = useThemeColors();
+  const navigationRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -169,7 +171,17 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
     <SafeAreaProvider>
       <ErrorBoundary>
-        <NavigationContainer>
+        <NavigationContainer
+          ref={navigationRef}
+          onReady={() => {
+            // NavigationContainer hazır olunca logout callback'ini set et.
+            // Refresh token başarısız olduğunda agent.ts bu callback'i çağırır
+            // ve kullanıcı Login ekranına yönlendirilir.
+            setLogoutCallback(() => {
+              navigationRef.current?.reset({ index: 0, routes: [{ name: 'Login' }] });
+            });
+          }}
+        >
           <StatusBar 
             barStyle={isDarkMode ? "light-content" : "dark-content"} 
             backgroundColor={colors.bg} 

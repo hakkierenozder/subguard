@@ -125,28 +125,35 @@ namespace SubGuard.Service.Services
             var today = DateTime.UtcNow.Date;
             var startOfMonth = new DateTime(today.Year, today.Month, 1, 0, 0, 0, DateTimeKind.Utc);
 
+            // N+1 FIX: Bu ay zaten bildirim gönderilen userId'leri tek sorguda çek
+            var budgetUserIds = usersWithBudget.Select(u => u.Id).ToList();
+            var alreadyQueuedBudgetUserIds = await _queueRepo
+                .Where(x => budgetUserIds.Contains(x.UserId)
+                         && x.Type == NotificationType.Budget
+                         && x.ScheduledDate >= startOfMonth)
+                .Select(x => x.UserId)
+                .Distinct()
+                .ToListAsync();
+            var alreadyQueuedBudgetSet = alreadyQueuedBudgetUserIds.ToHashSet();
+
+            // N+1 FIX: Tüm kullanıcıların aktif aboneliklerini tek sorguda çek
+            var allBudgetSubs = await _subscriptionRepo
+                .Where(x => budgetUserIds.Contains(x.UserId) && x.Status == SubscriptionStatus.Active)
+                .Select(x => new { x.UserId, x.Price, x.Currency, x.BillingPeriod })
+                .ToListAsync();
+
+            // N+1 FIX: Kurları döngü dışında tek seferinde çek
+            var budgetRates = await _currencyService.GetRatesAsync();
+
             foreach (var user in usersWithBudget)
             {
-                // Bu ay zaten bildirim gönderilmiş mi?
-                var alreadyQueued = await _queueRepo
-                    .Where(x => x.UserId == user.Id
-                             && x.Type == NotificationType.Budget
-                             && x.ScheduledDate >= startOfMonth)
-                    .AnyAsync();
+                if (alreadyQueuedBudgetSet.Contains(user.Id)) continue;
 
-                if (alreadyQueued) continue;
-
-                // B-9: Tüm para birimlerindeki abonelikleri hedef currency'ye çevirerek topla
-                var subscriptions = await _subscriptionRepo
-                    .Where(x => x.UserId == user.Id && x.Status == SubscriptionStatus.Active)
-                    .Select(x => new { x.Price, x.Currency, x.BillingPeriod })
-                    .ToListAsync();
-
-                var rates = await _currencyService.GetRatesAsync();
-                var totalMonthly = subscriptions.Sum(s =>
+                var userSubs = allBudgetSubs.Where(s => s.UserId == user.Id);
+                var totalMonthly = userSubs.Sum(s =>
                     BillingPriceHelper.ConvertToTargetCurrency(
                         BillingPriceHelper.ToMonthlyEquivalent(s.Price, s.BillingPeriod),
-                        s.Currency, user.MonthlyBudgetCurrency!, rates));
+                        s.Currency, user.MonthlyBudgetCurrency!, budgetRates));
 
                 if (totalMonthly <= user.MonthlyBudget) continue;
 
@@ -181,26 +188,55 @@ namespace SubGuard.Service.Services
                 .Distinct()
                 .ToListAsync();
 
+            // N+1 FIX: Tüm kullanıcı verilerini tek sorguda çek
+            var catUserList = await _userManager.Users
+                .Where(u => usersWithCategoryBudgets.Contains(u.Id))
+                .ToListAsync();
+            var catUserMap = catUserList.ToDictionary(u => u.Id);
+
+            // N+1 FIX: Tüm kategori bütçelerini tek sorguda çek
+            var allCatBudgets = await _db.CategoryBudgets
+                .Where(b => usersWithCategoryBudgets.Contains(b.UserId) && !b.IsDeleted)
+                .ToListAsync();
+
+            // N+1 FIX: Tüm aktif abonelikleri tek sorguda çek
+            var allCatSubs = await _subscriptionRepo
+                .Where(s => usersWithCategoryBudgets.Contains(s.UserId) && s.Status == SubscriptionStatus.Active)
+                .Select(s => new { s.UserId, s.Category, s.Price, s.Currency, s.BillingPeriod })
+                .ToListAsync();
+
+            // N+1 FIX: Kurları tek seferinde çek (döngü dışı)
+            var catRates = await _currencyService.GetRatesAsync();
+
+            // N+1 FIX: Bu ay kuyruğa alınmış kategori bildirimlerini toplu çek.
+            // Message formatı: "[Kategori] ..." → userId|Kategori anahtarıyla HashSet'te O(1) arama.
+            var existingCatNotifs = await _queueRepo
+                .Where(x => usersWithCategoryBudgets.Contains(x.UserId)
+                         && x.Type == NotificationType.CategoryBudget
+                         && x.ScheduledDate >= startOfMonth)
+                .Select(x => new { x.UserId, x.Message })
+                .ToListAsync();
+            var existingCatNotifKeys = existingCatNotifs
+                .Select(x =>
+                {
+                    var endIdx = x.Message.IndexOf(']');
+                    var cat = endIdx > 1 ? x.Message.Substring(1, endIdx - 1) : string.Empty;
+                    return $"{x.UserId}|{cat}";
+                })
+                .ToHashSet();
+
             foreach (var userId in usersWithCategoryBudgets)
             {
-                var user = await _userManager.FindByIdAsync(userId);
-                if (user == null || user.MonthlyBudgetCurrency == null || !user.BudgetAlertEnabled) continue; // F-10
+                if (!catUserMap.TryGetValue(userId, out var user)) continue;
+                if (user.MonthlyBudgetCurrency == null || !user.BudgetAlertEnabled) continue;
 
                 var threshold = user.BudgetAlertThreshold > 0 ? user.BudgetAlertThreshold : 80;
                 var currency = user.MonthlyBudgetCurrency;
 
-                var catBudgets = await _db.CategoryBudgets
-                    .Where(b => b.UserId == userId && !b.IsDeleted)
-                    .ToListAsync();
+                var catBudgets = allCatBudgets.Where(b => b.UserId == userId).ToList();
+                var userSubs   = allCatSubs.Where(s => s.UserId == userId).ToList();
 
-                // B-9: Tüm para birimlerindeki aktif abonelikleri çek
-                var subs = await _subscriptionRepo
-                    .Where(s => s.UserId == userId && s.Status == SubscriptionStatus.Active)
-                    .Select(s => new { s.Category, s.Price, s.Currency, s.BillingPeriod })
-                    .ToListAsync();
-
-                var catRates = await _currencyService.GetRatesAsync();
-                var spendingByCategory = subs
+                var spendingByCategory = userSubs
                     .GroupBy(s => s.Category)
                     .ToDictionary(
                         g => g.Key,
@@ -210,21 +246,14 @@ namespace SubGuard.Service.Services
 
                 foreach (var catBudget in catBudgets)
                 {
-                    var spent = spendingByCategory.TryGetValue(catBudget.Category, out var s) ? s : 0m;
+                    var spent = spendingByCategory.TryGetValue(catBudget.Category, out var spentAmt) ? spentAmt : 0m;
                     var limitThreshold = catBudget.MonthlyLimit * threshold / 100m;
 
                     if (spent < limitThreshold) continue;
 
-                    // Bu ay bu kategori için zaten bildirim var mı?
-                    // B-10: Fragile string search yerine CategoryBudget tipi + kategori prefix'i
-                    var catAlreadyQueued = await _queueRepo
-                        .Where(x => x.UserId == userId
-                                 && x.Type == NotificationType.CategoryBudget
-                                 && x.ScheduledDate >= startOfMonth
-                                 && x.Message.StartsWith($"[{catBudget.Category}]"))
-                        .AnyAsync();
-
-                    if (catAlreadyQueued) continue;
+                    // HashSet'ten O(1) kontrol — döngü içinde DB sorgusu yok
+                    var notifKey = $"{userId}|{catBudget.Category}";
+                    if (existingCatNotifKeys.Contains(notifKey)) continue;
 
                     var title = spent > catBudget.MonthlyLimit
                         ? $"{catBudget.Category} Bütçesi Aşıldı"
@@ -579,6 +608,80 @@ namespace SubGuard.Service.Services
             user.BudgetAlertEnabled = dto.BudgetAlertEnabled;   // F-10
             user.SharedAlertEnabled = dto.SharedAlertEnabled;   // F-10
             await _userManager.UpdateAsync(user);
+
+            return CustomResponseDto<bool>.Success(200, true);
+        }
+
+        public async Task<CustomResponseDto<bool>> SendManualReminderAsync(int subscriptionId, string userId)
+        {
+            var sub = await _subscriptionRepo.GetByIdAsync(subscriptionId);
+            if (sub == null)
+                return CustomResponseDto<bool>.Fail(404, "Abonelik bulunamadı.");
+            if (sub.UserId != userId)
+                return CustomResponseDto<bool>.Fail(403, "Bu aboneliğe erişim yetkiniz yok.");
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return CustomResponseDto<bool>.Fail(404, "Kullanıcı bulunamadı.");
+
+            // Aboneliğin sonraki ödeme tarihine kaç gün kaldığını hesapla
+            var today = DateTime.UtcNow.Date;
+            var clampedDay = Math.Min(sub.BillingDay, DateTime.DaysInMonth(today.Year, today.Month));
+            var nextBilling = new DateTime(today.Year, today.Month, clampedDay);
+            if (nextBilling < today)
+                nextBilling = nextBilling.AddMonths(1);
+            int daysUntil = (int)(nextBilling - today).TotalDays;
+
+            // Bildirim kuyruğuna ekle (manuel — ScheduledDate = şu an)
+            var notification = new NotificationQueue
+            {
+                UserId              = userId,
+                UserSubscriptionId  = sub.Id,
+                Title               = $"{sub.Name} - Manuel Hatırlatma",
+                Message             = $"{sub.Name} aboneliğinizin ödemesine {daysUntil} gün kaldı. Tutar: {sub.Price} {sub.Currency}",
+                ScheduledDate       = DateTime.UtcNow,
+                Type                = NotificationType.Payment,
+                IsSent              = false,
+            };
+
+            await _queueRepo.AddAsync(notification);
+            await _unitOfWork.CommitAsync();
+
+            // Anında göndermeyi dene
+            var message = new NotificationMessage
+            {
+                ToEmail   = user.Email!,
+                ToName    = user.FullName ?? user.Email!,
+                PushToken = user.ExpoPushToken,
+                Title     = notification.Title,
+                Body      = notification.Message,
+                HtmlBody  = EmailTemplates.PaymentReminder(
+                    user.FullName ?? user.Email!,
+                    sub.Name, sub.Price, sub.Currency, daysUntil),
+                Data = new { subscriptionId = sub.Id }
+            };
+
+            bool anySent = false;
+            foreach (var sender in _senders)
+            {
+                if (sender.Channel == NotificationChannel.Email && !user.NotifEmailEnabled) continue;
+                if (sender.Channel == NotificationChannel.Push  && !user.NotifPushEnabled)  continue;
+                if (sender.Channel == NotificationChannel.Push  && string.IsNullOrEmpty(user.ExpoPushToken)) continue;
+                try { await sender.SendAsync(message); anySent = true; }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Manuel hatırlatma kanalı başarısız. Kanal: {Channel}", sender.Channel);
+                }
+            }
+
+            notification.IsSent    = anySent;
+            notification.SentDate  = anySent ? DateTime.UtcNow : null;
+            _queueRepo.Update(notification);
+            await _unitOfWork.CommitAsync();
+
+            _logger.LogInformation(
+                "Manuel hatırlatma gönderildi. SubscriptionId: {SubId}, UserId: {UserId}, AnySent: {Sent}",
+                subscriptionId, userId, anySent);
 
             return CustomResponseDto<bool>.Success(200, true);
         }

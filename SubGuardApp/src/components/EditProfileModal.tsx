@@ -7,21 +7,22 @@ import agent from '../api/agent';
 interface Props {
   visible: boolean;
   onClose: () => void;
-  currentUser: { fullName: string; monthlyBudget: number } | null;
+  currentUser: { fullName: string; monthlyBudget: number; monthlyBudgetCurrency: string } | null;
   onUpdateSuccess: () => void;
 }
 
 export default function EditProfileModal({ visible, onClose, currentUser, onUpdateSuccess }: Props) {
   const colors = useThemeColors();
   const { control, handleSubmit, reset } = useForm({
-    defaultValues: { fullName: '', monthlyBudget: '' }
+    defaultValues: { fullName: '', monthlyBudget: '', monthlyBudgetCurrency: 'TRY' }
   });
 
   useEffect(() => {
     if (currentUser) {
       reset({
         fullName: currentUser.fullName || '',
-        monthlyBudget: currentUser.monthlyBudget ? currentUser.monthlyBudget.toString() : ''
+        monthlyBudget: currentUser.monthlyBudget ? currentUser.monthlyBudget.toString() : '',
+        monthlyBudgetCurrency: currentUser.monthlyBudgetCurrency || 'TRY',
       });
     }
   }, [currentUser, visible, reset]);
@@ -30,7 +31,8 @@ export default function EditProfileModal({ visible, onClose, currentUser, onUpda
     try {
       await agent.Auth.updateProfile({
         fullName: data.fullName,
-        monthlyBudget: parseFloat(data.monthlyBudget) || 0
+        monthlyBudget: parseFloat(data.monthlyBudget) || 0,
+        monthlyBudgetCurrency: data.monthlyBudgetCurrency || 'TRY',
       });
       Alert.alert('Başarılı', 'Profil bilgileri güncellendi.');
       onUpdateSuccess();

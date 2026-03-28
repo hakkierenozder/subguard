@@ -188,12 +188,68 @@ namespace SubGuard.Service.Services
                 })
                 .ToList();
 
+            // Tüm katalog istatistikleri
+            var totalCatalogs = await _db.Catalogs.Where(c => !c.IsDeleted).CountAsync();
+
+            var allCatalogCounts = await _db.UserSubscriptions
+                .Where(s => !s.IsDeleted && s.CatalogId != null)
+                .GroupBy(s => s.CatalogId!.Value)
+                .Select(g => new { CatalogId = g.Key, Count = g.Count() })
+                .OrderByDescending(x => x.Count)
+                .Take(20)
+                .ToListAsync();
+
+            var allCatalogIds = allCatalogCounts.Select(x => x.CatalogId).ToList();
+            var allCatalogDetails = await _db.Catalogs
+                .Where(c => allCatalogIds.Contains(c.Id))
+                .Select(c => new { c.Id, c.Name, c.LogoUrl, c.Category })
+                .ToListAsync();
+
+            var allCatalogStats = allCatalogCounts
+                .Select(x => {
+                    var cat = allCatalogDetails.FirstOrDefault(c => c.Id == x.CatalogId);
+                    return new CatalogStatDto
+                    {
+                        Name     = cat?.Name ?? "—",
+                        LogoUrl  = cat?.LogoUrl,
+                        Category = cat?.Category,
+                        Count    = x.Count
+                    };
+                })
+                .ToList();
+
+            // Kategori bazlı katalog dağılımı
+            var categoryDist = await _db.Catalogs
+                .Where(c => !c.IsDeleted && c.Category != null)
+                .GroupBy(c => c.Category)
+                .Select(g => new CategoryStatDto
+                {
+                    Category     = g.Key,
+                    CatalogCount = g.Count()
+                })
+                .ToListAsync();
+
+            // Her kategorinin toplam abonelik sayısını ekle
+            var catSubCounts = await _db.UserSubscriptions
+                .Where(s => !s.IsDeleted && s.CatalogId != null)
+                .Join(_db.Catalogs, s => s.CatalogId, c => c.Id, (s, c) => new { c.Category })
+                .Where(x => x.Category != null)
+                .GroupBy(x => x.Category)
+                .Select(g => new { Category = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.Category!, x => x.Count);
+
+            foreach (var cat in categoryDist)
+                cat.SubscriptionCount = catSubCounts.GetValueOrDefault(cat.Category, 0);
+
             return CustomResponseDto<AdminStatsDto>.Success(200, new AdminStatsDto
             {
-                TotalUsers = totalUsers,
-                TotalSubscriptions = totalSubs,
-                ActiveSubscriptions = activeSubs,
-                TopCatalogs = topCatalogs
+                TotalUsers           = totalUsers,
+                TotalSubscriptions   = totalSubs,
+                ActiveSubscriptions  = activeSubs,
+                TopCatalogs          = topCatalogs,
+                TotalCatalogs        = totalCatalogs,
+                AllCatalogStats      = allCatalogStats,
+                CategoryDistribution = categoryDist.OrderByDescending(x => x.SubscriptionCount).ToList(),
             });
         }
     }

@@ -44,9 +44,8 @@ export interface UserSubscription {
 
   notificationId?: string;
 
-  // Paylaşım: backend sharedWithJson'dan parse edilir
+  // Paylaşım: backend SubscriptionShares tablosundan parse edilir
   sharedWith?: string[];
-  sharedWithJson?: string | null;
 
   // Survey: YEREL, AsyncStorage'da tutulur — backend'e gönderilmez
   usageHistory?: UsageLog[];
@@ -55,6 +54,11 @@ export interface UserSubscription {
   usageLogs?: ApiUsageLog[];
 
   notes?: string | null;
+
+  // Benimle paylaşım bilgileri (SharedWithMeItemDto'dan)
+  sharedAt?: string | null;
+  ownerEmail?: string | null;
+  ownerFullName?: string | null;
 
   isActive: boolean;
   // Backend'de CancelledDate (PascalCase) → camelCase'de cancelledDate
@@ -117,14 +121,16 @@ export interface RawSubscriptionApiItem {
   hasContract: boolean;
   contractStartDate?: string | null;
   contractEndDate?: string | null;
-  sharedWithJson?: string | null;
-  usageHistoryJson?: string | null;
   notes?: string | null;
   isActive: boolean;
   status?: 'Active' | 'Paused' | 'Cancelled';
   pausedDate?: string | null;
   cancelledDate?: string | null;
   cancelledAt?: string | null;
+  // Benimle paylaşım alanları (SharedWithMeItemDto'dan)
+  sharedAt?: string | null;
+  ownerEmail?: string | null;
+  ownerFullName?: string | null;
 }
 
 export interface CategoryBudget {
@@ -159,13 +165,15 @@ export interface NotificationDto {
   createdDate: string;
   scheduledDate: string;
   readDate?: string | null;
-  type?: 'Payment' | 'Budget' | 'Shared' | 'Contract';
+  type?: 'Payment' | 'Budget' | 'CategoryBudget' | 'Shared' | 'Contract';
   userSubscriptionId?: number | null;
 }
 
 // ─── DASHBOARD (SubGuard.Core.DTOs.DashboardDto ile birebir) ─────────────────
 export interface DashboardDto {
   activeSubscriptionCount: number;
+  pausedCount: number;
+  cancelledCount: number;
   totalByCurrency: CurrencyTotalDto[];
   spendingByCategory: CategorySpendingDto[];
   upcomingPayments: UpcomingPaymentDto[];
@@ -201,6 +209,8 @@ export interface UpcomingPaymentDto {
   billingDay: number;
   daysUntilPayment: number;
   colorCode?: string | null;
+  billingPeriod?: 'Monthly' | 'Yearly';
+  notes?: string | null;
 }
 
 // ─── USER PROFILE (SubGuard.Core.DTOs.Auth.UserProfileDto ile birebir) ───────
@@ -210,4 +220,8 @@ export interface UserProfileDto {
   totalSubscriptions: number;
   monthlyBudget: number;
   monthlyBudgetCurrency?: string | null;
+  budgetAlertThreshold?: number;
+  budgetAlertEnabled?: boolean;
+  sharedAlertEnabled?: boolean;
+  isAdmin?: boolean;
 }

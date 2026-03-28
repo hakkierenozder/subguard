@@ -1,10 +1,15 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; // Mevcut paketten
-import { SafeAreaView } from 'react-native-safe-area-context'; // Mevcut paketten
+import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useThemeColors, THEME } from '../constants/theme';
+
+// ─── Renk tipi ───────────────────────────────────────────────────────────────
+type Colors = ReturnType<typeof useThemeColors>;
 
 interface Props {
   children: ReactNode;
+  colors: Colors;
 }
 
 interface State {
@@ -12,68 +17,59 @@ interface State {
   error: Error | null;
 }
 
-// Fırtına Mavisi Teması
-const THEME = {
-    primary: '#334155',    // Slate 700 - Fırtına Mavisi
-    bg: '#F8FAFC',         // Slate 50 - Arka Plan
-    textMain: '#0F172A',   // Slate 900 - Başlık
-    textSec: '#64748B',    // Slate 500 - Açıklama
-    white: '#FFFFFF',
-};
-
-class ErrorBoundary extends Component<Props, State> {
+class ErrorBoundaryClass extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = { hasError: false, error: null };
   }
 
   static getDerivedStateFromError(error: Error): State {
-    // Bir sonraki render'da fallback UI göstermek için state'i güncelle
     return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Hata loglama servisine (Sentry, Firebase Crashlytics vb.) buradan gönderebiliriz.
-    console.error("Global Hata Yakalandı:", error, errorInfo);
+    console.error('Global Hata Yakalandı:', error, errorInfo);
   }
 
   handleReset = () => {
-    // Uygulamayı yeniden başlatmak yerine state'i sıfırlayarak kurtarmayı deniyoruz.
-    // Eğer kök dizinde bir sorun varsa kullanıcı uygulamayı kapatıp açmalıdır.
     this.setState({ hasError: false, error: null });
-  }
+  };
 
   render() {
+    const { colors } = this.props;
+
     if (this.state.hasError) {
       return (
-        <SafeAreaView style={styles.container}>
-          <StatusBar barStyle="dark-content" backgroundColor={THEME.bg} />
-          
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
+          <StatusBar
+            barStyle={colors.bg === THEME.bg ? 'dark-content' : 'light-content'}
+            backgroundColor={colors.bg}
+          />
+
           <View style={styles.content}>
-            <View style={styles.iconContainer}>
-                <Ionicons name="alert-circle" size={80} color={THEME.primary} />
+            <View style={[styles.iconContainer, { shadowColor: colors.primary }]}>
+              <Ionicons name="alert-circle" size={80} color={colors.primary} />
             </View>
 
-            <Text style={styles.title}>Bir şeyler ters gitti</Text>
-            
-            <Text style={styles.message}>
+            <Text style={[styles.title, { color: colors.textMain }]}>Bir şeyler ters gitti</Text>
+
+            <Text style={[styles.message, { color: colors.textSec }]}>
               Beklenmedik bir hata oluştu. Teknik ekibimiz durumdan haberdar edildi.
             </Text>
 
-            {/* Geliştirici Modunda Hatayı Göster */}
             {__DEV__ && this.state.error && (
-                <View style={styles.debugBox}>
-                    <Text style={styles.debugText}>Hata: {this.state.error.toString()}</Text>
-                </View>
+              <View style={[styles.debugBox, { backgroundColor: colors.inputBg }]}>
+                <Text style={styles.debugText}>Hata: {this.state.error.toString()}</Text>
+              </View>
             )}
 
-            <TouchableOpacity 
-                style={styles.retryButton} 
-                onPress={this.handleReset}
-                activeOpacity={0.8}
+            <TouchableOpacity
+              style={[styles.retryButton, { backgroundColor: colors.primary, shadowColor: colors.primary }]}
+              onPress={this.handleReset}
+              activeOpacity={0.8}
             >
-                <Ionicons name="refresh" size={20} color={THEME.white} style={{marginRight: 8}} />
-                <Text style={styles.retryText}>Tekrar Dene</Text>
+              <Ionicons name="refresh" size={20} color="#FFF" style={{ marginRight: 8 }} />
+              <Text style={styles.retryText}>Tekrar Dene</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>
@@ -84,10 +80,15 @@ class ErrorBoundary extends Component<Props, State> {
   }
 }
 
+// ─── Functional wrapper — hooks burada kullanılır ─────────────────────────────
+export default function ErrorBoundary({ children }: { children: ReactNode }) {
+  const colors = useThemeColors();
+  return <ErrorBoundaryClass colors={colors}>{children}</ErrorBoundaryClass>;
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: THEME.bg,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -98,7 +99,6 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     marginBottom: 24,
-    shadowColor: THEME.primary,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.2,
     shadowRadius: 15,
@@ -107,47 +107,40 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '800',
-    color: THEME.textMain,
     marginBottom: 12,
     textAlign: 'center',
   },
   message: {
     fontSize: 15,
-    color: THEME.textSec,
     textAlign: 'center',
     marginBottom: 32,
     lineHeight: 22,
   },
   retryButton: {
     flexDirection: 'row',
-    backgroundColor: THEME.primary,
     paddingVertical: 16,
     paddingHorizontal: 32,
     borderRadius: 16,
     alignItems: 'center',
-    shadowColor: THEME.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 5,
   },
   retryText: {
-    color: THEME.white,
+    color: '#FFF',
     fontSize: 16,
     fontWeight: '700',
   },
   debugBox: {
-      backgroundColor: '#E2E8F0',
-      padding: 10,
-      borderRadius: 8,
-      marginBottom: 20,
-      width: '100%',
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 20,
+    width: '100%',
   },
   debugText: {
-      color: '#EF4444',
-      fontSize: 12,
-      fontFamily: 'monospace'
-  }
+    color: '#EF4444',
+    fontSize: 12,
+    fontFamily: 'monospace',
+  },
 });
-
-export default ErrorBoundary;

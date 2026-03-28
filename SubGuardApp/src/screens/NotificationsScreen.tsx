@@ -35,7 +35,7 @@ const NOTIF_COLORS = {
 };
 
 function getNotifMeta(item: NotificationDto): { icon: string; colorKey: keyof typeof NOTIF_COLORS } {
-  if (item.type === 'Budget' || item.type === ('CategoryBudget' as any)) return { icon: 'wallet-outline', colorKey: 'budget' };
+  if (item.type === 'Budget' || item.type === 'CategoryBudget') return { icon: 'wallet-outline', colorKey: 'budget' };
   if (item.type === 'Payment')  return { icon: 'card-outline',          colorKey: 'payment' };
   if (item.type === 'Shared')   return { icon: 'people-outline',        colorKey: 'shared' };
   if (item.type === 'Contract') return { icon: 'document-text-outline', colorKey: 'contract' };
@@ -142,7 +142,7 @@ function NotifItem({ item, onRead, onDelete, onNavigateToSub, onNavigateToAnalyt
             if (!item.isRead) onRead(item.id);
             if (item.userSubscriptionId) {
               onNavigateToSub(item.userSubscriptionId);
-            } else if (item.type === 'Budget' || item.type === ('CategoryBudget' as any)) {
+            } else if (item.type === 'Budget' || item.type === 'CategoryBudget') {
               onNavigateToAnalytics();
             }
           }}
@@ -175,9 +175,25 @@ function NotifItem({ item, onRead, onDelete, onNavigateToSub, onNavigateToAnalyt
             >
               {item.message}
             </Text>
-            <Text style={[styles.notifDate, { color: colors.textSec }]}>
-              {formatDate(item.createdDate)}
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 }}>
+              <Text style={[styles.notifDate, { color: colors.textSec }]}>
+                {formatDate(item.createdDate)}
+              </Text>
+              <View style={{
+                flexDirection: 'row', alignItems: 'center', gap: 3,
+                paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6,
+                backgroundColor: item.isSent ? (colors.success + '18') : (colors.textSec + '18'),
+              }}>
+                <Ionicons
+                  name={item.isSent ? 'checkmark-circle-outline' : 'time-outline'}
+                  size={10}
+                  color={item.isSent ? colors.success : colors.textSec}
+                />
+                <Text style={{ fontSize: 10, fontWeight: '600', color: item.isSent ? colors.success : colors.textSec }}>
+                  {item.isSent ? 'Gönderildi' : 'Beklemede'}
+                </Text>
+              </View>
+            </View>
           </View>
 
           {/* Sağ: kaydır ipucu */}
@@ -264,7 +280,7 @@ export default function NotificationsScreen() {
     ? notifications
     : notifications.filter(n =>
         activeFilter === 'Budget'
-          ? (n.type === 'Budget' || n.type === ('CategoryBudget' as any))
+          ? (n.type === 'Budget' || n.type === 'CategoryBudget')
           : n.type === activeFilter
       );
 

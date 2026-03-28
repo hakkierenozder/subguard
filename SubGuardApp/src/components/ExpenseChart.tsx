@@ -21,12 +21,19 @@ export default function ExpenseChart({ onCategoryPress, selectedCategory }: Prop
   const { subscriptions, exchangeRates } = useUserSubscriptionStore();
 
   // Kategori bazlı toplam hesapla (sadece aktif, kur dönüşümlü, paylaşım dahil)
+  // Kur kuralı: backend BillingPriceHelper ile tutarlı olmalı.
+  //   • TRY → her zaman 1 (gösterim para birimi, kurda bulunmayabilir)
+  //   • Bilinen kur → exchangeRates'den al
+  //   • Bilinmeyen kur → 0 (grafikten hariç tut; 1 yazmak yanlış dönüşüm üretir)
   const categoryTotals: Record<string, number> = {};
   subscriptions
     .filter(s => s.isActive !== false)
     .forEach(sub => {
       const cat = sub.category || 'Diğer';
-      const rate = exchangeRates[sub.currency] || 1;
+      const rate = sub.currency === 'TRY'
+        ? 1
+        : (exchangeRates[sub.currency] ?? 0);
+      if (rate === 0) return; // Bilinmeyen kur → bu aboneliği grafikten hariç tut
       const amountInTry = sub.price * rate;
       const partnerCount = sub.sharedWith?.length || 0;
       const myShare = amountInTry / (partnerCount + 1);

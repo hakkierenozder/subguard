@@ -1,0 +1,785 @@
+2026-03-28 10:18:09.361 +03:00 [INF] [User: ] Uygulama ba�lat�l�yor...
+2026-03-28 10:18:11.131 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonland� (Host Terminated).
+System.InvalidOperationException: Current JobStorage instance has not been initialized yet. You must set it before using Hangfire Client or Server API. For .NET Core applications please call the `IServiceCollection.AddHangfire` extension method from Hangfire.NetCore or Hangfire.AspNetCore package depending on your application type when configuring the services and ensure service-based APIs are used instead of static ones, like `IBackgroundJobClient` instead of `BackgroundJob` and `IRecurringJobManager` instead of `RecurringJob`.
+   at Hangfire.JobStorage.get_Current() in C:\projects\hangfire-525\src\Hangfire.Core\JobStorage.cs:line 42
+   at Hangfire.RecurringJobManager..ctor() in C:\projects\hangfire-525\src\Hangfire.Core\RecurringJobManager.cs:line 42
+   at Hangfire.RecurringJob.<>c.<.cctor>b__66_0() in C:\projects\hangfire-525\src\Hangfire.Core\RecurringJob.cs:line 28
+   at Hangfire.RecurringJob.AddOrUpdate[T](String recurringJobId, Expression`1 methodCall, String cronExpression, RecurringJobOptions options) in C:\projects\hangfire-525\src\Hangfire.Core\RecurringJob.cs:line 618
+   at Hangfire.RecurringJob.AddOrUpdate[T](String recurringJobId, Expression`1 methodCall, String cronExpression) in C:\projects\hangfire-525\src\Hangfire.Core\RecurringJob.cs:line 608
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 325
+2026-03-28 10:22:13.763 +03:00 [INF] [User: ] Uygulama baï¿½latï¿½lï¿½yor...
+2026-03-28 10:22:15.090 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-28 10:22:15.112 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-28 10:22:15.628 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-28 10:22:15.629 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-28 10:22:15.630 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-28 10:22:15.631 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-28 10:22:15.631 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-28 10:22:15.633 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-28 10:22:15.656 +03:00 [INF] [User: ] Server desktop-25vqrpg:5440:341f3bcf successfully announced in 11,4189 ms
+2026-03-28 10:22:15.659 +03:00 [INF] [User: ] Server desktop-25vqrpg:5440:341f3bcf is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-28 10:22:15.664 +03:00 [INF] [User: ] Server desktop-25vqrpg:5440:341f3bcf all the dispatchers started
+2026-03-28 10:22:15.899 +03:00 [INF] [User: ] Süresi dolmuş 0 refresh token ve 0 revocation kaydı temizlendi.
+2026-03-28 10:22:15.959 +03:00 [ERR] [User: ] Failed executing DbCommand (13ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT a."Id", a."AccessFailedCount", a."BudgetAlertEnabled", a."BudgetAlertThreshold", a."ConcurrencyStamp", a."Email", a."EmailConfirmed", a."ExpoPushToken", a."FullName", a."LockoutEnabled", a."LockoutEnd", a."MonthlyBudget", a."MonthlyBudgetCurrency", a."NormalizedEmail", a."NormalizedUserName", a."NotifEmailEnabled", a."NotifPushEnabled", a."NotifReminderDays", a."NotifyHour", a."OtpCode", a."OtpExpiry", a."OtpToken", a."OtpType", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."SharedAlertEnabled", a."TwoFactorEnabled", a."UserName"
+FROM "AspNetUsers" AS a
+WHERE a."MonthlyBudget" > 0.0 AND (a."MonthlyBudgetCurrency" IS NOT NULL) AND a."BudgetAlertEnabled"
+2026-03-28 10:22:15.974 +03:00 [ERR] [User: ] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column a.OtpCode does not exist
+
+POSITION: 386
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.OtpCode does not exist
+    Position: 386
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+Npgsql.PostgresException (0x80004005): 42703: column a.OtpCode does not exist
+
+POSITION: 386
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.OtpCode does not exist
+    Position: 386
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-28 10:22:15.991 +03:00 [WRN] [User: ] Failed to process the job '105': an exception occurred. Retry attempt 1 of 10 will be performed in 00:00:41.
+Npgsql.PostgresException (0x80004005): 42703: column a.OtpCode does not exist
+
+POSITION: 386
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.NotificationService.CheckAndQueueBudgetAlertsAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 119
+   at InvokeStub_TaskAwaiter.GetResult(Object, Object, IntPtr*)
+   at System.Reflection.MethodInvoker.Invoke(Object obj, IntPtr* args, BindingFlags invokeAttr)
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.OtpCode does not exist
+    Position: 386
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-28 10:22:16.022 +03:00 [ERR] [User: ] Failed executing DbCommand (79ms) [Parameters=[@__userIds_0='?' (DbType = Object)], CommandType='"Text"', CommandTimeout='30']
+SELECT a."Id", a."AccessFailedCount", a."BudgetAlertEnabled", a."BudgetAlertThreshold", a."ConcurrencyStamp", a."Email", a."EmailConfirmed", a."ExpoPushToken", a."FullName", a."LockoutEnabled", a."LockoutEnd", a."MonthlyBudget", a."MonthlyBudgetCurrency", a."NormalizedEmail", a."NormalizedUserName", a."NotifEmailEnabled", a."NotifPushEnabled", a."NotifReminderDays", a."NotifyHour", a."OtpCode", a."OtpExpiry", a."OtpToken", a."OtpType", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."SharedAlertEnabled", a."TwoFactorEnabled", a."UserName"
+FROM "AspNetUsers" AS a
+WHERE a."Id" = ANY (@__userIds_0)
+2026-03-28 10:22:16.025 +03:00 [ERR] [User: ] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column a.OtpCode does not exist
+
+POSITION: 386
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.OtpCode does not exist
+    Position: 386
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+Npgsql.PostgresException (0x80004005): 42703: column a.OtpCode does not exist
+
+POSITION: 386
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.OtpCode does not exist
+    Position: 386
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-28 10:22:16.040 +03:00 [WRN] [User: ] Failed to process the job '100': an exception occurred. Retry attempt 1 of 10 will be performed in 00:00:18.
+Npgsql.PostgresException (0x80004005): 42703: column a.OtpCode does not exist
+
+POSITION: 386
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToDictionaryAsync[TSource,TKey,TElement](IQueryable`1 source, Func`2 keySelector, Func`2 elementSelector, IEqualityComparer`1 comparer, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToDictionaryAsync[TSource,TKey,TElement](IQueryable`1 source, Func`2 keySelector, Func`2 elementSelector, IEqualityComparer`1 comparer, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.NotificationService.CheckAndQueueUpcomingPaymentsAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 70
+   at InvokeStub_TaskAwaiter.GetResult(Object, Object, IntPtr*)
+   at System.Reflection.MethodInvoker.Invoke(Object obj, IntPtr* args, BindingFlags invokeAttr)
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.OtpCode does not exist
+    Position: 386
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-28 10:22:45.749 +03:00 [ERR] [User: ] Failed executing DbCommand (3ms) [Parameters=[@__userIds_0='?' (DbType = Object)], CommandType='"Text"', CommandTimeout='30']
+SELECT a."Id", a."AccessFailedCount", a."BudgetAlertEnabled", a."BudgetAlertThreshold", a."ConcurrencyStamp", a."Email", a."EmailConfirmed", a."ExpoPushToken", a."FullName", a."LockoutEnabled", a."LockoutEnd", a."MonthlyBudget", a."MonthlyBudgetCurrency", a."NormalizedEmail", a."NormalizedUserName", a."NotifEmailEnabled", a."NotifPushEnabled", a."NotifReminderDays", a."NotifyHour", a."OtpCode", a."OtpExpiry", a."OtpToken", a."OtpType", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."SharedAlertEnabled", a."TwoFactorEnabled", a."UserName"
+FROM "AspNetUsers" AS a
+WHERE a."Id" = ANY (@__userIds_0)
+2026-03-28 10:22:45.752 +03:00 [ERR] [User: ] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column a.OtpCode does not exist
+
+POSITION: 386
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.OtpCode does not exist
+    Position: 386
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+Npgsql.PostgresException (0x80004005): 42703: column a.OtpCode does not exist
+
+POSITION: 386
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.OtpCode does not exist
+    Position: 386
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-28 10:22:45.767 +03:00 [WRN] [User: ] Failed to process the job '100': an exception occurred. Retry attempt 2 of 10 will be performed in 00:00:32.
+Npgsql.PostgresException (0x80004005): 42703: column a.OtpCode does not exist
+
+POSITION: 386
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToDictionaryAsync[TSource,TKey,TElement](IQueryable`1 source, Func`2 keySelector, Func`2 elementSelector, IEqualityComparer`1 comparer, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToDictionaryAsync[TSource,TKey,TElement](IQueryable`1 source, Func`2 keySelector, Func`2 elementSelector, IEqualityComparer`1 comparer, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.NotificationService.CheckAndQueueUpcomingPaymentsAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 70
+   at InvokeStub_TaskAwaiter.GetResult(Object, Object, IntPtr*)
+   at System.Reflection.MethodInvoker.Invoke(Object obj, IntPtr* args, BindingFlags invokeAttr)
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.OtpCode does not exist
+    Position: 386
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-28 10:23:00.778 +03:00 [ERR] [User: ] Failed executing DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT a."Id", a."AccessFailedCount", a."BudgetAlertEnabled", a."BudgetAlertThreshold", a."ConcurrencyStamp", a."Email", a."EmailConfirmed", a."ExpoPushToken", a."FullName", a."LockoutEnabled", a."LockoutEnd", a."MonthlyBudget", a."MonthlyBudgetCurrency", a."NormalizedEmail", a."NormalizedUserName", a."NotifEmailEnabled", a."NotifPushEnabled", a."NotifReminderDays", a."NotifyHour", a."OtpCode", a."OtpExpiry", a."OtpToken", a."OtpType", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."SharedAlertEnabled", a."TwoFactorEnabled", a."UserName"
+FROM "AspNetUsers" AS a
+WHERE a."MonthlyBudget" > 0.0 AND (a."MonthlyBudgetCurrency" IS NOT NULL) AND a."BudgetAlertEnabled"
+2026-03-28 10:23:00.782 +03:00 [ERR] [User: ] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column a.OtpCode does not exist
+
+POSITION: 386
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.OtpCode does not exist
+    Position: 386
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+Npgsql.PostgresException (0x80004005): 42703: column a.OtpCode does not exist
+
+POSITION: 386
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.OtpCode does not exist
+    Position: 386
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-28 10:23:00.798 +03:00 [WRN] [User: ] Failed to process the job '105': an exception occurred. Retry attempt 2 of 10 will be performed in 00:00:16.
+Npgsql.PostgresException (0x80004005): 42703: column a.OtpCode does not exist
+
+POSITION: 386
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.NotificationService.CheckAndQueueBudgetAlertsAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 119
+   at InvokeStub_TaskAwaiter.GetResult(Object, Object, IntPtr*)
+   at System.Reflection.MethodInvoker.Invoke(Object obj, IntPtr* args, BindingFlags invokeAttr)
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.OtpCode does not exist
+    Position: 386
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-28 10:23:30.823 +03:00 [ERR] [User: ] Failed executing DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT a."Id", a."AccessFailedCount", a."BudgetAlertEnabled", a."BudgetAlertThreshold", a."ConcurrencyStamp", a."Email", a."EmailConfirmed", a."ExpoPushToken", a."FullName", a."LockoutEnabled", a."LockoutEnd", a."MonthlyBudget", a."MonthlyBudgetCurrency", a."NormalizedEmail", a."NormalizedUserName", a."NotifEmailEnabled", a."NotifPushEnabled", a."NotifReminderDays", a."NotifyHour", a."OtpCode", a."OtpExpiry", a."OtpToken", a."OtpType", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."SharedAlertEnabled", a."TwoFactorEnabled", a."UserName"
+FROM "AspNetUsers" AS a
+WHERE a."MonthlyBudget" > 0.0 AND (a."MonthlyBudgetCurrency" IS NOT NULL) AND a."BudgetAlertEnabled"
+2026-03-28 10:23:30.828 +03:00 [ERR] [User: ] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column a.OtpCode does not exist
+
+POSITION: 386
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.OtpCode does not exist
+    Position: 386
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+Npgsql.PostgresException (0x80004005): 42703: column a.OtpCode does not exist
+
+POSITION: 386
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.OtpCode does not exist
+    Position: 386
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-28 10:23:30.836 +03:00 [ERR] [User: ] Failed executing DbCommand (5ms) [Parameters=[@__userIds_0='?' (DbType = Object)], CommandType='"Text"', CommandTimeout='30']
+SELECT a."Id", a."AccessFailedCount", a."BudgetAlertEnabled", a."BudgetAlertThreshold", a."ConcurrencyStamp", a."Email", a."EmailConfirmed", a."ExpoPushToken", a."FullName", a."LockoutEnabled", a."LockoutEnd", a."MonthlyBudget", a."MonthlyBudgetCurrency", a."NormalizedEmail", a."NormalizedUserName", a."NotifEmailEnabled", a."NotifPushEnabled", a."NotifReminderDays", a."NotifyHour", a."OtpCode", a."OtpExpiry", a."OtpToken", a."OtpType", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."SharedAlertEnabled", a."TwoFactorEnabled", a."UserName"
+FROM "AspNetUsers" AS a
+WHERE a."Id" = ANY (@__userIds_0)
+2026-03-28 10:23:30.841 +03:00 [ERR] [User: ] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column a.OtpCode does not exist
+
+POSITION: 386
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.OtpCode does not exist
+    Position: 386
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+Npgsql.PostgresException (0x80004005): 42703: column a.OtpCode does not exist
+
+POSITION: 386
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.OtpCode does not exist
+    Position: 386
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-28 10:23:30.849 +03:00 [WRN] [User: ] Failed to process the job '105': an exception occurred. Retry attempt 3 of 10 will be performed in 00:00:43.
+Npgsql.PostgresException (0x80004005): 42703: column a.OtpCode does not exist
+
+POSITION: 386
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.NotificationService.CheckAndQueueBudgetAlertsAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 119
+   at InvokeStub_TaskAwaiter.GetResult(Object, Object, IntPtr*)
+   at System.Reflection.MethodInvoker.Invoke(Object obj, IntPtr* args, BindingFlags invokeAttr)
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.OtpCode does not exist
+    Position: 386
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-28 10:23:30.862 +03:00 [WRN] [User: ] Failed to process the job '100': an exception occurred. Retry attempt 3 of 10 will be performed in 00:01:40.
+Npgsql.PostgresException (0x80004005): 42703: column a.OtpCode does not exist
+
+POSITION: 386
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToDictionaryAsync[TSource,TKey,TElement](IQueryable`1 source, Func`2 keySelector, Func`2 elementSelector, IEqualityComparer`1 comparer, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToDictionaryAsync[TSource,TKey,TElement](IQueryable`1 source, Func`2 keySelector, Func`2 elementSelector, IEqualityComparer`1 comparer, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.NotificationService.CheckAndQueueUpcomingPaymentsAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 70
+   at InvokeStub_TaskAwaiter.GetResult(Object, Object, IntPtr*)
+   at System.Reflection.MethodInvoker.Invoke(Object obj, IntPtr* args, BindingFlags invokeAttr)
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.OtpCode does not exist
+    Position: 386
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-28 10:23:57.246 +03:00 [INF] [User: ] Server desktop-25vqrpg:5440:341f3bcf caught stopping signal...
+2026-03-28 10:23:57.248 +03:00 [INF] [User: ] Server desktop-25vqrpg:5440:341f3bcf All dispatchers stopped
+2026-03-28 10:23:57.253 +03:00 [INF] [User: ] Server desktop-25vqrpg:5440:341f3bcf successfully reported itself as stopped in 2,4062 ms
+2026-03-28 10:23:57.253 +03:00 [INF] [User: ] Server desktop-25vqrpg:5440:341f3bcf has been stopped in total 6,7669 ms
+2026-03-28 10:23:58.595 +03:00 [INF] [User: ] Uygulama baï¿½latï¿½lï¿½yor...
+2026-03-28 10:23:58.701 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonlandï¿½ (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 273
+2026-03-28 10:24:42.373 +03:00 [INF] [User: ] Uygulama baï¿½latï¿½lï¿½yor...
+2026-03-28 10:24:42.474 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonlandï¿½ (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 273
+2026-03-28 10:24:47.528 +03:00 [INF] [User: ] Uygulama baï¿½latï¿½lï¿½yor...
+2026-03-28 10:24:48.705 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-28 10:24:48.723 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-28 10:24:49.020 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-28 10:24:49.021 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-28 10:24:49.023 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-28 10:24:49.024 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-28 10:24:49.024 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-28 10:24:49.025 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-28 10:24:49.043 +03:00 [INF] [User: ] Server desktop-25vqrpg:5216:850b8147 successfully announced in 9,1237 ms
+2026-03-28 10:24:49.046 +03:00 [INF] [User: ] Server desktop-25vqrpg:5216:850b8147 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-28 10:24:49.051 +03:00 [INF] [User: ] Server desktop-25vqrpg:5216:850b8147 all the dispatchers started
+2026-03-28 10:24:49.272 +03:00 [ERR] [User: ] Failed executing DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT a."Id", a."AccessFailedCount", a."BudgetAlertEnabled", a."BudgetAlertThreshold", a."ConcurrencyStamp", a."Email", a."EmailConfirmed", a."ExpoPushToken", a."FullName", a."LockoutEnabled", a."LockoutEnd", a."MonthlyBudget", a."MonthlyBudgetCurrency", a."NormalizedEmail", a."NormalizedUserName", a."NotifEmailEnabled", a."NotifPushEnabled", a."NotifReminderDays", a."NotifyHour", a."OtpCode", a."OtpExpiry", a."OtpToken", a."OtpType", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."SharedAlertEnabled", a."TwoFactorEnabled", a."UserName"
+FROM "AspNetUsers" AS a
+WHERE a."MonthlyBudget" > 0.0 AND (a."MonthlyBudgetCurrency" IS NOT NULL) AND a."BudgetAlertEnabled"
+2026-03-28 10:24:49.284 +03:00 [ERR] [User: ] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column a.OtpCode does not exist
+
+POSITION: 386
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.OtpCode does not exist
+    Position: 386
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+Npgsql.PostgresException (0x80004005): 42703: column a.OtpCode does not exist
+
+POSITION: 386
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.OtpCode does not exist
+    Position: 386
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-28 10:24:49.309 +03:00 [WRN] [User: ] Failed to process the job '105': an exception occurred. Retry attempt 4 of 10 will be performed in 00:02:12.
+Npgsql.PostgresException (0x80004005): 42703: column a.OtpCode does not exist
+
+POSITION: 386
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.NotificationService.CheckAndQueueBudgetAlertsAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 119
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodInvoker.Invoke(Object obj, IntPtr* args, BindingFlags invokeAttr)
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.OtpCode does not exist
+    Position: 386
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-28 10:25:19.269 +03:00 [ERR] [User: ] Failed executing DbCommand (67ms) [Parameters=[@__userIds_0='?' (DbType = Object)], CommandType='"Text"', CommandTimeout='30']
+SELECT a."Id", a."AccessFailedCount", a."BudgetAlertEnabled", a."BudgetAlertThreshold", a."ConcurrencyStamp", a."Email", a."EmailConfirmed", a."ExpoPushToken", a."FullName", a."LockoutEnabled", a."LockoutEnd", a."MonthlyBudget", a."MonthlyBudgetCurrency", a."NormalizedEmail", a."NormalizedUserName", a."NotifEmailEnabled", a."NotifPushEnabled", a."NotifReminderDays", a."NotifyHour", a."OtpCode", a."OtpExpiry", a."OtpToken", a."OtpType", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."SharedAlertEnabled", a."TwoFactorEnabled", a."UserName"
+FROM "AspNetUsers" AS a
+WHERE a."Id" = ANY (@__userIds_0)
+2026-03-28 10:25:19.273 +03:00 [ERR] [User: ] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column a.OtpCode does not exist
+
+POSITION: 386
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.OtpCode does not exist
+    Position: 386
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+Npgsql.PostgresException (0x80004005): 42703: column a.OtpCode does not exist
+
+POSITION: 386
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.OtpCode does not exist
+    Position: 386
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-28 10:25:19.288 +03:00 [WRN] [User: ] Failed to process the job '100': an exception occurred. Retry attempt 4 of 10 will be performed in 00:03:32.
+Npgsql.PostgresException (0x80004005): 42703: column a.OtpCode does not exist
+
+POSITION: 386
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToDictionaryAsync[TSource,TKey,TElement](IQueryable`1 source, Func`2 keySelector, Func`2 elementSelector, IEqualityComparer`1 comparer, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToDictionaryAsync[TSource,TKey,TElement](IQueryable`1 source, Func`2 keySelector, Func`2 elementSelector, IEqualityComparer`1 comparer, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.NotificationService.CheckAndQueueUpcomingPaymentsAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 70
+   at InvokeStub_TaskAwaiter.GetResult(Object, Object, IntPtr*)
+   at System.Reflection.MethodInvoker.Invoke(Object obj, IntPtr* args, BindingFlags invokeAttr)
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column a.OtpCode does not exist
+    Position: 386
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-03-28 10:26:58.678 +03:00 [INF] [User: ] Server desktop-25vqrpg:5216:850b8147 caught stopping signal...
+2026-03-28 10:26:58.681 +03:00 [INF] [User: ] Server desktop-25vqrpg:5216:850b8147 All dispatchers stopped
+2026-03-28 10:26:58.687 +03:00 [INF] [User: ] Server desktop-25vqrpg:5216:850b8147 successfully reported itself as stopped in 3,4238 ms
+2026-03-28 10:26:58.688 +03:00 [INF] [User: ] Server desktop-25vqrpg:5216:850b8147 has been stopped in total 8,2871 ms
+2026-03-28 10:30:00.369 +03:00 [INF] [User: ] Uygulama baï¿½latï¿½lï¿½yor...
+2026-03-28 10:30:01.505 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-28 10:30:01.523 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-28 10:30:01.820 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-28 10:30:01.821 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-28 10:30:01.822 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-28 10:30:01.823 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-28 10:30:01.824 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-28 10:30:01.825 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-28 10:30:01.842 +03:00 [INF] [User: ] Server desktop-25vqrpg:36936:df9d209a successfully announced in 8,9383 ms
+2026-03-28 10:30:01.845 +03:00 [INF] [User: ] Server desktop-25vqrpg:36936:df9d209a is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-28 10:30:01.849 +03:00 [INF] [User: ] Server desktop-25vqrpg:36936:df9d209a all the dispatchers started
+2026-03-28 10:30:02.139 +03:00 [INF] [User: ] Güncel kurlar çekiliyor...
+2026-03-28 10:30:02.502 +03:00 [INF] [User: ] Kurlar güncellendi: {"USD":44.456,"EUR":51.2,"GBP":59.041}
+2026-03-28 10:30:45.001 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-28 10:30:45.104 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 401 in 117.1038 ms
+2026-03-28 10:30:45.104 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 116.9460 ms
+2026-03-28 10:30:45.104 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 401 in 117.1058 ms
+2026-03-28 10:30:45.132 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 146.2571 ms
+2026-03-28 10:30:45.297 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.4174 ms
+2026-03-28 10:30:45.342 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 355.8366 ms
+2026-03-28 10:30:45.364 +03:00 [INF] [User: Anonymous] Token atomik olarak yenilendi. Email: ha***@gmail.com
+2026-03-28 10:30:45.375 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 240.5779 ms
+2026-03-28 10:30:45.450 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 60.6740 ms
+2026-03-28 10:30:45.462 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 72.2286 ms
+2026-03-28 10:30:45.464 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 75.1140 ms
+2026-03-28 10:30:45.555 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 48.1376 ms
+2026-03-28 10:31:01.654 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 5.1588 ms
+2026-03-28 10:31:01.658 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 9.6699 ms
+2026-03-28 10:31:05.860 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/72/price-history responded 200 in 28.6372 ms
+2026-03-28 10:31:05.865 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/72/usage responded 200 in 33.2854 ms
+2026-03-28 10:31:28.364 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/71/usage responded 200 in 7.8081 ms
+2026-03-28 10:31:28.364 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/71/price-history responded 200 in 7.8083 ms
+2026-03-28 10:31:31.473 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/74/price-history responded 200 in 7.1801 ms
+2026-03-28 10:31:31.473 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/74/usage responded 200 in 7.2255 ms
+2026-03-28 10:31:34.620 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/72/usage responded 200 in 6.7387 ms
+2026-03-28 10:31:34.621 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/72/price-history responded 200 in 7.1112 ms
+2026-03-28 10:31:50.572 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 10.9908 ms
+2026-03-28 10:31:50.583 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 21.9923 ms
+2026-03-28 10:32:04.805 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.1585 ms
+2026-03-28 10:32:04.808 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 11.9548 ms
+2026-03-28 10:32:18.349 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 65.2323 ms
+2026-03-28 10:32:22.564 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 33.0191 ms
+2026-03-28 10:32:23.380 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.2370 ms
+2026-03-28 10:32:23.382 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.8041 ms
+2026-03-28 10:32:57.833 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2358 ms
+2026-03-28 10:33:50.653 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 13.9949 ms
+2026-03-28 10:33:50.653 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 20.3360 ms
+2026-03-28 10:33:50.666 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 39.2535 ms
+2026-03-28 10:33:51.224 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 588.4984 ms
+2026-03-28 10:33:51.616 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 15.9962 ms
+2026-03-28 10:34:54.911 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 7.3298 ms
+2026-03-28 10:34:54.914 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 10.0627 ms
+2026-03-28 10:35:02.797 +03:00 [INF] [User: ] HTTP PUT /api/budget/categories responded 200 in 37.9038 ms
+2026-03-28 10:35:06.485 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 5.1813 ms
+2026-03-28 10:35:06.489 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 9.3472 ms
+2026-03-28 10:35:09.532 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 6.8905 ms
+2026-03-28 10:35:09.534 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.7978 ms
+2026-03-28 10:36:57.414 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 6.5778 ms
+2026-03-28 10:36:57.416 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.1409 ms
+2026-03-28 10:37:05.197 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 7.4276 ms
+2026-03-28 10:37:05.199 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.6489 ms
+2026-03-28 10:37:25.459 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 7.1071 ms
+2026-03-28 10:37:25.462 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 10.1122 ms
+2026-03-28 10:38:26.055 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.3907 ms
+2026-03-28 10:38:26.055 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 5.3277 ms
+2026-03-28 10:38:26.058 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 8.0593 ms
+2026-03-28 10:38:26.059 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.4287 ms
+2026-03-28 10:38:26.061 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 10.7646 ms
+2026-03-28 10:38:26.121 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.7305 ms
+2026-03-28 10:38:26.427 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1834 ms
+2026-03-28 10:38:26.851 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 6.0082 ms
+2026-03-28 10:38:26.853 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.3815 ms
+2026-03-28 10:38:40.606 +03:00 [INF] [User: ] HTTP PUT /api/budget/settings responded 200 in 40.4304 ms
+2026-03-28 10:38:54.291 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 4.1387 ms
+2026-03-28 10:38:54.295 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.8550 ms
+2026-03-28 10:38:57.171 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/71/usage responded 200 in 7.9131 ms
+2026-03-28 10:38:57.171 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/71/price-history responded 200 in 7.9131 ms
+2026-03-28 10:38:59.760 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/72/price-history responded 200 in 5.2976 ms
+2026-03-28 10:38:59.760 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/72/usage responded 200 in 6.3371 ms
+2026-03-28 10:42:53.097 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2018 ms
+2026-03-28 10:43:01.982 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 4.3108 ms
+2026-03-28 10:43:01.982 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 4.3979 ms
+2026-03-28 10:43:01.985 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 7.4352 ms
+2026-03-28 10:43:01.987 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.5467 ms
+2026-03-28 10:43:01.992 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 19.0961 ms
+2026-03-28 10:43:02.046 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.1821 ms
+2026-03-28 10:43:02.349 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1884 ms
+2026-03-28 10:43:02.724 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 4.7258 ms
+2026-03-28 10:43:02.728 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.7252 ms
+2026-03-28 10:43:10.442 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 4.0293 ms
+2026-03-28 10:43:10.445 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.5645 ms
+2026-03-28 10:43:11.339 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/72/price-history responded 200 in 6.7636 ms
+2026-03-28 10:43:17.297 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 5.8470 ms
+2026-03-28 10:43:17.299 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.5252 ms

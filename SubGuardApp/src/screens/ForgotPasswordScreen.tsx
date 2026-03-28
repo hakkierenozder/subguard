@@ -89,8 +89,8 @@ export default function ForgotPasswordScreen({ navigation }: Props) {
       Toast.show({ type: 'error', text1: 'Hata', text2: '6 haneli doğrulama kodunu girin.', position: 'bottom' });
       return;
     }
-    if (newPassword.length < 6) {
-      Toast.show({ type: 'error', text1: 'Hata', text2: 'Şifre en az 6 karakter olmalıdır.', position: 'bottom' });
+    if (newPassword.length < 8) {
+      Toast.show({ type: 'error', text1: 'Hata', text2: 'Şifre en az 8 karakter olmalıdır.', position: 'bottom' });
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -184,7 +184,7 @@ export default function ForgotPasswordScreen({ navigation }: Props) {
               <InputField icon="lock-closed-outline" focused={focused === 'pwd'} colors={colors}>
                 <TextInput
                   style={[styles.input, { color: colors.textMain }]}
-                  placeholder="En az 6 karakter"
+                  placeholder="En az 8 karakter"
                   placeholderTextColor={colors.textSec + '70'}
                   secureTextEntry={!showPwd}
                   value={newPassword}

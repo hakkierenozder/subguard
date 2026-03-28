@@ -333,7 +333,7 @@ namespace SubGuard.Service.Services
             return CustomResponseDto<bool>.Success(200, true);
         }
 
-        public async Task<CustomResponseDto<PagedResponseDto<UserSubscriptionDto>>> GetSharedWithMeAsync(string userId, int page, int pageSize)
+        public async Task<CustomResponseDto<PagedResponseDto<SharedWithMeItemDto>>> GetSharedWithMeAsync(string userId, int page, int pageSize)
         {
             // T-3: SubscriptionShares tablosu sayesinde artık raw SQL + IgnoreQueryFilters yok.
             var baseQuery = _db.SubscriptionShares
@@ -349,15 +349,29 @@ namespace SubGuard.Service.Services
                 .Take(pageSize)
                 .ToListAsync();
 
-            var subscriptions = shares.Select(s => s.Subscription).ToList();
-            var items = _mapper.Map<List<UserSubscriptionDto>>(subscriptions);
-            foreach (var dto in items)
+            // Owner bilgileri için unique userId'ler tek sorguda çözümleniyor
+            var ownerIds = shares.Select(s => s.Subscription.UserId).Distinct().ToList();
+            var ownerMap = new Dictionary<string, AppUser>();
+            foreach (var ownerId in ownerIds)
             {
-                var sub = subscriptions.FirstOrDefault(x => x.Id == dto.Id);
-                dto.ColorCode = ResolveColorCode(dto.ColorCode, sub?.Catalog?.ColorCode);
+                var owner = await _userManager.FindByIdAsync(ownerId);
+                if (owner != null) ownerMap[ownerId] = owner;
             }
 
-            return CustomResponseDto<PagedResponseDto<UserSubscriptionDto>>.Success(200, new PagedResponseDto<UserSubscriptionDto>
+            var items = shares.Select(s =>
+            {
+                var dto = _mapper.Map<SharedWithMeItemDto>(s.Subscription);
+                dto.ColorCode  = ResolveColorCode(dto.ColorCode, s.Subscription.Catalog?.ColorCode);
+                dto.SharedAt   = s.SharedAt;
+                if (ownerMap.TryGetValue(s.Subscription.UserId, out var owner))
+                {
+                    dto.OwnerEmail    = owner.Email ?? string.Empty;
+                    dto.OwnerFullName = owner.FullName ?? string.Empty;
+                }
+                return dto;
+            }).ToList();
+
+            return CustomResponseDto<PagedResponseDto<SharedWithMeItemDto>>.Success(200, new PagedResponseDto<SharedWithMeItemDto>
             {
                 Items = items,
                 TotalCount = totalCount,

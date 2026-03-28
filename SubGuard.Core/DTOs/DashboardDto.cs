@@ -1,8 +1,12 @@
+using SubGuard.Core.Enums;
+
 namespace SubGuard.Core.DTOs
 {
     public class DashboardDto
     {
         public int ActiveSubscriptionCount { get; set; }
+        public int PausedCount { get; set; }
+        public int CancelledCount { get; set; }
         public List<CurrencyTotalDto> TotalByCurrency { get; set; }
         public List<CategorySpendingDto> SpendingByCategory { get; set; }
         public List<UpcomingPaymentDto> UpcomingPayments { get; set; }
@@ -42,5 +46,7 @@ namespace SubGuard.Core.DTOs
         public int BillingDay { get; set; }
         public int DaysUntilPayment { get; set; }
         public string? ColorCode { get; set; }
+        public BillingPeriod BillingPeriod { get; set; }
+        public string? Notes { get; set; }
     }
 }

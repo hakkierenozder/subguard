@@ -147,7 +147,14 @@
       "Bash(Sort-Object LastWriteTime -Descending)",
       "Bash(Select-Object -First 4)",
       "Bash(Format-Table Name)",
-      "Bash(ls C:/Projects/SubGuard/SubGuard/SubGuardApp/*.gitignore)"
+      "Bash(ls C:/Projects/SubGuard/SubGuard/SubGuardApp/*.gitignore)",
+      "Bash(powershell -Command \"Get-Content ''C:\\\\Projects\\\\SubGuard\\\\SubGuard\\\\SubGuard.API\\\\Program.cs'' | Select-String ''RecurringJob\\\\.'' | Select-Object LineNumber, Line\")",
+      "Bash(powershell -Command \"\\(Get-Content ''C:\\\\Projects\\\\SubGuard\\\\SubGuard\\\\SubGuard.API\\\\Program.cs'' -Raw\\) -replace ''RecurringJob\\\\.AddOrUpdate<'', ''recurringJobManager.AddOrUpdate<'' | Set-Content ''C:\\\\Projects\\\\SubGuard\\\\SubGuard\\\\SubGuard.API\\\\Program.cs'' -Encoding UTF8\")",
+      "Bash(psql -U postgres -d SubGuardDb -c \"SELECT \"\"MigrationId\"\" FROM \"\"__EFMigrationsHistory\"\" ORDER BY \"\"MigrationId\"\" DESC LIMIT 5;\")",
+      "Bash(powershell -Command \"& ''C:\\\\Program Files\\\\PostgreSQL\\\\17\\\\bin\\\\psql.exe'' -U postgres -d SubGuardDb -c ''SELECT \"\"MigrationId\"\" FROM \"\"__EFMigrationsHistory\"\" ORDER BY \"\"MigrationId\"\" DESC LIMIT 5;''\")",
+      "Bash(powershell -Command \"Get-ChildItem ''C:\\\\Program Files\\\\PostgreSQL'' -ErrorAction SilentlyContinue | Select-Object Name; Get-ChildItem ''C:\\\\Program Files\\\\PostgreSQL\\\\*\\\\bin\\\\psql.exe'' -ErrorAction SilentlyContinue | Select-Object FullName\")",
+      "Bash(powershell -Command \"Get-ChildItem ''C:\\\\Program Files\\\\PostgreSQL\\\\18\\\\bin\\\\'' -Filter ''psql*'' -ErrorAction SilentlyContinue | Select-Object FullName\")",
+      "Bash(powershell -Command \"Get-ChildItem ''C:\\\\Program Files\\\\PostgreSQL\\\\18\\\\'' -ErrorAction SilentlyContinue | Select-Object Name\")"
     ]
   }
 }

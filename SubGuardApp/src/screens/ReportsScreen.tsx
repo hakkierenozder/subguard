@@ -78,6 +78,28 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
     setSelectedCategory(prev => (prev === cat ? null : cat));
   };
 
+  // Dönemsel Kategori Kırılımı — seçili period için subscription store'dan hesapla
+  const periodBreakdown = useMemo(() => {
+    if (!selectedPeriod) return [];
+    const range = periodRanges[selectedPeriod];
+    const fromMs = new Date(range.from()).getTime();
+    const toMs   = new Date(range.to()).getTime() + 86400000;
+    const catMap: Record<string, { total: number; count: number }> = {};
+    subscriptions.forEach(sub => {
+      const created = sub.createdDate ? new Date(sub.createdDate).getTime() : 0;
+      if (created > toMs) return;
+      const cancelled = sub.cancelledDate || sub.cancelledAt;
+      if (cancelled && new Date(cancelled).getTime() < fromMs) return;
+      const rate = exchangeRates[sub.currency] || 1;
+      const myShare = (sub.price * rate) / ((sub.sharedWith?.length || 0) + 1);
+      const cat = sub.category || 'Diğer';
+      if (!catMap[cat]) catMap[cat] = { total: 0, count: 0 };
+      catMap[cat].total += myShare;
+      catMap[cat].count++;
+    });
+    return Object.entries(catMap).map(([category, val]) => ({ category, ...val })).sort((a, b) => b.total - a.total);
+  }, [selectedPeriod, subscriptions, exchangeRates]);
+
   // --- İSTATİSTİKLER ---
   const activeSubsCount = subscriptions.filter(s => s.isActive !== false).length;
   const passiveSubsCount = subscriptions.filter(s => s.isActive === false).length;
@@ -427,6 +449,34 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
                   Bu dönem için veri bulunamadı.
                 </Text>
               )}
+            </View>
+          )}
+
+          {/* DÖNEM KATEGORİ KIRILIMLARI */}
+          {selectedPeriod && periodBreakdown.length > 0 && (
+            <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border, marginBottom: 20 }]}>
+              <Text style={[styles.sectionTitle, { color: colors.textMain, marginBottom: 12 }]}>
+                {periodRanges[selectedPeriod].label} — Kategori Kırılımı
+              </Text>
+              {periodBreakdown.map((item, i) => {
+                const maxVal = periodBreakdown[0]?.total || 1;
+                const barPct = (item.total / maxVal) * 100;
+                const color = FALLBACK_COLORS[i % FALLBACK_COLORS.length];
+                return (
+                  <View key={item.category} style={{ marginBottom: i < periodBreakdown.length - 1 ? 14 : 0 }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <Text style={{ fontSize: 13, fontWeight: '600', color: colors.textMain }}>{item.category}</Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                        <Text style={{ fontSize: 11, color: colors.textSec }}>{item.count} abonelik</Text>
+                        <Text style={{ fontSize: 13, fontWeight: '700', color: colors.textMain }}>{item.total.toFixed(0)} ₺</Text>
+                      </View>
+                    </View>
+                    <View style={{ height: 6, borderRadius: 3, backgroundColor: colors.inputBg, overflow: 'hidden' }}>
+                      <View style={{ width: `${barPct}%` as any, height: '100%', borderRadius: 3, backgroundColor: color }} />
+                    </View>
+                  </View>
+                );
+              })}
             </View>
           )}
 

@@ -88,7 +88,15 @@ namespace SubGuard.Service.Services
             {
                 _logger.LogWarning("Doğrulanmamış e-posta ile giriş denemesi. Email: {Email}",
                     PiiSanitizer.MaskEmail(loginDto.Email));
-                return CustomResponseDto<TokenDto>.Fail(403, "E-posta adresiniz henüz doğrulanmamış. Lütfen e-postanızı kontrol edin.");
+                // Frontend'in doğrulama ekranına yönlendirebilmesi için UserId'yi Data'ya ekliyoruz.
+                // TokenDto'daki diğer alanlar (AccessToken, RefreshToken) null/default kalır;
+                // frontend sadece UserId'yi okur ve EmailVerification ekranına navigate eder.
+                return new CustomResponseDto<TokenDto>
+                {
+                    StatusCode = 403,
+                    Errors = new List<string> { "E-posta adresiniz henüz doğrulanmamış. Lütfen e-postanızı kontrol edin." },
+                    Data = new TokenDto { UserId = user.Id }
+                };
             }
 
             await _userManager.ResetAccessFailedCountAsync(user);

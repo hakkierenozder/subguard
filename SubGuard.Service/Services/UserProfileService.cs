@@ -38,7 +38,7 @@ namespace SubGuard.Service.Services
             if (user == null)
                 return CustomResponseDto<UserProfileDto>.Fail(404, "Kullanıcı bulunamadı.");
 
-            var subCount = _subRepo.Where(x => x.UserId == userId).Count();
+            var subCount = await _subRepo.Where(x => x.UserId == userId).CountAsync();
 
             var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
 

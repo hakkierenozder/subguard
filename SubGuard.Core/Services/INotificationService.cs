@@ -16,5 +16,8 @@ namespace SubGuard.Core.Services
         Task<CustomResponseDto<bool>> DeleteNotificationAsync(int id, string userId);
         Task<CustomResponseDto<NotificationPreferencesDto>> GetPreferencesAsync(string userId);
         Task<CustomResponseDto<bool>> UpdatePreferencesAsync(string userId, NotificationPreferencesDto dto);
+
+        /// <summary>Kullanıcının seçtiği abonelik için anında push/e-posta hatırlatması gönderir.</summary>
+        Task<CustomResponseDto<bool>> SendManualReminderAsync(int subscriptionId, string userId);
     }
 }

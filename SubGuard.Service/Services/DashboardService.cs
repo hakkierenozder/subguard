@@ -33,6 +33,11 @@ namespace SubGuard.Service.Services
 
             var activeCount = await baseQuery.CountAsync();
 
+            // Pasif abonelik sayıları (IsActive false olanlar)
+            var inactiveQuery = _repo.Where(x => x.UserId == userId && !x.IsActive);
+            var pausedCount    = await inactiveQuery.CountAsync(x => x.Status == SubscriptionStatus.Paused);
+            var cancelledCount = await inactiveQuery.CountAsync(x => x.Status == SubscriptionStatus.Cancelled);
+
             // Tüm abonelik verilerini tek sorguda çek — aggregation'lar in-memory yapılıyor
             // (ToMonthlyEquivalent SQL'e çevrilemiyor, BillingPeriod'a göre hesap gerekiyor)
             var allSubData = await baseQuery
@@ -40,7 +45,7 @@ namespace SubGuard.Service.Services
                 {
                     x.Id, x.Name, x.Price, x.Currency, x.BillingDay,
                     x.ColorCode, x.BillingPeriod, x.Category,
-                    x.CreatedDate, x.ContractStartDate
+                    x.CreatedDate, x.ContractStartDate, x.Notes
                 })
                 .ToListAsync();
 
@@ -70,7 +75,7 @@ namespace SubGuard.Service.Services
             var paymentProjections = allSubData
                 .Select(x => new SubscriptionPaymentData(
                     x.Id, x.Name, x.Price, x.Currency, x.BillingDay, x.ColorCode,
-                    x.BillingPeriod, x.CreatedDate, x.ContractStartDate))
+                    x.BillingPeriod, x.CreatedDate, x.ContractStartDate, x.Notes))
                 .ToList();
 
             var today = DateTime.UtcNow;
@@ -81,6 +86,8 @@ namespace SubGuard.Service.Services
             var dashboard = new DashboardDto
             {
                 ActiveSubscriptionCount = activeCount,
+                PausedCount    = pausedCount,
+                CancelledCount = cancelledCount,
                 TotalByCurrency = totalByCurrency,
                 SpendingByCategory = spendingByCategory,
                 UpcomingPayments = upcomingPayments,
@@ -180,7 +187,9 @@ namespace SubGuard.Service.Services
                         Currency = sub.Currency,
                         BillingDay = sub.BillingDay,
                         DaysUntilPayment = daysUntil,
-                        ColorCode = sub.ColorCode
+                        ColorCode = sub.ColorCode,
+                        BillingPeriod = sub.BillingPeriod,
+                        Notes = sub.Notes
                     });
                 }
             }
@@ -191,6 +200,6 @@ namespace SubGuard.Service.Services
         // UpcomingPayments hesabı için gerekli alanları taşır
         private record SubscriptionPaymentData(
             int Id, string Name, decimal Price, string Currency, int BillingDay, string? ColorCode,
-            BillingPeriod BillingPeriod, DateTime CreatedDate, DateTime? ContractStartDate);
+            BillingPeriod BillingPeriod, DateTime CreatedDate, DateTime? ContractStartDate, string? Notes);
     }
 }

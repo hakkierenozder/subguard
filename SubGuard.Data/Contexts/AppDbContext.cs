@@ -71,6 +71,15 @@ public class AppDbContext : IdentityDbContext<AppUser>
         modelBuilder.Entity<NotificationQueue>().HasQueryFilter(x => !x.IsDeleted);
         modelBuilder.Entity<CategoryBudget>().HasQueryFilter(x => !x.IsDeleted);
 
+        // RefreshToken: İptal edilmiş (IsDeleted=true) token'lar sorgularda görünmemeli.
+        // Aksi hâlde revoke edilen token ile tekrar oturum açılabilir.
+        modelBuilder.Entity<RefreshToken>().HasQueryFilter(x => !x.IsDeleted);
+
+        // PriceHistory: Silinmiş aboneliklere ait fiyat geçmişi kayıtları
+        // analytics ve raporlarda görünmemeli; aksi hâlde silinmiş aboneliklerin
+        // maliyeti hâlâ hesaplamalara dahil olur.
+        modelBuilder.Entity<PriceHistory>().HasQueryFilter(x => !x.IsDeleted);
+
         // EF Core uyarısını giderir: UserSubscription ile ilişkili entity'lere de
         // aynı soft-delete filtresi uygulanmalı (go.microsoft.com/fwlink/?linkid=2131316)
         modelBuilder.Entity<SubscriptionShare>().HasQueryFilter(x => !x.IsDeleted);

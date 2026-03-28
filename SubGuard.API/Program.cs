@@ -1,4 +1,4 @@
-using FluentValidation;
+﻿using FluentValidation;
 using FluentValidation.AspNetCore;
 using Hangfire;
 using Hangfire.Dashboard;
@@ -28,7 +28,7 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Threading.RateLimiting;
 
-// 1. Serilog Kurulumu (Builder'dan �nce)
+// 1. Serilog Kurulumu (Builder'dan ï¿½nce)
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(new ConfigurationBuilder()
         .AddJsonFile("appsettings.json")
@@ -38,22 +38,22 @@ Log.Logger = new LoggerConfiguration()
 
 try
 {
-    Log.Information("Uygulama ba�lat�l�yor...");
+    Log.Information("Uygulama baï¿½latï¿½lï¿½yor...");
 
     var builder = WebApplication.CreateBuilder(args);
 
     // --- POLLY POLICY TANIMLARI ---
-    // 1. Retry Policy: Hata al�rsa 3 kez, 2'�er saniye arayla dene.
+    // 1. Retry Policy: Hata alï¿½rsa 3 kez, 2'ï¿½er saniye arayla dene.
     var retryPolicy = HttpPolicyExtensions
         .HandleTransientHttpError()
         .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(2));
 
-    // 2. Circuit Breaker: Ard���k 5 hatadan sonra 30 saniye sistemi kapat (devreyi kes).
+    // 2. Circuit Breaker: Ardï¿½ï¿½ï¿½k 5 hatadan sonra 30 saniye sistemi kapat (devreyi kes).
     var circuitBreakerPolicy = HttpPolicyExtensions
         .HandleTransientHttpError()
         .CircuitBreakerAsync(5, TimeSpan.FromSeconds(30));
 
-    // FrankfurterExchangeRateProvider'ı HttpClient + Polly politikalarıyla kaydet
+    // FrankfurterExchangeRateProvider'Ä± HttpClient + Polly politikalarÄ±yla kaydet
     builder.Services.AddHttpClient<IExchangeRateProvider, FrankfurterExchangeRateProvider>(client =>
     {
         client.BaseAddress = new Uri("https://api.frankfurter.app/");
@@ -63,10 +63,10 @@ try
 
     builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 
-    // 2. Host'a Serilog'u ba�la
+    // 2. Host'a Serilog'u baï¿½la
     builder.Host.UseSerilog();
 
-    // --- MEVCUT SERV�S KAYITLARI (De�i�iklik Yok) ---
+    // --- MEVCUT SERVï¿½S KAYITLARI (Deï¿½iï¿½iklik Yok) ---
     builder.Services.AddFluentValidationAutoValidation();
     builder.Services.AddValidatorsFromAssemblyContaining<RegisterDtoValidator>();
 
@@ -105,7 +105,7 @@ try
         options.Password.RequireUppercase = true;
         options.Password.RequiredLength = 8;
 
-        // Account Lockout: 5 hatalı denemede 15 dakika kilitle
+        // Account Lockout: 5 hatalÄ± denemede 15 dakika kilitle
         options.Lockout.MaxFailedAccessAttempts = 5;
         options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
         options.Lockout.AllowedForNewUsers = true;
@@ -132,10 +132,10 @@ try
             ValidIssuer = jwtSettings["Issuer"],
             ValidAudience = jwtSettings["Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(key),
-            ClockSkew = TimeSpan.Zero  // B-17: Default 5dk tolerans kaldırıldı — 15dk token gerçekten 15dk geçerli
+            ClockSkew = TimeSpan.Zero  // B-17: Default 5dk tolerans kaldÄ±rÄ±ldÄ± â€” 15dk token gerÃ§ekten 15dk geÃ§erli
         };
 
-        // Silinen/iptal edilmiş kullanıcıların token'larını reddet
+        // Silinen/iptal edilmiÅŸ kullanÄ±cÄ±larÄ±n token'larÄ±nÄ± reddet
         options.Events = new JwtBearerEvents
         {
             OnTokenValidated = async ctx =>
@@ -143,22 +143,22 @@ try
                 var userId = ctx.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (userId == null) return;
 
-                // 1. Katman: In-memory revoke store (hızlı — hesap silme anında set edilir)
+                // 1. Katman: In-memory revoke store (hÄ±zlÄ± â€” hesap silme anÄ±nda set edilir)
                 var revokedStore = ctx.HttpContext.RequestServices
                     .GetRequiredService<IRevokedUserStore>();
                 if (revokedStore.IsRevoked(userId))
                 {
-                    ctx.Fail("Token geçersiz kılınmış.");
+                    ctx.Fail("Token geÃ§ersiz kÄ±lÄ±nmÄ±ÅŸ.");
                     return;
                 }
 
-                // 2. Katman: DB kontrolü — API yeniden başlatılsa bile silinmiş kullanıcıyı yakalar.
-                // In-memory cache sıfırlansa dahi kullanıcı AspNetUsers'da yoksa reddedilir.
+                // 2. Katman: DB kontrolÃ¼ â€” API yeniden baÅŸlatÄ±lsa bile silinmiÅŸ kullanÄ±cÄ±yÄ± yakalar.
+                // In-memory cache sÄ±fÄ±rlansa dahi kullanÄ±cÄ± AspNetUsers'da yoksa reddedilir.
                 var userManager = ctx.HttpContext.RequestServices
                     .GetRequiredService<UserManager<AppUser>>();
                 var user = await userManager.FindByIdAsync(userId);
                 if (user == null)
-                    ctx.Fail("Kullanıcı bulunamadı veya hesap silinmiş.");
+                    ctx.Fail("KullanÄ±cÄ± bulunamadÄ± veya hesap silinmiÅŸ.");
             }
         };
     });
@@ -171,8 +171,8 @@ try
         {
             if (builder.Environment.IsDevelopment() || allowedOrigins.Length == 0)
             {
-                // Development'ta veya config eksikse tüm origin'lere izin ver
-                // Production'da AllowedCorsOrigins dolu olmalı
+                // Development'ta veya config eksikse tÃ¼m origin'lere izin ver
+                // Production'da AllowedCorsOrigins dolu olmalÄ±
                 policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
             }
             else
@@ -184,10 +184,10 @@ try
         });
     });
 
-    // Rate Limiting: auth → 10 req/dk, user-api → 30 req/dk, global API → 60 req/dk
+    // Rate Limiting: auth â†’ 10 req/dk, user-api â†’ 30 req/dk, global API â†’ 60 req/dk
     builder.Services.AddRateLimiter(options =>
     {
-        // Sıkı limit: login/register gibi auth endpoint'leri
+        // SÄ±kÄ± limit: login/register gibi auth endpoint'leri
         options.AddFixedWindowLimiter("auth", limiterOptions =>
         {
             limiterOptions.PermitLimit = 10;
@@ -196,7 +196,7 @@ try
             limiterOptions.QueueLimit = 0;
         });
 
-        // Orta limit: abonelik, bildirim, rapor endpoint'leri — [EnableRateLimiting("user-api")] ile uygulanır
+        // Orta limit: abonelik, bildirim, rapor endpoint'leri â€” [EnableRateLimiting("user-api")] ile uygulanÄ±r
         options.AddFixedWindowLimiter("user-api", limiterOptions =>
         {
             limiterOptions.PermitLimit = 30;
@@ -205,7 +205,7 @@ try
             limiterOptions.QueueLimit = 0;
         });
 
-        // Global limit: tüm API endpoint'lerine uygulanır
+        // Global limit: tÃ¼m API endpoint'lerine uygulanÄ±r
         options.GlobalLimiter = System.Threading.RateLimiting.PartitionedRateLimiter.Create<Microsoft.AspNetCore.Http.HttpContext, string>(ctx =>
             System.Threading.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(
                 partitionKey: ctx.User?.Identity?.Name ?? ctx.Connection.RemoteIpAddress?.ToString() ?? "anon",
@@ -225,22 +225,22 @@ try
     builder.Services.AddScoped<ICatalogRepository, CatalogRepository>();
     builder.Services.AddMemoryCache();
 
-    // 2. Decorator Pattern Uygulamas�
-    // �nce as�l servisi (Concrete) kaydediyoruz.
+    // 2. Decorator Pattern Uygulamasï¿½
+    // ï¿½nce asï¿½l servisi (Concrete) kaydediyoruz.
     builder.Services.AddScoped<CatalogService>();
 
-    // Sonra Interface istendi�inde Decorator d�necek �ekilde ayarl�yoruz.
+    // Sonra Interface istendiï¿½inde Decorator dï¿½necek ï¿½ekilde ayarlï¿½yoruz.
     builder.Services.AddScoped<ICatalogService>(provider =>
     {
-        // As�l servisin instance'�n� al
+        // Asï¿½l servisin instance'ï¿½nï¿½ al
         var actualService = provider.GetRequiredService<CatalogService>();
-        // Cache mekanizmas�n� al
+        // Cache mekanizmasï¿½nï¿½ al
         var memoryCache = provider.GetRequiredService<IMemoryCache>();
 
-        // Decorator i�ine as�l servisi ve cache'i vererek instance olu�tur
+        // Decorator iï¿½ine asï¿½l servisi ve cache'i vererek instance oluï¿½tur
         return new SubGuard.Service.Services.Decorators.CachedCatalogService(actualService, memoryCache);
     });
-    // DB-backed revocation store: sunucu restart / çoklu instance senaryolarında da çalışır
+    // DB-backed revocation store: sunucu restart / Ã§oklu instance senaryolarÄ±nda da Ã§alÄ±ÅŸÄ±r
     builder.Services.AddSingleton<IRevokedUserStore, DbRevokedUserStore>();
     builder.Services.AddScoped<IReportService, ReportService>();
     builder.Services.AddScoped<IUserSubscriptionService, UserSubscriptionService>();
@@ -256,49 +256,49 @@ try
     builder.Services.AddHttpClient("expo");
     builder.Services.AddScoped<IPushNotificationSender, ExpoPushNotificationSender>();
 
-    // INotificationSender adaptörleri — NotificationService IEnumerable<INotificationSender> ile tüm kanalları tetikler
+    // INotificationSender adaptÃ¶rleri â€” NotificationService IEnumerable<INotificationSender> ile tÃ¼m kanallarÄ± tetikler
     builder.Services.AddScoped<INotificationSender, EmailNotificationSender>();
     builder.Services.AddScoped<INotificationSender, PushNotificationSender>();
-    // 1. HANGFIRE KONF�G�RASYONU
+    // 1. HANGFIRE KONFï¿½Gï¿½RASYONU
     builder.Services.AddHangfire(config => config
         .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
         .UseSimpleAssemblyNameTypeSerializer()
         .UseRecommendedSerializerSettings()
         .UsePostgreSqlStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-    // Hangfire Server'� ekle (Arka planda i�leri y�r�tecek sunucu)
+    // Hangfire Server'ï¿½ ekle (Arka planda iï¿½leri yï¿½rï¿½tecek sunucu)
     builder.Services.AddHangfireServer();
     builder.Services.AddAutoMapper(typeof(MapProfile));
 
     var app = builder.Build();
 
-    // Zorunlu yapılandırma değerlerini kontrol et — eksikse uygulama başlamadan hata ver
+    // Zorunlu yapÄ±landÄ±rma deÄŸerlerini kontrol et â€” eksikse uygulama baÅŸlamadan hata ver
     var requiredConfig = new Dictionary<string, string>
     {
-        ["ConnectionStrings:DefaultConnection"] = "Veritabanı bağlantı dizesi",
-        ["JwtSettings:SecretKey"]              = "JWT gizli anahtarı"
+        ["ConnectionStrings:DefaultConnection"] = "VeritabanÄ± baÄŸlantÄ± dizesi",
+        ["JwtSettings:SecretKey"]              = "JWT gizli anahtarÄ±"
     };
 
     foreach (var (key, label) in requiredConfig)
     {
         if (string.IsNullOrWhiteSpace(app.Configuration[key]))
             throw new InvalidOperationException(
-                $"Zorunlu yapılandırma eksik: '{label}' ({key}). " +
-                "Lütfen 'dotnet user-secrets set' veya environment variable kullanın.");
+                $"Zorunlu yapÄ±landÄ±rma eksik: '{label}' ({key}). " +
+                "LÃ¼tfen 'dotnet user-secrets set' veya environment variable kullanÄ±n.");
     }
 
-    // S-6: Production ortamında CORS konfigüre edilmemişse başlatmayı durdur
+    // S-6: Production ortamÄ±nda CORS konfigÃ¼re edilmemiÅŸse baÅŸlatmayÄ± durdur
     if (!app.Environment.IsDevelopment())
     {
         var corsOrigins = app.Configuration.GetSection("AllowedCorsOrigins").Get<string[]>() ?? Array.Empty<string>();
         if (corsOrigins.Length == 0)
             throw new InvalidOperationException(
-                "GÜVENLİK HATASI: Production ortamında 'AllowedCorsOrigins' yapılandırılmamış. " +
-                "appsettings.Production.json dosyasına izin verilen origin'leri ekleyin. " +
-                "Örnek: \"AllowedCorsOrigins\": [\"https://app.subguard.com\"]");
+                "GÃœVENLÄ°K HATASI: Production ortamÄ±nda 'AllowedCorsOrigins' yapÄ±landÄ±rÄ±lmamÄ±ÅŸ. " +
+                "appsettings.Production.json dosyasÄ±na izin verilen origin'leri ekleyin. " +
+                "Ã–rnek: \"AllowedCorsOrigins\": [\"https://app.subguard.com\"]");
     }
 
-    // Admin rolünü seed et
+    // Admin rolÃ¼nÃ¼ seed et
     using (var scope = app.Services.CreateScope())
     {
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -307,7 +307,7 @@ try
     }
 
 
-    // 3. HTTP �stek Loglama (Request Logging)
+    // 3. HTTP ï¿½stek Loglama (Request Logging)
     app.UseSerilogRequestLogging();
 
     if (app.Environment.IsDevelopment())
@@ -316,102 +316,104 @@ try
         app.UseSwaggerUI();
     }
 
-    // Hangfire recurring job tanımları (dashboard kaydından önce)
+    // --- RECURRING JOB: Gï¿½NLï¿½K KUR Gï¿½NCELLEME ---
+    // Her sabah 08:00'de kurlarï¿½ gï¿½ncelle
+    // Static RecurringJob yerine DI-based IRecurringJobManager kullanÄ±lÄ±yor.
+    // .NET Core'da JobStorage.Current statik API'si kullanÄ±lmamalÄ±.
+    var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
 
-
-
-    // --- RECURRING JOB: G�NL�K KUR G�NCELLEME ---
-    // Her sabah 08:00'de kurlar� g�ncelle
-    RecurringJob.AddOrUpdate<ICurrencyService>(
+    recurringJobManager.AddOrUpdate<ICurrencyService>(
         "daily-currency-update",
         service => service.UpdateRatesAsync(),
-        "0 8 * * *" // Cron: Her g�n saat 08:00
+        "0 8 * * *" // Cron: Her gï¿½n saat 08:00
     );
 
-    // Recurring Job Tan�m�
-    // ServiceProvider �zerinden servisi �a��rmam�z gerekebilir veya Hangfire Activator kullan�r.
-    // Basit�e RecurringJob.AddOrUpdate metodu generic tip deste�i ile DI container'� kullan�r.
+    // Recurring Job Tanï¿½mï¿½
+    // ServiceProvider ï¿½zerinden servisi ï¿½aï¿½ï¿½rmamï¿½z gerekebilir veya Hangfire Activator kullanï¿½r.
+    // Basitï¿½e RecurringJob.AddOrUpdate metodu generic tip desteï¿½i ile DI container'ï¿½ kullanï¿½r.
 
-    // Türkiye saati (UTC+3). Windows: "Turkey Standard Time", Linux: "Europe/Istanbul"
+    // TÃ¼rkiye saati (UTC+3). Windows: "Turkey Standard Time", Linux: "Europe/Istanbul"
     var trTimeZone = TimeZoneInfo.GetSystemTimeZones()
         .FirstOrDefault(tz => tz.Id == "Turkey Standard Time" || tz.Id == "Europe/Istanbul")
         ?? TimeZoneInfo.Utc;
 
-    // Her saat başı çalışır; iç filtre kullanıcının NotifyHour'una bakarak uygun kullanıcıları seçer
-    RecurringJob.AddOrUpdate<INotificationService>(
+    // Her saat baÅŸÄ± Ã§alÄ±ÅŸÄ±r; iÃ§ filtre kullanÄ±cÄ±nÄ±n NotifyHour'una bakarak uygun kullanÄ±cÄ±larÄ± seÃ§er
+    recurringJobManager.AddOrUpdate<INotificationService>(
         "daily-payment-check",
         service => service.CheckAndQueueUpcomingPaymentsAsync(),
         "0 * * * *",
         new RecurringJobOptions { TimeZone = trTimeZone }
     );
 
-    // #12: Kontrat sona erme — 7 gün ve 1 gün öncesi uyarı (saatlik, NotifyHour filtreli)
-    RecurringJob.AddOrUpdate<INotificationService>(
+    // #12: Kontrat sona erme â€” 7 gÃ¼n ve 1 gÃ¼n Ã¶ncesi uyarÄ± (saatlik, NotifyHour filtreli)
+    recurringJobManager.AddOrUpdate<INotificationService>(
         "daily-contract-expiry-7d",
         service => service.CheckAndQueueContractExpiriesAsync(7),
         "0 * * * *",
         new RecurringJobOptions { TimeZone = trTimeZone }
     );
 
-    RecurringJob.AddOrUpdate<INotificationService>(
+    recurringJobManager.AddOrUpdate<INotificationService>(
         "daily-contract-expiry-1d",
         service => service.CheckAndQueueContractExpiriesAsync(1),
         "0 * * * *",
         new RecurringJobOptions { TimeZone = trTimeZone }
     );
 
-    // #11: Bütçe aşım kontrolü — her gün 09:00.
-    // Servis içindeki startOfMonth filtresi aynı ay için tekrar bildirim gönderilmesini önler.
-    // Böylece kullanıcı ayın ortasında limit aşarsa aynı gün uyarı alır.
-    RecurringJob.AddOrUpdate<INotificationService>(
+    // #11: BÃ¼tÃ§e aÅŸÄ±m kontrolÃ¼ â€” her gÃ¼n 09:00.
+    // Servis iÃ§indeki startOfMonth filtresi aynÄ± ay iÃ§in tekrar bildirim gÃ¶nderilmesini Ã¶nler.
+    // BÃ¶ylece kullanÄ±cÄ± ayÄ±n ortasÄ±nda limit aÅŸarsa aynÄ± gÃ¼n uyarÄ± alÄ±r.
+    recurringJobManager.AddOrUpdate<INotificationService>(
         "monthly-budget-alert",
         service => service.CheckAndQueueBudgetAlertsAsync(),
         "0 9 * * *",
         new RecurringJobOptions { TimeZone = trTimeZone }
     );
 
-    // Bildirim kuyruğu işleme: CheckAndQueue ile aynı saatlik sıklıkta çalışır,
-    // böylece NotifyHour=18 gibi seçimlerde bildirim aynı saat işlenir.
-    RecurringJob.AddOrUpdate<INotificationService>(
+    // Bildirim kuyruÄŸu iÅŸleme: CheckAndQueue ile aynÄ± saatlik sÄ±klÄ±kta Ã§alÄ±ÅŸÄ±r,
+    // bÃ¶ylece NotifyHour=18 gibi seÃ§imlerde bildirim aynÄ± saat iÅŸlenir.
+    recurringJobManager.AddOrUpdate<INotificationService>(
         "process-notification-queue",
         service => service.ProcessNotificationQueueAsync(),
         "0 * * * *",
         new RecurringJobOptions { TimeZone = trTimeZone }
     );
 
-    RecurringJob.AddOrUpdate<ITokenService>(
+    recurringJobManager.AddOrUpdate<ITokenService>(
         "purge-expired-refresh-tokens",
         service => service.PurgeExpiredRefreshTokensAsync(),
         Cron.Daily // Her gece 00:00 (UTC)
     );
 
-    // Global Exception Middleware (Mevcut yap�n korunuyor)
-    // Serilog ILogger implemente etti�i i�in Middleware i�indeki _logger.LogError otomatik olarak Serilog'a yazar.
+    // Global Exception Middleware (Mevcut yapï¿½n korunuyor)
+    // Serilog ILogger implemente ettiï¿½i iï¿½in Middleware iï¿½indeki _logger.LogError otomatik olarak Serilog'a yazar.
     app.UseMiddleware<SubGuard.API.Middlewares.GlobalExceptionMiddleware>();
 
     app.UseHttpsRedirection();
-    app.UseRateLimiter();
     app.UseCors("SubGuardCorsPolicy");
     app.UseAuthentication();
-    // ---> YEN� EKLENECEK BLOK BA�LANGI� (UserName Enrichment)
+    // UserName Enrichment: UseAuthentication'dan sonra Ã§alÄ±ÅŸmalÄ± ki User dolu olsun
     app.Use(async (context, next) =>
     {
         var username = context.User?.Identity?.IsAuthenticated == true
             ? context.User.Identity.Name
-            : "Anonymous"; // Giri� yapmam��sa Anonim yazs�n
+            : "Anonymous";
 
-        // LogContext'e "UserName" �zelli�ini itiyoruz
         using (Serilog.Context.LogContext.PushProperty("UserName", username))
         {
             await next();
         }
     });
     app.UseAuthorization();
+    // UseRateLimiter, UseAuthentication + UseAuthorization'dan SONRA Ã§aÄŸrÄ±lmalÄ±.
+    // Aksi hÃ¢lde "user-api" policy'si User.Identity'ye eriÅŸemez ve auth-based
+    // rate limiting Ã§alÄ±ÅŸmaz; brute-force korumasÄ± devre dÄ±ÅŸÄ± kalÄ±r.
+    app.UseRateLimiter();
 
-    // Hangfire Dashboard: UseAuthentication + UseAuthorization'dan SONRA çağrılmalı.
-    // Aksi hâlde HttpContext.User dolu olmaz ve rol kontrolü her zaman false döner.
-    // Development: localhost'a ek olarak Admin rolü de kontrol edilir.
-    // Production: yalnızca geçerli JWT token'ı olan Admin rolündeki kullanıcılar girebilir.
+    // Hangfire Dashboard: UseAuthentication + UseAuthorization'dan SONRA Ã§aÄŸrÄ±lmalÄ±.
+    // Aksi hÃ¢lde HttpContext.User dolu olmaz ve rol kontrolÃ¼ her zaman false dÃ¶ner.
+    // Development: localhost'a ek olarak Admin rolÃ¼ de kontrol edilir.
+    // Production: yalnÄ±zca geÃ§erli JWT token'Ä± olan Admin rolÃ¼ndeki kullanÄ±cÄ±lar girebilir.
     app.UseHangfireDashboard("/hangfire", new DashboardOptions
     {
         Authorization = app.Environment.IsDevelopment()
@@ -432,7 +434,7 @@ try
 }
 catch (Exception ex)
 {
-    Log.Fatal(ex, "Uygulama beklenmedik bir hatayla sonland� (Host Terminated).");
+    Log.Fatal(ex, "Uygulama beklenmedik bir hatayla sonlandï¿½ (Host Terminated).");
 }
 finally
 {

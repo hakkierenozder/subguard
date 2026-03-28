@@ -21,7 +21,11 @@ namespace SubGuard.Core.Helpers
 
         /// <summary>
         /// Frankfurter API kurları EUR bazlıdır: 1 EUR = rates[X] X birimi.
-        /// Bilinmeyen para birimi için 0 döner.
+        /// Bilinmeyen para birimi için 0 döner — bu kasıtlı bir tasarım kararıdır:
+        ///   • 0 döndürmek bilinmeyen kuru toplamdan hariç tutar (1 döndürmek yanlış dönüşüme yol açar).
+        ///   • Frontend (ExpenseChart) da aynı kuralı uygulamalı: bilinmeyen kur → grafikten hariç tut.
+        ///   • Kur eksikliği _logger ile loglanmalı; bu static sınıfta logger yok,
+        ///     çağıran servis tarafında kontrol edilmesi önerilir.
         /// </summary>
         public static decimal ConvertToTargetCurrency(
             decimal amount, string fromCurrency, string toCurrency,
@@ -32,7 +36,7 @@ namespace SubGuard.Core.Helpers
             decimal fromRate = fromCurrency == "EUR" ? 1m : rates.GetValueOrDefault(fromCurrency, 0m);
             decimal toRate   = toCurrency   == "EUR" ? 1m : rates.GetValueOrDefault(toCurrency,   0m);
 
-            if (fromRate == 0) return 0; // Bilinmeyen kaynak para birimi
+            if (fromRate == 0) return 0; // Bilinmeyen kaynak para birimi → toplamdan hariç tut
 
             return amount / fromRate * toRate;
         }

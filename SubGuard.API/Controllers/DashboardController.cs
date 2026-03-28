@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SubGuard.Core.Services;
 using System.Security.Claims;
 
@@ -21,6 +22,7 @@ namespace SubGuard.API.Controllers
 
         // GET api/dashboard
         // GET api/dashboard?upcomingDays=7
+        [EnableRateLimiting("user-api")]
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] int upcomingDays = 30)
         {
