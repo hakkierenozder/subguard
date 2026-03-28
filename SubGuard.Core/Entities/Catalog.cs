@@ -10,7 +10,6 @@ namespace SubGuard.Core.Entities
     // Katalogdaki Ana Firmalar (Netflix, Turkcell vb.)
     public class Catalog : BaseEntity
     {
-        public int Id { get; set; }
         public string Name { get; set; }
         public string? LogoUrl { get; set; }
         public string? ColorCode { get; set; }

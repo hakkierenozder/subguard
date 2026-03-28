@@ -39,6 +39,7 @@ interface UserSubscriptionState {
   getTotalExpense: () => number;
   getNextPayment: () => UserSubscription | null;
   fetchExchangeRates: () => Promise<void>;
+  reset: () => void;
 }
 
 // Güvenli JSON Parse Yardımcısı
@@ -60,8 +61,8 @@ const formatItems = (rawItems: RawSubscriptionApiItem[]): UserSubscription[] =>
     contractStartDate: item.contractStartDate ?? undefined,
     contractEndDate: item.contractEndDate ?? undefined,
     sharedWith: safeJsonParse(item.sharedWithJson, []),
-    // Backend CancelledDate → camelCase cancelledDate. cancelledAt alias ile frontend uyumu sağlanır.
-    cancelledAt: item.cancelledDate ?? item.cancelledAt ?? null,
+    // Backend CancelledDate → camelCase cancelledDate (canonical field)
+    cancelledDate: item.cancelledDate ?? item.cancelledAt ?? null,
     // usageHistory (survey): AsyncStorage'dan ayrıca yüklenir, burada boş başlar
     usageHistory: [],
     // usageLogs: backend UsageLogDto[] formatı (ApiUsageLog[])
@@ -98,6 +99,17 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
       TRY: 1.0
   },
 
+  reset: () => set({
+    subscriptions: [],
+    sharedWithMe: [],
+    loading: false,
+    loadingMore: false,
+    page: 1,
+    totalCount: 0,
+    hasMore: false,
+    searchQuery: '',
+  }),
+
   // Survey verilerini AsyncStorage'dan yükleyip store'daki aboneliklere uygula.
   // #36: AsyncStorage'da kayıt yoksa sunucudan gelen usageHistoryJson fallback olarak kullanılır.
   _restoreSurveyHistory: async (items: UserSubscription[]): Promise<UserSubscription[]> => {
@@ -122,6 +134,7 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
 
   // 1. VERİLERİ ÇEK — sayfa 1'den başlar, listeyi sıfırlar
   fetchUserSubscriptions: async () => {
+    if (get().loading) return; // [40] race condition önlemi
     set({ loading: true });
     const q = get().searchQuery || undefined; // F-5: backend araması
     try {
@@ -162,7 +175,7 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
     set({ loadingMore: true });
     try {
       const nextPage = page + 1;
-      const response = await agent.UserSubscriptions.list(nextPage, PAGE_SIZE);
+      const response = await agent.UserSubscriptions.list(nextPage, PAGE_SIZE, get().searchQuery || undefined);
       if (response && response.data) {
         const raw = response.data;
         const rawItems: any[] = Array.isArray(raw) ? raw : (raw?.items ?? []);
@@ -252,6 +265,7 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
           usageLogs: [],
         };
         set((state) => ({ subscriptions: [...state.subscriptions, createdSub] }));
+        await saveCache('subscriptions', { items: get().subscriptions, totalCount: get().totalCount }); // [42]
         // F-8: takvim senkronizasyonu
         if (useSettingsStore.getState().calendarSyncEnabled) {
           await syncSubscriptionsToCalendar(get().subscriptions);
@@ -279,6 +293,7 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
 
     try {
       await agent.UserSubscriptions.delete(id);
+      await saveCache('subscriptions', { items: get().subscriptions, totalCount: get().totalCount }); // [42]
       // F-8: takvim senkronizasyonu
       if (useSettingsStore.getState().calendarSyncEnabled) {
         await syncSubscriptionsToCalendar(get().subscriptions);
@@ -338,6 +353,7 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
         };
         await agent.UserSubscriptions.update(id, payload);
       }
+      await saveCache('subscriptions', { items: get().subscriptions, totalCount: get().totalCount }); // [42]
       // F-8: takvim senkronizasyonu
       if (useSettingsStore.getState().calendarSyncEnabled) {
         await syncSubscriptionsToCalendar(get().subscriptions);

@@ -13,6 +13,7 @@ interface NotificationStore {
   markAsRead: (id: number) => Promise<void>;
   markAllAsRead: () => Promise<void>;
   deleteNotification: (id: number) => Promise<void>;
+  reset: () => void;
 }
 
 export const useNotificationStore = create<NotificationStore>((set, get) => ({
@@ -77,6 +78,8 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
       }));
     } catch {}
   },
+
+  reset: () => set({ notifications: [], unreadCount: 0, loading: false, page: 1, hasMore: true }),
 
   deleteNotification: async (id: number) => {
     const previous = get().notifications;

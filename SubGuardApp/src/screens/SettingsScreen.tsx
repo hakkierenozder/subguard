@@ -288,7 +288,7 @@ export default function SettingsScreen() {
         '',
         `--- Abonelikler (${subscriptions.length} adet) ---`,
         ...subscriptions.map(s =>
-          `• ${s.name} | ${s.price} ${s.currency}/${s.billingPeriod === 'Yearly' ? 'yıl' : 'ay'} | ${s.category} | ${s.isActive !== false ? 'Aktif' : s.cancelledAt ? 'İptal' : 'Durdurulmuş'}`
+          `• ${s.name} | ${s.price} ${s.currency}/${s.billingPeriod === 'Yearly' ? 'yıl' : 'ay'} | ${s.category} | ${s.isActive !== false ? 'Aktif' : s.cancelledDate ? 'İptal' : 'Durdurulmuş'}`
         ),
       ];
       await Share.share({ message: lines.join('\n'), title: 'SubGuard Verilerim' });
@@ -323,6 +323,7 @@ export default function SettingsScreen() {
                         const refreshToken = await getRefreshToken();
                         if (refreshToken) await agent.Auth.revokeRefreshToken(refreshToken);
                       } catch {}
+                      useSettingsStore.getState().clearUserSettings();
                       await logout();
                       navigation.getParent()?.reset({ index: 0, routes: [{ name: 'Login' }] });
                     } catch {
@@ -352,6 +353,7 @@ export default function SettingsScreen() {
           } catch {
             // Revoke başarısız olsa bile local logout devam eder
           }
+          useSettingsStore.getState().clearUserSettings();
           await logout();
           navigation.getParent()?.reset({ index: 0, routes: [{ name: 'Login' }] });
         },

@@ -18,7 +18,10 @@ namespace SubGuard.Core.Services
         Task<CustomResponseDto<string>> ForgotPasswordAsync(string email);
         /// <summary>OTP + yeni şifre ile şifre sıfırlar.</summary>
         Task<CustomResponseDto<bool>> ResetPasswordAsync(string userId, string otp, string newPassword);
-        /// <summary>E-posta doğrulama kodunu tekrar gönderir. Daha önce doğrulanmış hesaplara gönderim yapılmaz.</summary>
-        Task<CustomResponseDto<bool>> ResendConfirmationEmailAsync(string userId);
+        /// <summary>
+        /// E-posta doğrulama kodunu tekrar gönderir.
+        /// Kullanıcı bulunamasa, zaten doğrulanmış olsa veya rate-limit aşılsa dahi her zaman 200 döner (enumeration önlemi).
+        /// </summary>
+        Task<CustomResponseDto<bool>> ResendConfirmationEmailAsync(string email);
     }
 }

@@ -114,7 +114,7 @@ namespace SubGuard.Service.Services
             return CustomResponseDto<PlanDto>.Success(201, _mapper.Map<PlanDto>(entity));
         }
 
-        public async Task<CustomResponseDto<bool>> UpdatePlanAsync(int id, PlanDto dto)
+        public async Task<CustomResponseDto<bool>> UpdatePlanAsync(int id, PlanDto dto, int? catalogId = null)
         {
             var entity = await _planRepository.GetByIdAsync(id);
             if (entity == null)
@@ -130,7 +130,7 @@ namespace SubGuard.Service.Services
             return CustomResponseDto<bool>.Success(204);
         }
 
-        public async Task<CustomResponseDto<bool>> DeletePlanAsync(int id)
+        public async Task<CustomResponseDto<bool>> DeletePlanAsync(int id, int? catalogId = null)
         {
             var entity = await _planRepository.GetByIdAsync(id);
             if (entity == null)

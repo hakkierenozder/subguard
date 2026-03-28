@@ -37,6 +37,7 @@ namespace SubGuard.Core.Helpers
             decimal toRate   = toCurrency   == "EUR" ? 1m : rates.GetValueOrDefault(toCurrency,   0m);
 
             if (fromRate == 0) return 0; // Bilinmeyen kaynak para birimi → toplamdan hariç tut
+            if (toRate   == 0) return 0; // Bilinmeyen hedef para birimi → toplamdan hariç tut (sessiz sıfır önlendi)
 
             return amount / fromRate * toRate;
         }

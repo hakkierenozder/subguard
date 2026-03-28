@@ -264,6 +264,11 @@ export default function NotificationsScreen() {
     setDeletedItem(null);
   }, [fetchNotifications]);
 
+  // [35] snackTimer cleanup — bellek sızıntısını önler
+  useEffect(() => () => {
+    if (snackTimer.current) clearTimeout(snackTimer.current);
+  }, []);
+
   // U-3: Tip bazlı filtre
   type NotifFilter = 'All' | 'Payment' | 'Budget' | 'Shared' | 'Contract';
   const [activeFilter, setActiveFilter] = useState<NotifFilter>('All');

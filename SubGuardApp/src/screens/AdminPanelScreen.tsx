@@ -467,6 +467,8 @@ function CatalogsTab() {
   const [planCatalogId, setPlanCatalogId] = useState<number | null>(null);
   const [newPlanName, setNewPlanName] = useState('');
   const [newPlanPrice, setNewPlanPrice] = useState('');
+  const [planCurrency, setPlanCurrency] = useState('TRY');
+  const [planBillingDays, setPlanBillingDays] = useState(30);
 
   const load = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
@@ -540,14 +542,15 @@ function CatalogsTab() {
       const res = await agent.Admin.createPlan(catalogId, {
         name: newPlanName.trim(),
         price: parseFloat(newPlanPrice.replace(',', '.')),
-        currency: 'TRY',
-        billingCycleDays: 30,
+        currency: planCurrency,
+        billingCycleDays: planBillingDays,
       });
       if (res?.data) {
         setCatalogs(prev => prev.map(c =>
           c.id === catalogId ? { ...c, plans: [...(c.plans ?? []), res.data] } : c
         ));
         setNewPlanName(''); setNewPlanPrice('');
+        setPlanCurrency('TRY'); setPlanBillingDays(30);
         setPlanCatalogId(null);
       }
     } catch {}
@@ -633,17 +636,41 @@ function CatalogsTab() {
                     />
                     <TextInput
                       style={[styles.formInput, { color: colors.textMain, backgroundColor: colors.inputBg, borderColor: colors.border }]}
-                      placeholder="Fiyat (TRY) *" placeholderTextColor={colors.textSec}
+                      placeholder="Fiyat *" placeholderTextColor={colors.textSec}
                       value={newPlanPrice} onChangeText={setNewPlanPrice}
                       keyboardType="decimal-pad"
                     />
+                    {/* Para Birimi */}
+                    <View style={styles.pillRow}>
+                      {(['TRY', 'USD', 'EUR'] as const).map(cur => (
+                        <TouchableOpacity
+                          key={cur}
+                          style={[styles.pill, { borderColor: colors.accent, backgroundColor: planCurrency === cur ? colors.accent : 'transparent' }]}
+                          onPress={() => setPlanCurrency(cur)}
+                        >
+                          <Text style={[styles.pillText, { color: planCurrency === cur ? '#fff' : colors.accent }]}>{cur}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                    {/* Fatura Döngüsü */}
+                    <View style={styles.pillRow}>
+                      {([30, 365] as const).map(days => (
+                        <TouchableOpacity
+                          key={days}
+                          style={[styles.pill, { borderColor: colors.accent, backgroundColor: planBillingDays === days ? colors.accent : 'transparent' }]}
+                          onPress={() => setPlanBillingDays(days)}
+                        >
+                          <Text style={[styles.pillText, { color: planBillingDays === days ? '#fff' : colors.accent }]}>{days === 30 ? 'Aylık' : 'Yıllık'}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
                     <View style={styles.planFormBtns}>
                       <TouchableOpacity style={[styles.saveBtn, { backgroundColor: colors.accent, flex: 1, opacity: saving ? 0.6 : 1 }]}
                         onPress={() => addPlan(catalog.id)} disabled={saving}>
                         {saving ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.saveBtnText}>Kaydet</Text>}
                       </TouchableOpacity>
                       <TouchableOpacity style={[styles.cancelBtn, { borderColor: colors.border }]}
-                        onPress={() => { setPlanCatalogId(null); setNewPlanName(''); setNewPlanPrice(''); }}>
+                        onPress={() => { setPlanCatalogId(null); setNewPlanName(''); setNewPlanPrice(''); setPlanCurrency('TRY'); setPlanBillingDays(30); }}>
                         <Text style={[styles.cancelBtnText, { color: colors.textSec }]}>İptal</Text>
                       </TouchableOpacity>
                     </View>
@@ -677,14 +704,36 @@ function RolesTab() {
   const assignRole = async () => {
     const trimmed = email.trim().toLowerCase();
     if (!trimmed) return;
-    setLoading(true);
-    try {
-      await agent.Admin.assignRole(trimmed);
-      setRecentAssignments(prev => [trimmed, ...prev.slice(0, 9)]);
-      setEmail('');
-      Alert.alert('Başarılı', `${trimmed} kullanıcısına Admin rolü atandı.`);
-    } catch {}
-    setLoading(false);
+
+    // E-posta format doğrulaması
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmed)) {
+      Alert.alert('Geçersiz E-posta', 'Lütfen geçerli bir e-posta adresi girin.');
+      return;
+    }
+
+    // Admin yetkisi verilmeden önce onay dialogu
+    Alert.alert(
+      'Admin Yetkisi Ver',
+      `"${trimmed}" kullanıcısına Admin rolü atanacak. Bu işlemi onaylıyor musunuz?`,
+      [
+        { text: 'Vazgeç', style: 'cancel' },
+        {
+          text: 'Evet, Admin Yap',
+          style: 'destructive',
+          onPress: async () => {
+            setLoading(true);
+            try {
+              await agent.Admin.assignRole(trimmed);
+              setRecentAssignments(prev => [trimmed, ...prev.slice(0, 9)]);
+              setEmail('');
+              Alert.alert('Başarılı', `${trimmed} kullanıcısına Admin rolü atandı.`);
+            } catch {}
+            setLoading(false);
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -850,6 +899,9 @@ const styles = StyleSheet.create({
   planPrice: { fontSize: 13, fontWeight: '600' },
   planForm: { marginTop: 10 },
   planFormBtns: { flexDirection: 'row', gap: 8 },
+  pillRow: { flexDirection: 'row', gap: 8, marginBottom: 10 },
+  pill: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, borderWidth: 1.5 },
+  pillText: { fontSize: 13, fontWeight: '700' },
   addPlanBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
     borderWidth: 1, borderRadius: 8, borderStyle: 'dashed',

@@ -153,6 +153,7 @@ export interface PriceHistoryEntry {
 export interface CatalogState {
     catalogItems: CatalogItem[];
     loading: boolean;
+    error: string | null; // [41] hata durumu
     fetchCatalog: () => Promise<void>;
 }
 

@@ -204,10 +204,10 @@ const Auth = {
   register:       (body: any) => requests.post('/auth/register', body),
   confirmEmail:          (userId: string, token: string) =>
     requests.post('/auth/confirm-email', { userId, token }),
-  resendConfirmationEmail: (userId: string) =>
-    requests.post('/auth/resend-confirmation-email', { userId }),
+  resendConfirmationEmail: (email: string) =>
+    requests.post('/auth/resend-confirmation-email', { email }),
   getProfile:     ()          => requests.get('/auth/profile'),
-  updateProfile:  (body: { fullName?: string; monthlyBudget?: number; monthlyBudgetCurrency?: string; budgetAlertThreshold?: number }) =>
+  updateProfile:  (body: { fullName?: string }) =>
     requests.put('/auth/profile', body),
   changePassword:      (body: any)     => requests.post('/auth/change-password', body),
   deleteAccount:       ()              => requests.del('/auth/me'),
@@ -238,8 +238,8 @@ const Admin = {
   getUsers:      (search = '', page = 1, pageSize = 20) =>
     requests.get(`/admin/users?search=${encodeURIComponent(search)}&page=${page}&pageSize=${pageSize}`),
   getUser:       (id: string)                    => requests.get(`/admin/users/${id}`),
-  deactivate:    (id: string)                    => requests.put(`/admin/users/${id}/deactivate`, {}),
-  activate:      (id: string)                    => requests.put(`/admin/users/${id}/activate`, {}),
+  deactivate:    (id: string)                    => requests.patch(`/admin/users/${id}/deactivate`, {}),
+  activate:      (id: string)                    => requests.patch(`/admin/users/${id}/activate`, {}),
   assignRole:    (email: string)                 => requests.post('/admin/assign-role', { email }),
   // Katalog/Plan CRUD (backend zaten hazır)
   createCatalog: (dto: Record<string, unknown>)  => requests.post('/admin/catalogs', dto),

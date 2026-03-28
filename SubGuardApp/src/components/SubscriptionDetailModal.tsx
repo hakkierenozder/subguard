@@ -1,10 +1,10 @@
-import React, { useMemo, useRef, useEffect, useState, useCallback } from 'react';
+import React, { useMemo, useRef, useEffect, useState } from 'react';
 import {
   View, Text, Modal, StyleSheet, TouchableOpacity, ScrollView,
-  Alert, Dimensions, StatusBar, Platform, DimensionValue, Animated, Image,
+  Alert, Dimensions, StatusBar, Platform, Animated, Image,
 } from 'react-native';
 import Toast from 'react-native-toast-message';
-import { UserSubscription, ApiUsageLog, PriceHistoryEntry } from '../types';
+import { UserSubscription, PriceHistoryEntry } from '../types';
 import { Ionicons } from '@expo/vector-icons';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import { useSettingsStore } from '../store/useSettingsStore';
@@ -62,7 +62,7 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
     const currentStatus: SubscriptionStatus = (() => {
         if (!subscription) return 'active';
         if (subscription.isActive !== false) return 'active';
-        if (subscription.cancelledAt) return 'cancelled';
+        if (subscription.cancelledDate) return 'cancelled';
         return 'paused';
     })();
 
@@ -87,29 +87,11 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
         }
     }, [visible, subscription?.id]);
 
-    // Kullanım geçmişi
-    const usageData = useMemo(() => {
-        if (!subscription) return [];
-        const history = subscription.usageHistory || [];
-        const months = [];
-        for (let i = 5; i >= 0; i--) {
-            const d = new Date();
-            d.setDate(1);
-            d.setMonth(d.getMonth() - i);
-            const key = d.toISOString().slice(0, 7);
-            const log = history.find((h: any) => h.month === key);
-            months.push({
-                label: d.toLocaleDateString('tr-TR', { month: 'short' }).toUpperCase(),
-                status: log ? log.status : 'missing',
-            });
-        }
-        return months;
-    }, [subscription]);
 
     // İptal bilgisi hesaplama (early return öncesinde olmalı)
     const cancelInfo = useMemo(() => {
         if (currentStatus !== 'cancelled' || !subscription) return null;
-        const cancelledAt = subscription.cancelledAt ? new Date(subscription.cancelledAt) : null;
+        const cancelledAt = subscription.cancelledDate ? new Date(subscription.cancelledDate) : null;
         const contractEnd = subscription.contractEndDate ? new Date(subscription.contractEndDate) : null;
 
         let remainingDays: number | null = null;
@@ -119,7 +101,7 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
             remainingDays = diff > 0 ? diff : 0;
         }
         return { cancelledAt, contractEnd, remainingDays };
-    }, [currentStatus, subscription?.cancelledAt, subscription?.contractEndDate]);
+    }, [currentStatus, subscription?.cancelledDate, subscription?.contractEndDate]);
 
     if (!subscription) return null;
 
@@ -175,13 +157,13 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
     const applyStatusChange = (newStatus: SubscriptionStatus) => {
         let payload: Partial<UserSubscription> = {};
         if (newStatus === 'active') {
-            payload = { isActive: true, cancelledAt: null };
+            payload = { isActive: true, cancelledDate: null };
             Toast.show({ type: 'success', text1: '✅ Abonelik Aktifleştirildi', text2: `${subscription.name} yeniden aktif.`, position: 'top' });
         } else if (newStatus === 'paused') {
-            payload = { isActive: false, cancelledAt: null, pausedDate: new Date().toISOString() };
+            payload = { isActive: false, cancelledDate: null, pausedDate: new Date().toISOString() };
             Toast.show({ type: 'info', text1: '⏸ Abonelik Durduruldu', text2: `${subscription.name} duraklatıldı.`, position: 'top' });
         } else {
-            payload = { isActive: false, cancelledAt: new Date().toISOString(), pausedDate: null };
+            payload = { isActive: false, cancelledDate: new Date().toISOString(), pausedDate: null };
             Toast.show({ type: 'error', text1: '❌ Abonelik İptal Edildi', text2: `${subscription.name} iptal edildi.`, position: 'top' });
         }
         updateSubscription(subscription.id, payload);
@@ -246,7 +228,7 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
 
     const statusTabs: { key: SubscriptionStatus; label: string; icon: string; color: string }[] = [
         { key: 'active',    label: 'Aktif',       icon: 'checkmark-circle',  color: colors.success },
-        { key: 'paused',    label: 'Durduruldu',  icon: 'pause-circle',      color: '#F59E0B' },
+        { key: 'paused',    label: 'Durduruldu',  icon: 'pause-circle',      color: colors.warning },
         { key: 'cancelled', label: 'İptal',        icon: 'close-circle',      color: colors.error },
     ];
 
@@ -335,17 +317,17 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                         {/* Durum badge */}
                         {currentStatus !== 'active' && (
                             <View style={[styles.badge, {
-                                backgroundColor: currentStatus === 'cancelled' ? colors.error + '20' : '#F59E0B20',
+                                backgroundColor: currentStatus === 'cancelled' ? colors.error + '20' : colors.warning + '20',
                                 borderWidth: 1,
-                                borderColor: currentStatus === 'cancelled' ? colors.error : '#F59E0B',
+                                borderColor: currentStatus === 'cancelled' ? colors.error : colors.warning,
                             }]}>
                                 <Ionicons
                                     name={currentStatus === 'cancelled' ? 'close-circle' : 'pause-circle'}
                                     size={12}
-                                    color={currentStatus === 'cancelled' ? colors.error : '#F59E0B'}
+                                    color={currentStatus === 'cancelled' ? colors.error : colors.warning}
                                 />
                                 <Text style={[styles.badgeText, {
-                                    color: currentStatus === 'cancelled' ? colors.error : '#F59E0B',
+                                    color: currentStatus === 'cancelled' ? colors.error : colors.warning,
                                     marginLeft: 4,
                                 }]}>
                                     {currentStatus === 'cancelled' ? 'İPTAL EDİLDİ' : 'DURDURULDU'}
@@ -442,10 +424,10 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
 
                     {/* 3b. DURDURULDU BİLGİ KARTI (U-11) */}
                     {currentStatus === 'paused' && subscription.pausedDate && (
-                        <View style={[styles.cancelCard, { backgroundColor: '#F59E0B0D', borderColor: '#F59E0B40' }]}>
+                        <View style={[styles.cancelCard, { backgroundColor: colors.warning + '0D', borderColor: colors.warning + '40' }]}>
                             <View style={styles.cancelCardHeader}>
-                                <Ionicons name="pause-circle-outline" size={18} color="#F59E0B" />
-                                <Text style={[styles.cancelCardTitle, { color: '#F59E0B' }]}>Durdurma Bilgisi</Text>
+                                <Ionicons name="pause-circle-outline" size={18} color={colors.warning} />
+                                <Text style={[styles.cancelCardTitle, { color: colors.warning }]}>Durdurma Bilgisi</Text>
                             </View>
                             <View style={styles.cancelRows}>
                                 <View style={styles.cancelRow}>
@@ -480,39 +462,6 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                         ) : (
                             <Text style={[styles.nextPaymentDate, { color: colors.textSec, fontSize: 15 }]}>—</Text>
                         )}
-                    </View>
-
-                    {/* 5. KULLANIM GEÇMİŞİ */}
-                    <View style={[styles.sectionContainer, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
-                        <View style={styles.sectionHeader}>
-                            <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Kullanım Sıklığı</Text>
-                            <Text style={[styles.sectionSubtitle, { color: colors.textSec }]}>Son 6 Ay</Text>
-                        </View>
-                        <View style={[styles.chartContainer, { backgroundColor: colors.inputBg }]}>
-                            <View style={styles.chartRow}>
-                                {usageData.map((m, i) => {
-                                    let height: DimensionValue = '10%';
-                                    let bgColor = colors.border;
-                                    let labelColor = colors.textSec;
-                                    if (m.status === 'active') { height = '80%'; bgColor = colors.success; labelColor = colors.success; }
-                                    else if (m.status === 'low') { height = '45%'; bgColor = colors.accent; labelColor = colors.accent; }
-                                    else if (m.status === 'none') { height = '20%'; bgColor = colors.error; labelColor = colors.error; }
-                                    return (
-                                        <View key={i} style={styles.barWrapper}>
-                                            <View style={styles.barTrack}>
-                                                <View style={[styles.barFill, { height, backgroundColor: bgColor }]} />
-                                            </View>
-                                            <Text style={[styles.barLabel, { color: labelColor }]}>{m.label}</Text>
-                                        </View>
-                                    );
-                                })}
-                            </View>
-                        </View>
-                        <View style={styles.legendRow}>
-                            <View style={styles.legendItem}><View style={[styles.dot, { backgroundColor: colors.success }]} /><Text style={[styles.legendText, { color: colors.textSec }]}>Yoğun</Text></View>
-                            <View style={styles.legendItem}><View style={[styles.dot, { backgroundColor: colors.accent }]} /><Text style={[styles.legendText, { color: colors.textSec }]}>Normal</Text></View>
-                            <View style={styles.legendItem}><View style={[styles.dot, { backgroundColor: colors.error }]} /><Text style={[styles.legendText, { color: colors.textSec }]}>Hiç</Text></View>
-                        </View>
                     </View>
 
                     {/* 7. TAAHHÜT BİLGİSİ */}
@@ -811,20 +760,6 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     sectionTitle: { fontSize: 16, fontWeight: '700' },
-    sectionSubtitle: { fontSize: 12, fontWeight: '500' },
-
-    // Grafik
-    chartContainer: { borderRadius: 16, padding: 16, height: 140, justifyContent: 'flex-end' },
-    chartRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', height: '100%' },
-    barWrapper: { alignItems: 'center', flex: 1, height: '100%', justifyContent: 'flex-end' },
-    barTrack: { width: '100%', height: '80%', justifyContent: 'flex-end', alignItems: 'center', marginBottom: 6 },
-    barFill: { width: 10, borderRadius: 5 },
-    barLabel: { fontSize: 10, fontWeight: '600', textAlign: 'center' },
-    legendRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 16, gap: 16 },
-    legendItem: { flexDirection: 'row', alignItems: 'center' },
-    dot: { width: 8, height: 8, borderRadius: 4, marginRight: 6 },
-    legendText: { fontSize: 12, fontWeight: '500' },
-
     // Detay Listesi
     detailItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14 },
     detailLeft: { flexDirection: 'row', alignItems: 'center' },

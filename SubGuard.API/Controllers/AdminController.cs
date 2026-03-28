@@ -73,8 +73,8 @@ namespace SubGuard.API.Controllers
         }
 
         /// <summary>Kullanıcıyı askıya alır (giriş engellenir).</summary>
-        // PUT api/admin/users/{id}/deactivate
-        [HttpPut("users/{id}/deactivate")]
+        // PATCH api/admin/users/{id}/deactivate
+        [HttpPatch("users/{id}/deactivate")]
         [ProducesResponseType(typeof(CustomResponseDto<bool>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(CustomResponseDto<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Deactivate(string id)
@@ -84,8 +84,8 @@ namespace SubGuard.API.Controllers
         }
 
         /// <summary>Kullanıcının askıya alınmasını kaldırır.</summary>
-        // PUT api/admin/users/{id}/activate
-        [HttpPut("users/{id}/activate")]
+        // PATCH api/admin/users/{id}/activate
+        [HttpPatch("users/{id}/activate")]
         [ProducesResponseType(typeof(CustomResponseDto<bool>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(CustomResponseDto<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Activate(string id)
@@ -154,10 +154,10 @@ namespace SubGuard.API.Controllers
         [ProducesResponseType(typeof(CustomResponseDto<PlanDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(CustomResponseDto<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(CustomResponseDto<object>), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdatePlan(int id, [FromBody] PlanDto dto)
+        public async Task<IActionResult> UpdatePlan(int id, [FromBody] PlanDto dto, [FromQuery] int? catalogId = null)
         {
             _logger.LogWarning("[AUDIT] Admin {AdminId} planı güncelledi. PlanId: {PlanId}", AdminId, id);
-            return CreateActionResult(await _catalogService.UpdatePlanAsync(id, dto));
+            return CreateActionResult(await _catalogService.UpdatePlanAsync(id, dto, catalogId));
         }
 
         /// <summary>Bir planı (soft) siler.</summary>
@@ -165,10 +165,10 @@ namespace SubGuard.API.Controllers
         [HttpDelete("plans/{id:int}")]
         [ProducesResponseType(typeof(CustomResponseDto<object>), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(CustomResponseDto<object>), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeletePlan(int id)
+        public async Task<IActionResult> DeletePlan(int id, [FromQuery] int? catalogId = null)
         {
             _logger.LogWarning("[AUDIT] Admin {AdminId} planı sildi. PlanId: {PlanId}", AdminId, id);
-            return CreateActionResult(await _catalogService.DeletePlanAsync(id));
+            return CreateActionResult(await _catalogService.DeletePlanAsync(id, catalogId));
         }
 
         // ─── Role Management ──────────────────────────────────────

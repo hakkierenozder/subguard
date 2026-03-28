@@ -121,7 +121,20 @@ try
     .AddJwtBearer(options =>
     {
         var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-        var key = Convert.FromBase64String(jwtSettings["SecretKey"]);
+        var secretKeyRaw = jwtSettings["SecretKey"];
+        if (string.IsNullOrWhiteSpace(secretKeyRaw))
+            throw new InvalidOperationException("'JwtSettings:SecretKey' yapılandırması eksik. Uygulama başlatılamıyor.");
+        byte[] key;
+        try
+        {
+            key = Convert.FromBase64String(secretKeyRaw);
+        }
+        catch (FormatException)
+        {
+            throw new InvalidOperationException("'JwtSettings:SecretKey' geçerli bir Base64 string değil. Lütfen 32+ byte'lık random bir değer Base64 formatında ayarlayın.");
+        }
+        if (key.Length < 32)
+            throw new InvalidOperationException($"'JwtSettings:SecretKey' çok kısa ({key.Length} byte). HMACSHA256 için en az 32 byte gereklidir.");
 
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -169,18 +182,19 @@ try
     {
         options.AddPolicy("SubGuardCorsPolicy", policy =>
         {
-            if (builder.Environment.IsDevelopment() || allowedOrigins.Length == 0)
+            if (builder.Environment.IsDevelopment())
             {
-                // Development'ta veya config eksikse tÃ¼m origin'lere izin ver
-                // Production'da AllowedCorsOrigins dolu olmalÄ±
+                // Development: tüm origin'lere izin ver
                 policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
             }
-            else
+            else if (allowedOrigins.Length > 0)
             {
+                // Production / Staging: sadece listelenen origin'lere izin ver
                 policy.WithOrigins(allowedOrigins)
                       .AllowAnyHeader()
                       .AllowAnyMethod();
             }
+            // else: AllowedCorsOrigins boş ve ortam production → hiçbir origin'e izin verme (güvenli varsayılan)
         });
     });
 
@@ -322,20 +336,21 @@ try
     // .NET Core'da JobStorage.Current statik API'si kullanÄ±lmamalÄ±.
     var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
 
-    recurringJobManager.AddOrUpdate<ICurrencyService>(
-        "daily-currency-update",
-        service => service.UpdateRatesAsync(),
-        "0 8 * * *" // Cron: Her gï¿½n saat 08:00
-    );
-
-    // Recurring Job Tanï¿½mï¿½
-    // ServiceProvider ï¿½zerinden servisi ï¿½aï¿½ï¿½rmamï¿½z gerekebilir veya Hangfire Activator kullanï¿½r.
-    // Basitï¿½e RecurringJob.AddOrUpdate metodu generic tip desteï¿½i ile DI container'ï¿½ kullanï¿½r.
-
-    // TÃ¼rkiye saati (UTC+3). Windows: "Turkey Standard Time", Linux: "Europe/Istanbul"
+    // Türkiye saati (UTC+3). Windows: "Turkey Standard Time", Linux: "Europe/Istanbul"
     var trTimeZone = TimeZoneInfo.GetSystemTimeZones()
         .FirstOrDefault(tz => tz.Id == "Turkey Standard Time" || tz.Id == "Europe/Istanbul")
         ?? TimeZoneInfo.Utc;
+
+    recurringJobManager.AddOrUpdate<ICurrencyService>(
+        "daily-currency-update",
+        service => service.UpdateRatesAsync(),
+        "0 8 * * *", // Cron: Her gün saat 08:00
+        new RecurringJobOptions { TimeZone = trTimeZone }
+    );
+
+    // Recurring Job Tanımı
+    // ServiceProvider üzerinden servisi çağırmamız gerekebilir veya Hangfire Activator kullanır.
+    // Basitçe RecurringJob.AddOrUpdate metodu generic tip desteği ile DI container'ı kullanır.
 
     // Her saat baÅŸÄ± Ã§alÄ±ÅŸÄ±r; iÃ§ filtre kullanÄ±cÄ±nÄ±n NotifyHour'una bakarak uygun kullanÄ±cÄ±larÄ± seÃ§er
     recurringJobManager.AddOrUpdate<INotificationService>(
@@ -385,12 +400,12 @@ try
         Cron.Daily // Her gece 00:00 (UTC)
     );
 
-    // Global Exception Middleware (Mevcut yapï¿½n korunuyor)
-    // Serilog ILogger implemente ettiï¿½i iï¿½in Middleware iï¿½indeki _logger.LogError otomatik olarak Serilog'a yazar.
-    app.UseMiddleware<SubGuard.API.Middlewares.GlobalExceptionMiddleware>();
-
     app.UseHttpsRedirection();
     app.UseCors("SubGuardCorsPolicy");
+
+    // Global Exception Middleware: CORS'tan sonra konumlandırılmalı, böylece hata yanıtlarında
+    // Access-Control-Allow-Origin başlığı doğru şekilde eklenir.
+    app.UseMiddleware<SubGuard.API.Middlewares.GlobalExceptionMiddleware>();
     app.UseAuthentication();
     // UserName Enrichment: UseAuthentication'dan sonra Ã§alÄ±ÅŸmalÄ± ki User dolu olsun
     app.Use(async (context, next) =>

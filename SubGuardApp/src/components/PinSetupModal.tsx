@@ -6,6 +6,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { savePin } from '../utils/AppLockManager';
+import { useThemeColors } from '../constants/theme';
 
 const DOTS = 4;
 
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export default function PinSetupModal({ visible, onSuccess, onCancel }: Props) {
+  const colors = useThemeColors();
   const [step, setStep] = useState<'enter' | 'confirm'>('enter');
   const [firstPin, setFirstPin] = useState('');
   const [entered, setEntered] = useState('');
@@ -88,21 +90,21 @@ export default function PinSetupModal({ visible, onSuccess, onCancel }: Props) {
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="formSheet">
-      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]} edges={['top', 'bottom']}>
         <View style={styles.header}>
           <TouchableOpacity onPress={handleCancel} style={styles.cancelBtn}>
-            <Text style={styles.cancelText}>İptal</Text>
+            <Text style={[styles.cancelText, { color: colors.accent }]}>İptal</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.inner}>
-          <View style={styles.iconWrap}>
-            <Ionicons name="lock-closed" size={40} color="#6C63FF" />
+          <View style={[styles.iconWrap, { backgroundColor: colors.accent + '20' }]}>
+            <Ionicons name="lock-closed" size={40} color={colors.accent} />
           </View>
-          <Text style={styles.title}>
+          <Text style={[styles.title, { color: colors.textMain }]}>
             {step === 'enter' ? 'PIN Belirle' : 'PIN Onayla'}
           </Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.subtitle, { color: colors.textSec }]}>
             {step === 'enter'
               ? '4 haneli PIN kodunuzu girin'
               : 'PIN kodunuzu tekrar girin'}
@@ -110,9 +112,9 @@ export default function PinSetupModal({ visible, onSuccess, onCancel }: Props) {
 
           {step === 'confirm' && (
             <View style={styles.stepIndicator}>
-              <View style={[styles.stepDot, styles.stepDotDone]} />
-              <View style={styles.stepLine} />
-              <View style={[styles.stepDot, styles.stepDotActive]} />
+              <View style={[styles.stepDot, { backgroundColor: colors.accent }]} />
+              <View style={[styles.stepLine, { backgroundColor: colors.accent }]} />
+              <View style={[styles.stepDot, styles.stepDotActive, { backgroundColor: colors.accent, borderColor: colors.accent }]} />
             </View>
           )}
 
@@ -124,9 +126,9 @@ export default function PinSetupModal({ visible, onSuccess, onCancel }: Props) {
                   styles.dot,
                   {
                     backgroundColor: i < entered.length
-                      ? (error ? '#EF4444' : '#6C63FF')
+                      ? (error ? colors.error : colors.accent)
                       : 'transparent',
-                    borderColor: error ? '#EF4444' : '#6C63FF',
+                    borderColor: error ? colors.error : colors.accent,
                   },
                 ]}
               />
@@ -134,7 +136,7 @@ export default function PinSetupModal({ visible, onSuccess, onCancel }: Props) {
           </Animated.View>
 
           {error && (
-            <Text style={styles.errorText}>PIN eşleşmedi. Baştan deneyin.</Text>
+            <Text style={[styles.errorText, { color: colors.error }]}>PIN eşleşmedi. Baştan deneyin.</Text>
           )}
 
           <View style={styles.pad}>
@@ -146,22 +148,22 @@ export default function PinSetupModal({ visible, onSuccess, onCancel }: Props) {
                     return (
                       <TouchableOpacity
                         key={ki}
-                        style={[styles.padKey, styles.padKeyBtn]}
+                        style={[styles.padKey, styles.padKeyBtn, { backgroundColor: colors.cardBg }]}
                         onPress={handleDelete}
                         activeOpacity={0.6}
                       >
-                        <Ionicons name="backspace-outline" size={26} color="#6C63FF" />
+                        <Ionicons name="backspace-outline" size={26} color={colors.accent} />
                       </TouchableOpacity>
                     );
                   }
                   return (
                     <TouchableOpacity
                       key={ki}
-                      style={[styles.padKey, styles.padKeyBtn]}
+                      style={[styles.padKey, styles.padKeyBtn, { backgroundColor: colors.cardBg }]}
                       onPress={() => handlePress(key)}
                       activeOpacity={0.6}
                     >
-                      <Text style={styles.padKeyText}>{key}</Text>
+                      <Text style={[styles.padKeyText, { color: colors.textMain }]}>{key}</Text>
                     </TouchableOpacity>
                   );
                 })}
@@ -175,38 +177,36 @@ export default function PinSetupModal({ visible, onSuccess, onCancel }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  container: { flex: 1 },
 
   header: { paddingHorizontal: 20, paddingTop: 8, alignItems: 'flex-start' },
   cancelBtn: { padding: 8 },
-  cancelText: { fontSize: 16, color: '#6C63FF', fontWeight: '600' },
+  cancelText: { fontSize: 16, fontWeight: '600' },
 
   inner: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 40 },
 
   iconWrap: {
     width: 80, height: 80, borderRadius: 24,
-    backgroundColor: '#EEF2FF',
     justifyContent: 'center', alignItems: 'center',
     marginBottom: 18,
   },
-  title:    { fontSize: 24, fontWeight: '800', color: '#1E1B4B', marginBottom: 6 },
-  subtitle: { fontSize: 14, color: '#64748B', marginBottom: 28, fontWeight: '500', textAlign: 'center' },
+  title:    { fontSize: 24, fontWeight: '800', marginBottom: 6 },
+  subtitle: { fontSize: 14, marginBottom: 28, fontWeight: '500', textAlign: 'center' },
 
   stepIndicator: { flexDirection: 'row', alignItems: 'center', marginBottom: 16, gap: 6 },
-  stepDot:       { width: 10, height: 10, borderRadius: 5, backgroundColor: '#CBD5E1' },
-  stepDotDone:   { backgroundColor: '#6C63FF' },
-  stepDotActive: { backgroundColor: '#6C63FF', width: 14, height: 14, borderRadius: 7 },
-  stepLine:      { width: 30, height: 2, backgroundColor: '#6C63FF', borderRadius: 1 },
+  stepDot:       { width: 10, height: 10, borderRadius: 5 },
+  stepDotActive: { width: 14, height: 14, borderRadius: 7 },
+  stepLine:      { width: 30, height: 2, borderRadius: 1 },
 
   dotsRow: { flexDirection: 'row', gap: 18, marginBottom: 10 },
   dot: { width: 22, height: 22, borderRadius: 11, borderWidth: 2 },
 
-  errorText: { color: '#EF4444', fontSize: 13, fontWeight: '600', marginBottom: 16, marginTop: 6 },
+  errorText: { fontSize: 13, fontWeight: '600', marginBottom: 16, marginTop: 6 },
 
   pad:    { marginTop: 32, gap: 14, width: '100%', maxWidth: 280 },
   padRow: { flexDirection: 'row', justifyContent: 'space-between' },
 
   padKey:    { width: 78, height: 78, borderRadius: 39, justifyContent: 'center', alignItems: 'center' },
-  padKeyBtn: { backgroundColor: '#F8FAFC' },
-  padKeyText:{ fontSize: 30, fontWeight: '600', color: '#1E1B4B' },
+  padKeyBtn: {},
+  padKeyText:{ fontSize: 30, fontWeight: '600' },
 });

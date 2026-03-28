@@ -71,6 +71,12 @@ public class AppDbContext : IdentityDbContext<AppUser>
         modelBuilder.Entity<NotificationQueue>().HasQueryFilter(x => !x.IsDeleted);
         modelBuilder.Entity<CategoryBudget>().HasQueryFilter(x => !x.IsDeleted);
 
+        // CategoryBudget: (UserId, Category) çifti benzersiz olmalı
+        modelBuilder.Entity<CategoryBudget>()
+            .HasIndex(b => new { b.UserId, b.Category })
+            .IsUnique()
+            .HasDatabaseName("IX_CategoryBudgets_UserId_Category");
+
         // RefreshToken: İptal edilmiş (IsDeleted=true) token'lar sorgularda görünmemeli.
         // Aksi hâlde revoke edilen token ile tekrar oturum açılabilir.
         modelBuilder.Entity<RefreshToken>().HasQueryFilter(x => !x.IsDeleted);
@@ -91,17 +97,26 @@ public class AppDbContext : IdentityDbContext<AppUser>
             .IsUnique()
             .HasDatabaseName("IX_SubscriptionShares_SubId_UserId");
 
+        // Soft delete ile Cascade Delete çakışmasını önlemek için Restrict kullanılır.
+        // Fiziksel silme olmadığı için Cascade gerekmez; IsDeleted filtresi üzerinden yönetilir.
         modelBuilder.Entity<SubscriptionShare>()
             .HasOne(s => s.Subscription)
             .WithMany(sub => sub.Shares)
             .HasForeignKey(s => s.SubscriptionId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
-        // SubscriptionUsageLog: abonelik silinince loglar da silinsin
+        // SubscriptionUsageLog: Restrict ile referans bütünlüğü korunur, soft delete yönetir
         modelBuilder.Entity<SubscriptionUsageLog>()
             .HasOne(l => l.Subscription)
             .WithMany(sub => sub.UsageLogs)
             .HasForeignKey(l => l.SubscriptionId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // PriceHistory: UserSubscription ile FK ilişkisi — abonelik silinirse fiyat geçmişi de silinir
+        modelBuilder.Entity<PriceHistory>()
+            .HasOne<UserSubscription>()
+            .WithMany()
+            .HasForeignKey(p => p.SubscriptionId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

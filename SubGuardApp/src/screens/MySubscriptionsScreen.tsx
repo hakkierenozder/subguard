@@ -111,6 +111,11 @@ export default function MySubscriptionsScreen() {
     });
   }, []);
 
+  // [33] searchTimer cleanup — bellek sızıntısını önler
+  useEffect(() => () => {
+    if (searchTimer.current) clearTimeout(searchTimer.current);
+  }, []);
+
   const saveSearchHistory = useCallback(async (query: string) => {
     if (!query.trim()) return;
     setSearchHistory(prev => {
@@ -239,7 +244,7 @@ export default function MySubscriptionsScreen() {
     });
   };
 
-  const getFilteredSubscriptions = () => {
+  const getFilteredSubscriptions = useMemo(() => {
     let filtered = subscriptions.filter(sub =>
       sub.name.toLowerCase().includes(debouncedQuery.toLowerCase())
     );
@@ -290,11 +295,11 @@ export default function MySubscriptionsScreen() {
           return 0;
       }
     });
-  };
+  }, [subscriptions, debouncedQuery, archiveMode, selectedCategory, statusFilter, currencyFilter, minPrice, maxPrice, sortBy]);
 
   // ─── Grup Görünümü ────────────────────────────────────────────────────
   const getListData = (): ListRow[] => {
-    const filtered = getFilteredSubscriptions();
+    const filtered = getFilteredSubscriptions;
 
     if (!groupByCategory) {
       return filtered.map(s => ({ ...s, _type: 'item' as const }));
@@ -330,7 +335,7 @@ export default function MySubscriptionsScreen() {
 
   // ─── Toplu Seçim Handlers ─────────────────────────────────────────────
   const selectAll = useCallback(() => {
-    const allIds = getFilteredSubscriptions().map(s => s.id);
+    const allIds = getFilteredSubscriptions.map(s => s.id);
     setSelectedIds(new Set(allIds));
   }, [getFilteredSubscriptions]);
 
@@ -363,7 +368,7 @@ export default function MySubscriptionsScreen() {
     if (count === 0) return;
     hapticMedium();
     // Seçili aktif olanları duraklat, pasif olanları aktifleştir
-    const selected = getFilteredSubscriptions().filter(s => selectedIds.has(s.id));
+    const selected = getFilteredSubscriptions.filter(s => selectedIds.has(s.id));
     const activeOnes = selected.filter(s => s.isActive !== false);
     const passiveOnes = selected.filter(s => s.isActive === false);
     const label = activeOnes.length > 0
@@ -378,7 +383,7 @@ export default function MySubscriptionsScreen() {
             await updateSubscription(sub.id, { isActive: false });
           }
           for (const sub of passiveOnes) {
-            await updateSubscription(sub.id, { isActive: true, cancelledAt: null });
+            await updateSubscription(sub.id, { isActive: true, cancelledDate: null });
           }
           setSelectMode(false);
           setSelectedIds(new Set());
@@ -422,7 +427,7 @@ export default function MySubscriptionsScreen() {
   const handleTogglePause = (item: UserSubscription) => {
     hapticMedium();
     const isActive = item.isActive !== false;
-    updateSubscription(item.id, { isActive: !isActive, cancelledAt: !isActive ? null : undefined });
+    updateSubscription(item.id, { isActive: !isActive, cancelledDate: !isActive ? null : undefined });
     swipeRefs.current.get(item.id)?.close();
   };
 
@@ -868,7 +873,7 @@ export default function MySubscriptionsScreen() {
 
             {!isPassive && isShared && (
               <TouchableOpacity
-                style={styles.whatsappButton}
+                style={[styles.whatsappButton, { backgroundColor: colors.success + '22' }]}
                 onPress={() => handleShareOnWhatsApp(sub)}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
@@ -877,7 +882,7 @@ export default function MySubscriptionsScreen() {
             )}
             {!isPassive && (
               <TouchableOpacity
-                style={[styles.whatsappButton, { marginLeft: isShared ? 4 : 6 }]}
+                style={[styles.whatsappButton, { backgroundColor: colors.success + '22', marginLeft: isShared ? 4 : 6 }]}
                 onPress={() => handleSendReminder(sub)}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
@@ -913,9 +918,8 @@ export default function MySubscriptionsScreen() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+    <SafeAreaView edges={['top']} style={[styles.container, { backgroundColor: colors.bg }]}>
       <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={colors.bg} />
-      <SafeAreaView edges={['top']} style={styles.safeArea}>
         {loading && subscriptions.length === 0 ? (
           <SubscriptionSkeletonList count={5} />
         ) : (
@@ -1169,8 +1173,7 @@ export default function MySubscriptionsScreen() {
           </View>
         </Modal>
 
-      </SafeAreaView>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -1614,7 +1617,6 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   whatsappButton: {
-    backgroundColor: '#DCFCE7',
     padding: 6,
     borderRadius: 8,
   },

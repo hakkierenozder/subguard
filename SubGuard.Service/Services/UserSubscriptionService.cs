@@ -349,14 +349,11 @@ namespace SubGuard.Service.Services
                 .Take(pageSize)
                 .ToListAsync();
 
-            // Owner bilgileri için unique userId'ler tek sorguda çözümleniyor
+            // Owner bilgileri için unique userId'ler tek sorguda çözümleniyor (N+1 önlendi)
             var ownerIds = shares.Select(s => s.Subscription.UserId).Distinct().ToList();
-            var ownerMap = new Dictionary<string, AppUser>();
-            foreach (var ownerId in ownerIds)
-            {
-                var owner = await _userManager.FindByIdAsync(ownerId);
-                if (owner != null) ownerMap[ownerId] = owner;
-            }
+            var ownerMap = await _userManager.Users
+                .Where(u => ownerIds.Contains(u.Id))
+                .ToDictionaryAsync(u => u.Id);
 
             var items = shares.Select(s =>
             {
@@ -562,7 +559,7 @@ namespace SubGuard.Service.Services
             }
 
             _logger.LogInformation("Abonelik klonlandı. SourceId: {SourceId}, NewId: {NewId}", id, copy.Id);
-            return CustomResponseDto<UserSubscriptionDto>.Success(200, _mapper.Map<UserSubscriptionDto>(copy));
+            return CustomResponseDto<UserSubscriptionDto>.Success(201, _mapper.Map<UserSubscriptionDto>(copy));
         }
     }
 }

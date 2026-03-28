@@ -3,6 +3,7 @@
     "name": "SubGuardApp",
     "slug": "SubGuardApp",
     "version": "1.0.0",
+    "scheme": "subguard",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",

@@ -15,7 +15,7 @@ interface Props {
  * TouchableOpacity benzeri basma efekti — scale animasyonu ile.
  * Native driver kullandığı için JS thread'i bloklamaz.
  */
-export default function AnimatedPressable({
+function AnimatedPressable({
   children,
   onPress,
   onLongPress,
@@ -73,3 +73,5 @@ export default function AnimatedPressable({
     </TouchableWithoutFeedback>
   );
 }
+
+export default React.memo(AnimatedPressable);

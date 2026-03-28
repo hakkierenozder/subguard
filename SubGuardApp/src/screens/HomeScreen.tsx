@@ -15,7 +15,7 @@ import { HomeSkeletonLoader } from '../components/SkeletonLoader'; // #42
 import agent from '../api/agent';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useThemeColors } from '../constants/theme';
+import { useThemeColors, THEME } from '../constants/theme';
 import { useCatalogStore } from '../store/useCatalogStore';
 import { getDaysLeftForSub } from '../utils/dateUtils';
 import { CurrencyService } from '../utils/CurrencyService';
@@ -68,14 +68,20 @@ export default function HomeScreen() {
     const [refreshing, setRefreshing] = useState(false);
     const [surveySub, setSurveySub] = useState<UserSubscription | null>(null);
     const [inactiveStats, setInactiveStats] = useState({ paused: 0, cancelled: 0 });
+    const [error, setError] = useState(false); // [29] hata durumu
+    const surveyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null); // [30] timeout ref
     const { monthlyBudget, setMonthlyBudget } = useSettingsStore();
 
     useEffect(() => {
         loadData();
         if (catalogItems.length === 0) fetchCatalog();
-    }, []);
+        return () => { // [30] cleanup
+            if (surveyTimerRef.current) clearTimeout(surveyTimerRef.current);
+        };
+    }, [dashboardUpcomingDays]); // [30] dashboardUpcomingDays bağımlılığı eklendi
 
     const loadData = async () => {
+        setError(false); // [29] her yüklemede hatayı sıfırla
         try {
             // Dashboard tek çağrıda hem bütçe özetini hem yaklaşan ödeme verisini döner.
             // Profil sadece kullanıcı adı için çekiliyor.
@@ -107,7 +113,9 @@ export default function HomeScreen() {
             } else if (profileRes.status === 'fulfilled' && profileRes.value?.data?.monthlyBudget) {
                 setMonthlyBudget(profileRes.value.data.monthlyBudget);
             }
-        } catch (e) { }
+        } catch (e) {
+            setError(true); // [29] hata durumunu işaretle
+        }
 
         await fetchUserSubscriptions();
         checkSurvey();
@@ -122,7 +130,8 @@ export default function HomeScreen() {
     const checkSurvey = () => {
         const pending = getPendingSurvey();
         if (pending) {
-            setTimeout(() => setSurveySub(pending), 1500);
+            if (surveyTimerRef.current) clearTimeout(surveyTimerRef.current); // [30]
+            surveyTimerRef.current = setTimeout(() => setSurveySub(pending), 1500); // [30]
         }
     };
 
@@ -211,6 +220,18 @@ export default function HomeScreen() {
                 backgroundColor={colors.bg} 
             />
 
+            {/* [29] Hata durumu banner */}
+            {error && (
+                <TouchableOpacity
+                    onPress={loadData}
+                    style={{ backgroundColor: colors.error + '22', padding: 10, marginHorizontal: 16, marginTop: 8, borderRadius: 10, flexDirection: 'row', alignItems: 'center', gap: 8 }}
+                    activeOpacity={0.8}
+                >
+                    <Ionicons name="alert-circle-outline" size={18} color={colors.error} />
+                    <Text style={{ color: colors.error, fontSize: 13, flex: 1 }}>Veriler yüklenemedi. Tekrar denemek için dokun.</Text>
+                </TouchableOpacity>
+            )}
+
             <ScrollView
                 contentContainerStyle={styles.scrollContent}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
@@ -256,7 +277,7 @@ export default function HomeScreen() {
 
                 {/* 2. DASHBOARD CARD */}
                 <LinearGradient
-                    colors={isOverBudget ? ['#7F1D1D', '#DC2626'] : [colors.primaryDark, colors.primary]}
+                    colors={isOverBudget ? [colors.error + 'CC', colors.error] : [colors.primaryDark, colors.primary]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     style={[styles.dashboardCard, { shadowColor: isDarkMode ? '#000' : colors.primary }]}
@@ -643,7 +664,7 @@ const styles = StyleSheet.create({
         borderRadius: 29,
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: '#4F46E5',
+        shadowColor: THEME.primary,
         shadowOffset: { width: 0, height: 6 },
         shadowOpacity: 0.4,
         shadowRadius: 12,
@@ -786,7 +807,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         marginBottom: 10,
         overflow: 'hidden',
-        shadowColor: '#4F46E5',
+        shadowColor: THEME.primary,
         shadowOffset: { width: 0, height: 6 },
         shadowOpacity: 0.25,
         shadowRadius: 12,

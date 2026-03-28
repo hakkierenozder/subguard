@@ -58,6 +58,12 @@ interface SettingsState {
   // Admin — profil yüklenince set edilir, persist edilmez (session bilgisi)
   isAdmin: boolean;
   setIsAdmin: (v: boolean) => void;
+
+  /**
+   * Kullanıcıya özgü tüm ayarları sıfırlar.
+   * Logout ve hesap silme sırasında çağrılmalı — aynı cihazda farklı kullanıcı girişinde veri sızıntısını önler.
+   */
+  clearUserSettings: () => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -113,6 +119,24 @@ export const useSettingsStore = create<SettingsState>()(
 
       isAdmin: false,
       setIsAdmin: (v) => set({ isAdmin: v }),
+
+      clearUserSettings: () => set({
+        // Kullanıcıya özgü — sıfırlanır
+        notificationsEnabled: true,
+        budgetAlertThreshold: 80,
+        notifyDaysBefore: 3,
+        budgetAlertEnabled: true,
+        sharedAlertEnabled: true,
+        emailEnabled: true,
+        notifyHour: 9,
+        defaultCurrency: 'TRY',
+        autoConvert: true,
+        calendarSyncEnabled: false,
+        dashboardUpcomingDays: 30,
+        monthlyBudget: 0,
+        isAdmin: false,
+        // Cihaz düzeyinde — korunur: isDarkMode, onboardingCompleted, appLockEnabled
+      }),
     }),
     {
       name: 'subguard-settings-storage',

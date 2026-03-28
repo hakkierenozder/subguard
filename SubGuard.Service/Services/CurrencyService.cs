@@ -23,8 +23,16 @@ namespace SubGuard.Service.Services
         {
             if (!_memoryCache.TryGetValue(CACHE_KEY, out Dictionary<string, decimal> rates))
             {
-                await UpdateRatesAsync();
-                rates = _memoryCache.Get<Dictionary<string, decimal>>(CACHE_KEY);
+                try
+                {
+                    await UpdateRatesAsync();
+                    rates = _memoryCache.Get<Dictionary<string, decimal>>(CACHE_KEY);
+                }
+                catch (Exception ex)
+                {
+                    // Polly denemelerinden sonra hâlâ başarısız → varsayılan değerlere dön
+                    _logger.LogWarning(ex, "Kur verisi alınamadı, varsayılan (fallback) değerler kullanılıyor.");
+                }
             }
 
             return rates ?? new Dictionary<string, decimal>

@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using SubGuard.Core.Constants;
 using SubGuard.Core.Entities;
 using SubGuard.Core.Services;
@@ -14,14 +15,19 @@ namespace SubGuard.Service.Services
     {
         private readonly IMemoryCache _cache;
         private readonly IServiceScopeFactory _scopeFactory;
+        private readonly ILogger<DbRevokedUserStore> _logger;
         private const string CacheKeyPrefix = "revoked_user:";
         private static readonly TimeSpan JwtExpiry =
             TimeSpan.FromMinutes(AppConstants.Token.AccessTokenExpirationMinutes + 1);
 
-        public DbRevokedUserStore(IMemoryCache cache, IServiceScopeFactory scopeFactory)
+        public DbRevokedUserStore(
+            IMemoryCache cache,
+            IServiceScopeFactory scopeFactory,
+            ILogger<DbRevokedUserStore> logger)
         {
             _cache = cache;
             _scopeFactory = scopeFactory;
+            _logger = logger;
         }
 
         public void Revoke(string userId)
@@ -52,9 +58,14 @@ namespace SubGuard.Service.Services
                         await db.SaveChangesAsync();
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // DB yazma hatası kritik değil; Program.cs'teki layer-2 FindByIdAsync yedekler
+                    // DB yazma hatası in-memory cache'i geçersiz kılmaz (aynı instance'da revoke çalışmaya devam eder).
+                    // Multi-instance senaryosunda bu instance'dan gelen revoke diğer sunuculara yayılmaz — kritik güvenlik olayı.
+                    _logger.LogError(ex,
+                        "Token revocation DB'ye yazılamadı! UserId: {UserId}. " +
+                        "Multi-instance senaryosunda bu kullanıcının token'ları diğer instance'larda geçerli kalabilir.",
+                        userId);
                 }
             });
         }

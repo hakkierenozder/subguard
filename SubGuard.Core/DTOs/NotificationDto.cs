@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using SubGuard.Core.Enums;
 
 namespace SubGuard.Core.DTOs
@@ -12,7 +13,10 @@ namespace SubGuard.Core.DTOs
         public bool IsRead { get; set; }
         public DateTime? ReadDate { get; set; }
         public DateTime CreatedDate { get; set; }
+
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public NotificationType Type { get; set; }
+
         public int? UserSubscriptionId { get; set; }
     }
 }

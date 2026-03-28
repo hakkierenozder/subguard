@@ -10,6 +10,8 @@ import {
   TextInput,
   Linking,
   Animated,
+  ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
@@ -20,6 +22,8 @@ import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import { UserSubscription } from '../types';
 
 type Tab = 'subs' | 'people' | 'benimle';
+
+const WHATSAPP_GREEN = WHATSAPP_GREEN;
 
 // --- Yardımcılar ---
 
@@ -150,7 +154,7 @@ function ManagePartnersPanel({ sub, colors, onClose, onUpdate }: ManageModalProp
               {/* Hatırlatma butonları */}
               <TouchableOpacity
                 onPress={() => isEmail ? sendEmail(sub, p) : sendWhatsApp(sub, p)}
-                style={[styles.partnerAction, { backgroundColor: isEmail ? colors.accent + '18' : '#25D366' + '22' }]}
+                style={[styles.partnerAction, { backgroundColor: isEmail ? colors.accent + '18' : WHATSAPP_GREEN + '22' }]}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
                 {isEmail
@@ -188,9 +192,36 @@ export default function SharedSubscriptionsScreen() {
 
   const [activeTab, setActiveTab] = useState<Tab>('subs');
   const [managingSub, setManagingSub] = useState<UserSubscription | null>(null);
+  const [loading, setLoading] = useState(false);   // [34] yükleme durumu
+  const [error, setError] = useState(false);        // [34] hata durumu
+  const [refreshing, setRefreshing] = useState(false); // [34] pull-to-refresh
+
+  const loadData = useCallback(async () => {
+    setError(false);
+    setLoading(true);
+    try {
+      await fetchSharedWithMe();
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchSharedWithMe]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await fetchSharedWithMe();
+      setError(false);
+    } catch {
+      setError(true);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [fetchSharedWithMe]);
 
   useEffect(() => {
-    fetchSharedWithMe();
+    loadData();
   }, []);
 
   // Paylaşımlı abonelikler
@@ -280,11 +311,11 @@ export default function SharedSubscriptionsScreen() {
               <Text style={[styles.actionBtnText, { color: colors.accent }]}>Yönet</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.actionBtn, { backgroundColor: '#25D366' + '22', borderColor: '#25D366' + '44' }]}
+              style={[styles.actionBtn, { backgroundColor: WHATSAPP_GREEN + '22', borderColor: WHATSAPP_GREEN + '44' }]}
               onPress={() => sendWhatsApp(item)}
             >
               <FontAwesome5 name="whatsapp" size={13} color="#25D366" />
-              <Text style={[styles.actionBtnText, { color: '#25D366' }]}>WhatsApp</Text>
+              <Text style={[styles.actionBtnText, { color: WHATSAPP_GREEN }]}>WhatsApp</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -340,11 +371,11 @@ export default function SharedSubscriptionsScreen() {
         {/* Hatırlatma butonları */}
         <View style={[styles.personActions, { borderTopColor: colors.border }]}>
           <TouchableOpacity
-            style={[styles.actionBtn, { backgroundColor: '#25D366' + '22', borderColor: '#25D366' + '44' }]}
+            style={[styles.actionBtn, { backgroundColor: WHATSAPP_GREEN + '22', borderColor: WHATSAPP_GREEN + '44' }]}
             onPress={() => sendWhatsApp(data.subs[0], person)}
           >
             <FontAwesome5 name="whatsapp" size={13} color="#25D366" />
-            <Text style={[styles.actionBtnText, { color: '#25D366' }]}>WhatsApp</Text>
+            <Text style={[styles.actionBtnText, { color: WHATSAPP_GREEN }]}>WhatsApp</Text>
           </TouchableOpacity>
           {isEmail && (
             <TouchableOpacity
@@ -425,8 +456,29 @@ export default function SharedSubscriptionsScreen() {
         />
       )}
 
+      {/* [34] Yükleme göstergesi */}
+      {loading && !refreshing && (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      )}
+
+      {/* [34] Hata durumu */}
+      {!loading && error && (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
+          <Ionicons name="alert-circle-outline" size={48} color={colors.error} />
+          <Text style={{ color: colors.textMain, fontSize: 16, marginTop: 12, textAlign: 'center' }}>Veriler yüklenemedi.</Text>
+          <TouchableOpacity
+            onPress={loadData}
+            style={{ marginTop: 16, paddingHorizontal: 20, paddingVertical: 10, backgroundColor: colors.primary, borderRadius: 10 }}
+          >
+            <Text style={{ color: '#fff', fontWeight: '700' }}>Tekrar Dene</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
       {/* İÇERİK */}
-      {activeTab === 'subs' ? (
+      {!loading && !error && activeTab === 'subs' ? (
         <FlatList
           data={sharedSubs}
           keyExtractor={(item) => item.id}
@@ -434,6 +486,7 @@ export default function SharedSubscriptionsScreen() {
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
           ListEmptyComponent={
             <View style={styles.emptyWrap}>
               <Ionicons name="people-outline" size={52} color={colors.textSec} />
@@ -444,7 +497,7 @@ export default function SharedSubscriptionsScreen() {
             </View>
           }
         />
-      ) : activeTab === 'people' ? (
+      ) : !loading && !error && activeTab === 'people' ? (
         <FlatList
           data={peopleMap}
           keyExtractor={([person]) => person}
@@ -452,6 +505,7 @@ export default function SharedSubscriptionsScreen() {
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
           ListEmptyComponent={
             <View style={styles.emptyWrap}>
               <Ionicons name="person-outline" size={52} color={colors.textSec} />
@@ -462,10 +516,11 @@ export default function SharedSubscriptionsScreen() {
             </View>
           }
         />
-      ) : (
+      ) : !loading && !error && (
         <FlatList
           data={sharedWithMe}
           keyExtractor={(item) => item.id}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
           renderItem={({ item }) => (
             <View style={[styles.subCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
               <View style={[styles.subColorBar, { backgroundColor: item.colorCode || colors.accent }]} />

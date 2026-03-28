@@ -151,8 +151,8 @@ namespace SubGuard.Service.Services
             var claims = new List<Claim>
             {
                 new(ClaimTypes.NameIdentifier, user.Id),
-                new(ClaimTypes.Email, user.Email!),
-                new(ClaimTypes.Name, user.FullName!),
+                new(ClaimTypes.Email, user.Email ?? string.Empty),
+                new(ClaimTypes.Name, user.FullName ?? string.Empty),
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
@@ -162,7 +162,9 @@ namespace SubGuard.Service.Services
                 claims.Add(new Claim(ClaimTypes.Role, role));
 
             var keyString = _configuration["JwtSettings:SecretKey"];
-            var key = new SymmetricSecurityKey(Convert.FromBase64String(keyString!));
+            if (string.IsNullOrWhiteSpace(keyString))
+                throw new InvalidOperationException("'JwtSettings:SecretKey' yapılandırması eksik veya boş. Uygulama başlatılamıyor.");
+            var key = new SymmetricSecurityKey(Convert.FromBase64String(keyString));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var expiry = DateTime.UtcNow.AddMinutes(AppConstants.Token.AccessTokenExpirationMinutes);
 

@@ -25,21 +25,20 @@ namespace SubGuard.Service.Services.Decorators
 
         public async Task<CustomResponseDto<PagedResponseDto<ServiceDto>>> GetAllCatalogsWithPlansAsync(int page, int pageSize)
         {
-            if (!_memoryCache.TryGetValue(CATALOGS_KEY, out List<ServiceDto> allCatalogs))
+            var allCatalogs = await _memoryCache.GetOrCreateAsync(CATALOGS_KEY, async entry =>
             {
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(AppConstants.Cache.CatalogExpirationHours);
+                entry.Priority = CacheItemPriority.High;
+
                 var response = await _innerService.GetAllCatalogsWithPlansAsync(1, int.MaxValue);
-
                 if (response.StatusCode != 200 || response.Data == null)
-                    return response;
+                    return null;
 
-                allCatalogs = response.Data.Items;
+                return response.Data.Items;
+            });
 
-                _memoryCache.Set(CATALOGS_KEY, allCatalogs, new MemoryCacheEntryOptions
-                {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(AppConstants.Cache.CatalogExpirationHours),
-                    Priority = CacheItemPriority.High
-                });
-            }
+            if (allCatalogs == null)
+                return CustomResponseDto<PagedResponseDto<ServiceDto>>.Fail(500, "Katalog listesi yüklenemedi.");
 
             var result = new PagedResponseDto<ServiceDto>
             {
@@ -56,20 +55,18 @@ namespace SubGuard.Service.Services.Decorators
         {
             string key = $"catalog_{id}";
 
-            if (_memoryCache.TryGetValue(key, out ServiceDto cachedCatalog))
-                return CustomResponseDto<ServiceDto>.Success(200, cachedCatalog);
-
-            var response = await _innerService.GetCatalogByIdAsync(id);
-
-            if (response.StatusCode == 200 && response.Data != null)
+            var cached = await _memoryCache.GetOrCreateAsync(key, async entry =>
             {
-                _memoryCache.Set(key, response.Data, new MemoryCacheEntryOptions
-                {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(AppConstants.Cache.CatalogExpirationHours)
-                });
-            }
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(AppConstants.Cache.CatalogExpirationHours);
 
-            return response;
+                var response = await _innerService.GetCatalogByIdAsync(id);
+                return response.StatusCode == 200 ? response.Data : null;
+            });
+
+            if (cached == null)
+                return await _innerService.GetCatalogByIdAsync(id);
+
+            return CustomResponseDto<ServiceDto>.Success(200, cached);
         }
 
         // --- Admin yazma işlemleri: cache'i temizle ---
@@ -114,17 +111,27 @@ namespace SubGuard.Service.Services.Decorators
             return result;
         }
 
-        public async Task<CustomResponseDto<bool>> UpdatePlanAsync(int id, PlanDto dto)
+        public async Task<CustomResponseDto<bool>> UpdatePlanAsync(int id, PlanDto dto, int? catalogId = null)
         {
-            var result = await _innerService.UpdatePlanAsync(id, dto);
-            if (result.StatusCode == 204) InvalidateCache();
+            var result = await _innerService.UpdatePlanAsync(id, dto, catalogId);
+            if (result.StatusCode == 204)
+            {
+                InvalidateCache();
+                if (catalogId.HasValue)
+                    _memoryCache.Remove($"catalog_{catalogId.Value}");
+            }
             return result;
         }
 
-        public async Task<CustomResponseDto<bool>> DeletePlanAsync(int id)
+        public async Task<CustomResponseDto<bool>> DeletePlanAsync(int id, int? catalogId = null)
         {
-            var result = await _innerService.DeletePlanAsync(id);
-            if (result.StatusCode == 204) InvalidateCache();
+            var result = await _innerService.DeletePlanAsync(id, catalogId);
+            if (result.StatusCode == 204)
+            {
+                InvalidateCache();
+                if (catalogId.HasValue)
+                    _memoryCache.Remove($"catalog_{catalogId.Value}");
+            }
             return result;
         }
 
@@ -132,12 +139,12 @@ namespace SubGuard.Service.Services.Decorators
         public async Task<CustomResponseDto<List<ServiceDto>>> GetTrendingAsync(int limit = 10)
         {
             var key = $"trending:{limit}";
-            if (_memoryCache.TryGetValue(key, out CustomResponseDto<List<ServiceDto>>? cached))
-                return cached!;
-
-            var result = await _innerService.GetTrendingAsync(limit);
-            _memoryCache.Set(key, result, TimeSpan.FromMinutes(5));
-            return result;
+            var cached = await _memoryCache.GetOrCreateAsync(key, async entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+                return await _innerService.GetTrendingAsync(limit);
+            });
+            return cached!;
         }
     }
 }

@@ -2,6 +2,9 @@ namespace SubGuard.Core.DTOs.Auth
 {
     public class ResendConfirmationDto
     {
-        public string UserId { get; set; } = default!;
+        /// <summary>
+        /// UserId yerine e-posta alınır — kullanıcı ID numaralandırma saldırısını önler.
+        /// </summary>
+        public string Email { get; set; } = default!;
     }
 }

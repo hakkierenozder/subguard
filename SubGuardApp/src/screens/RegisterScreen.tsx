@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator,
+  KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -11,6 +11,7 @@ import Toast from 'react-native-toast-message';
 import { useForm, Controller } from 'react-hook-form';
 import agent from '../api/agent';
 import { useThemeColors, AUTH_GRADIENT } from '../constants/theme';
+import { useSettingsStore } from '../store/useSettingsStore';
 import {
   emailRules, passwordRules, getPasswordStrength, STRENGTH_LABELS, STRENGTH_COLORS,
 } from '../utils/validation';
@@ -53,6 +54,7 @@ function GradientButton({ onPress, loading, children, accentColor }: { onPress: 
 
 export default function RegisterScreen({ navigation }: Props) {
   const colors = useThemeColors();
+  const isDarkMode = useSettingsStore((s) => s.isDarkMode);
 
   const { control, handleSubmit, watch, formState: { errors } } = useForm({
     mode: 'onChange',
@@ -88,6 +90,7 @@ export default function RegisterScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView
           contentContainerStyle={styles.scroll}
@@ -164,7 +167,7 @@ export default function RegisterScreen({ navigation }: Props) {
                 render={({ field: { onChange, value } }) => (
                   <TextInput
                     style={[styles.input, { color: colors.textMain }]}
-                    placeholder="En az 6 karakter"
+                    placeholder="En az 8 karakter"
                     placeholderTextColor={colors.textSec + '70'}
                     secureTextEntry={!showPassword}
                     value={value}

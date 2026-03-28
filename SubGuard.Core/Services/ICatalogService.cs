@@ -15,7 +15,7 @@ namespace SubGuard.Core.Services
 
         // Admin CRUD - Plan
         Task<CustomResponseDto<PlanDto>> CreatePlanAsync(int catalogId, PlanDto dto);
-        Task<CustomResponseDto<bool>> UpdatePlanAsync(int id, PlanDto dto);
-        Task<CustomResponseDto<bool>> DeletePlanAsync(int id);
+        Task<CustomResponseDto<bool>> UpdatePlanAsync(int id, PlanDto dto, int? catalogId = null);
+        Task<CustomResponseDto<bool>> DeletePlanAsync(int id, int? catalogId = null);
     }
 }

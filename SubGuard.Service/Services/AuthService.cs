@@ -38,7 +38,8 @@ namespace SubGuard.Service.Services
             {
                 UserName = registerDto.Email,
                 Email = registerDto.Email,
-                FullName = registerDto.FullName
+                FullName = registerDto.FullName,
+                CreatedDate = DateTime.UtcNow
             };
 
             var result = await _userManager.CreateAsync(user, registerDto.Password);
@@ -201,7 +202,12 @@ namespace SubGuard.Service.Services
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
-                return CustomResponseDto<bool>.Fail(404, "Kullanıcı bulunamadı.");
+            {
+                // Zamanlama saldırısına karşı sabit gecikme — kullanıcı bulma vs OTP doğrulama sürelerini eşitler
+                await Task.Delay(Random.Shared.Next(80, 120));
+                // Kullanıcı bulunamadı — OTP geçersiz hatasıyla aynı mesajı kullan (kullanıcı ID numaralandırmasını önler)
+                return CustomResponseDto<bool>.Fail(400, "Kod geçersiz veya süresi dolmuş. Lütfen tekrar 'Şifremi Unuttum' işlemini başlatın.");
+            }
 
             // DB'den OTP doğrula
             if (user.OtpType != "pwd_reset"
@@ -237,21 +243,28 @@ namespace SubGuard.Service.Services
             return CustomResponseDto<bool>.Success(200, true);
         }
 
-        public async Task<CustomResponseDto<bool>> ResendConfirmationEmailAsync(string userId)
+        public async Task<CustomResponseDto<bool>> ResendConfirmationEmailAsync(string email)
         {
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-                return CustomResponseDto<bool>.Fail(404, "Kullanıcı bulunamadı.");
+            // Güvenlik: tüm başarısız durumlar aynı 200 yanıtını döner — e-posta/kullanıcı ID numaralandırmasını önler
+            var user = await _userManager.FindByEmailAsync(email.Trim().ToLower());
 
-            if (user.EmailConfirmed)
-                return CustomResponseDto<bool>.Fail(400, "Bu e-posta adresi zaten doğrulanmış.");
+            if (user == null || user.EmailConfirmed)
+            {
+                // Kullanıcı bulunamadı veya zaten doğrulanmış — aynı yanıtı ver, bilgi sızdırma
+                _logger.LogInformation(
+                    "Doğrulama kodu isteği: kullanıcı bulunamadı veya zaten doğrulanmış. Email: {Email}",
+                    PiiSanitizer.MaskEmail(email));
+                return CustomResponseDto<bool>.Success(200, true);
+            }
 
             // Mevcut OTP süresi dolmamışsa tekrar gönderimi engelle (spam koruması)
             if (user.OtpType == "email_confirm"
                 && user.OtpExpiry.HasValue
                 && user.OtpExpiry.Value > DateTime.UtcNow.AddMinutes(10))
             {
-                return CustomResponseDto<bool>.Fail(429, "Kodu yeni gönderdik. Lütfen birkaç dakika bekleyip tekrar deneyin.");
+                // Rate-limit bile aynı 200 döner — brute-force tespitini zorlaştırır
+                _logger.LogInformation("Doğrulama kodu rate-limit aşıldı. UserId: {UserId}", user.Id);
+                return CustomResponseDto<bool>.Success(200, true);
             }
 
             await SendConfirmationEmailAsync(user);

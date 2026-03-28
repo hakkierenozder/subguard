@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator,
+  KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -54,6 +54,7 @@ function GradientButton({ onPress, loading, children, accentColor }: { onPress: 
 export default function LoginScreen({ navigation }: Props) {
   const colors = useThemeColors();
   const onboardingCompleted = useSettingsStore((s) => s.onboardingCompleted);
+  const isDarkMode = useSettingsStore((s) => s.isDarkMode);
 
   const { control, handleSubmit, formState: { errors } } = useForm({
     mode: 'onChange',
@@ -99,6 +100,7 @@ export default function LoginScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView
           contentContainerStyle={styles.scroll}

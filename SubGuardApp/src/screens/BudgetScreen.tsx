@@ -49,6 +49,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
   const currencySymbol = budgetCurrency === 'USD' ? '$' : budgetCurrency === 'EUR' ? '€' : '₺';
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false); // [39] hata durumu
   const [editMode, setEditMode] = useState(false);
 
   // Kategori bütçeleri
@@ -79,7 +80,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
         }
         setCategoryBudgets(catRes?.data ?? []);
       })
-      .catch(() => {})
+      .catch(() => { setError(true); })
       .finally(() => setLoading(false));
   }, []);
 
@@ -223,13 +224,44 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
     );
   }
 
+  if (error) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.bg, justifyContent: 'center', alignItems: 'center' }]} edges={embedded ? [] : ['top']}>
+        <Ionicons name="alert-circle-outline" size={52} color={colors.error} />
+        <Text style={{ color: colors.textMain, fontSize: 16, marginTop: 12, textAlign: 'center' }}>Bütçe verileri yüklenemedi.</Text>
+        <TouchableOpacity
+          onPress={() => {
+            setError(false);
+            setLoading(true);
+            Promise.all([agent.Auth.getProfile(), agent.CategoryBudgets.getAll()])
+              .then(([profileRes, catRes]) => {
+                const data = profileRes?.data;
+                if (data) {
+                  if (data.monthlyBudget > 0) { setMonthlyBudget(data.monthlyBudget); setBudgetInput(data.monthlyBudget.toString()); }
+                  setBudgetCurrency(data.monthlyBudgetCurrency ?? 'TRY');
+                  if (data.budgetAlertThreshold > 0) setBudgetAlertThreshold(data.budgetAlertThreshold);
+                }
+                setCategoryBudgets(catRes?.data ?? []);
+              })
+              .catch(() => setError(true))
+              .finally(() => setLoading(false));
+          }}
+          style={{ marginTop: 16, paddingHorizontal: 20, paddingVertical: 10, backgroundColor: colors.primary, borderRadius: 10 }}
+        >
+          <Text style={{ color: '#fff', fontWeight: '700' }}>Tekrar Dene</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    );
+  }
+
   return (
+    // [39] SafeAreaView en dışta, KeyboardAvoidingView içinde
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]} edges={embedded ? [] : ['top']}>
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
     >
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]} edges={embedded ? [] : ['top']}>
       <StatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor="transparent"
@@ -657,8 +689,8 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
 
         <View style={{ height: 40 }} />
       </ScrollView>
-    </SafeAreaView>
     </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 

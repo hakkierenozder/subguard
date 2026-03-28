@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
+import { NavigationContainer, NavigationContainerRef, LinkingOptions } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -8,7 +8,6 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
 import * as LocalAuthentication from 'expo-local-authentication';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Ekranlar
 import LoginScreen from './src/screens/LoginScreen';
@@ -31,7 +30,7 @@ import { isLoggedIn, logout } from './src/utils/AuthManager';
 import { setLogoutCallback } from './src/api/agent';
 import ErrorBoundary from './src/components/ErrorBoundary';
 import OfflineBanner from './src/components/OfflineBanner';
-import { THEME, useThemeColors } from './src/constants/theme';
+import { useThemeColors } from './src/constants/theme';
 import { useSettingsStore } from './src/store/useSettingsStore';
 import { useNotificationStore } from './src/store/useNotificationStore';
 import { useUserSubscriptionStore } from './src/store/useUserSubscriptionStore';
@@ -60,6 +59,26 @@ export type MainTabParamList = {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
+
+const linking: LinkingOptions<RootStackParamList> = {
+  prefixes: ['subguard://', 'https://subguard.app'],
+  config: {
+    screens: {
+      Login: 'login',
+      Register: 'register',
+      EmailVerification: 'verify-email',
+      ForgotPassword: 'forgot-password',
+      Main: {
+        screens: {
+          Home: 'home',
+          MySubscriptions: 'subscriptions',
+          Analytics: 'analytics',
+          Settings: 'settings',
+        },
+      },
+    },
+  },
+};
 
 // --- TAB MENÜ ---
 function AppTabs() {
@@ -129,10 +148,7 @@ export default function App() {
 
         // Uygulama kilidi — soğuk başlatmada biometrik doğrulama
         try {
-          const settingsRaw = await AsyncStorage.getItem('subguard-settings-storage');
-          const appLockEnabled = settingsRaw
-            ? (JSON.parse(settingsRaw)?.state?.appLockEnabled ?? false)
-            : false;
+          const appLockEnabled = useSettingsStore.getState().appLockEnabled;
 
           if (appLockEnabled) {
             const result = await LocalAuthentication.authenticateAsync({
@@ -161,8 +177,8 @@ export default function App() {
 
   if (!initialRoute) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: THEME.bg }}>
-        <ActivityIndicator size="large" color={THEME.primary} />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg }}>
+        <ActivityIndicator size="large" color={colors.accent} />
       </View>
     );
   }
@@ -173,6 +189,7 @@ export default function App() {
       <ErrorBoundary>
         <NavigationContainer
           ref={navigationRef}
+          linking={linking}
           onReady={() => {
             // NavigationContainer hazır olunca logout callback'ini set et.
             // Refresh token başarısız olduğunda agent.ts bu callback'i çağırır

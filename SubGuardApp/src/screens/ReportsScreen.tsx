@@ -24,8 +24,13 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
   const { subscriptions, getTotalExpense, exchangeRates, fetchUserSubscriptions } = useUserSubscriptionStore();
   const totalMonthlyExpense = getTotalExpense();
 
+  const [loading, setLoading] = useState(false);  // [36] genel yükleme
+
   useEffect(() => {
-    if (subscriptions.length === 0) fetchUserSubscriptions();
+    if (subscriptions.length === 0) {
+      setLoading(true);
+      fetchUserSubscriptions().finally(() => setLoading(false));
+    }
   }, []);
 
   // Seçili kategori (detay için)
@@ -36,6 +41,7 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
   const [selectedPeriod, setSelectedPeriod] = useState<Period | null>(null);
   const [periodData, setPeriodData] = useState<{ totalSpending?: number; currency?: string } | null>(null);
   const [periodLoading, setPeriodLoading] = useState(false);
+  const [periodError, setPeriodError] = useState(false); // [36] dönem hatası
 
   const periodRanges: Record<Period, { label: string; from: () => string; to: () => string }> = {
     this_month: {
@@ -62,15 +68,16 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
   };
 
   useEffect(() => {
-    if (!selectedPeriod) { setPeriodData(null); return; }
+    if (!selectedPeriod) { setPeriodData(null); setPeriodError(false); return; }
     const range = periodRanges[selectedPeriod];
     setPeriodLoading(true);
+    setPeriodError(false);
     agent.Reports.spending(range.from(), range.to())
       .then((res: any) => {
         if (res?.data) setPeriodData(res.data);
         else setPeriodData(null);
       })
-      .catch(() => setPeriodData(null))
+      .catch(() => { setPeriodData(null); setPeriodError(true); })
       .finally(() => setPeriodLoading(false));
   }, [selectedPeriod]);
 
@@ -88,7 +95,7 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
     subscriptions.forEach(sub => {
       const created = sub.createdDate ? new Date(sub.createdDate).getTime() : 0;
       if (created > toMs) return;
-      const cancelled = sub.cancelledDate || sub.cancelledAt;
+      const cancelled = sub.cancelledDate;
       if (cancelled && new Date(cancelled).getTime() < fromMs) return;
       const rate = exchangeRates[sub.currency] || 1;
       const myShare = (sub.price * rate) / ((sub.sharedWith?.length || 0) + 1);
@@ -170,7 +177,7 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
           // Bu aydan sonra oluşturulmuşsa o ayda yoktu
           if (s.createdDate && new Date(s.createdDate).getTime() > monthEnd) return false;
           // Bu ayın başından önce iptal edildiyse o ayda yoktu
-          const cancelDate = s.cancelledDate || s.cancelledAt;
+          const cancelDate = s.cancelledDate;
           if (cancelDate && new Date(cancelDate).getTime() < monthStart) return false;
           return true;
         })
@@ -361,7 +368,7 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
                   {sub.isActive === false && (
                     <View style={[styles.statusBadge, { backgroundColor: colors.inactive + '30' }]}>
                       <Text style={[styles.statusBadgeText, { color: colors.inactive }]}>
-                        {sub.cancelledAt ? 'İptal' : 'Durduruldu'}
+                        {sub.cancelledDate ? 'İptal' : 'Durduruldu'}
                       </Text>
                     </View>
                   )}
@@ -434,6 +441,18 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
             <View style={[styles.periodResultCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
               {periodLoading ? (
                 <ActivityIndicator size="small" color={colors.primary} />
+              ) : periodError ? (
+                <View style={{ alignItems: 'center', paddingVertical: 8 }}>
+                  <Text style={[styles.periodResultLabel, { color: colors.error, marginBottom: 8 }]}>
+                    Dönem verisi yüklenemedi.
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => { const p = selectedPeriod; setSelectedPeriod(null); setTimeout(() => setSelectedPeriod(p), 50); }}
+                    style={{ paddingHorizontal: 16, paddingVertical: 6, backgroundColor: colors.primary, borderRadius: 8 }}
+                  >
+                    <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700' }}>Tekrar Dene</Text>
+                  </TouchableOpacity>
+                </View>
               ) : periodData?.totalSpending != null ? (
                 <View style={styles.periodResultRow}>
                   <Ionicons name="calendar-outline" size={18} color={colors.primary} />
@@ -517,7 +536,12 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
             </View>
           </View>
 
-          {!hasData ? (
+          {loading ? (
+            <View style={styles.emptyState}>
+              <ActivityIndicator size="large" color={colors.primary} />
+              <Text style={[styles.emptyText, { color: colors.textSec, marginTop: 12 }]}>Veriler yükleniyor...</Text>
+            </View>
+          ) : !hasData ? (
             <View style={styles.emptyState}>
               <MaterialCommunityIcons name="chart-pie" size={64} color={colors.inactive} />
               <Text style={[styles.emptyText, { color: colors.textSec }]}>Henüz analiz edilecek veri yok.</Text>

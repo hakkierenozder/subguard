@@ -39,7 +39,7 @@ namespace SubGuard.API.Controllers
         [HttpPost("resend-confirmation-email")]
         [EnableRateLimiting("auth")]
         public async Task<IActionResult> ResendConfirmationEmail([FromBody] ResendConfirmationDto dto)
-            => CreateActionResult(await _authService.ResendConfirmationEmailAsync(dto.UserId));
+            => CreateActionResult(await _authService.ResendConfirmationEmailAsync(dto.Email));
 
         [HttpPost("login")]
         [EnableRateLimiting("auth")]

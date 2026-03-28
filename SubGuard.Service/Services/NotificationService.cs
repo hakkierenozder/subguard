@@ -305,20 +305,29 @@ namespace SubGuard.Service.Services
 
             if (!expiringContracts.Any()) return;
 
+            // N+1 FIX: Tüm kullanıcıları tek sorguda çek
+            var contractUserIds = expiringContracts.Select(s => s.UserId).Distinct().ToList();
+            var contractUserMap = await _userManager.Users
+                .Where(u => contractUserIds.Contains(u.Id))
+                .ToDictionaryAsync(u => u.Id);
+
+            // N+1 FIX: Zaten kuyruğa alınmış kontratlı bildirim sub ID'lerini tek sorguda çek
+            var contractSubIds = expiringContracts.Select(s => s.Id).ToList();
+            var alreadyQueuedContractSubIds = (await _queueRepo
+                .Where(x => x.UserSubscriptionId != null
+                         && contractSubIds.Contains(x.UserSubscriptionId!.Value)
+                         && x.Type == NotificationType.Contract
+                         && x.ScheduledDate >= today)
+                .Select(x => x.UserSubscriptionId!.Value)
+                .ToListAsync()).ToHashSet();
+
             foreach (var sub in expiringContracts)
             {
                 // Kullanıcının belirlediği saatte değilse atla
-                var subUser = await _userManager.FindByIdAsync(sub.UserId);
-                if (subUser != null && subUser.NotifyHour != currentHour) continue;
+                if (!contractUserMap.TryGetValue(sub.UserId, out var subUser)) continue;
+                if (subUser.NotifyHour != currentHour) continue;
 
-                var alreadyQueued = await _queueRepo
-                    .Where(x => x.UserId == sub.UserId
-                             && x.UserSubscriptionId == sub.Id
-                             && x.Type == NotificationType.Contract
-                             && x.ScheduledDate >= today)
-                    .AnyAsync();
-
-                if (alreadyQueued) continue;
+                if (alreadyQueuedContractSubIds.Contains(sub.Id)) continue;
 
                 var notification = new NotificationQueue
                 {
@@ -485,6 +494,16 @@ namespace SubGuard.Service.Services
 
                 if (!usersDict.TryGetValue(notification.UserId, out var user)) continue;
 
+                // E-postası ve push token'ı olmayan kullanıcılar atlanır
+                if (string.IsNullOrWhiteSpace(user.Email) && string.IsNullOrWhiteSpace(user.ExpoPushToken))
+                {
+                    notification.IsSent = true;
+                    notification.ErrorMessage = "Kullanıcının e-posta ve push token bilgisi yok.";
+                    _queueRepo.Update(notification);
+                    failed++;
+                    continue;
+                }
+
                 UserSubscription? sub = null;
                 if (notification.UserSubscriptionId.HasValue)
                     subsDict.TryGetValue(notification.UserSubscriptionId.Value, out sub);
@@ -495,7 +514,7 @@ namespace SubGuard.Service.Services
 
                 var htmlBody = notification.Type == NotificationType.Payment
                     ? EmailTemplates.PaymentReminder(
-                        userName: user.FullName ?? user.Email!,
+                        userName: user.FullName ?? user.Email ?? "Kullanıcı",
                         subscriptionName: sub?.Name ?? "Abonelik",
                         price: sub?.Price ?? 0,
                         currency: sub?.Currency ?? "",
@@ -504,8 +523,8 @@ namespace SubGuard.Service.Services
 
                 var message = new NotificationMessage
                 {
-                    ToEmail   = user.Email!,
-                    ToName    = user.FullName ?? user.Email!,
+                    ToEmail   = user.Email ?? string.Empty,
+                    ToName    = user.FullName ?? user.Email ?? "Kullanıcı",
                     PushToken = user.ExpoPushToken,
                     Title     = notification.Title,
                     Body      = notification.Message,

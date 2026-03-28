@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator,
+  KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -71,6 +71,10 @@ export default function ForgotPasswordScreen({ navigation }: Props) {
       Toast.show({ type: 'error', text1: 'Hata', text2: 'E-posta adresinizi girin.', position: 'bottom' });
       return;
     }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      Toast.show({ type: 'error', text1: 'Geçersiz E-posta', text2: 'Lütfen geçerli bir e-posta adresi girin.', position: 'bottom' });
+      return;
+    }
     setLoading(true);
     try {
       const res = await agent.Auth.forgotPassword(email.trim().toLowerCase());
@@ -111,6 +115,7 @@ export default function ForgotPasswordScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView
           contentContainerStyle={styles.scroll}

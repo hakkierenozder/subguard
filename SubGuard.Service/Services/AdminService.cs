@@ -38,8 +38,8 @@ namespace SubGuard.Service.Services
             {
                 var s = search.Trim().ToLower();
                 query = query.Where(u =>
-                    u.Email.ToLower().Contains(s) ||
-                    u.FullName.ToLower().Contains(s));
+                    (u.Email != null && u.Email.ToLower().Contains(s)) ||
+                    (u.FullName != null && u.FullName.ToLower().Contains(s)));
             }
 
             var totalCount = await query.CountAsync();
@@ -81,7 +81,7 @@ namespace SubGuard.Service.Services
                 Email = u.Email ?? string.Empty,
                 IsActive = u.LockoutEnd == null || u.LockoutEnd <= now,
                 IsAdmin = adminUserIds.Contains(u.Id),
-                CreatedDate = DateTime.UtcNow, // AppUser'da CreatedDate yok; placeholder
+                CreatedDate = u.CreatedDate,
                 SubscriptionCount = subCounts.GetValueOrDefault(u.Id, 0)
             }).ToList();
 
@@ -115,7 +115,7 @@ namespace SubGuard.Service.Services
                 Email = user.Email ?? string.Empty,
                 IsActive = user.LockoutEnd == null || user.LockoutEnd <= now,
                 IsAdmin = isAdmin,
-                CreatedDate = DateTime.UtcNow,
+                CreatedDate = user.CreatedDate,
                 SubscriptionCount = subCount
             });
         }

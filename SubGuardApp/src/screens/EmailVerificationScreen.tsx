@@ -61,7 +61,7 @@ export default function EmailVerificationScreen({ route, navigation }: Props) {
   const handleResend = async () => {
     setResending(true);
     try {
-      await agent.Auth.resendConfirmationEmail(userId);
+      await agent.Auth.resendConfirmationEmail(email);
       Toast.show({
         type: 'success',
         text1: 'Yeni kod gönderildi',

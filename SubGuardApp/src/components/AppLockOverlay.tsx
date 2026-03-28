@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { verifyPin } from '../utils/AppLockManager';
 import { logout } from '../utils/AuthManager';
+import { useThemeColors } from '../constants/theme';
 
 const DOTS = 4;
 
@@ -19,6 +20,7 @@ interface Props {
 const MAX_ATTEMPTS = 5;
 
 export default function AppLockOverlay({ onUnlock, onForceLogout }: Props) {
+  const colors = useThemeColors();
   const [entered, setEntered] = useState('');
   const [error, setError] = useState(false);
   const [attemptCount, setAttemptCount] = useState(0);
@@ -106,14 +108,14 @@ export default function AppLockOverlay({ onUnlock, onForceLogout }: Props) {
 
   return (
     <Modal visible animationType="fade" statusBarTranslucent>
-      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]} edges={['top', 'bottom']}>
         <View style={styles.inner}>
           {/* Logo */}
-          <View style={styles.logoWrap}>
-            <Ionicons name="shield-checkmark" size={48} color="#6C63FF" />
+          <View style={[styles.logoWrap, { backgroundColor: colors.accent + '20' }]}>
+            <Ionicons name="shield-checkmark" size={48} color={colors.accent} />
           </View>
-          <Text style={styles.title}>SubGuard</Text>
-          <Text style={styles.subtitle}>PIN kodunuzu girin</Text>
+          <Text style={[styles.title, { color: colors.textMain }]}>SubGuard</Text>
+          <Text style={[styles.subtitle, { color: colors.textSec }]}>PIN kodunuzu girin</Text>
 
           {/* Nokta göstergeleri */}
           <Animated.View style={[styles.dotsRow, { transform: [{ translateX: shakeAnim }] }]}>
@@ -124,9 +126,9 @@ export default function AppLockOverlay({ onUnlock, onForceLogout }: Props) {
                   styles.dot,
                   {
                     backgroundColor: i < entered.length
-                      ? (error ? '#EF4444' : '#6C63FF')
+                      ? (error ? colors.error : colors.accent)
                       : 'transparent',
-                    borderColor: error ? '#EF4444' : '#6C63FF',
+                    borderColor: error ? colors.error : colors.accent,
                   },
                 ]}
               />
@@ -134,7 +136,7 @@ export default function AppLockOverlay({ onUnlock, onForceLogout }: Props) {
           </Animated.View>
 
           {error && (
-            <Text style={styles.errorText}>
+            <Text style={[styles.errorText, { color: colors.error }]}>
               {`Hatalı PIN. ${MAX_ATTEMPTS - attemptCount} deneme hakkınız kaldı.`}
             </Text>
           )}
@@ -149,22 +151,22 @@ export default function AppLockOverlay({ onUnlock, onForceLogout }: Props) {
                     return (
                       <TouchableOpacity
                         key={ki}
-                        style={[styles.padKey, styles.padKeyBtn]}
+                        style={[styles.padKey, styles.padKeyBtn, { backgroundColor: colors.cardBg }]}
                         onPress={handleDelete}
                         activeOpacity={0.6}
                       >
-                        <Ionicons name="backspace-outline" size={26} color="#6C63FF" />
+                        <Ionicons name="backspace-outline" size={26} color={colors.accent} />
                       </TouchableOpacity>
                     );
                   }
                   return (
                     <TouchableOpacity
                       key={ki}
-                      style={[styles.padKey, styles.padKeyBtn]}
+                      style={[styles.padKey, styles.padKeyBtn, { backgroundColor: colors.cardBg }]}
                       onPress={() => handlePress(key)}
                       activeOpacity={0.6}
                     >
-                      <Text style={styles.padKeyText}>{key}</Text>
+                      <Text style={[styles.padKeyText, { color: colors.textMain }]}>{key}</Text>
                     </TouchableOpacity>
                   );
                 })}
@@ -173,7 +175,7 @@ export default function AppLockOverlay({ onUnlock, onForceLogout }: Props) {
           </View>
 
           <TouchableOpacity onPress={handleForgotPin} style={styles.forgotBtn}>
-            <Text style={styles.forgotText}>PIN'imi Unuttum</Text>
+            <Text style={[styles.forgotText, { color: colors.accent }]}>PIN'imi Unuttum</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -182,30 +184,29 @@ export default function AppLockOverlay({ onUnlock, onForceLogout }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5FF' },
+  container: { flex: 1 },
   inner: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 40 },
 
   logoWrap: {
     width: 90, height: 90, borderRadius: 28,
-    backgroundColor: '#EEF2FF',
     justifyContent: 'center', alignItems: 'center',
     marginBottom: 18,
   },
-  title:    { fontSize: 26, fontWeight: '800', color: '#1E1B4B', marginBottom: 4 },
-  subtitle: { fontSize: 14, color: '#64748B', marginBottom: 36, fontWeight: '500' },
+  title:    { fontSize: 26, fontWeight: '800', marginBottom: 4 },
+  subtitle: { fontSize: 14, marginBottom: 36, fontWeight: '500' },
 
   dotsRow: { flexDirection: 'row', gap: 18, marginBottom: 10 },
   dot: { width: 22, height: 22, borderRadius: 11, borderWidth: 2 },
 
-  errorText: { color: '#EF4444', fontSize: 13, fontWeight: '600', marginBottom: 20, marginTop: 6 },
+  errorText: { fontSize: 13, fontWeight: '600', marginBottom: 20, marginTop: 6 },
 
   pad:    { marginTop: 32, gap: 14, width: '100%', maxWidth: 280 },
   padRow: { flexDirection: 'row', justifyContent: 'space-between' },
 
   padKey:    { width: 78, height: 78, borderRadius: 39, justifyContent: 'center', alignItems: 'center' },
-  padKeyBtn: { backgroundColor: '#EEEEFF' },
-  padKeyText:{ fontSize: 30, fontWeight: '600', color: '#1E1B4B' },
+  padKeyBtn: {},
+  padKeyText:{ fontSize: 30, fontWeight: '600' },
 
   forgotBtn:  { marginTop: 36 },
-  forgotText: { fontSize: 14, color: '#6C63FF', fontWeight: '600' },
+  forgotText: { fontSize: 14, fontWeight: '600' },
 });

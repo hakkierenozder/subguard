@@ -9,6 +9,7 @@ namespace SubGuard.API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
+    [EnableRateLimiting("user-api")]
     public class DashboardController : CustomBaseController
     {
         private readonly IDashboardService _dashboardService;
@@ -22,7 +23,6 @@ namespace SubGuard.API.Controllers
 
         // GET api/dashboard
         // GET api/dashboard?upcomingDays=7
-        [EnableRateLimiting("user-api")]
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] int upcomingDays = 30)
         {

@@ -11,6 +11,7 @@ namespace SubGuard.Core.Entities
     public class AppUser : IdentityUser
     {
         public string FullName { get; set; }
+        public DateTime CreatedDate { get; set; }
         public decimal MonthlyBudget { get; set; } = 0;
         public string? MonthlyBudgetCurrency { get; set; }
         public string? ExpoPushToken { get; set; }

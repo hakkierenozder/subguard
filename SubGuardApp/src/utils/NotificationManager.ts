@@ -56,10 +56,12 @@ export async function getExpoPushToken(): Promise<string | null> {
 // Bildirim Planla
 export async function scheduleSubscriptionNotification(title: string, body: string, triggerDate: Date) {
   try {
-    // TypeScript Fix: trigger tipi uyumsuzluğunu aşmak için cast işlemi
     const id = await Notifications.scheduleNotificationAsync({
       content: { title, body, sound: 'default' },
-      trigger: { date: triggerDate } as unknown as Notifications.NotificationTriggerInput, 
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date: triggerDate,
+      },
     });
     return id;
   } catch (error) {
@@ -77,10 +79,40 @@ export async function cancelAllNotifications() {
 }
 
 export async function syncLocalNotifications(subscriptions: UserSubscription[]) {
+  // Mevcut tüm planlı bildirimleri temizle
   await cancelAllNotifications();
-  // Basit bir örnek: Her birinin ödeme gününde bildirim kur
-  // (Burada detaylı tarih hesaplama mantığı eklenebilir)
-  console.log(`${subscriptions.length} adet bildirim senkronize edildi (Simülasyon).`);
+
+  const now = new Date();
+
+  const activeSubs = subscriptions.filter((s) => s.isActive !== false);
+
+  for (const sub of activeSubs) {
+    if (!sub.billingDay || sub.billingDay < 1) continue;
+
+    // Bir sonraki ödeme tarihini hesapla
+    const safeDay = Math.min(sub.billingDay, 28);
+    let nextDate = new Date(now.getFullYear(), now.getMonth(), safeDay, 9, 0, 0, 0);
+    if (nextDate <= now) {
+      nextDate = new Date(now.getFullYear(), now.getMonth() + 1, safeDay, 9, 0, 0, 0);
+    }
+
+    // Ödeme günü sabah 09:00'da bildirim gönder
+    await scheduleSubscriptionNotification(
+      `${sub.name} ödemesi yaklaşıyor`,
+      `${sub.price} ${sub.currency} tutarında ödemeniz bugün.`,
+      nextDate,
+    );
+
+    // 3 gün öncesinde de hatırlatma gönder (geçmiyorsa)
+    const reminderDate = new Date(nextDate.getTime() - 3 * 24 * 60 * 60 * 1000);
+    if (reminderDate > now) {
+      await scheduleSubscriptionNotification(
+        `${sub.name} ödemesine 3 gün kaldı`,
+        `${sub.price} ${sub.currency} tutarında ödemeniz 3 gün sonra.`,
+        reminderDate,
+      );
+    }
+  }
 }
 
 // --- 2. CALENDAR INTEGRATION ---

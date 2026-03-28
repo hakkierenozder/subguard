@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.Services;
 
@@ -6,6 +8,8 @@ namespace SubGuard.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
+    [EnableRateLimiting("user-api")]
     public class CatalogsController : CustomBaseController
     {
         private readonly ICatalogService _catalogService;
