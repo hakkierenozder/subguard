@@ -25,6 +25,11 @@ namespace SubGuard.Core.Entities
         [Required]
         public string Currency { get; set; }
         public int BillingDay { get; set; } // Fatura Günü (1-31)
+        /// <summary>
+        /// Yıllık abonelikler için fatura ayı (1-12). Null ise CreatedDate.Month anchor olarak kullanılır.
+        /// Aylık aboneliklerde bu alan kullanılmaz.
+        /// </summary>
+        public int? BillingMonth { get; set; }
         public BillingPeriod BillingPeriod { get; set; } = BillingPeriod.Monthly;
         [Required]
         public string Category { get; set; }
@@ -34,7 +39,8 @@ namespace SubGuard.Core.Entities
         public DateTime? ContractStartDate { get; set; }
         public DateTime? ContractEndDate { get; set; }
 
-        // Kullanıcı notları (isteğe bağlı, 500 karakter)
+        // Kullanıcı notları (isteğe bağlı, 2000 karakter)
+        [MaxLength(2000)]
         public string? Notes { get; set; }
 
         public bool IsActive { get; set; } = true;
@@ -47,5 +53,9 @@ namespace SubGuard.Core.Entities
         public ICollection<SubscriptionShare> Shares { get; set; } = new List<SubscriptionShare>();
         public ICollection<SubscriptionUsageLog> UsageLogs { get; set; } = new List<SubscriptionUsageLog>();
 
+        // Concurrency token: aynı aboneliği aynı anda iki istek güncelleyemez
+        // EF Core bu alanı UPDATE SET ... WHERE RowVersion = @old ile kontrol eder.
+        [Timestamp]
+        public byte[]? RowVersion { get; set; }
     }
 }

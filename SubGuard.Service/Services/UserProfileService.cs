@@ -125,10 +125,22 @@ namespace SubGuard.Service.Services
                     .IgnoreQueryFilters()
                     .Where(x => x.UserId == userId)
                     .ToListAsync();
+
+                var subscriptionIds = subscriptions.Select(s => s.Id).ToList();
+
+                // Kullanıcının sahip olduğu aboneliklere ait tüm paylaşımları temizle
+                // (Restrict FK ihlali önlenir — UserSubscriptions silinmeden önce zorunlu)
+                var ownedShares = await _db.SubscriptionShares
+                    .IgnoreQueryFilters()
+                    .Where(s => subscriptionIds.Contains(s.SubscriptionId))
+                    .ToListAsync();
+                _db.SubscriptionShares.RemoveRange(ownedShares);
+
                 _db.UserSubscriptions.RemoveRange(subscriptions);
 
                 // Diğer kullanıcıların paylaşım listelerinden bu userId'yi temizle (SubscriptionShare tablosu)
                 var sharedEntries = await _db.SubscriptionShares
+                    .IgnoreQueryFilters()
                     .Where(s => s.SharedUserId == userId)
                     .ToListAsync();
                 _db.SubscriptionShares.RemoveRange(sharedEntries);
@@ -158,7 +170,7 @@ namespace SubGuard.Service.Services
 
                 await transaction.CommitAsync();
                 // Hesap silindikten sonra mevcut JWT token'larını geçersiz kıl (15 dk TTL)
-                _revokedUserStore.Revoke(userId);
+                await _revokedUserStore.RevokeAsync(userId);
                 _logger.LogInformation("Kullanıcı hesabı kalıcı olarak silindi (GDPR). UserId: {UserId}", userId);
                 return CustomResponseDto<bool>.Success(200, true);
             }

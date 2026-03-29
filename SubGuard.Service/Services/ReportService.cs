@@ -22,10 +22,15 @@ namespace SubGuard.Service.Services
             if (from > to)
                 return CustomResponseDto<SpendingReportDto>.Fail(400, "'from' tarihi 'to' tarihinden büyük olamaz.");
 
-            // Yalnızca aktif abonelikler rapora dahil edilir.
-            // Duraklatılmış (Paused) abonelikler o dönemde ödeme gerektirmez.
+            if ((to - from).TotalDays > 366)
+                return CustomResponseDto<SpendingReportDto>.Fail(400, "Tarih aralığı 366 günü geçemez.");
+
+            // Tüm abonelikler rapora dahil edilir (aktif, duraklatılmış ve iptal edilmiş).
+            // İptal tarihi aralık başlangıcından önce ise dahil edilmez.
             var subscriptions = await _subRepo
-                .Where(x => x.UserId == userId && x.Status == SubscriptionStatus.Active)
+                .Where(x => x.UserId == userId
+                    && x.CreatedDate.Date <= to.Date
+                    && (x.CancelledDate == null || x.CancelledDate.Value.Date >= from.Date))
                 .ToListAsync();
 
             var lines = new List<SpendingLineDto>();
@@ -65,21 +70,37 @@ namespace SubGuard.Service.Services
         /// </summary>
         private static int CountPaymentsInRange(UserSubscription sub, DateTime from, DateTime to)
         {
-            // Dönemsel adım hesapla
-            var step = sub.BillingPeriod switch
+            // Abonelik oluşturulmadan önceki ödemeler sayılmamalı
+            var effectiveFrom = from.Date < sub.CreatedDate.Date ? sub.CreatedDate.Date : from.Date;
+            if (effectiveFrom > to.Date) return 0;
+
+            DateTime cursor;
+
+            if (sub.BillingPeriod == BillingPeriod.Yearly)
             {
-                BillingPeriod.Yearly => TimeSpan.FromDays(365),
-                _ => TimeSpan.FromDays(0) // Monthly — aşağıda özel işlem
-            };
+                // B-4: Yıllık abonelikler için cursor, BillingMonth (yoksa CreatedDate.Month) ile başlar.
+                // Raporun başlangıç ayından değil, aboneliğin ödeme ayından başlamazsa aylar arası
+                // ödemeler atlanabilir veya yanlış yıla atanabilir.
+                var billingMonth = sub.BillingMonth ?? sub.CreatedDate.Month;
+                var candidateYear = effectiveFrom.Year;
+                var safeDay = Math.Min(sub.BillingDay, DateTime.DaysInMonth(candidateYear, billingMonth));
+                cursor = new DateTime(candidateYear, billingMonth, safeDay, 0, 0, 0, DateTimeKind.Utc);
 
-            // İlk potansiyel ödeme tarihini bul: from'un içinde bulunduğu ayın BillingDay'i
-            var cursor = new DateTime(from.Year, from.Month,
-                Math.Min(sub.BillingDay, DateTime.DaysInMonth(from.Year, from.Month)),
-                0, 0, 0, DateTimeKind.Utc);
+                // Eğer bu yılın ödeme tarihi effectiveFrom'dan önceyse bir sonraki yıla geç
+                if (cursor < effectiveFrom)
+                    cursor = cursor.AddYears(1);
+            }
+            else
+            {
+                // Aylık: İlk potansiyel ödeme tarihini bul — effectiveFrom ayının BillingDay'i
+                cursor = new DateTime(effectiveFrom.Year, effectiveFrom.Month,
+                    Math.Min(sub.BillingDay, DateTime.DaysInMonth(effectiveFrom.Year, effectiveFrom.Month)),
+                    0, 0, 0, DateTimeKind.Utc);
 
-            // Cursor from'dan önceyse bir dönem ilerlet
-            if (cursor < from.Date)
-                cursor = AdvanceByPeriod(cursor, sub.BillingPeriod);
+                // Cursor effectiveFrom'dan önceyse bir ay ilerlet
+                if (cursor < effectiveFrom)
+                    cursor = AdvanceByPeriod(cursor, sub.BillingPeriod);
+            }
 
             int count = 0;
             while (cursor <= to.Date)

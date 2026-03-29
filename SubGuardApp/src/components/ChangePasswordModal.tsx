@@ -57,6 +57,7 @@ export default function ChangePasswordModal({ visible, onClose }: Props) {
       await agent.Auth.changePassword({
         currentPassword: data.currentPassword,
         newPassword: data.newPassword,
+        confirmNewPassword: data.newPassword,
       });
       Toast.show({ type: 'success', text1: 'Başarılı', text2: 'Şifreniz değiştirildi.', position: 'bottom' });
       reset();

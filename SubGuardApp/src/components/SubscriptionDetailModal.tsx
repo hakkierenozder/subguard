@@ -154,19 +154,27 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
         );
     };
 
-    const applyStatusChange = (newStatus: SubscriptionStatus) => {
+    const applyStatusChange = async (newStatus: SubscriptionStatus) => {
         let payload: Partial<UserSubscription> = {};
         if (newStatus === 'active') {
             payload = { isActive: true, cancelledDate: null };
-            Toast.show({ type: 'success', text1: '✅ Abonelik Aktifleştirildi', text2: `${subscription.name} yeniden aktif.`, position: 'top' });
         } else if (newStatus === 'paused') {
             payload = { isActive: false, cancelledDate: null, pausedDate: new Date().toISOString() };
-            Toast.show({ type: 'info', text1: '⏸ Abonelik Durduruldu', text2: `${subscription.name} duraklatıldı.`, position: 'top' });
         } else {
             payload = { isActive: false, cancelledDate: new Date().toISOString(), pausedDate: null };
-            Toast.show({ type: 'error', text1: '❌ Abonelik İptal Edildi', text2: `${subscription.name} iptal edildi.`, position: 'top' });
         }
-        updateSubscription(subscription.id, payload);
+        try {
+            await updateSubscription(subscription.id, payload);
+            if (newStatus === 'active') {
+                Toast.show({ type: 'success', text1: '✅ Abonelik Aktifleştirildi', text2: `${subscription.name} yeniden aktif.`, position: 'top' });
+            } else if (newStatus === 'paused') {
+                Toast.show({ type: 'info', text1: '⏸ Abonelik Durduruldu', text2: `${subscription.name} duraklatıldı.`, position: 'top' });
+            } else {
+                Toast.show({ type: 'error', text1: '❌ Abonelik İptal Edildi', text2: `${subscription.name} iptal edildi.`, position: 'top' });
+            }
+        } catch (error: any) {
+            Toast.show({ type: 'error', text1: 'Hata', text2: error?.message || 'Durum değiştirilemedi.', position: 'top' });
+        }
     };
 
     const handleStatusChange = (newStatus: SubscriptionStatus) => {

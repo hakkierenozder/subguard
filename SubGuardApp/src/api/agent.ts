@@ -1,6 +1,6 @@
 import axios from 'axios';
 import Toast from 'react-native-toast-message';
-import { getToken, getRefreshToken, saveToken, saveRefreshToken, removeToken } from '../utils/AuthManager';
+import { getToken, getRefreshToken, saveToken, saveRefreshToken, removeToken, removeRefreshToken } from '../utils/AuthManager';
 import { setNetworkStatus } from '../hooks/useNetworkStatus';
 import { API_URL } from '../config';
 
@@ -65,7 +65,7 @@ axiosInstance.interceptors.response.use(
 
         const response = await axios.post(`${API_URL}/auth/create-token-by-refresh-token`, {
           token: refreshToken,
-        });
+        }, { timeout: 15000 });
 
         const tokenData = response.data?.data;
         if (!tokenData?.accessToken) throw new Error('Geçersiz refresh yanıtı');
@@ -84,6 +84,7 @@ axiosInstance.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
         await removeToken();
+        await removeRefreshToken();
         // Token yenileme başarısız → kullanıcıyı Login'e yönlendir.
         // Callback set edilmemişse (NavigationContainer henüz hazır değil) sessizce geç.
         _logoutCallback?.();
@@ -102,12 +103,16 @@ axiosInstance.interceptors.response.use(
         message = data.errors[0];
       } else if (data?.errors && typeof data.errors === 'string') {
         message = data.errors;
+      } else if (status === 403) {
+        message = 'Bu işlem için yetkiniz yok.';
       } else if (status === 500) {
         message = 'Sunucu tarafında bir hata oluştu.';
       } else if (status === 404) {
         message = 'İstenilen kaynak bulunamadı.';
       }
 
+      // 401 Token yenilemeye gider; Toast sadece yenileme de başarısız olursa (_retry) gösterilir.
+      // 403 Forbidden her zaman gösterilir.
       if (status !== 401 || originalRequest._retry) {
         Toast.show({
           type: 'error',
@@ -207,7 +212,7 @@ const Auth = {
   resendConfirmationEmail: (email: string) =>
     requests.post('/auth/resend-confirmation-email', { email }),
   getProfile:     ()          => requests.get('/auth/profile'),
-  updateProfile:  (body: { fullName?: string }) =>
+  updateProfile:  (body: { fullName?: string; monthlyBudget?: number; monthlyBudgetCurrency?: string; budgetAlertThreshold?: number }) =>
     requests.put('/auth/profile', body),
   changePassword:      (body: any)     => requests.post('/auth/change-password', body),
   deleteAccount:       ()              => requests.del('/auth/me'),
@@ -241,6 +246,7 @@ const Admin = {
   deactivate:    (id: string)                    => requests.patch(`/admin/users/${id}/deactivate`, {}),
   activate:      (id: string)                    => requests.patch(`/admin/users/${id}/activate`, {}),
   assignRole:    (email: string)                 => requests.post('/admin/assign-role', { email }),
+  removeRole:    (email: string)                 => requests.post('/admin/remove-role', { email }),
   // Katalog/Plan CRUD (backend zaten hazır)
   createCatalog: (dto: Record<string, unknown>)  => requests.post('/admin/catalogs', dto),
   updateCatalog: (id: number, dto: Record<string, unknown>) => requests.put(`/admin/catalogs/${id}`, dto),

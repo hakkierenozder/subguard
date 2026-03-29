@@ -11,6 +11,7 @@ namespace SubGuard.Service.Services
         private readonly IMemoryCache _memoryCache;
         private readonly ILogger<CurrencyService> _logger;
         private const string CACHE_KEY = "ExchangeRates";
+        private static readonly SemaphoreSlim _rateFetchLock = new SemaphoreSlim(1, 1);
 
         public CurrencyService(IExchangeRateProvider rateProvider, IMemoryCache memoryCache, ILogger<CurrencyService> logger)
         {
@@ -21,8 +22,16 @@ namespace SubGuard.Service.Services
 
         public async Task<Dictionary<string, decimal>> GetRatesAsync()
         {
-            if (!_memoryCache.TryGetValue(CACHE_KEY, out Dictionary<string, decimal> rates))
+            if (_memoryCache.TryGetValue(CACHE_KEY, out Dictionary<string, decimal> rates))
+                return rates;
+
+            await _rateFetchLock.WaitAsync();
+            try
             {
+                // Kilit alındıktan sonra tekrar kontrol et (başka bir istek önce tamamlamış olabilir)
+                if (_memoryCache.TryGetValue(CACHE_KEY, out rates))
+                    return rates;
+
                 try
                 {
                     await UpdateRatesAsync();
@@ -33,6 +42,10 @@ namespace SubGuard.Service.Services
                     // Polly denemelerinden sonra hâlâ başarısız → varsayılan değerlere dön
                     _logger.LogWarning(ex, "Kur verisi alınamadı, varsayılan (fallback) değerler kullanılıyor.");
                 }
+            }
+            finally
+            {
+                _rateFetchLock.Release();
             }
 
             return rates ?? new Dictionary<string, decimal>

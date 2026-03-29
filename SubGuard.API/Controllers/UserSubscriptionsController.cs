@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.Services;
 using System.Security.Claims;
@@ -39,7 +40,15 @@ namespace SubGuard.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateUserSubscriptionDto dto)
         {
-            return CreateActionResult(await _service.UpdateSubscriptionAsync(id, dto, LoggedInUserId));
+            try
+            {
+                return CreateActionResult(await _service.UpdateSubscriptionAsync(id, dto, LoggedInUserId));
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                // Aynı aboneliği aynı anda başka bir istek güncelledi (optimistic concurrency)
+                return Conflict(new { errors = new[] { "Bu abonelik başka bir istek tarafından değiştirildi. Lütfen sayfayı yenileyip tekrar deneyin." } });
+            }
         }
 
         [HttpDelete("{id}")]

@@ -30,19 +30,19 @@ export default function UsageSurveyModal({ visible, subscription, onClose, onRes
 
           <View style={styles.optionsContainer}>
             {/* active: Çok Kullandım */}
-            <TouchableOpacity style={[styles.optionBtn, { backgroundColor: '#2ecc71' }]} onPress={() => onResponse('active')}>
+            <TouchableOpacity style={[styles.optionBtn, { backgroundColor: colors.success }]} onPress={() => onResponse('active')}>
                 <Text style={styles.emoji}>🔥</Text>
                 <Text style={styles.btnText}>Çok Kullandım</Text>
             </TouchableOpacity>
 
             {/* low: Az/Eh İşte */}
-            <TouchableOpacity style={[styles.optionBtn, { backgroundColor: '#f1c40f' }]} onPress={() => onResponse('low')}>
+            <TouchableOpacity style={[styles.optionBtn, { backgroundColor: colors.warning }]} onPress={() => onResponse('low')}>
                 <Text style={styles.emoji}>😐</Text>
                 <Text style={styles.btnText}>Eh İşte</Text>
             </TouchableOpacity>
 
             {/* none: Hiç */}
-            <TouchableOpacity style={[styles.optionBtn, { backgroundColor: '#e74c3c' }]} onPress={() => onResponse('none')}>
+            <TouchableOpacity style={[styles.optionBtn, { backgroundColor: colors.error }]} onPress={() => onResponse('none')}>
                 <Text style={styles.emoji}>🕸️</Text>
                 <Text style={styles.btnText}>Hiç Kullanmadım</Text>
             </TouchableOpacity>

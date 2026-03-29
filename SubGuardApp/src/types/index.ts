@@ -37,6 +37,8 @@ export interface UserSubscription {
   // Backend BillingPeriod enum → JsonStringEnumConverter → "Monthly" | "Yearly"
   billingPeriod?: 'Monthly' | 'Yearly';
   billingDay: number;
+  /** Yıllık abonelikler için fatura ayı (1-12). Null/undefined ise createdDate.getMonth()+1 kullanılır. */
+  billingMonth?: number | null;
 
   hasContract: boolean;
   contractStartDate?: string;  // ISO string
@@ -45,7 +47,8 @@ export interface UserSubscription {
   notificationId?: string;
 
   // Paylaşım: backend SubscriptionShares tablosundan parse edilir
-  sharedWith?: string[];
+  // B-12: { email, userId } çifti — removeShare için userId zorunlu
+  sharedWith?: { email: string; userId: string }[];
 
   // Survey: YEREL, AsyncStorage'da tutulur — backend'e gönderilmez
   usageHistory?: UsageLog[];
@@ -95,6 +98,7 @@ export interface AddSubscriptionPayload {
   price: number;
   currency: string;
   billingDay: number;
+  billingMonth?: number | null;
   billingPeriod?: 'Monthly' | 'Yearly';
   category: string;
   colorCode?: string;
@@ -116,6 +120,7 @@ export interface RawSubscriptionApiItem {
   currency: string;
   category: string;
   billingDay: number;
+  billingMonth?: number | null;
   billingPeriod?: 'Monthly' | 'Yearly';
   colorCode?: string | null;
   hasContract: boolean;
@@ -127,6 +132,9 @@ export interface RawSubscriptionApiItem {
   pausedDate?: string | null;
   cancelledDate?: string | null;
   cancelledAt?: string | null;
+  // B-13: Paylaşım e-postaları ve userId'leri (B-12: removeShare için userId gerekli)
+  sharedUserEmails?: string[];
+  sharedUserIds?: string[];
   // Benimle paylaşım alanları (SharedWithMeItemDto'dan)
   sharedAt?: string | null;
   ownerEmail?: string | null;
@@ -155,6 +163,7 @@ export interface CatalogState {
     loading: boolean;
     error: string | null; // [41] hata durumu
     fetchCatalog: () => Promise<void>;
+    reset: () => void;
 }
 
 export interface NotificationDto {

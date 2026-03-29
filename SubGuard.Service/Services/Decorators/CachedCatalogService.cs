@@ -25,20 +25,20 @@ namespace SubGuard.Service.Services.Decorators
 
         public async Task<CustomResponseDto<PagedResponseDto<ServiceDto>>> GetAllCatalogsWithPlansAsync(int page, int pageSize)
         {
-            var allCatalogs = await _memoryCache.GetOrCreateAsync(CATALOGS_KEY, async entry =>
+            if (!_memoryCache.TryGetValue(CATALOGS_KEY, out List<ServiceDto>? allCatalogs) || allCatalogs == null)
             {
-                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(AppConstants.Cache.CatalogExpirationHours);
-                entry.Priority = CacheItemPriority.High;
-
-                var response = await _innerService.GetAllCatalogsWithPlansAsync(1, int.MaxValue);
+                var response = await _innerService.GetAllCatalogsWithPlansAsync(1, AppConstants.Cache.MaxCatalogItems);
                 if (response.StatusCode != 200 || response.Data == null)
-                    return null;
+                    return CustomResponseDto<PagedResponseDto<ServiceDto>>.Fail(500, "Katalog listesi yüklenemedi.");
 
-                return response.Data.Items;
-            });
-
-            if (allCatalogs == null)
-                return CustomResponseDto<PagedResponseDto<ServiceDto>>.Fail(500, "Katalog listesi yüklenemedi.");
+                allCatalogs = response.Data.Items;
+                var cacheOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(AppConstants.Cache.CatalogExpirationHours),
+                    Priority = CacheItemPriority.High
+                };
+                _memoryCache.Set(CATALOGS_KEY, allCatalogs, cacheOptions);
+            }
 
             var result = new PagedResponseDto<ServiceDto>
             {
@@ -138,15 +138,20 @@ namespace SubGuard.Service.Services.Decorators
         }
 
         // Trending — kısa TTL cache (5 dk)
+        // B-7: Yalnızca başarılı yanıtlar cache'lenir; hata durumunda cache'e yazılmaz.
         public async Task<CustomResponseDto<List<ServiceDto>>> GetTrendingAsync(int limit = 10)
         {
             var key = $"trending:{limit}";
-            var cached = await _memoryCache.GetOrCreateAsync(key, async entry =>
-            {
-                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
-                return await _innerService.GetTrendingAsync(limit);
-            });
-            return cached!;
+
+            if (_memoryCache.TryGetValue(key, out CustomResponseDto<List<ServiceDto>>? cached) && cached != null)
+                return cached;
+
+            var result = await _innerService.GetTrendingAsync(limit);
+
+            if (result.StatusCode == 200)
+                _memoryCache.Set(key, result, TimeSpan.FromMinutes(5));
+
+            return result;
         }
     }
 }

@@ -186,7 +186,24 @@
       "Bash(powershell -NoProfile -Command \"Select-String -Path ''C:\\\\Projects\\\\SubGuard\\\\SubGuard\\\\SubGuard.Data\\\\Migrations\\\\20260319091712_AddPriceHistory.cs'' -Pattern ''AddColumn|CreateTable|CreateIndex|AddForeignKey'' | Select-Object -First 15 | Format-Table LineNumber,Line -AutoSize -Wrap\")",
       "Bash(timeout 15 dotnet run --no-build)",
       "Bash(powershell -NoProfile:*)",
-      "Bash(timeout 12 dotnet run --no-build)"
+      "Bash(timeout 12 dotnet run --no-build)",
+      "Bash(ls -t SubGuard.Data/Migrations/*.cs)",
+      "Bash(grep -r \"TODO\" /c/Projects/SubGuard/SubGuard/SubGuard.Service/Services/*.cs)",
+      "Bash(grep -r \"any\" /c/Projects/SubGuard/SubGuard/SubGuardApp/src/screens/*.tsx)",
+      "Bash(grep -r \"200\\\\|201\\\\|204\" /c/Projects/SubGuard/SubGuard/SubGuard.API/Controllers/*.cs)",
+      "Bash(grep -rn \"user.Id\\\\|LoggedInUserId\" /c/Projects/SubGuard/SubGuard/SubGuard.API/Controllers/*.cs)",
+      "Bash(taskkill /PID 9852 /F)",
+      "Bash(Start-Sleep 2)",
+      "Bash(cmd /c \"taskkill /PID 9852 /F\")",
+      "Bash(cmd /c \"taskkill /F /IM SubGuard.API.exe\")",
+      "Bash(cmd /c \"wmic process where ProcessId=9852 get Name,ProcessId,CommandLine 2>&1\")",
+      "Bash(cmd /c \"wmic process where \"\"ProcessId=9852\"\" get Name,ProcessId\")",
+      "Bash(tasklist)",
+      "Bash(cmd /c \"tasklist | findstr /i SubGuard\")",
+      "Bash(cmd /c \"taskkill /F /PID 9852\")",
+      "Bash(cmd /c \"taskkill /F /PID 9852 && ping -n 3 127.0.0.1 > nul && dotnet build SubGuard.API\")",
+      "Bash(kill -9 9852)",
+      "Bash(powershell -Command \"Stop-Process -Id 9852 -Force; Start-Sleep 2; Get-Process | Where-Object {$_Name -like ''*SubGuard*''}\")"
     ]
   }
 }

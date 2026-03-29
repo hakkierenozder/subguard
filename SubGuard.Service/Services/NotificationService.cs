@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SubGuard.Core.Constants;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.Entities;
 using SubGuard.Core.Enums;
@@ -56,10 +57,7 @@ namespace SubGuard.Service.Services
         // B-11: Batch sorgularla N+1 problemi çözüldü
         public async Task CheckAndQueueUpcomingPaymentsAsync()
         {
-            // Windows: "Turkey Standard Time", Linux/Docker: "Europe/Istanbul"
-            var trTimeZone = TimeZoneInfo.GetSystemTimeZones()
-                .FirstOrDefault(tz => tz.Id == "Turkey Standard Time" || tz.Id == "Europe/Istanbul")
-                ?? TimeZoneInfo.Utc;
+            var trTimeZone = AppConstants.TimeZones.Turkey;
             var currentHour = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, trTimeZone).Hour;
             var today = DateTime.UtcNow.Date;
 
@@ -95,9 +93,19 @@ namespace SubGuard.Service.Services
 
                 // Kullanıcının tercih ettiği hatırlatma günü
                 var reminderDays = subUser.NotifReminderDays > 0 ? subUser.NotifReminderDays : 3;
-                var targetDay = DateTime.UtcNow.AddDays(reminderDays).Day;
+                var paymentDate = DateTime.UtcNow.AddDays(reminderDays);
+                var targetDay = paymentDate.Day;
 
                 if (sub.BillingDay != targetDay) continue;
+
+                // B-3: Yıllık abonelikler için BillingMonth de kontrol edilir.
+                // BillingMonth null ise CreatedDate.Month anchor olarak kullanılır.
+                if (sub.BillingPeriod == BillingPeriod.Yearly)
+                {
+                    var billingMonth = sub.BillingMonth ?? sub.CreatedDate.Month;
+                    if (billingMonth != paymentDate.Month) continue;
+                }
+
                 if (alreadyQueuedSet.Contains(sub.Id)) continue;
 
                 var notification = new NotificationQueue
@@ -105,8 +113,10 @@ namespace SubGuard.Service.Services
                     UserId = sub.UserId,
                     UserSubscriptionId = sub.Id,
                     Title = "Ödeme Hatırlatması",
-                    Message = $"{sub.Name} aboneliğinizin ödemesi {reminderDays} gün sonra. Tutar: {sub.Price} {sub.Currency}",
-                    ScheduledDate = today,
+                    Message = $"{sub.Name} aboneliğinizin ödemesi {reminderDays} gün sonra ({paymentDate:dd.MM.yyyy}). Tutar: {sub.Price} {sub.Currency}",
+                    // B-5: Gerçek ödeme tarihini yaz (today değil), böylece daysUntil hesabı doğru kalır
+                    // ve aynı abonelik için farklı günlerde duplicate bildirim engellenir.
+                    ScheduledDate = paymentDate.Date,
                     IsSent = false,
                     Type = NotificationType.Payment,
                     CreatedDate = DateTime.UtcNow
@@ -219,14 +229,14 @@ namespace SubGuard.Service.Services
                 .Where(x => usersWithCategoryBudgets.Contains(x.UserId)
                          && x.Type == NotificationType.CategoryBudget
                          && x.ScheduledDate >= startOfMonth)
-                .Select(x => new { x.UserId, x.Message })
+                .Select(x => new { x.UserId, x.Title })
                 .ToListAsync();
             var existingCatNotifKeys = existingCatNotifs
                 .Select(x =>
                 {
-                    var endIdx = x.Message.IndexOf(']');
-                    var cat = endIdx > 1 ? x.Message.Substring(1, endIdx - 1) : string.Empty;
-                    return $"{x.UserId}|{cat}";
+                    var title = x.Title ?? string.Empty;
+                    var category = title.Replace(" Bütçesi Aşıldı", "").Replace(" Bütçe Uyarısı", "").Trim();
+                    return $"{x.UserId}|{category}";
                 })
                 .ToHashSet();
 
@@ -295,10 +305,7 @@ namespace SubGuard.Service.Services
         // --- #12 Kontrat sona erme hatırlatması ---
         public async Task CheckAndQueueContractExpiriesAsync(int daysBefore)
         {
-            // Windows: "Turkey Standard Time", Linux/Docker: "Europe/Istanbul"
-            var trTimeZone = TimeZoneInfo.GetSystemTimeZones()
-                .FirstOrDefault(tz => tz.Id == "Turkey Standard Time" || tz.Id == "Europe/Istanbul")
-                ?? TimeZoneInfo.Utc;
+            var trTimeZone = AppConstants.TimeZones.Turkey;
             var currentHour = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, trTimeZone).Hour;
 
             var targetDate = DateTime.UtcNow.Date.AddDays(daysBefore);
@@ -344,7 +351,8 @@ namespace SubGuard.Service.Services
                     Title = "Sözleşme Sona Eriyor",
                     Message = $"{sub.Name} aboneliğinizin sözleşmesi {daysBefore} gün içinde " +
                               $"({sub.ContractEndDate!.Value:dd.MM.yyyy}) sona eriyor.",
-                    ScheduledDate = today,
+                    // B-5: ScheduledDate = sözleşme bitiş tarihi (today değil)
+                    ScheduledDate = targetDate,
                     IsSent = false,
                     Type = NotificationType.Contract,
                     CreatedDate = DateTime.UtcNow
@@ -422,22 +430,13 @@ namespace SubGuard.Service.Services
 
         public async Task<CustomResponseDto<bool>> MarkAllAsReadAsync(string userId)
         {
-            var unread = await _queueRepo
-                .Where(x => x.UserId == userId && !x.IsRead)
-                .ToListAsync();
-
-            if (!unread.Any())
-                return CustomResponseDto<bool>.Success(200, true);
-
             var now = DateTime.UtcNow;
-            foreach (var n in unread)
-            {
-                n.IsRead = true;
-                n.ReadDate = now;
-                _queueRepo.Update(n);
-            }
+            await _queueRepo
+                .Where(x => x.UserId == userId && !x.IsRead)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(n => n.IsRead, true)
+                    .SetProperty(n => n.ReadDate, now));
 
-            await _unitOfWork.CommitAsync();
             return CustomResponseDto<bool>.Success(200, true);
         }
 
@@ -651,12 +650,25 @@ namespace SubGuard.Service.Services
             if (user == null)
                 return CustomResponseDto<bool>.Fail(404, "Kullanıcı bulunamadı.");
 
-            // Aboneliğin sonraki ödeme tarihine kaç gün kaldığını hesapla
+            // B-3: Aboneliğin sonraki ödeme tarihine kaç gün kaldığını hesapla
+            // Yıllık abonelikler için BillingMonth anchor'u kullanılıyor.
             var today = DateTime.UtcNow.Date;
-            var clampedDay = Math.Min(sub.BillingDay, DateTime.DaysInMonth(today.Year, today.Month));
-            var nextBilling = new DateTime(today.Year, today.Month, clampedDay);
-            if (nextBilling < today)
-                nextBilling = nextBilling.AddMonths(1);
+            DateTime nextBilling;
+            if (sub.BillingPeriod == BillingPeriod.Yearly)
+            {
+                var billingMonth = sub.BillingMonth ?? sub.CreatedDate.Month;
+                var safeDay = Math.Min(sub.BillingDay, DateTime.DaysInMonth(today.Year, billingMonth));
+                nextBilling = new DateTime(today.Year, billingMonth, safeDay);
+                if (nextBilling < today)
+                    nextBilling = nextBilling.AddYears(1);
+            }
+            else
+            {
+                var clampedDay = Math.Min(sub.BillingDay, DateTime.DaysInMonth(today.Year, today.Month));
+                nextBilling = new DateTime(today.Year, today.Month, clampedDay);
+                if (nextBilling < today)
+                    nextBilling = nextBilling.AddMonths(1);
+            }
             int daysUntil = (int)(nextBilling - today).TotalDays;
 
             // Bildirim kuyruğuna ekle (manuel — ScheduledDate = şu an)

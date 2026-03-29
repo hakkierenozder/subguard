@@ -175,11 +175,11 @@ export default function HomeScreen() {
 
     const sortedPayments = [...subscriptions]
         .filter(sub => sub.isActive !== false)
-        .sort((a, b) => getDaysLeftForSub(a.billingDay, a.billingPeriod, a.createdDate) - getDaysLeftForSub(b.billingDay, b.billingPeriod, b.createdDate));
+        .sort((a, b) => getDaysLeftForSub(a.billingDay, a.billingPeriod, a.billingMonth, a.createdDate) - getDaysLeftForSub(b.billingDay, b.billingPeriod, b.billingMonth, b.createdDate));
 
-    const thisWeekPayments  = sortedPayments.filter(s => getDaysLeftForSub(s.billingDay, s.billingPeriod, s.createdDate) <= 7);
+    const thisWeekPayments  = sortedPayments.filter(s => getDaysLeftForSub(s.billingDay, s.billingPeriod, s.billingMonth, s.createdDate) <= 7);
     const thisMonthPayments = sortedPayments.filter(s => {
-        const d = getDaysLeftForSub(s.billingDay, s.billingPeriod, s.createdDate);
+        const d = getDaysLeftForSub(s.billingDay, s.billingPeriod, s.billingMonth, s.createdDate);
         return d > 7 && d <= 30;
     });
 
@@ -397,7 +397,7 @@ export default function HomeScreen() {
                                     </Text>
                                 </View>
                                 {thisWeekPayments.map((item, idx) => {
-                                    const daysLeft = getDaysLeftForSub(item.billingDay, item.billingPeriod, item.createdDate);
+                                    const daysLeft = getDaysLeftForSub(item.billingDay, item.billingPeriod, item.billingMonth, item.createdDate);
                                     const urgencyColor = daysLeft <= 2 ? colors.error : colors.orange;
                                     const urgencyBg   = daysLeft <= 2 ? (colors.error + '20') : (colors.orange + '20');
                                     const urgencyLabel = daysLeft === 0 ? 'Bugün!' : daysLeft === 1 ? 'Yarın!' : `${daysLeft} gün`;
@@ -486,7 +486,7 @@ export default function HomeScreen() {
                                     </Text>
                                 </View>
                                 {thisMonthPayments.slice(0, 4).map((item, idx) => {
-                                    const daysLeft = getDaysLeftForSub(item.billingDay, item.billingPeriod, item.createdDate);
+                                    const daysLeft = getDaysLeftForSub(item.billingDay, item.billingPeriod, item.billingMonth, item.createdDate);
                                     const animIdx = thisWeekPayments.length + idx;
                                     const anim = getCardAnim(animIdx);
                                     const itemColor = item.colorCode || colors.primary;

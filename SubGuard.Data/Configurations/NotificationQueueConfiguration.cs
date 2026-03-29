@@ -18,10 +18,11 @@ namespace SubGuard.Data.Configurations
             builder.HasIndex(x => new { x.UserId, x.IsSent })
                    .HasDatabaseName("IX_NotificationQueue_UserId_IsSent");
 
-            // Unique constraint: Aynı kullanıcı, aynı abonelik, aynı tarih için tekrar bildirim kuyruğa alınamaz
-            builder.HasIndex(x => new { x.UserId, x.UserSubscriptionId, x.ScheduledDate })
+            // Unique constraint: Aynı kullanıcı, aynı abonelik, aynı tarih ve aynı bildirim türü için tekrar bildirim kuyruğa alınamaz.
+            // Type eklendi: Aynı tarihte hem Payment hem Contract bildirimi kuyruğa alınabilmeli.
+            builder.HasIndex(x => new { x.UserId, x.UserSubscriptionId, x.ScheduledDate, x.Type })
                    .IsUnique()
-                   .HasDatabaseName("UQ_NotificationQueue_UserId_SubscriptionId_ScheduledDate");
+                   .HasDatabaseName("UQ_NotificationQueue_UserId_SubscriptionId_ScheduledDate_Type");
 
             builder.ToTable("NotificationQueues");
         }

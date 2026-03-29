@@ -106,9 +106,11 @@ export default function MySubscriptionsScreen() {
 
   // Arama geçmişini AsyncStorage'dan yükle
   useEffect(() => {
-    AsyncStorage.getItem(SEARCH_HISTORY_KEY).then(raw => {
-      if (raw) { try { setSearchHistory(JSON.parse(raw)); } catch {} }
-    });
+    AsyncStorage.getItem(SEARCH_HISTORY_KEY)
+      .then(raw => {
+        if (raw) { try { setSearchHistory(JSON.parse(raw)); } catch (e) { console.warn('Search history parse hatası:', e); } }
+      })
+      .catch(e => console.warn('Arama geçmişi yüklenemedi:', e));
   }, []);
 
   // [33] searchTimer cleanup — bellek sızıntısını önler
@@ -121,14 +123,16 @@ export default function MySubscriptionsScreen() {
     setSearchHistory(prev => {
       const filtered = prev.filter(h => h !== query);
       const updated = [query, ...filtered].slice(0, 5);
-      AsyncStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(updated));
+      AsyncStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(updated))
+        .catch(e => console.warn('Arama geçmişi kaydedilemedi:', e));
       return updated;
     });
   }, []);
 
   const clearSearchHistory = useCallback(() => {
     setSearchHistory([]);
-    AsyncStorage.removeItem(SEARCH_HISTORY_KEY);
+    AsyncStorage.removeItem(SEARCH_HISTORY_KEY)
+      .catch(e => console.warn('Arama geçmişi silinemedi:', e));
   }, []);
 
   const handleSearch = useCallback((text: string) => {

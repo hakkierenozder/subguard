@@ -164,6 +164,12 @@ export default function DiscoverScreen({ navigation }: Props) {
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  useEffect(() => {
+    return () => {
+      if (searchTimer.current) clearTimeout(searchTimer.current);
+    };
+  }, []);
+
   const handleSearch = useCallback((text: string) => {
     setSearchText(text);
     if (searchTimer.current) clearTimeout(searchTimer.current);
@@ -177,7 +183,9 @@ export default function DiscoverScreen({ navigation }: Props) {
   useEffect(() => {
     agent.Catalogs.trending(8).then((res: any) => {
       if (res?.data) setTrendingItems(res.data);
-    }).catch(() => {});
+    }).catch((err: any) => {
+      console.warn('Trending kataloglar yüklenemedi:', err?.message);
+    });
   }, []);
 
   const subscribedCatalogIds = useMemo(

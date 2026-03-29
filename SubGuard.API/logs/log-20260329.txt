@@ -1,0 +1,474 @@
+2026-03-29 14:09:29.307 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-29 14:09:29.594 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonlandı (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 295
+2026-03-29 14:09:40.556 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-29 14:09:40.657 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonlandı (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 295
+2026-03-29 14:14:43.348 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-29 14:14:43.455 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonlandı (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 295
+2026-03-29 14:15:13.376 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-29 14:15:13.494 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonlandı (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 295
+2026-03-29 14:15:51.668 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-29 14:15:51.781 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonlandı (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 295
+2026-03-29 14:25:28.034 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-29 14:25:28.142 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonlandı (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 295
+2026-03-29 16:30:47.308 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-29 16:30:47.599 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonlandı (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 295
+2026-03-29 18:07:33.684 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-29 18:07:33.884 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonlandı (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 296
+2026-03-29 18:11:28.718 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-29 18:11:28.910 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonlandı (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 296
+2026-03-29 18:32:55.469 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-29 18:32:57.026 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-29 18:32:57.049 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-29 18:32:57.650 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-29 18:32:57.651 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-29 18:32:57.652 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-29 18:32:57.653 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-29 18:32:57.654 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-29 18:32:57.655 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-29 18:32:57.682 +03:00 [INF] [User: ] Server desktop-25vqrpg:9852:72340071 successfully announced in 14,8688 ms
+2026-03-29 18:32:57.686 +03:00 [INF] [User: ] Server desktop-25vqrpg:9852:72340071 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-29 18:32:57.690 +03:00 [INF] [User: ] Server desktop-25vqrpg:9852:72340071 all the dispatchers started
+2026-03-29 18:32:57.715 +03:00 [INF] [User: ] Removed 9 outdated record(s) from 'aggregatedcounter' table.
+2026-03-29 18:32:57.899 +03:00 [INF] [User: ] Güncel kurlar çekiliyor...
+2026-03-29 18:32:58.051 +03:00 [INF] [User: ] Güncel kurlar çekiliyor...
+2026-03-29 18:32:58.739 +03:00 [INF] [User: ] Removed 39 outdated record(s) from 'job' table.
+2026-03-29 18:33:07.386 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ha***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-29 18:33:07.405 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 7
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 541
+2026-03-29 18:33:07.410 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 7, UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-29 18:33:09.050 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ha***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-29 18:33:09.054 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 8
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 541
+2026-03-29 18:33:09.057 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 8, UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-29 18:33:09.145 +03:00 [INF] [User: ] Bildirim kuyruğu işlendi. Gönderilen: 0, Başarısız: 2
+2026-03-29 18:33:20.505 +03:00 [INF] [User: ] Kurlar güncellendi: {"USD":44.456,"EUR":51.2,"GBP":59.041}
+2026-03-29 18:33:20.555 +03:00 [INF] [User: ] Kurlar güncellendi: {"USD":44.456,"EUR":51.2,"GBP":59.041}
+2026-03-29 18:35:17.407 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-29 18:35:17.634 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ha***@gmail.com
+2026-03-29 18:35:17.778 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ha***@gmail.com
+2026-03-29 18:35:17.817 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 424.0383 ms
+2026-03-29 18:35:18.243 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 60.3650 ms
+2026-03-29 18:35:18.302 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 119.4688 ms
+2026-03-29 18:35:18.320 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 131.4600 ms
+2026-03-29 18:35:18.323 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 142.5160 ms
+2026-03-29 18:35:18.382 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 206.5559 ms
+2026-03-29 18:35:18.715 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 52.6092 ms
+2026-03-29 18:35:20.862 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 10.5660 ms
+2026-03-29 18:35:29.151 +03:00 [INF] [User: ] HTTP PUT /api/notifications/read-all responded 200 in 24.4266 ms
+2026-03-29 18:35:39.052 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 5.8333 ms
+2026-03-29 18:35:39.062 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 12.1139 ms
+2026-03-29 18:35:40.453 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/71/price-history responded 200 in 38.4817 ms
+2026-03-29 18:35:43.446 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/72/price-history responded 200 in 15.2074 ms
+2026-03-29 18:35:49.097 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 13.6892 ms
+2026-03-29 18:35:49.135 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 25.2856 ms
+2026-03-29 18:35:55.772 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.0331 ms
+2026-03-29 18:35:55.782 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 9.5438 ms
+2026-03-29 18:35:57.666 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 83.4129 ms
+2026-03-29 18:36:02.744 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 41.2448 ms
+2026-03-29 18:36:03.346 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 5.0325 ms
+2026-03-29 18:36:05.821 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.9658 ms
+2026-03-29 18:36:05.821 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 10.0592 ms
+2026-03-29 19:00:16.215 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ha***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-29 19:00:16.219 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 7
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 541
+2026-03-29 19:00:16.222 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 7, UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-29 19:00:16.259 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ha***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-29 19:00:16.262 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 7
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 541
+2026-03-29 19:00:16.266 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 7, UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-29 19:00:17.888 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ha***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-29 19:00:17.892 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 8
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 541
+2026-03-29 19:00:17.895 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 8, UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-29 19:00:17.901 +03:00 [INF] [User: ] Bildirim kuyruğu işlendi. Gönderilen: 0, Başarısız: 2
+2026-03-29 19:00:17.926 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ha***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-29 19:00:17.929 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 8
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 541
+2026-03-29 19:00:17.933 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 8, UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-29 19:00:17.938 +03:00 [INF] [User: ] Bildirim kuyruğu işlendi. Gönderilen: 0, Başarısız: 2
+2026-03-29 19:32:59.784 +03:00 [INF] [User: ] Removed 1 outdated record(s) from 'aggregatedcounter' table.
+2026-03-29 19:33:00.810 +03:00 [INF] [User: ] Removed 4 outdated record(s) from 'job' table.
+2026-03-29 20:00:04.597 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ha***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-29 20:00:04.601 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 7
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 541
+2026-03-29 20:00:04.602 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ha***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-29 20:00:04.605 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 7, UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-29 20:00:04.607 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 7
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 541
+2026-03-29 20:00:04.611 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 7, UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-29 20:00:06.304 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ha***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-29 20:00:06.307 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 8
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 541
+2026-03-29 20:00:06.310 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 8, UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-29 20:00:06.312 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ha***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-29 20:00:06.315 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 8
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 541
+2026-03-29 20:00:06.315 +03:00 [INF] [User: ] Bildirim kuyruğu işlendi. Gönderilen: 0, Başarısız: 2
+2026-03-29 20:00:06.318 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 8, UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-29 20:00:06.323 +03:00 [INF] [User: ] Bildirim kuyruğu işlendi. Gönderilen: 0, Başarısız: 2
+2026-03-29 21:00:07.597 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ha***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-29 21:00:07.601 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 7
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 541
+2026-03-29 21:00:07.604 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 7, UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-29 21:00:07.644 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ha***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-29 21:00:07.647 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 7
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 541
+2026-03-29 21:00:07.650 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 7, UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-29 21:00:09.266 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ha***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-29 21:00:09.270 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 8
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 541
+2026-03-29 21:00:09.274 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 8, UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-29 21:00:09.278 +03:00 [INF] [User: ] Bildirim kuyruğu işlendi. Gönderilen: 0, Başarısız: 2
+2026-03-29 21:00:09.313 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ha***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-29 21:00:09.316 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 8
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 541
+2026-03-29 21:00:09.319 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 8, UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-29 21:00:09.324 +03:00 [INF] [User: ] Bildirim kuyruğu işlendi. Gönderilen: 0, Başarısız: 2
+2026-03-29 22:00:10.716 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ha***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-29 22:00:10.720 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 7
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 541
+2026-03-29 22:00:10.723 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 7, UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-29 22:00:10.731 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ha***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-29 22:00:10.734 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 7
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 541
+2026-03-29 22:00:10.737 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 7, UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-29 22:00:12.397 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ha***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-29 22:00:12.401 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 8
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 541
+2026-03-29 22:00:12.401 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ha***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-29 22:00:12.404 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 8, UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-29 22:00:12.407 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 8
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 541
+2026-03-29 22:00:12.412 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 8, UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-29 22:00:12.413 +03:00 [INF] [User: ] Bildirim kuyruğu işlendi. Gönderilen: 0, Başarısız: 2
+2026-03-29 22:00:12.417 +03:00 [INF] [User: ] Bildirim kuyruğu işlendi. Gönderilen: 0, Başarısız: 2
+2026-03-29 22:45:02.175 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-29 22:45:02.384 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonlandı (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 296
+2026-03-29 22:46:26.983 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-29 22:46:27.103 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonlandı (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 296

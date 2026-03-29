@@ -89,6 +89,11 @@ export default function ForgotPasswordScreen({ navigation }: Props) {
   };
 
   const handleReset = async () => {
+    if (!userId) {
+      Toast.show({ type: 'error', text1: 'Hata', text2: 'Geçersiz istek. Lütfen baştan deneyin.', position: 'bottom' });
+      setStep(1);
+      return;
+    }
     if (otp.replace(/[^0-9]/g, '').length < 6) {
       Toast.show({ type: 'error', text1: 'Hata', text2: '6 haneli doğrulama kodunu girin.', position: 'bottom' });
       return;

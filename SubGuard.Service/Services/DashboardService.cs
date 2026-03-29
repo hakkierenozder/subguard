@@ -45,7 +45,8 @@ namespace SubGuard.Service.Services
                 {
                     x.Id, x.Name, x.Price, x.Currency, x.BillingDay,
                     x.ColorCode, x.BillingPeriod, x.Category,
-                    x.CreatedDate, x.ContractStartDate, x.Notes
+                    // B-2: BillingMonth eklendi — yıllık ödeme ayı doğru anchor'lanıyor
+                    x.BillingMonth, x.CreatedDate, x.ContractStartDate, x.Notes
                 })
                 .ToListAsync();
 
@@ -75,7 +76,7 @@ namespace SubGuard.Service.Services
             var paymentProjections = allSubData
                 .Select(x => new SubscriptionPaymentData(
                     x.Id, x.Name, x.Price, x.Currency, x.BillingDay, x.ColorCode,
-                    x.BillingPeriod, x.CreatedDate, x.ContractStartDate, x.Notes))
+                    x.BillingPeriod, x.BillingMonth, x.CreatedDate, x.ContractStartDate, x.Notes))
                 .ToList();
 
             var today = DateTime.UtcNow;
@@ -139,8 +140,8 @@ namespace SubGuard.Service.Services
 
                 if (sub.BillingPeriod == BillingPeriod.Yearly)
                 {
-                    // Yıllık abonelik: ödeme ayını ContractStartDate'den yoksa CreatedDate'den çıkar
-                    var billingMonth = sub.ContractStartDate?.Month ?? sub.CreatedDate.Month;
+                    // B-2: Yıllık abonelik: ödeme ayını BillingMonth'dan, yoksa CreatedDate'den al
+                    var billingMonth = sub.BillingMonth ?? sub.CreatedDate.Month;
 
                     var thisYearDate = new DateTime(
                         todayDate.Year, billingMonth,
@@ -204,6 +205,6 @@ namespace SubGuard.Service.Services
         // UpcomingPayments hesabı için gerekli alanları taşır
         private record SubscriptionPaymentData(
             int Id, string Name, decimal Price, string Currency, int BillingDay, string? ColorCode,
-            BillingPeriod BillingPeriod, DateTime CreatedDate, DateTime? ContractStartDate, string? Notes);
+            BillingPeriod BillingPeriod, int? BillingMonth, DateTime CreatedDate, DateTime? ContractStartDate, string? Notes);
     }
 }

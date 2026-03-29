@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +11,8 @@ namespace SubGuard.Core.Entities
     // Standart IdentityUser'dan miras alıyoruz (Id, Email, PasswordHash vb. içinde hazır gelir)
     public class AppUser : IdentityUser
     {
-        public string FullName { get; set; }
+        [MaxLength(200)]
+        public string FullName { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; }
         public decimal MonthlyBudget { get; set; } = 0;
         public string? MonthlyBudgetCurrency { get; set; }

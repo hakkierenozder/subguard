@@ -64,7 +64,12 @@ const formatItems = (rawItems: RawSubscriptionApiItem[]): UserSubscription[] =>
     id: item.id.toString(),
     contractStartDate: item.contractStartDate ?? undefined,
     contractEndDate: item.contractEndDate ?? undefined,
-    sharedWith: safeJsonParse(item.sharedWithJson, []),
+    // B-13: Backend'den gelen sharedUserEmails + sharedUserIds listelerini sharedWith nesne dizisine dönüştür.
+    // sharedUserIds eksikse (eski API yanıtı) userId boş string olarak kalır.
+    sharedWith: (item.sharedUserEmails ?? []).map((email: string, i: number) => ({
+      email,
+      userId: item.sharedUserIds?.[i] ?? '',
+    })),
     // Backend CancelledDate → camelCase cancelledDate (canonical field)
     cancelledDate: item.cancelledDate ?? item.cancelledAt ?? null,
     // usageHistory (survey): AsyncStorage'dan ayrıca yüklenir, burada boş başlar
@@ -103,16 +108,30 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
   // Gerçek kurlar fetchExchangeRates() sonrası hem store'a hem AsyncStorage'a kaydedilir.
   exchangeRates: { TRY: 1.0 },
 
-  reset: () => set({
-    subscriptions: [],
-    sharedWithMe: [],
-    loading: false,
-    loadingMore: false,
-    page: 1,
-    totalCount: 0,
-    hasMore: false,
-    searchQuery: '',
-  }),
+  reset: () => {
+    // AsyncStorage'daki survey cache'lerini temizle (logout sonrası data leak önlenir)
+    AsyncStorage.getAllKeys()
+      .then(keys => {
+        const surveyKeys = keys.filter(k => k.startsWith('@survey_'));
+        if (surveyKeys.length > 0) AsyncStorage.multiRemove(surveyKeys).catch(() => {});
+      })
+      .catch(() => {});
+
+    set({
+      subscriptions: [],
+      sharedWithMe: [],
+      sharedWithMePage: 1,
+      sharedWithMeHasMore: false,
+      loadingSharedWithMe: false,
+      loading: false,
+      loadingMore: false,
+      page: 1,
+      totalCount: 0,
+      hasMore: false,
+      searchQuery: '',
+      exchangeRates: { TRY: 1.0 },
+    });
+  },
 
   // Survey verilerini AsyncStorage'dan yükleyip store'daki aboneliklere uygula.
   // #36: AsyncStorage'da kayıt yoksa sunucudan gelen usageHistoryJson fallback olarak kullanılır.
@@ -285,6 +304,8 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
       currency: newSub.currency,
       billingDay: newSub.billingDay,
       billingPeriod: newSub.billingPeriod ?? 'Monthly',
+      // B-11: Yıllık abonelikler için fatura ayı backend'e iletilir
+      billingMonth: newSub.billingMonth ?? null,
       category: newSub.category,
       colorCode: newSub.colorCode,
       hasContract: newSub.hasContract,
@@ -295,7 +316,9 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
         ? new Date(newSub.contractEndDate).toISOString()
         : null,
       notes: newSub.notes ?? null,
-      sharedWithJson: newSub.sharedWith ? JSON.stringify(newSub.sharedWith) : null,
+      // B-11: Paylaşım e-postaları backend'e iletilir (AddUserSubscriptionDto.SharedUserEmails).
+      // AddSubscriptionPayload.sharedWith form katmanında string[] (sadece email) olarak gelir.
+      sharedUserEmails: newSub.sharedWith ?? null,
     };
 
     const response = await agent.UserSubscriptions.create(payload);
@@ -304,7 +327,7 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
         const createdSub = {
           ...response.data,
           id: response.data.id.toString(),
-          sharedWith: safeJsonParse(response.data.sharedWithJson, []),
+          sharedWith: [],
           usageHistory: [],
           usageLogs: [],
         };
@@ -387,13 +410,35 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
           currency: newSub.currency,
           billingDay: newSub.billingDay,
           billingPeriod: newSub.billingPeriod ?? 'Monthly',
+          // B-1: Yıllık abonelikte fatura ayı
+          billingMonth: newSub.billingPeriod === 'Yearly' ? (newSub.billingMonth ?? null) : null,
           category: newSub.category,
           colorCode: newSub.colorCode,
           hasContract: newSub.hasContract,
           contractStartDate: newSub.contractStartDate ?? null,
           contractEndDate: newSub.contractEndDate ?? null,
           notes: newSub.notes ?? null,
+          // B-6: sharedWithJson kaldırıldı — paylaşım değişikliği ayrı share/removeShare çağrılarıyla yapılıyor
         };
+
+        // B-6: Paylaşım değişikliklerini share/removeShare endpoint'leriyle senkronize et
+        if (updatedData.sharedWith !== undefined) {
+          const currentShared = (oldSub.sharedWith ?? []) as { email: string; userId: string }[];
+          const incomingRaw = (updatedData.sharedWith ?? []) as (string | { email: string; userId?: string })[];
+          const newEmails = new Set(incomingRaw.map((p) => (typeof p === 'string' ? p : p.email)));
+          const currentEmails = new Set(currentShared.map((p) => p.email));
+
+          const addedEmails = [...newEmails].filter((e) => !currentEmails.has(e));
+          const removedUsers = currentShared.filter((p) => !newEmails.has(p.email));
+
+          await Promise.all([
+            ...addedEmails.map((email) => agent.UserSubscriptions.share(Number(id), email)),
+            ...removedUsers
+              .filter((p) => p.userId)
+              .map((p) => agent.UserSubscriptions.removeShare(Number(id), p.userId)),
+          ]);
+        }
+
         await agent.UserSubscriptions.update(id, payload);
       }
       await saveCache('subscriptions', { items: get().subscriptions, totalCount: get().totalCount }); // [42]

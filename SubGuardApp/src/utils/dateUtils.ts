@@ -29,25 +29,27 @@ export function getDaysLeft(billingDay: number): number {
 
 /**
  * Yıllık abonelikler için bir sonraki ödeme tarihine kaç gün kaldığını hesaplar.
- * Ödeme ayı, abonelik oluşturma tarihi (createdDate) üzerinden belirlenir.
+ * B-4: Ödeme ayı öncelikle billingMonth (1-12) ile belirlenir; yoksa createdDate.getMonth() kullanılır.
  * billingDay: ayın günü (1-31)
+ * billingMonth: backend'den gelen BillingMonth (1-12), null/undefined ise createdDate'e fallback
  */
-export function getYearlyDaysLeft(billingDay: number, createdDate?: string): number {
+export function getYearlyDaysLeft(billingDay: number, billingMonth?: number | null, createdDate?: string): number {
   const now = new Date();
   const created = createdDate ? new Date(createdDate) : now;
-  const billingMonth = created.getMonth(); // Aboneliğin oluşturulduğu ay
+  // billingMonth (1-12) → JS getMonth() (0-11) dönüşümü; yoksa createdDate.getMonth()
+  const anchorMonth = billingMonth != null ? billingMonth - 1 : created.getMonth();
   const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   // Bu yılın ödeme tarihi
-  const daysInMonth = new Date(now.getFullYear(), billingMonth + 1, 0).getDate();
+  const daysInMonth = new Date(now.getFullYear(), anchorMonth + 1, 0).getDate();
   const effectiveDay = Math.min(billingDay, daysInMonth);
-  let nextDate = new Date(now.getFullYear(), billingMonth, effectiveDay);
+  let nextDate = new Date(now.getFullYear(), anchorMonth, effectiveDay);
 
   // Ödeme tarihi geçtiyse → gelecek yıl
   if (nextDate <= todayMidnight) {
-    const daysInNextYear = new Date(now.getFullYear() + 1, billingMonth + 1, 0).getDate();
+    const daysInNextYear = new Date(now.getFullYear() + 1, anchorMonth + 1, 0).getDate();
     const nextYearDay = Math.min(billingDay, daysInNextYear);
-    nextDate = new Date(now.getFullYear() + 1, billingMonth, nextYearDay);
+    nextDate = new Date(now.getFullYear() + 1, anchorMonth, nextYearDay);
   }
 
   return Math.round((nextDate.getTime() - todayMidnight.getTime()) / 86400000);
@@ -55,10 +57,11 @@ export function getYearlyDaysLeft(billingDay: number, createdDate?: string): num
 
 /**
  * UserSubscription için doğru getDaysLeft — billingPeriod'u dikkate alır.
+ * B-4: billingMonth parametresi yıllık abonelikler için ödeme ayı anchor'u.
  */
-export function getDaysLeftForSub(billingDay: number, billingPeriod?: string, createdDate?: string): number {
+export function getDaysLeftForSub(billingDay: number, billingPeriod?: string, billingMonth?: number | null, createdDate?: string): number {
   if (billingPeriod === 'Yearly') {
-    return getYearlyDaysLeft(billingDay, createdDate);
+    return getYearlyDaysLeft(billingDay, billingMonth, createdDate);
   }
   return getDaysLeft(billingDay);
 }

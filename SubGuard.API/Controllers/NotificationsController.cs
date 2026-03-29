@@ -21,7 +21,7 @@ namespace SubGuard.API.Controllers
             _notificationService = notificationService;
         }
 
-        private string LoggedInUserId => User.FindFirstValue(ClaimTypes.NameIdentifier);
+        private string LoggedInUserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
         // GET api/notifications?page=1&pageSize=10
         [HttpGet]
@@ -37,9 +37,8 @@ namespace SubGuard.API.Controllers
             return CreateActionResult(await _notificationService.MarkAsReadAsync(id, LoggedInUserId));
         }
 
-        // PUT api/notifications/read-all  (alias: mark-all-read)
+        // PUT api/notifications/read-all
         [HttpPut("read-all")]
-        [HttpPut("mark-all-read")]
         public async Task<IActionResult> MarkAllAsRead()
         {
             return CreateActionResult(await _notificationService.MarkAllAsReadAsync(LoggedInUserId));

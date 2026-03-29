@@ -84,7 +84,7 @@ namespace SubGuard.Service.Services
 
             _genericRepository.Update(entity);
             await _unitOfWork.CommitAsync();
-            return CustomResponseDto<bool>.Success(204);
+            return CustomResponseDto<bool>.Success(200, true);
         }
 
         public async Task<CustomResponseDto<bool>> DeleteCatalogAsync(int id)
@@ -95,7 +95,7 @@ namespace SubGuard.Service.Services
 
             _genericRepository.Remove(entity);
             await _unitOfWork.CommitAsync();
-            return CustomResponseDto<bool>.Success(204);
+            return CustomResponseDto<bool>.Success(200, true);
         }
 
         // --- Admin: Plan ---
@@ -127,7 +127,7 @@ namespace SubGuard.Service.Services
 
             _planRepository.Update(entity);
             await _unitOfWork.CommitAsync();
-            return CustomResponseDto<bool>.Success(204);
+            return CustomResponseDto<bool>.Success(200, true);
         }
 
         public async Task<CustomResponseDto<bool>> DeletePlanAsync(int id, int? catalogId = null)
@@ -138,7 +138,7 @@ namespace SubGuard.Service.Services
 
             _planRepository.Remove(entity);
             await _unitOfWork.CommitAsync();
-            return CustomResponseDto<bool>.Success(204);
+            return CustomResponseDto<bool>.Success(200, true);
         }
 
         public async Task<CustomResponseDto<List<ServiceDto>>> GetTrendingAsync(int limit = 10)

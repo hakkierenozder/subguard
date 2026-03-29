@@ -58,14 +58,29 @@ export default function CalendarScreen() {
   );
 
   const getSubsForDay = (day: number): UserSubscription[] =>
-    activeSubs.filter((s) => s.billingDay === day);
+    activeSubs.filter((s) => {
+      if (s.billingPeriod === 'Yearly') {
+        const anchor = s.contractStartDate ? new Date(s.contractStartDate) : (s.createdDate ? new Date(s.createdDate) : null);
+        if (!anchor) return false;
+        return anchor.getMonth() === currentMonth && anchor.getDate() === day;
+      }
+      if (s.billingPeriod === 'Weekly') {
+        return s.billingDay === day;
+      }
+      return s.billingDay === day;
+    });
 
   const monthlyTotal = useMemo(() => {
     return activeSubs.reduce((total, sub) => {
       const rate = exchangeRates[sub.currency] ?? 1;
       const priceInTry = sub.price * rate;
       const partnerCount = sub.sharedWith?.length ?? 0;
-      return total + priceInTry / (partnerCount + 1);
+      const monthlyPrice = sub.billingPeriod === 'Yearly'
+        ? priceInTry / 12
+        : sub.billingPeriod === 'Weekly'
+        ? priceInTry * 4.33
+        : priceInTry;
+      return total + monthlyPrice / (partnerCount + 1);
     }, 0);
   }, [activeSubs, exchangeRates]);
 

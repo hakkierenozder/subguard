@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useThemeColors } from '../constants/theme';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
+import { useNotificationStore } from '../store/useNotificationStore';
 import { logout, removeToken, getRefreshToken } from '../utils/AuthManager';
 import { registerForPushNotificationsAsync, getExpoPushToken, cancelAllNotifications, syncSubscriptionsToCalendar } from '../utils/NotificationManager';
 import agent from '../api/agent';
@@ -324,6 +325,8 @@ export default function SettingsScreen() {
                         if (refreshToken) await agent.Auth.revokeRefreshToken(refreshToken);
                       } catch {}
                       useSettingsStore.getState().clearUserSettings();
+                      useUserSubscriptionStore.getState().reset();
+                      useNotificationStore.getState().reset();
                       await logout();
                       navigation.getParent()?.reset({ index: 0, routes: [{ name: 'Login' }] });
                     } catch {
@@ -354,6 +357,8 @@ export default function SettingsScreen() {
             // Revoke başarısız olsa bile local logout devam eder
           }
           useSettingsStore.getState().clearUserSettings();
+          useUserSubscriptionStore.getState().reset();
+          useNotificationStore.getState().reset();
           await logout();
           navigation.getParent()?.reset({ index: 0, routes: [{ name: 'Login' }] });
         },

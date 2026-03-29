@@ -17,10 +17,10 @@ namespace SubGuard.Service.Validations
                 .When(x => !string.IsNullOrEmpty(x.ColorCode));
 
             RuleFor(x => x.LogoUrl)
-                .Must(url => Uri.TryCreate(url, UriKind.Absolute, out var result)
-                             && (result.Scheme == Uri.UriSchemeHttp || result.Scheme == Uri.UriSchemeHttps))
-                .WithMessage("Logo URL geçerli bir HTTP/HTTPS adresi olmalıdır.")
-                .When(x => !string.IsNullOrEmpty(x.LogoUrl));
+                .MaximumLength(500).WithMessage("LogoUrl en fazla 500 karakter olabilir.")
+                .Must(url => string.IsNullOrEmpty(url) || Uri.TryCreate(url, UriKind.Absolute, out _))
+                .WithMessage("LogoUrl geçerli bir URL olmalıdır.")
+                .When(x => x.LogoUrl != null);
         }
     }
 }

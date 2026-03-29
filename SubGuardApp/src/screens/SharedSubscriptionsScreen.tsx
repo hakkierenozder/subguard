@@ -20,6 +20,7 @@ import { useThemeColors } from '../constants/theme';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import { UserSubscription } from '../types';
+import agent from '../api/agent';
 
 type Tab = 'subs' | 'people' | 'benimle';
 
@@ -27,10 +28,12 @@ const WHATSAPP_GREEN = '#25D366';
 
 // --- Yardımcılar ---
 
-function sendWhatsApp(sub: UserSubscription, personName?: string) {
+type SharedUser = { email: string; userId: string };
+
+function sendWhatsApp(sub: UserSubscription, personEmail?: string) {
   const partnerCount = sub.sharedWith?.length ?? 0;
   const share = (sub.price / (partnerCount + 1)).toFixed(2);
-  const target = personName ? ` ${personName},` : '';
+  const target = personEmail ? ` ${personEmail},` : '';
   const msg = `Selam!${target} ${sub.name} aboneliğimizin bu ayki payın: ${share} ${sub.currency} 💳`;
   Linking.openURL(`whatsapp://send?text=${encodeURIComponent(msg)}`).catch(() =>
     Alert.alert('Hata', 'WhatsApp yüklü değil.')
@@ -54,47 +57,74 @@ interface ManageModalProps {
   sub: UserSubscription;
   colors: ReturnType<typeof useThemeColors>;
   onClose: () => void;
-  onUpdate: (id: string, partners: string[]) => void;
+  // B-12: Artık backend çağrıları panelin içinde yapılıyor; onUpdate yalnızca yenileme sinyali.
+  onRefresh: () => void;
 }
 
-function ManagePartnersPanel({ sub, colors, onClose, onUpdate }: ManageModalProps) {
-  const [partners, setPartners] = useState<string[]>(sub.sharedWith ?? []);
+function ManagePartnersPanel({ sub, colors, onClose, onRefresh }: ManageModalProps) {
+  // Yerel kopya — kaydedilene kadar orijinal ile aynı kalır
+  const [partners, setPartners] = useState<SharedUser[]>(sub.sharedWith ?? []);
   const [inputText, setInputText] = useState('');
+  const [saving, setSaving] = useState(false);
 
-  // Dışarıdan sub.sharedWith değişirse (örn. store optimistic update) yerel state senkronize et (Fix 23)
+  // Farklı abonelik seçilince yerel state senkronize et
   useEffect(() => {
     setPartners(sub.sharedWith ?? []);
-  }, [sub.id]); // sub değiştiğinde (farklı abonelik açıldığında) yeniden başlat
+  }, [sub.id]);
 
   const addPartner = () => {
-    const trimmed = inputText.trim();
+    const trimmed = inputText.trim().toLowerCase();
     if (!trimmed) return;
     if (!trimmed.includes('@') || trimmed.indexOf('@') === 0 || !trimmed.includes('.', trimmed.indexOf('@'))) {
       Alert.alert('Geçersiz E-posta', 'Lütfen geçerli bir e-posta adresi girin.');
       return;
     }
-    if (partners.includes(trimmed)) {
+    if (partners.some((p) => p.email === trimmed)) {
       Alert.alert('Zaten ekli', `"${trimmed}" listede mevcut.`);
       return;
     }
-    setPartners((prev) => [...prev, trimmed]);
+    // Yeni eklenenler henüz userId'e sahip değil (backend share çağrısından sonra atanır)
+    setPartners((prev) => [...prev, { email: trimmed, userId: '' }]);
     setInputText('');
   };
 
-  const removePartner = (name: string) => {
-    Alert.alert('Kişiyi Kaldır', `"${name}" paylaşım listesinden çıkarılsın mı?`, [
+  const removePartner = (email: string) => {
+    Alert.alert('Kişiyi Kaldır', `"${email}" paylaşım listesinden çıkarılsın mı?`, [
       { text: 'Vazgeç', style: 'cancel' },
       {
         text: 'Kaldır',
         style: 'destructive',
-        onPress: () => setPartners((prev) => prev.filter((p) => p !== name)),
+        onPress: () => setPartners((prev) => prev.filter((p) => p.email !== email)),
       },
     ]);
   };
 
-  const handleSave = () => {
-    onUpdate(sub.id, partners);
-    onClose();
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const originalEmails = new Set((sub.sharedWith ?? []).map((p) => p.email));
+      const newEmails = new Set(partners.map((p) => p.email));
+
+      // Yeni eklenenler
+      const added = partners.filter((p) => !originalEmails.has(p.email));
+      // Kaldırılanlar
+      const removed = (sub.sharedWith ?? []).filter((p) => !newEmails.has(p.email));
+
+      await Promise.all([
+        ...added.map((p) => agent.UserSubscriptions.share(Number(sub.id), p.email)),
+        ...removed
+          .filter((p) => p.userId) // userId olmadan removeShare çağrılamaz
+          .map((p) => agent.UserSubscriptions.removeShare(Number(sub.id), p.userId)),
+      ]);
+
+      onRefresh(); // Store'u backend'den tazele
+      onClose();
+    } catch (err) {
+      console.error('Paylaşım güncelleme hatası:', err);
+      Alert.alert('Hata', 'Paylaşım listesi güncellenirken bir hata oluştu. Lütfen tekrar deneyin.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const perPerson = partners.length > 0 ? (sub.price / (partners.length + 1)).toFixed(2) : sub.price.toFixed(2);
@@ -139,46 +169,42 @@ function ManagePartnersPanel({ sub, colors, onClose, onUpdate }: ManageModalProp
       {partners.length === 0 ? (
         <Text style={[styles.noPartnerText, { color: colors.textSec }]}>Henüz kimse eklenmedi.</Text>
       ) : (
-        partners.map((p) => {
-          const isEmail = p.includes('@');
-          return (
-            <View key={p} style={[styles.partnerRow, { borderBottomColor: colors.border }]}>
-              <View style={[styles.partnerAvatar, { backgroundColor: colors.inputBg }]}>
-                <Text style={[styles.partnerAvatarText, { color: colors.accent }]}>
-                  {p.charAt(0).toUpperCase()}
-                </Text>
-              </View>
-              <Text style={[styles.partnerName, { color: colors.textMain }]} numberOfLines={1}>
-                {p}
+        partners.map((p) => (
+          <View key={p.email} style={[styles.partnerRow, { borderBottomColor: colors.border }]}>
+            <View style={[styles.partnerAvatar, { backgroundColor: colors.inputBg }]}>
+              <Text style={[styles.partnerAvatarText, { color: colors.accent }]}>
+                {p.email.charAt(0).toUpperCase()}
               </Text>
-              {/* Hatırlatma butonları */}
-              <TouchableOpacity
-                onPress={() => isEmail ? sendEmail(sub, p) : sendWhatsApp(sub, p)}
-                style={[styles.partnerAction, { backgroundColor: isEmail ? colors.accent + '18' : WHATSAPP_GREEN + '22' }]}
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              >
-                {isEmail
-                  ? <Ionicons name="mail-outline" size={14} color={colors.accent} />
-                  : <FontAwesome5 name="whatsapp" size={14} color="#25D366" />}
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => removePartner(p)}
-                style={styles.removeBtn}
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              >
-                <Ionicons name="trash-outline" size={16} color={colors.error} />
-              </TouchableOpacity>
             </View>
-          );
-        })
+            <Text style={[styles.partnerName, { color: colors.textMain }]} numberOfLines={1}>
+              {p.email}
+            </Text>
+            {/* Hatırlatma butonları */}
+            <TouchableOpacity
+              onPress={() => sendEmail(sub, p.email)}
+              style={[styles.partnerAction, { backgroundColor: colors.accent + '18' }]}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Ionicons name="mail-outline" size={14} color={colors.accent} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => removePartner(p.email)}
+              style={styles.removeBtn}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Ionicons name="trash-outline" size={16} color={colors.error} />
+            </TouchableOpacity>
+          </View>
+        ))
       )}
 
       {/* Kaydet */}
       <TouchableOpacity
-        style={[styles.saveBtn, { backgroundColor: colors.accent }]}
+        style={[styles.saveBtn, { backgroundColor: saving ? colors.textSec : colors.accent }]}
         onPress={handleSave}
+        disabled={saving}
       >
-        <Text style={styles.saveBtnText}>Kaydet</Text>
+        <Text style={styles.saveBtnText}>{saving ? 'Kaydediliyor...' : 'Kaydet'}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -190,7 +216,7 @@ export default function SharedSubscriptionsScreen() {
   const isDarkMode = useSettingsStore((s) => s.isDarkMode);
   const {
     subscriptions, sharedWithMe, sharedWithMeHasMore, loadingSharedWithMe,
-    exchangeRates, updateSubscription, fetchSharedWithMe, loadMoreSharedWithMe, fetchUserSubscriptions,
+    exchangeRates, fetchSharedWithMe, loadMoreSharedWithMe, fetchUserSubscriptions,
   } = useUserSubscriptionStore();
 
   const [activeTab, setActiveTab] = useState<Tab>('subs');
@@ -242,9 +268,10 @@ export default function SharedSubscriptionsScreen() {
       const partnerCount = sub.sharedWith!.length;
       const perPerson = priceInTry / (partnerCount + 1);
       sub.sharedWith!.forEach((person) => {
-        if (!map[person]) map[person] = { subs: [], totalShare: 0 };
-        map[person].subs.push(sub);
-        map[person].totalShare += perPerson;
+        const key = person.email;
+        if (!map[key]) map[key] = { subs: [], totalShare: 0 };
+        map[key].subs.push(sub);
+        map[key].totalShare += perPerson;
       });
     });
     return Object.entries(map).sort((a, b) => b[1].totalShare - a[1].totalShare);
@@ -258,15 +285,10 @@ export default function SharedSubscriptionsScreen() {
     }, 0);
   }, [sharedSubs, exchangeRates]);
 
-  const handleUpdatePartners = useCallback(
-    (id: string, partners: string[]) => {
-      // Optimistic update — UI anında güncellenir (Fix 23)
-      updateSubscription(id, { sharedWith: partners });
-      // Arka planda sunucu durumunu senkronize et
-      fetchUserSubscriptions();
-    },
-    [updateSubscription, fetchUserSubscriptions],
-  );
+  // B-12: Paylaşım değişikliklerini backend'e gönderdikten sonra store'u tazele.
+  const handleRefreshAfterShareUpdate = useCallback(() => {
+    fetchUserSubscriptions();
+  }, [fetchUserSubscriptions]);
 
   // --- Render: Paylaştıklarım Sekmesi ---
   const renderSubItem = ({ item }: { item: UserSubscription }) => {
@@ -300,7 +322,7 @@ export default function SharedSubscriptionsScreen() {
           <View style={styles.partnersRow}>
             <Ionicons name="people-outline" size={14} color={colors.textSec} />
             <Text style={[styles.partnersText, { color: colors.textSec }]}>
-              {item.sharedWith!.join(', ')}
+              {item.sharedWith!.map((p) => p.email).join(', ')}
             </Text>
           </View>
 
@@ -357,7 +379,7 @@ export default function SharedSubscriptionsScreen() {
         {/* Alt abonelik listesi */}
         {data.subs.map((sub) => {
           const rate = exchangeRates[sub.currency] ?? 1;
-          const share = (sub.price * rate) / (sub.sharedWith!.length + 1);
+          const share = (sub.price * rate) / ((sub.sharedWith?.length ?? 0) + 1);
           return (
             <View key={sub.id} style={[styles.personSubRow, { borderTopColor: colors.border }]}>
               <View style={[styles.personSubDot, { backgroundColor: sub.colorCode || colors.accent }]} />
@@ -375,7 +397,8 @@ export default function SharedSubscriptionsScreen() {
         <View style={[styles.personActions, { borderTopColor: colors.border }]}>
           <TouchableOpacity
             style={[styles.actionBtn, { backgroundColor: WHATSAPP_GREEN + '22', borderColor: WHATSAPP_GREEN + '44' }]}
-            onPress={() => sendWhatsApp(data.subs[0], person)}
+            onPress={() => sendWhatsApp(data.subs[0], person /* email key */)}
+
           >
             <FontAwesome5 name="whatsapp" size={13} color="#25D366" />
             <Text style={[styles.actionBtnText, { color: WHATSAPP_GREEN }]}>WhatsApp</Text>
@@ -455,7 +478,7 @@ export default function SharedSubscriptionsScreen() {
           sub={managingSub}
           colors={colors}
           onClose={() => setManagingSub(null)}
-          onUpdate={handleUpdatePartners}
+          onRefresh={handleRefreshAfterShareUpdate}
         />
       )}
 

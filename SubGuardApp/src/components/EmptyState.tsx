@@ -35,7 +35,7 @@ export default function EmptyState({
           onPress={onAction}
           activeOpacity={0.8}
         >
-          <Text style={styles.actionText}>{actionLabel}</Text>
+          <Text style={[styles.actionText, { color: colors.onPrimary ?? '#FFF' }]}>{actionLabel}</Text>
         </TouchableOpacity>
       ) : null}
     </View>
@@ -74,7 +74,6 @@ const styles = StyleSheet.create({
     borderRadius: 14,
   },
   actionText: {
-    color: '#FFF',
     fontWeight: '700',
     fontSize: 15,
   },

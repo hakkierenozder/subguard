@@ -129,8 +129,12 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
         if (subscriptionToEdit.contractEndDate) setEndDate(new Date(subscriptionToEdit.contractEndDate));
 
         setNotes(subscriptionToEdit.notes || '');
-        setSharedWith(subscriptionToEdit.sharedWith || []);
-        setShowShareInput((subscriptionToEdit.sharedWith?.length || 0) > 0);
+        // sharedWith artık { email, userId }[] — form için sadece email string'lerini al
+        const sharedEmails = (subscriptionToEdit.sharedWith ?? []).map((p) =>
+          typeof p === 'string' ? p : p.email
+        );
+        setSharedWith(sharedEmails);
+        setShowShareInput(sharedEmails.length > 0);
         setBillingPeriod(subscriptionToEdit.billingPeriod ?? 'Monthly');
         setSelectedPlanId(null);
       } else if (selectedCatalogItem) {
@@ -212,6 +216,8 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
       currency,
       billingDay: day,
       billingPeriod,
+      // B-1: Yıllık abonelikte billingDate.getMonth()+1 = fatura ayı, aylıkta null
+      billingMonth: billingPeriod === 'Yearly' ? billingDate.getMonth() + 1 : null,
       category,
       colorCode: colorToSave,
       sharedWith: showShareInput ? sharedWith : [],

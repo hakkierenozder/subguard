@@ -13,6 +13,8 @@ namespace SubGuard.Core.DTOs
         public decimal Price { get; set; }
         public string Currency { get; set; }
         public int BillingDay { get; set; }
+        /// <summary>Yıllık abonelikler için fatura ayı (1-12). Aylık aboneliklerde gönderilmez.</summary>
+        public int? BillingMonth { get; set; }
         public BillingPeriod BillingPeriod { get; set; } = BillingPeriod.Monthly;
         public string Category { get; set; }
         public string? ColorCode { get; set; }
@@ -20,5 +22,6 @@ namespace SubGuard.Core.DTOs
         public DateTime? ContractStartDate { get; set; }
         public DateTime? ContractEndDate { get; set; }
         public string? Notes { get; set; }
+        public List<string>? SharedUserEmails { get; set; }
     }
 }

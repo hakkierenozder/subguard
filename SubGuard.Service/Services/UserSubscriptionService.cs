@@ -76,6 +76,7 @@ namespace SubGuard.Service.Services
                 return CustomResponseDto<UserSubscriptionDto>.Fail(409, $"'{dto.Name}' adında bir aboneliğiniz zaten mevcut.");
             }
 
+            await _unitOfWork.BeginTransactionAsync();
             try
             {
                 var entity = _mapper.Map<UserSubscription>(dto);
@@ -86,14 +87,38 @@ namespace SubGuard.Service.Services
                         .TextInfo.ToTitleCase(entity.Category.Trim().ToLower());
                 entity.ColorCode = await ResolveColorCodeAsync(entity);
 
+                // B-8: Abonelik kaydı ve paylaşımlar tek transaction içinde commit edilir.
+                // İlk CommitAsync entity.Id'yi üretir; ikincisi paylaşımları kaydeder.
                 await _repo.AddAsync(entity);
                 await _unitOfWork.CommitAsync();
 
+                // Paylaşım e-postaları varsa her biri için SubscriptionShare kaydı oluştur
+                if (dto.SharedUserEmails != null && dto.SharedUserEmails.Any())
+                {
+                    foreach (var email in dto.SharedUserEmails)
+                    {
+                        var targetUser = await _userManager.FindByEmailAsync(email);
+                        if (targetUser == null) continue;
+
+                        var share = new SubscriptionShare
+                        {
+                            SubscriptionId = entity.Id,
+                            SharedUserId = targetUser.Id,
+                            SharedUserEmail = targetUser.Email ?? email,
+                            CreatedDate = DateTime.UtcNow
+                        };
+                        await _db.SubscriptionShares.AddAsync(share);
+                    }
+                    await _unitOfWork.CommitAsync();
+                }
+
+                await _unitOfWork.CommitTransactionAsync();
                 _logger.LogInformation("Abonelik eklendi. UserId: {UserId}, Name: {Name}", userId, entity.Name);
                 return CustomResponseDto<UserSubscriptionDto>.Success(201, _mapper.Map<UserSubscriptionDto>(entity));
             }
             catch (Exception ex)
             {
+                await _unitOfWork.RollbackTransactionAsync();
                 _logger.LogError(ex, "Abonelik ekleme hatası. UserId: {UserId}", userId);
                 throw;
             }
@@ -145,6 +170,17 @@ namespace SubGuard.Service.Services
             }
 
             _repo.Remove(entity);
+
+            // Aboneliğe ait paylaşımları da soft-delete et
+            var shares = await _db.SubscriptionShares
+                .Where(s => s.SubscriptionId == id)
+                .ToListAsync();
+            foreach (var share in shares)
+            {
+                share.IsDeleted = true;
+                share.UpdatedDate = DateTime.UtcNow;
+            }
+
             await _unitOfWork.CommitAsync();
 
             _logger.LogInformation("Abonelik silindi. UserId: {UserId}, SubscriptionId: {Id}", userId, id);
@@ -298,6 +334,7 @@ namespace SubGuard.Service.Services
             {
                 SubscriptionId = id,
                 SharedUserId = targetUser.Id,
+                SharedUserEmail = targetUser.Email ?? targetEmail,
                 SharedAt = DateTime.UtcNow
             });
             await _unitOfWork.CommitAsync();
@@ -329,7 +366,8 @@ namespace SubGuard.Service.Services
                 .FirstOrDefaultAsync(s => s.SubscriptionId == id && s.SharedUserId == targetUserId);
             if (share == null) return CustomResponseDto<bool>.Fail(404, "Bu kullanıcı paylaşım listesinde değil.");
 
-            _db.SubscriptionShares.Remove(share);
+            share.IsDeleted = true;
+            share.UpdatedDate = DateTime.UtcNow;
             await _unitOfWork.CommitAsync();
 
             return CustomResponseDto<bool>.Success(200, true);
@@ -453,7 +491,8 @@ namespace SubGuard.Service.Services
             if (log == null)
                 return CustomResponseDto<bool>.Fail(404, "Kullanım kaydı bulunamadı.");
 
-            _db.SubscriptionUsageLogs.Remove(log);
+            log.IsDeleted = true;
+            log.UpdatedDate = DateTime.UtcNow;
             await _unitOfWork.CommitAsync();
 
             return CustomResponseDto<bool>.Success(200, true);
@@ -476,7 +515,11 @@ namespace SubGuard.Service.Services
                 var existing = await _db.SubscriptionUsageLogs
                     .Where(l => l.SubscriptionId == id)
                     .ToListAsync();
-                _db.SubscriptionUsageLogs.RemoveRange(existing);
+                foreach (var log in existing)
+                {
+                    log.IsDeleted = true;
+                    log.UpdatedDate = DateTime.UtcNow;
+                }
 
                 var newLogs = incoming.Select(dto => new SubscriptionUsageLog
                 {
@@ -533,11 +576,18 @@ namespace SubGuard.Service.Services
             var (source, error) = await GetOwnedSubscription<UserSubscriptionDto>(id, userId);
             if (error != null) return error;
 
+            // B-9: Benzersiz kopya adı bul — "(Kopya)", "(Kopya 2)", "(Kopya 3)" ...
+            var baseName = $"{source.Name} (Kopya)";
+            var candidateName = baseName;
+            var suffixIndex = 2;
+            while (await _repo.Where(x => x.UserId == userId && x.Name == candidateName).AnyAsync())
+                candidateName = $"{source.Name} (Kopya {suffixIndex++})";
+
             var copy = new UserSubscription
             {
                 UserId = userId,
                 CatalogId = source!.CatalogId,
-                Name = $"{source.Name} (Kopya)",
+                Name = candidateName,
                 Price = source.Price,
                 Currency = source.Currency,
                 BillingDay = source.BillingDay,
@@ -553,6 +603,13 @@ namespace SubGuard.Service.Services
             {
                 await _repo.AddAsync(copy);
                 await _unitOfWork.CommitAsync();
+            }
+            catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("duplicate") == true
+                                                || ex.InnerException?.Message.Contains("unique") == true)
+            {
+                // Eş zamanlı istek aynı adı aldıysa 409 döndür
+                _logger.LogWarning(ex, "Klonlama sırasında unique constraint ihlali. SourceId: {SourceId}", id);
+                return CustomResponseDto<UserSubscriptionDto>.Fail(409, "Aynı isimde bir abonelik zaten mevcut. Lütfen tekrar deneyin.");
             }
             catch (Exception ex)
             {

@@ -65,7 +65,10 @@ export default function LoginScreen({ navigation }: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [focused, setFocused] = useState<string | null>(null);
 
-  const onSubmit = async (data: any) => {
+  interface LoginFormValues { email: string; password: string; }
+  interface LoginAxiosError { response?: { status?: number; data?: { data?: { userId?: string } } } }
+
+  const onSubmit = async (data: LoginFormValues) => {
     setLoading(true);
     try {
       const response = await agent.Auth.login(data);
@@ -77,11 +80,12 @@ export default function LoginScreen({ navigation }: Props) {
       } else {
         Toast.show({ type: 'error', text1: 'Hata', text2: 'Giriş yapılamadı.', position: 'bottom' });
       }
-    } catch (err: any) {
-      if (err?.response?.status === 403) {
+    } catch (err: unknown) {
+      const axiosErr = err as LoginAxiosError;
+      if (axiosErr?.response?.status === 403) {
         // Backend 403'te TokenDto.UserId'yi de döndürür (AccessToken/RefreshToken null).
         // UserId ile EmailVerification ekranına yönlendirip kullanıcının kod girmesini sağlarız.
-        const userId: string = err?.response?.data?.data?.userId || '';
+        const userId: string = axiosErr?.response?.data?.data?.userId ?? '';
         Toast.show({
           type: 'info',
           text1: 'E-posta doğrulanmamış',

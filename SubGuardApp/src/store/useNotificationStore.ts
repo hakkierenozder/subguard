@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { NotificationDto } from '../types';
 import agent from '../api/agent';
+import Toast from 'react-native-toast-message';
 
 interface NotificationStore {
   notifications: NotificationDto[];
@@ -51,6 +52,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
   },
 
   markAsRead: async (id: number) => {
+    const previousState = get().notifications;
     try {
       await agent.Notifications.markAsRead(id);
       set((state) => {
@@ -62,10 +64,14 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
           unreadCount: updated.filter(n => !n.isRead).length,
         };
       });
-    } catch {}
+    } catch {
+      set({ notifications: previousState, unreadCount: previousState.filter(n => !n.isRead).length });
+      Toast.show({ type: 'error', text1: 'Hata', text2: 'İşlem gerçekleştirilemedi.', position: 'bottom' });
+    }
   },
 
   markAllAsRead: async () => {
+    const previousState = get().notifications;
     try {
       await agent.Notifications.markAllAsRead();
       set((state) => ({
@@ -76,7 +82,10 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
         })),
         unreadCount: 0,
       }));
-    } catch {}
+    } catch {
+      set({ notifications: previousState, unreadCount: previousState.filter(n => !n.isRead).length });
+      Toast.show({ type: 'error', text1: 'Hata', text2: 'İşlem gerçekleştirilemedi.', position: 'bottom' });
+    }
   },
 
   reset: () => set({ notifications: [], unreadCount: 0, loading: false, page: 1, hasMore: true }),
@@ -91,6 +100,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
     } catch {
       // API hatası → listeyi geri yükle
       set({ notifications: previous, unreadCount: previous.filter(n => !n.isRead).length });
+      Toast.show({ type: 'error', text1: 'Hata', text2: 'İşlem gerçekleştirilemedi.', position: 'bottom' });
     }
   },
 }));

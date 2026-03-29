@@ -58,7 +58,7 @@ namespace SubGuard.Service.Services
                 PiiSanitizer.MaskEmail(user.Email));
 
             // UserId frontend'e döner — doğrulama ekranına yönlendirmek için gerekli
-            return CustomResponseDto<string>.Success(200, user.Id);
+            return CustomResponseDto<string>.Success(201, user.Id);
         }
 
         public async Task<CustomResponseDto<TokenDto>> LoginAsync(LoginDto loginDto)
@@ -66,7 +66,7 @@ namespace SubGuard.Service.Services
             var user = await _userManager.FindByEmailAsync(loginDto.Email);
 
             if (user == null)
-                return CustomResponseDto<TokenDto>.Fail(404, "Kullanıcı bulunamadı.");
+                return CustomResponseDto<TokenDto>.Fail(400, "E-posta veya şifre hatalı.");
 
             if (await _userManager.IsLockedOutAsync(user))
             {

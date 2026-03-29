@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.DTOs.Admin;
 using SubGuard.Core.Entities;
@@ -13,6 +14,7 @@ namespace SubGuard.API.Controllers
     [Route("api/admin")]
     [ApiController]
     [Authorize(Roles = "Admin")]
+    [EnableRateLimiting("user-api")]
     [ProducesResponseType(typeof(CustomResponseDto<object>), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(CustomResponseDto<object>), StatusCodes.Status403Forbidden)]
     public class AdminController : CustomBaseController
@@ -201,8 +203,8 @@ namespace SubGuard.API.Controllers
         }
 
         /// <summary>Belirtilen kullanıcıdan Admin rolünü kaldırır.</summary>
-        // DELETE api/admin/assign-role
-        [HttpDelete("assign-role")]
+        // POST api/admin/remove-role
+        [HttpPost("remove-role")]
         [Consumes("application/json")]
         [ProducesResponseType(typeof(CustomResponseDto<bool>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(CustomResponseDto<object>), StatusCodes.Status400BadRequest)]

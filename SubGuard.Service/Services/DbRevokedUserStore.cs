@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -30,44 +31,29 @@ namespace SubGuard.Service.Services
             _logger = logger;
         }
 
-        public void Revoke(string userId)
+        public async Task RevokeAsync(string userId)
         {
             // 1. Katman: In-memory cache — hızlı aynı-instance kontrolü
             _cache.Set(CacheKeyPrefix + userId, true, JwtExpiry);
 
-            // 2. Katman: DB'ye yaz — restart/multi-instance için kalıcılık
-            // Fire-and-forget: DB hatası kritik değil; JWT zaten layer-2 DB kontrolüne sahip
-            _ = Task.Run(async () =>
+            // 2. Katman: DB'ye yaz — restart/multi-instance için kalıcılık.
+            // Hata fırlatılır: çağıran (DeleteAccountAsync) işlemin bütününü rollback yapabilsin.
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            // Aynı kullanıcı için zaten aktif kayıt varsa tekrar ekleme
+            var exists = await db.RevokedUserEntries
+                .AnyAsync(e => e.UserId == userId && e.ExpiresAt > DateTime.UtcNow);
+
+            if (!exists)
             {
-                try
+                db.RevokedUserEntries.Add(new RevokedUserEntry
                 {
-                    using var scope = _scopeFactory.CreateScope();
-                    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-                    // Aynı kullanıcı için zaten aktif kayıt varsa tekrar ekleme
-                    var exists = db.RevokedUserEntries
-                        .Any(e => e.UserId == userId && e.ExpiresAt > DateTime.UtcNow);
-
-                    if (!exists)
-                    {
-                        db.RevokedUserEntries.Add(new RevokedUserEntry
-                        {
-                            UserId = userId,
-                            ExpiresAt = DateTime.UtcNow.Add(JwtExpiry)
-                        });
-                        await db.SaveChangesAsync();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // DB yazma hatası in-memory cache'i geçersiz kılmaz (aynı instance'da revoke çalışmaya devam eder).
-                    // Multi-instance senaryosunda bu instance'dan gelen revoke diğer sunuculara yayılmaz — kritik güvenlik olayı.
-                    _logger.LogError(ex,
-                        "Token revocation DB'ye yazılamadı! UserId: {UserId}. " +
-                        "Multi-instance senaryosunda bu kullanıcının token'ları diğer instance'larda geçerli kalabilir.",
-                        userId);
-                }
-            });
+                    UserId = userId,
+                    ExpiresAt = DateTime.UtcNow.Add(JwtExpiry)
+                });
+                await db.SaveChangesAsync();
+            }
         }
 
         public bool IsRevoked(string userId)

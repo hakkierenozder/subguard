@@ -3,6 +3,8 @@ import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import { useNotificationStore } from '../store/useNotificationStore';
+import { useSettingsStore } from '../store/useSettingsStore';
+import { useCatalogStore } from '../store/useCatalogStore';
 
 // ─── Token işlemleri (Keychain/Keystore - şifreli) ──────────────────────────
 
@@ -45,6 +47,14 @@ export const removeToken = async () => {
     await AsyncStorage.removeItem('SUBGUARD_USER_ID');
   } catch (e) {
     console.error('Token silinemedi', e);
+  }
+};
+
+export const removeRefreshToken = async () => {
+  try {
+    await SecureStore.deleteItemAsync('SUBGUARD_REFRESH_TOKEN');
+  } catch (e) {
+    console.error('Refresh Token silinemedi', e);
   }
 };
 
@@ -104,4 +114,6 @@ export const logout = async () => {
   // Kullanıcıya ait bellekteki state'leri temizle
   useUserSubscriptionStore.getState().reset();
   useNotificationStore.getState().reset();
+  useSettingsStore.getState().clearUserSettings();
+  useCatalogStore.getState().reset?.();
 };

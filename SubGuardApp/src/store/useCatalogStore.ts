@@ -7,14 +7,29 @@ export const useCatalogStore = create<CatalogState>((set) => ({
   loading: false,
   error: null, // [41]
 
+  reset: () => set({ catalogItems: [], loading: false, error: null }),
+
   fetchCatalog: async () => {
     set({ loading: true, error: null });
     try {
-      const response = await agent.Catalogs.list();
-      // Backend PagedResponseDto döndürüyor: { items: [...], totalCount: N }
-      const raw = response?.data;
-      const items: CatalogItem[] = Array.isArray(raw) ? raw : (raw?.items ?? []);
-      set({ catalogItems: items, loading: false });
+      // B-14: Tüm katalog sayfalarını çek. Backend CachedCatalogService in-memory sayfalıyor,
+      // büyük pageSize ile tek istekte tüm listeyi almak mümkün.
+      // pageSize=200 yeterince büyük; büyüyünce loop ile tüm sayfalar toplanır.
+      const PAGE_SIZE = 200;
+      let page = 1;
+      let allItems: CatalogItem[] = [];
+      let totalCount = 0;
+
+      do {
+        const response = await agent.Catalogs.list(page, PAGE_SIZE);
+        const raw = response?.data;
+        const items: CatalogItem[] = Array.isArray(raw) ? raw : (raw?.items ?? []);
+        totalCount = raw?.totalCount ?? items.length;
+        allItems = [...allItems, ...items];
+        page++;
+      } while (allItems.length < totalCount);
+
+      set({ catalogItems: allItems, loading: false });
     } catch (error) {
       const msg = error instanceof Error ? error.message : 'Katalog yüklenemedi.';
       console.error('Katalog çekilemedi:', error);

@@ -6,8 +6,8 @@ namespace SubGuard.Core.Services
     /// </summary>
     public interface IRevokedUserStore
     {
-        /// <summary>Kullanıcıyı kara listeye ekle (TTL = JWT süresi).</summary>
-        void Revoke(string userId);
+        /// <summary>Kullanıcıyı kara listeye ekle (TTL = JWT süresi). DB hatası fırlatılır.</summary>
+        Task RevokeAsync(string userId);
 
         /// <summary>Kullanıcının token'ı geçersiz kılınmış mı?</summary>
         bool IsRevoked(string userId);

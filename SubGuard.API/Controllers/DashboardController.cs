@@ -20,7 +20,7 @@ namespace SubGuard.API.Controllers
             _dashboardService = dashboardService;
         }
 
-        private string LoggedInUserId => User.FindFirstValue(ClaimTypes.NameIdentifier);
+        private string LoggedInUserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
         // GET api/dashboard
         // GET api/dashboard?upcomingDays=7
