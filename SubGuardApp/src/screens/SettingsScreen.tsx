@@ -42,8 +42,9 @@ function MenuItem({
   isLast = false, rightLabel,
 }: MenuItemProps) {
   const colors = useThemeColors();
-  const resolvedIconColor = isDestructive ? colors.error : (iconColor || colors.primary);
-  const resolvedIconBg   = isDestructive ? '#FEF2F2' : (iconBg || colors.inputBg);
+  const isDarkMode = useSettingsStore((s) => s.isDarkMode);
+  const resolvedIconColor = isDestructive ? colors.error : (iconColor || colors.accent);
+  const resolvedIconBg   = isDestructive ? (isDarkMode ? '#2D1515' : '#FEF2F2') : (iconBg || colors.inputBg);
 
   return (
     <TouchableOpacity
@@ -68,7 +69,7 @@ function MenuItem({
         <Switch
           value={value}
           onValueChange={onToggle}
-          trackColor={{ false: colors.border, true: colors.primary }}
+          trackColor={{ false: colors.border, true: colors.accent }}
           thumbColor={colors.white}
         />
       ) : rightLabel ? (
@@ -102,8 +103,8 @@ function ChipRow<T extends string | number>({
               key={String(opt)}
               style={[
                 styles.chip,
-                { borderColor: selected ? colors.primary : colors.border },
-                selected && { backgroundColor: colors.primary },
+                { borderColor: selected ? colors.accent : colors.border },
+                selected && { backgroundColor: colors.accent },
               ]}
               onPress={() => onSelect(opt)}
               activeOpacity={0.7}
@@ -128,7 +129,7 @@ function InlineToggle({ label, value, onToggle }: { label: string; value: boolea
       <Switch
         value={value}
         onValueChange={onToggle}
-        trackColor={{ false: colors.border, true: colors.primary }}
+        trackColor={{ false: colors.border, true: colors.accent }}
         thumbColor={colors.white}
         style={{ transform: [{ scaleX: 0.85 }, { scaleY: 0.85 }] }}
       />
@@ -377,7 +378,7 @@ export default function SettingsScreen() {
 
       {/* ── HEADER ─────────────────────────────────── */}
       <LinearGradient
-        colors={[colors.primary, colors.primaryDark]}
+        colors={['#4F46E5', '#6D28D9']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.header}
@@ -386,7 +387,7 @@ export default function SettingsScreen() {
         <Text style={styles.headerTitle}>Ayarlar</Text>
 
         <View style={[styles.profileCard, { backgroundColor: colors.cardBg }]}>
-          <LinearGradient colors={[colors.primary, colors.primaryDark]} style={styles.avatarGradient}>
+          <LinearGradient colors={['#4F46E5', '#6D28D9']} style={styles.avatarGradient}>
             <Text style={styles.avatarText}>{initials}</Text>
           </LinearGradient>
           <View style={{ flex: 1 }}>
@@ -398,12 +399,12 @@ export default function SettingsScreen() {
             </Text>
             <View style={styles.profileStats}>
               <View style={[styles.profileStatChip, { backgroundColor: colors.inputBg }]}>
-                <Ionicons name="layers-outline" size={10} color={colors.primary} />
-                <Text style={[styles.profileStatText, { color: colors.primary }]}>{activeCount} abonelik</Text>
+                <Ionicons name="layers-outline" size={10} color={colors.accent} />
+                <Text style={[styles.profileStatText, { color: colors.accent }]}>{activeCount} abonelik</Text>
               </View>
               <View style={[styles.profileStatChip, { backgroundColor: colors.inputBg }]}>
-                <Ionicons name="wallet-outline" size={10} color={colors.primary} />
-                <Text style={[styles.profileStatText, { color: colors.primary }]}>{totalExpense.toFixed(0)}₺/ay</Text>
+                <Ionicons name="wallet-outline" size={10} color={colors.accent} />
+                <Text style={[styles.profileStatText, { color: colors.accent }]}>₺{totalExpense.toFixed(0)}/ay</Text>
               </View>
             </View>
           </View>
@@ -461,7 +462,7 @@ export default function SettingsScreen() {
                 activeOpacity={0.7}
               >
                 <View style={[styles.iconBox, { backgroundColor: colors.inputBg }]}>
-                  <Ionicons name="options-outline" size={19} color={colors.primary} />
+                  <Ionicons name="options-outline" size={19} color={colors.accent} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={[styles.menuText, { color: colors.textMain }]}>Bildirim Detayları</Text>
@@ -510,8 +511,8 @@ export default function SettingsScreen() {
                               key={pct}
                               style={[
                                 styles.chip,
-                                { borderColor: selected ? colors.primary : colors.border },
-                                selected && { backgroundColor: colors.primary },
+                                { borderColor: selected ? colors.accent : colors.border },
+                                selected && { backgroundColor: colors.accent },
                               ]}
                               onPress={() => {
                                 setBudgetAlertThreshold(pct);
@@ -567,8 +568,8 @@ export default function SettingsScreen() {
                       key={cur}
                       style={[
                         styles.chip,
-                        { borderColor: selected ? colors.primary : colors.border },
-                        selected && { backgroundColor: colors.primary },
+                        { borderColor: selected ? colors.accent : colors.border },
+                        selected && { backgroundColor: colors.accent },
                       ]}
                       onPress={async () => {
                         setDefaultCurrency(cur);
@@ -608,8 +609,8 @@ export default function SettingsScreen() {
                       key={day}
                       style={[
                         styles.chip,
-                        { borderColor: selected ? colors.primary : colors.border },
-                        selected && { backgroundColor: colors.primary },
+                        { borderColor: selected ? colors.accent : colors.border },
+                        selected && { backgroundColor: colors.accent },
                       ]}
                       onPress={() => setDashboardUpcomingDays(day)}
                     >

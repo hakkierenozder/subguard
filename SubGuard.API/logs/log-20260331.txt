@@ -1,0 +1,217 @@
+2026-03-31 18:56:38.156 +03:00 [INF] [User: ] Süresi dolmuş 0 refresh token ve 0 revocation kaydı temizlendi.
+2026-03-31 18:56:38.161 +03:00 [INF] [User: ] Güncel kurlar çekiliyor...
+2026-03-31 18:56:40.625 +03:00 [INF] [User: ] Kurlar güncellendi: {"USD":44.48,"EUR":51.143,"GBP":58.898}
+2026-03-31 19:17:03.745 +03:00 [INF] [User: ] Server desktop-25vqrpg:31408:e66d60e3 caught stopping signal...
+2026-03-31 19:17:03.748 +03:00 [INF] [User: ] Server desktop-25vqrpg:31408:e66d60e3 All dispatchers stopped
+2026-03-31 19:17:03.754 +03:00 [INF] [User: ] Server desktop-25vqrpg:31408:e66d60e3 successfully reported itself as stopped in 4,0983 ms
+2026-03-31 19:17:03.756 +03:00 [INF] [User: ] Server desktop-25vqrpg:31408:e66d60e3 has been stopped in total 9,8151 ms
+2026-03-31 19:17:12.921 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-31 19:17:14.920 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-31 19:17:14.939 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-31 19:17:15.420 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-31 19:17:15.422 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-31 19:17:15.423 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-31 19:17:15.423 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-31 19:17:15.424 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-31 19:17:15.424 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-31 19:17:15.445 +03:00 [INF] [User: ] Server desktop-25vqrpg:29804:b943ceec successfully announced in 9,4278 ms
+2026-03-31 19:17:15.447 +03:00 [INF] [User: ] Server desktop-25vqrpg:29804:b943ceec is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-31 19:17:15.452 +03:00 [INF] [User: ] Server desktop-25vqrpg:29804:b943ceec all the dispatchers started
+2026-03-31 19:22:33.321 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-31 19:22:33.637 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ha***@gmail.com
+2026-03-31 19:22:33.801 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ha***@gmail.com
+2026-03-31 19:22:33.826 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 516.3703 ms
+2026-03-31 19:22:34.200 +03:00 [INF] [User: Test] Güncel kurlar çekiliyor...
+2026-03-31 19:22:34.274 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 133.2223 ms
+2026-03-31 19:22:34.372 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 232.6497 ms
+2026-03-31 19:22:34.403 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 263.8703 ms
+2026-03-31 19:22:34.637 +03:00 [INF] [User: Test] Kurlar güncellendi: {"USD":44.48,"EUR":51.143,"GBP":58.898}
+2026-03-31 19:22:34.643 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 501.0807 ms
+2026-03-31 19:22:34.653 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 519.8618 ms
+2026-03-31 19:22:34.975 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 94.9543 ms
+2026-03-31 19:22:35.023 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ba***@gmail.com
+2026-03-31 19:22:35.031 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ba***@gmail.com
+2026-03-31 19:22:35.032 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 69.1824 ms
+2026-03-31 19:22:35.294 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.2402 ms
+2026-03-31 19:22:35.295 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 5.4181 ms
+2026-03-31 19:22:35.299 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 9.1238 ms
+2026-03-31 19:22:35.301 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 11.4366 ms
+2026-03-31 19:22:35.303 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.4689 ms
+2026-03-31 19:22:35.506 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.0974 ms
+2026-03-31 19:22:38.815 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 4.9304 ms
+2026-03-31 19:22:38.822 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 11.6214 ms
+2026-03-31 19:22:41.470 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/80/price-history responded 200 in 21.1531 ms
+2026-03-31 19:22:43.046 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 7.1355 ms
+2026-03-31 19:22:45.411 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 6.4351 ms
+2026-03-31 19:22:54.299 +03:00 [INF] [User: ] HTTP PUT /api/notifications/read-all responded 200 in 21.3689 ms
+2026-03-31 19:22:54.438 +03:00 [INF] [User: ] HTTP GET /api/catalogs/trending responded 200 in 47.3088 ms
+2026-03-31 19:22:56.648 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.3704 ms
+2026-03-31 19:22:56.650 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.3438 ms
+2026-03-31 19:22:59.600 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 39.0931 ms
+2026-03-31 19:23:03.448 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 6.9601 ms
+2026-03-31 19:23:18.604 +03:00 [INF] [User: Test] Abonelik eklendi. UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a, Name: YouTube Premium
+2026-03-31 19:23:18.611 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions responded 201 in 103.3706 ms
+2026-03-31 19:23:18.935 +03:00 [INF] [User: Test] Üyesiz paylaşım eklendi. SubscriptionId: 81, İsim: Baran
+2026-03-31 19:23:18.937 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions/81/share/guest responded 200 in 32.4530 ms
+2026-03-31 19:23:21.700 +03:00 [INF] [User: Baran Doğan] Abonelik güncellendi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 79
+2026-03-31 19:23:21.702 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions/79 responded 200 in 37.6065 ms
+2026-03-31 19:23:21.833 +03:00 [INF] [User: Baran Doğan] Üyesiz paylaşım eklendi. SubscriptionId: 79, İsim: Erno
+2026-03-31 19:23:21.834 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions/79/share/guest responded 200 in 8.7705 ms
+2026-03-31 19:23:24.252 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/81/price-history responded 200 in 6.6767 ms
+2026-03-31 19:23:24.979 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 5.8529 ms
+2026-03-31 19:23:30.425 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.5000 ms
+2026-03-31 19:23:30.436 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 20.3994 ms
+2026-03-31 19:23:30.472 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 12.6387 ms
+2026-03-31 19:23:42.205 +03:00 [INF] [User: ] HTTP GET /api/catalogs/trending responded 200 in 3.8549 ms
+2026-03-31 19:23:53.405 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.4215 ms
+2026-03-31 19:23:53.476 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 8.3542 ms
+2026-03-31 19:24:09.532 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 4.6802 ms
+2026-03-31 19:24:09.536 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.5023 ms
+2026-03-31 19:25:17.585 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.3290 ms
+2026-03-31 19:28:23.467 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1182 ms
+2026-03-31 19:28:27.568 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/81/price-history responded 200 in 7.3320 ms
+2026-03-31 19:31:19.143 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.8525 ms
+2026-03-31 19:31:19.143 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 4.0002 ms
+2026-03-31 19:31:19.146 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 6.6409 ms
+2026-03-31 19:31:19.213 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.6025 ms
+2026-03-31 19:31:19.214 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.4055 ms
+2026-03-31 19:31:19.450 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.0343 ms
+2026-03-31 19:31:21.230 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.6933 ms
+2026-03-31 19:31:21.235 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.2815 ms
+2026-03-31 19:31:21.435 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 5.2865 ms
+2026-03-31 19:31:21.437 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 4.2460 ms
+2026-03-31 19:31:21.439 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 9.0203 ms
+2026-03-31 19:31:21.440 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 10.0239 ms
+2026-03-31 19:31:21.441 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 8.2087 ms
+2026-03-31 19:31:21.562 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1802 ms
+2026-03-31 19:31:21.641 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.9272 ms
+2026-03-31 19:31:21.983 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 6.7137 ms
+2026-03-31 19:31:23.294 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 5.4553 ms
+2026-03-31 19:31:23.297 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.4354 ms
+2026-03-31 19:31:24.042 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/81/price-history responded 200 in 5.2932 ms
+2026-03-31 19:31:29.559 +03:00 [INF] [User: ] HTTP GET /api/catalogs/trending responded 200 in 6.9910 ms
+2026-03-31 19:31:32.855 +03:00 [INF] [User: Baran Doğan] Abonelik güncellendi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 79
+2026-03-31 19:31:32.857 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions/79 responded 200 in 17.6733 ms
+2026-03-31 19:31:33.080 +03:00 [INF] [User: Baran Doğan] Üyesiz paylaşım eklendi. SubscriptionId: 79, İsim: Erno
+2026-03-31 19:31:33.081 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions/79/share/guest responded 200 in 10.0458 ms
+2026-03-31 19:31:33.227 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.1079 ms
+2026-03-31 19:31:43.206 +03:00 [INF] [User: Test] Abonelik eklendi. UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a, Name: Spotify
+2026-03-31 19:31:43.208 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions responded 201 in 13.1168 ms
+2026-03-31 19:31:43.590 +03:00 [INF] [User: Test] Üyesiz paylaşım eklendi. SubscriptionId: 82, İsim: Barbo
+2026-03-31 19:31:43.591 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions/82/share/guest responded 200 in 8.7271 ms
+2026-03-31 19:31:48.230 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/82/price-history responded 200 in 5.0846 ms
+2026-03-31 19:32:01.681 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 5.6564 ms
+2026-03-31 19:32:19.262 +03:00 [INF] [User: Baran Doğan] Abonelik güncellendi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 79
+2026-03-31 19:32:19.264 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions/79 responded 200 in 12.2656 ms
+2026-03-31 19:32:19.406 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions/79/share responded 409 in 15.9780 ms
+2026-03-31 19:32:25.597 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.7140 ms
+2026-03-31 19:32:25.610 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.0618 ms
+2026-03-31 19:32:25.853 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.7843 ms
+2026-03-31 19:32:27.941 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.8914 ms
+2026-03-31 19:32:29.065 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 6.1477 ms
+2026-03-31 19:32:40.907 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 4.6305 ms
+2026-03-31 19:32:40.908 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.4910 ms
+2026-03-31 19:32:43.259 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.3902 ms
+2026-03-31 19:32:43.259 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.4768 ms
+2026-03-31 19:33:12.486 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1096 ms
+2026-03-31 19:36:08.038 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1382 ms
+2026-03-31 19:42:03.329 +03:00 [INF] [User: ] Server desktop-25vqrpg:29804:b943ceec caught stopping signal...
+2026-03-31 19:42:03.332 +03:00 [INF] [User: ] Server desktop-25vqrpg:29804:b943ceec All dispatchers stopped
+2026-03-31 19:42:03.336 +03:00 [INF] [User: ] Server desktop-25vqrpg:29804:b943ceec successfully reported itself as stopped in 2,1617 ms
+2026-03-31 19:42:03.337 +03:00 [INF] [User: ] Server desktop-25vqrpg:29804:b943ceec has been stopped in total 6,585 ms
+2026-03-31 19:42:09.234 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-31 19:42:10.539 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-31 19:42:10.557 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-31 19:42:10.872 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-31 19:42:10.873 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-31 19:42:10.874 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-31 19:42:10.874 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-31 19:42:10.875 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-31 19:42:10.876 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-31 19:42:10.895 +03:00 [INF] [User: ] Server desktop-25vqrpg:7096:5f2cc730 successfully announced in 10,4901 ms
+2026-03-31 19:42:10.899 +03:00 [INF] [User: ] Server desktop-25vqrpg:7096:5f2cc730 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-31 19:42:10.903 +03:00 [INF] [User: ] Server desktop-25vqrpg:7096:5f2cc730 all the dispatchers started
+2026-03-31 19:42:59.969 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-31 19:42:59.995 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 36.2365 ms
+2026-03-31 19:43:00.672 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ba***@gmail.com
+2026-03-31 19:43:00.849 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ba***@gmail.com
+2026-03-31 19:43:00.872 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 476.5968 ms
+2026-03-31 19:43:01.284 +03:00 [INF] [User: Baran Doğan] Güncel kurlar çekiliyor...
+2026-03-31 19:43:01.343 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 118.5353 ms
+2026-03-31 19:43:01.451 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 234.6665 ms
+2026-03-31 19:43:01.485 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 265.1446 ms
+2026-03-31 19:43:01.679 +03:00 [INF] [User: Baran Doğan] Kurlar güncellendi: {"USD":44.48,"EUR":51.143,"GBP":58.898}
+2026-03-31 19:43:01.685 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 465.8565 ms
+2026-03-31 19:43:01.695 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 475.7009 ms
+2026-03-31 19:43:02.057 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 116.5415 ms
+2026-03-31 19:43:05.674 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.7115 ms
+2026-03-31 19:43:05.737 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.8479 ms
+2026-03-31 19:43:11.009 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ha***@gmail.com
+2026-03-31 19:43:11.017 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ha***@gmail.com
+2026-03-31 19:43:11.018 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 71.0017 ms
+2026-03-31 19:43:11.283 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 9.2122 ms
+2026-03-31 19:43:11.288 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.7810 ms
+2026-03-31 19:43:11.288 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.9250 ms
+2026-03-31 19:43:11.290 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 6.7552 ms
+2026-03-31 19:43:11.296 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 12.5278 ms
+2026-03-31 19:43:11.481 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 10.0168 ms
+2026-03-31 19:43:14.933 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 4.6636 ms
+2026-03-31 19:43:14.936 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.9239 ms
+2026-03-31 19:43:16.276 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/82/price-history responded 200 in 20.3571 ms
+2026-03-31 19:43:20.751 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 6.8870 ms
+2026-03-31 19:43:20.894 +03:00 [INF] [User: ] HTTP GET /api/catalogs/trending responded 200 in 51.2681 ms
+2026-03-31 19:43:27.546 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 6.9630 ms
+2026-03-31 19:43:31.421 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.3896 ms
+2026-03-31 19:43:31.432 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 16.8391 ms
+2026-03-31 19:43:33.649 +03:00 [INF] [User: Test] Abonelik eklendi. UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a, Name: Apple TV+
+2026-03-31 19:43:33.655 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions responded 201 in 107.9769 ms
+2026-03-31 19:43:34.014 +03:00 [INF] [User: Test] Üyesiz paylaşım eklendi. SubscriptionId: 83, İsim: Barbo
+2026-03-31 19:43:34.015 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions/83/share/guest responded 200 in 21.5130 ms
+2026-03-31 19:43:35.278 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.1408 ms
+2026-03-31 19:43:35.289 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 8.3898 ms
+2026-03-31 19:43:38.691 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/83/price-history responded 200 in 6.7281 ms
+2026-03-31 19:43:42.845 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 5.4381 ms
+2026-03-31 19:43:42.928 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 38.5744 ms
+2026-03-31 19:43:45.470 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 7.9548 ms
+2026-03-31 19:43:47.007 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 8.5905 ms
+2026-03-31 19:43:48.537 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.2582 ms
+2026-03-31 19:43:48.548 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 17.0343 ms
+2026-03-31 19:43:51.131 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.9047 ms
+2026-03-31 19:43:51.132 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.4344 ms
+2026-03-31 19:43:51.371 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.7326 ms
+2026-03-31 19:43:57.681 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 429 in 1.1270 ms
+2026-03-31 19:43:59.076 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 429 in 0.4532 ms
+2026-03-31 19:44:01.580 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.9205 ms
+2026-03-31 19:44:02.720 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.8069 ms
+2026-03-31 19:44:03.560 +03:00 [INF] [User: Baran Doğan] Abonelik güncellendi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 79
+2026-03-31 19:44:03.561 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions/79 responded 200 in 38.3576 ms
+2026-03-31 19:44:03.989 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 8.6013 ms
+2026-03-31 19:44:06.186 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.7614 ms
+2026-03-31 19:44:10.131 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 5.1829 ms
+2026-03-31 19:44:25.391 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2633 ms
+2026-03-31 19:44:27.889 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.3844 ms
+2026-03-31 19:44:27.890 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.9755 ms
+2026-03-31 19:44:27.893 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.4302 ms
+2026-03-31 19:44:27.893 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 6.3354 ms
+2026-03-31 19:44:27.893 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 6.8351 ms
+2026-03-31 19:44:28.104 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.0273 ms
+2026-03-31 19:44:28.115 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.0974 ms
+2026-03-31 19:44:42.498 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1137 ms
+2026-03-31 19:44:44.268 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.0501 ms
+2026-03-31 19:44:44.269 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.5582 ms
+2026-03-31 19:44:44.758 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.4138 ms
+2026-03-31 19:44:46.134 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/83/price-history responded 200 in 5.1737 ms
+2026-03-31 19:44:49.925 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/82/price-history responded 200 in 5.6849 ms
+2026-03-31 19:44:51.756 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/81/price-history responded 200 in 5.5186 ms
+2026-03-31 19:53:47.003 +03:00 [INF] [User: ] Server desktop-25vqrpg:7096:5f2cc730 caught stopping signal...
+2026-03-31 19:53:47.006 +03:00 [INF] [User: ] Server desktop-25vqrpg:7096:5f2cc730 All dispatchers stopped
+2026-03-31 19:53:47.010 +03:00 [INF] [User: ] Server desktop-25vqrpg:7096:5f2cc730 successfully reported itself as stopped in 2,3711 ms
+2026-03-31 19:53:47.010 +03:00 [INF] [User: ] Server desktop-25vqrpg:7096:5f2cc730 has been stopped in total 6,5436 ms

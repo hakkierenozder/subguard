@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BarChart } from 'react-native-chart-kit';
 import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -98,7 +99,7 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
       const cancelled = sub.cancelledDate;
       if (cancelled && new Date(cancelled).getTime() < fromMs) return;
       const rate = exchangeRates[sub.currency] || 1;
-      const myShare = (sub.price * rate) / ((sub.sharedWith?.length || 0) + 1);
+      const myShare = (sub.price * rate) / ((sub.sharedWith?.length || 0) + (sub.sharedGuests?.length || 0) + 1);
       const cat = sub.category || 'Diğer';
       if (!catMap[cat]) catMap[cat] = { total: 0, count: 0 };
       catMap[cat].total += myShare;
@@ -120,7 +121,7 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
       if (sub.isActive === false) return;
       const rate = exchangeRates[sub.currency] || 1;
       const amountInTRY = sub.price * rate;
-      const partnerCount = sub.sharedWith?.length || 0;
+      const partnerCount = (sub.sharedWith?.length || 0) + (sub.sharedGuests?.length || 0);
       const myShare = amountInTRY / (partnerCount + 1);
       const catName = sub.category || 'Diğer';
       if (!categoryStats[catName]) categoryStats[catName] = 0;
@@ -184,7 +185,7 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
         .reduce((sum, s) => {
           const rate = exchangeRates[s.currency] || 1;
           const amountInTry = s.price * rate;
-          const partnerCount = s.sharedWith?.length || 0;
+          const partnerCount = (s.sharedWith?.length || 0) + (s.sharedGuests?.length || 0);
           return sum + amountInTry / (partnerCount + 1);
         }, 0);
 
@@ -239,10 +240,10 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
     backgroundColor: colors.cardBg,
     backgroundGradientFrom: colors.cardBg,
     backgroundGradientTo: colors.cardBg,
-    fillShadowGradientFrom: colors.primary,
-    fillShadowGradientTo: colors.primary,
+    fillShadowGradientFrom: colors.accent,
+    fillShadowGradientTo: colors.accent,
     fillShadowGradientOpacity: 0.85,
-    color: () => colors.primary,
+    color: () => colors.accent,
     labelColor: () => colors.textSec,
     barPercentage: 0.55,
     decimalPlaces: 0,
@@ -339,7 +340,7 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <View style={{ alignItems: 'flex-end' }}>
-              <Text style={[styles.catPrice, { color: colors.textMain }]}>{item.total.toFixed(0)} ₺</Text>
+              <Text style={[styles.catPrice, { color: colors.textMain }]}>₺{item.total.toFixed(0)}</Text>
               <Text style={[styles.catPercent, { color: colors.textSec }]}>%{item.percentage.toFixed(1)}</Text>
             </View>
             <Ionicons
@@ -380,7 +381,7 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
             ))}
             <View style={styles.expandedFooter}>
               <Text style={[styles.expandedFooterText, { color: colors.textSec }]}>
-                {categorySubscriptions.length} abonelik · toplam {item.total.toFixed(0)} ₺/ay
+                {categorySubscriptions.length} abonelik · toplam ₺{item.total.toFixed(0)}/ay
               </Text>
             </View>
           </View>
@@ -407,8 +408,8 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
               style={[styles.exportBtn, { backgroundColor: colors.inputBg, borderColor: colors.border }]}
               onPress={handleExport}
             >
-              <Ionicons name="download-outline" size={18} color={colors.primary} />
-              <Text style={[styles.exportBtnText, { color: colors.primary }]}>CSV İndir</Text>
+              <Ionicons name="download-outline" size={18} color={colors.accent} />
+              <Text style={[styles.exportBtnText, { color: colors.accent }]}>CSV İndir</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -423,8 +424,8 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
                 <TouchableOpacity
                   key={key}
                   style={[styles.periodChip, {
-                    backgroundColor: isActive ? colors.primary : colors.inputBg,
-                    borderColor: isActive ? colors.primary : colors.border,
+                    backgroundColor: isActive ? colors.accent : colors.inputBg,
+                    borderColor: isActive ? colors.accent : colors.border,
                   }]}
                   onPress={() => setSelectedPeriod(isActive ? null : key)}
                 >
@@ -440,7 +441,7 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
           {selectedPeriod && (
             <View style={[styles.periodResultCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
               {periodLoading ? (
-                <ActivityIndicator size="small" color={colors.primary} />
+                <ActivityIndicator size="small" color={colors.accent} />
               ) : periodError ? (
                 <View style={{ alignItems: 'center', paddingVertical: 8 }}>
                   <Text style={[styles.periodResultLabel, { color: colors.error, marginBottom: 8 }]}>
@@ -448,14 +449,14 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
                   </Text>
                   <TouchableOpacity
                     onPress={() => { const p = selectedPeriod; setSelectedPeriod(null); setTimeout(() => setSelectedPeriod(p), 50); }}
-                    style={{ paddingHorizontal: 16, paddingVertical: 6, backgroundColor: colors.primary, borderRadius: 8 }}
+                    style={{ paddingHorizontal: 16, paddingVertical: 6, backgroundColor: colors.accent, borderRadius: 8 }}
                   >
                     <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700' }}>Tekrar Dene</Text>
                   </TouchableOpacity>
                 </View>
               ) : periodData?.totalSpending != null ? (
                 <View style={styles.periodResultRow}>
-                  <Ionicons name="calendar-outline" size={18} color={colors.primary} />
+                  <Ionicons name="calendar-outline" size={18} color={colors.accent} />
                   <Text style={[styles.periodResultLabel, { color: colors.textSec }]}>
                     {periodRanges[selectedPeriod].label} Toplam
                   </Text>
@@ -487,7 +488,7 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
                       <Text style={{ fontSize: 13, fontWeight: '600', color: colors.textMain }}>{item.category}</Text>
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                         <Text style={{ fontSize: 11, color: colors.textSec }}>{item.count} abonelik</Text>
-                        <Text style={{ fontSize: 13, fontWeight: '700', color: colors.textMain }}>{item.total.toFixed(0)} ₺</Text>
+                        <Text style={{ fontSize: 13, fontWeight: '700', color: colors.textMain }}>₺{item.total.toFixed(0)}</Text>
                       </View>
                     </View>
                     <View style={{ height: 6, borderRadius: 3, backgroundColor: colors.inputBg, overflow: 'hidden' }}>
@@ -500,7 +501,12 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
           )}
 
           {/* 1. ÖZET KARTI */}
-          <View style={[styles.heroCard, { backgroundColor: colors.primary, shadowColor: isDarkMode ? '#000' : colors.primaryDark }]}>
+          <LinearGradient
+            colors={['#4F46E5', '#6D28D9']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={[styles.heroCard, { shadowColor: isDarkMode ? '#000' : '#4F46E5' }]}
+          >
             <View style={styles.heroTop}>
               <View>
                 <Text style={styles.heroLabel}>Yıllık Projeksiyon</Text>
@@ -517,7 +523,7 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
             <View style={styles.statsRow}>
               <View style={styles.statItem}>
                 <Text style={styles.statLabel}>Aylık Ort.</Text>
-                <Text style={styles.statValue}>{totalMonthlyExpense.toFixed(0)} ₺</Text>
+                <Text style={styles.statValue}>₺{totalMonthlyExpense.toFixed(0)}</Text>
               </View>
               <View style={styles.verticalLine} />
               <View style={styles.statItem}>
@@ -534,11 +540,11 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
                 </>
               )}
             </View>
-          </View>
+          </LinearGradient>
 
           {loading ? (
             <View style={styles.emptyState}>
-              <ActivityIndicator size="large" color={colors.primary} />
+              <ActivityIndicator size="large" color={colors.accent} />
               <Text style={[styles.emptyText, { color: colors.textSec, marginTop: 12 }]}>Veriler yükleniyor...</Text>
             </View>
           ) : !hasData ? (
@@ -587,7 +593,7 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
 
               {/* 5. DIŞA AKTAR BUTONU */}
               <TouchableOpacity
-                style={[styles.exportFullBtn, { backgroundColor: colors.primary }]}
+                style={[styles.exportFullBtn, { backgroundColor: colors.accent }]}
                 onPress={handleExport}
                 activeOpacity={0.85}
               >
@@ -680,7 +686,7 @@ const styles = StyleSheet.create({
   catHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
   catTitleRow: { flexDirection: 'row', alignItems: 'center' },
   categoryIcon: { width: 28, height: 28, borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
-  categoryIndexText: { fontSize: 12, fontWeight: 'bold', color: '#FFF' },
+  categoryIndexText: { fontSize: 12, fontWeight: '800', color: '#FFF' },
   catName: { fontSize: 15, fontWeight: '600' },
   catPrice: { fontSize: 15, fontWeight: '700' },
   catPercent: { fontSize: 12, marginTop: 2 },

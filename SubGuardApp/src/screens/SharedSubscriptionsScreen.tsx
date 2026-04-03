@@ -31,7 +31,7 @@ const WHATSAPP_GREEN = '#25D366';
 type SharedUser = { email: string; userId: string };
 
 function sendWhatsApp(sub: UserSubscription, personEmail?: string) {
-  const partnerCount = sub.sharedWith?.length ?? 0;
+  const partnerCount = (sub.sharedWith?.length ?? 0) + (sub.sharedGuests?.length ?? 0);
   const share = (sub.price / (partnerCount + 1)).toFixed(2);
   const target = personEmail ? ` ${personEmail},` : '';
   const msg = `Selam!${target} ${sub.name} aboneliğimizin bu ayki payın: ${share} ${sub.currency} 💳`;
@@ -41,7 +41,7 @@ function sendWhatsApp(sub: UserSubscription, personEmail?: string) {
 }
 
 function sendEmail(sub: UserSubscription, email: string) {
-  const partnerCount = sub.sharedWith?.length ?? 0;
+  const partnerCount = (sub.sharedWith?.length ?? 0) + (sub.sharedGuests?.length ?? 0);
   const share = (sub.price / (partnerCount + 1)).toFixed(2);
   const subject = encodeURIComponent(`${sub.name} Abonelik Paylaşım Hatırlatması`);
   const body = encodeURIComponent(
@@ -255,7 +255,7 @@ export default function SharedSubscriptionsScreen() {
 
   // Paylaşımlı abonelikler
   const sharedSubs = useMemo(
-    () => subscriptions.filter((s) => s.isActive !== false && (s.sharedWith?.length ?? 0) > 0),
+    () => subscriptions.filter((s) => s.isActive !== false && ((s.sharedWith?.length ?? 0) + (s.sharedGuests?.length ?? 0)) > 0),
     [subscriptions],
   );
 
@@ -265,10 +265,16 @@ export default function SharedSubscriptionsScreen() {
     sharedSubs.forEach((sub) => {
       const rate = exchangeRates[sub.currency] ?? 1;
       const priceInTry = sub.price * rate;
-      const partnerCount = sub.sharedWith!.length;
+      const partnerCount = (sub.sharedWith?.length ?? 0) + (sub.sharedGuests?.length ?? 0);
       const perPerson = priceInTry / (partnerCount + 1);
-      sub.sharedWith!.forEach((person) => {
+      (sub.sharedWith ?? []).forEach((person) => {
         const key = person.email;
+        if (!map[key]) map[key] = { subs: [], totalShare: 0 };
+        map[key].subs.push(sub);
+        map[key].totalShare += perPerson;
+      });
+      (sub.sharedGuests ?? []).forEach((guest) => {
+        const key = `guest:${guest.displayName}`;
         if (!map[key]) map[key] = { subs: [], totalShare: 0 };
         map[key].subs.push(sub);
         map[key].totalShare += perPerson;
@@ -292,7 +298,7 @@ export default function SharedSubscriptionsScreen() {
 
   // --- Render: Paylaştıklarım Sekmesi ---
   const renderSubItem = ({ item }: { item: UserSubscription }) => {
-    const partnerCount = item.sharedWith?.length ?? 0;
+    const partnerCount = (item.sharedWith?.length ?? 0) + (item.sharedGuests?.length ?? 0);
     const rate = exchangeRates[item.currency] ?? 1;
     const priceInTry = item.price * rate;
     const perPerson = priceInTry / (partnerCount + 1);
@@ -322,7 +328,10 @@ export default function SharedSubscriptionsScreen() {
           <View style={styles.partnersRow}>
             <Ionicons name="people-outline" size={14} color={colors.textSec} />
             <Text style={[styles.partnersText, { color: colors.textSec }]}>
-              {item.sharedWith!.map((p) => p.email).join(', ')}
+              {[
+                ...(item.sharedWith ?? []).map((p) => p.email),
+                ...(item.sharedGuests ?? []).map((g) => g.displayName),
+              ].join(', ')}
             </Text>
           </View>
 
@@ -379,7 +388,7 @@ export default function SharedSubscriptionsScreen() {
         {/* Alt abonelik listesi */}
         {data.subs.map((sub) => {
           const rate = exchangeRates[sub.currency] ?? 1;
-          const share = (sub.price * rate) / ((sub.sharedWith?.length ?? 0) + 1);
+          const share = (sub.price * rate) / ((sub.sharedWith?.length ?? 0) + (sub.sharedGuests?.length ?? 0) + 1);
           return (
             <View key={sub.id} style={[styles.personSubRow, { borderTopColor: colors.border }]}>
               <View style={[styles.personSubDot, { backgroundColor: sub.colorCode || colors.accent }]} />
@@ -427,7 +436,7 @@ export default function SharedSubscriptionsScreen() {
 
       {/* HEADER */}
       <LinearGradient
-        colors={[colors.primary, colors.primaryDark]}
+        colors={['#4F46E5', '#6D28D9']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.header}
@@ -485,7 +494,7 @@ export default function SharedSubscriptionsScreen() {
       {/* [34] Yükleme göstergesi */}
       {loading && !refreshing && (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="large" color={colors.primary} />
+          <ActivityIndicator size="large" color={colors.accent} />
         </View>
       )}
 
@@ -496,7 +505,7 @@ export default function SharedSubscriptionsScreen() {
           <Text style={{ color: colors.textMain, fontSize: 16, marginTop: 12, textAlign: 'center' }}>Veriler yüklenemedi.</Text>
           <TouchableOpacity
             onPress={loadData}
-            style={{ marginTop: 16, paddingHorizontal: 20, paddingVertical: 10, backgroundColor: colors.primary, borderRadius: 10 }}
+            style={{ marginTop: 16, paddingHorizontal: 20, paddingVertical: 10, backgroundColor: colors.accent, borderRadius: 10 }}
           >
             <Text style={{ color: '#fff', fontWeight: '700' }}>Tekrar Dene</Text>
           </TouchableOpacity>
@@ -512,7 +521,7 @@ export default function SharedSubscriptionsScreen() {
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />}
           ListEmptyComponent={
             <View style={styles.emptyWrap}>
               <Ionicons name="people-outline" size={52} color={colors.textSec} />
@@ -531,7 +540,7 @@ export default function SharedSubscriptionsScreen() {
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />}
           ListEmptyComponent={
             <View style={styles.emptyWrap}>
               <Ionicons name="person-outline" size={52} color={colors.textSec} />
@@ -546,7 +555,7 @@ export default function SharedSubscriptionsScreen() {
         <FlatList
           data={sharedWithMe}
           keyExtractor={(item) => item.id}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />}
           renderItem={({ item }) => (
             <View style={[styles.subCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
               <View style={[styles.subColorBar, { backgroundColor: item.colorCode || colors.accent }]} />
@@ -563,7 +572,7 @@ export default function SharedSubscriptionsScreen() {
                       {item.currency} {item.price.toFixed(2)}
                     </Text>
                     <Text style={[styles.subPerPerson, { color: colors.accent }]}>
-                      Kişi başı {item.currency} {(item.price / ((item.sharedWith?.length ?? 0) + 1)).toFixed(2)}
+                      Kişi başı {item.currency} {(item.price / ((item.sharedWith?.length ?? 0) + (item.sharedGuests?.length ?? 0) + 1)).toFixed(2)}
                     </Text>
                   </View>
                 </View>

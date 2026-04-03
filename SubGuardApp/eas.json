@@ -10,6 +10,15 @@
         "EXPO_PUBLIC_API_URL": "http://192.168.1.4:5046/api"
       }
     },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://rise-years-affiliation-vehicles.trycloudflare.com/api"
+      }
+    },
     "staging": {
       "distribution": "internal",
       "env": {

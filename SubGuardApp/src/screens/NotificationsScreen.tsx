@@ -196,8 +196,6 @@ function NotifItem({ item, onRead, onDelete, onNavigateToSub, onNavigateToAnalyt
             </View>
           </View>
 
-          {/* Sağ: kaydır ipucu */}
-          <Ionicons name="chevron-back-outline" size={14} color={colors.border} style={{ paddingTop: 2 }} />
         </TouchableOpacity>
       </Swipeable>
     </Animated.View>
@@ -345,7 +343,7 @@ export default function NotificationsScreen() {
     if (!loading) return null;
     return (
       <View style={styles.footerLoader}>
-        <ActivityIndicator color={colors.primary} />
+        <ActivityIndicator color={colors.accent} />
       </View>
     );
   };
@@ -360,7 +358,7 @@ export default function NotificationsScreen() {
 
       {/* HEADER */}
       <LinearGradient
-        colors={[colors.primary, colors.primaryDark]}
+        colors={['#4F46E5', '#6D28D9']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.header}
@@ -453,8 +451,8 @@ export default function NotificationsScreen() {
           <RefreshControl
             refreshing={isRefreshing} // #48: ayrı state — bildirimler yüklüyken de spinner çalışır
             onRefresh={onRefresh}
-            tintColor={colors.primary}
-            colors={[colors.primary]}
+            tintColor={colors.accent}
+            colors={[colors.accent]}
           />
         }
         onEndReached={onEndReached}

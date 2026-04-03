@@ -14,15 +14,18 @@ namespace SubGuard.Service.Mapping
             CreateMap<UserSubscription, UserSubscriptionDto>()
                 .ForMember(dest => dest.SharedUserEmails,
                     opt => opt.MapFrom(src => src.Shares
-                        .Where(s => !s.IsDeleted)
+                        .Where(s => !s.IsDeleted && s.SharedUserId != null)
                         .Select(s => s.SharedUserEmail ?? s.SharedUserId)
                         .ToList()))
-                // B-12: Frontend'in removeShare çağrısı yapabilmesi için userId'ler de döndürülür.
-                // SharedUserIds ve SharedUserEmails aynı index sırasını korur.
                 .ForMember(dest => dest.SharedUserIds,
                     opt => opt.MapFrom(src => src.Shares
-                        .Where(s => !s.IsDeleted)
+                        .Where(s => !s.IsDeleted && s.SharedUserId != null)
                         .Select(s => s.SharedUserId)
+                        .ToList()))
+                .ForMember(dest => dest.SharedGuests,
+                    opt => opt.MapFrom(src => src.Shares
+                        .Where(s => !s.IsDeleted && s.SharedUserId == null)
+                        .Select(s => new GuestShareItemDto { Id = s.Id, DisplayName = s.DisplayName ?? "" })
                         .ToList()))
                 .ReverseMap()
                 .ForMember(dest => dest.Shares, opt => opt.Ignore());

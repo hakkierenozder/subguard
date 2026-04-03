@@ -181,6 +181,10 @@ const UserSubscriptions = {
   changeStatus:   (id: number | string, status: string, forceCancel = false) =>
     requests.patch(`/usersubscriptions/${id}/status`, { status, forceCancel }),
 
+  // Kullanıcı e-posta kontrolü (paylaşım öncesi)
+  checkUser:      (email: string) =>
+    requests.get(`/usersubscriptions/check-user?email=${encodeURIComponent(email)}`),
+
   // Paylaşım
   sharedWithMe:   (page = 1, pageSize = 20) =>
     requests.get(`/usersubscriptions/shared-with-me?page=${page}&pageSize=${pageSize}`),
@@ -188,6 +192,10 @@ const UserSubscriptions = {
     requests.post(`/usersubscriptions/${id}/share`, { email }),
   removeShare:    (id: number | string, targetUserId: string) =>
     requests.del(`/usersubscriptions/${id}/share/${targetUserId}`),
+  shareGuest:     (id: number | string, displayName: string) =>
+    requests.post(`/usersubscriptions/${id}/share/guest`, { displayName }),
+  removeGuestShare: (id: number | string, shareId: number) =>
+    requests.del(`/usersubscriptions/${id}/share/guest/${shareId}`),
 
   // Kullanım geçmişi
   getUsage:       (id: number | string) => requests.get(`/usersubscriptions/${id}/usage`),

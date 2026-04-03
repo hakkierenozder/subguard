@@ -9,11 +9,14 @@ namespace SubGuard.Core.Entities
         public int SubscriptionId { get; set; }
         public UserSubscription Subscription { get; set; } = null!;
 
-        /// <summary>Aboneliği görüntüleme izni verilen kullanıcının ID'si (AspNetUsers.Id)</summary>
-        public string SharedUserId { get; set; } = string.Empty;
+        /// <summary>Üyeli paylaşımda hedef kullanıcının ID'si. Üyesiz paylaşımda null.</summary>
+        public string? SharedUserId { get; set; }
 
-        /// <summary>Paylaşılan kullanıcının e-posta adresi (frontend'e email göstermek için)</summary>
+        /// <summary>Üyeli paylaşımda e-posta adresi.</summary>
         public string? SharedUserEmail { get; set; }
+
+        /// <summary>Üyesiz paylaşımda gösterim ismi (üyeli paylaşımda null).</summary>
+        public string? DisplayName { get; set; }
 
         public DateTime SharedAt { get; set; } = DateTime.UtcNow;
     }

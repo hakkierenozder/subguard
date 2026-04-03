@@ -31,13 +31,13 @@ namespace SubGuard.Core.DTOs
         public DateTime? PausedDate { get; set; }
         public DateTime? CancelledDate { get; set; }
 
-        /// <summary>Paylaşılan kullanıcıların e-posta adresleri (görüntülenecek).</summary>
+        /// <summary>Üyeli paylaşımlarda e-posta adresleri.</summary>
         public List<string> SharedUserEmails { get; set; } = new();
 
-        /// <summary>
-        /// Paylaşılan kullanıcıların kimlik ID'leri. SharedUserEmails ile index-bazlı eşleşir.
-        /// Frontend removeShare çağrısı için gerekli.
-        /// </summary>
+        /// <summary>Üyeli paylaşımlarda kullanıcı ID'leri. SharedUserEmails ile index-bazlı eşleşir.</summary>
         public List<string> SharedUserIds { get; set; } = new();
+
+        /// <summary>Üyesiz paylaşımlar (sadece isim).</summary>
+        public List<GuestShareItemDto> SharedGuests { get; set; } = new();
     }
 }

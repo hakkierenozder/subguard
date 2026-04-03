@@ -46,9 +46,10 @@ export interface UserSubscription {
 
   notificationId?: string;
 
-  // Paylaşım: backend SubscriptionShares tablosundan parse edilir
-  // B-12: { email, userId } çifti — removeShare için userId zorunlu
+  // Üyeli paylaşım: { email, userId } çifti — removeShare için userId zorunlu
   sharedWith?: { email: string; userId: string }[];
+  // Üyesiz paylaşım: sadece isim, shareId kaldırma için gerekli
+  sharedGuests?: { id: number; displayName: string }[];
 
   // Survey: YEREL, AsyncStorage'da tutulur — backend'e gönderilmez
   usageHistory?: UsageLog[];
@@ -105,7 +106,8 @@ export interface AddSubscriptionPayload {
   hasContract?: boolean;
   contractStartDate?: string;
   contractEndDate?: string;
-  sharedWith?: string[];
+  sharedWith?: string[];       // üyeli kullanıcı emailleri
+  sharedGuests?: string[];     // üyesiz kullanıcı isimleri
   notes?: string;
 }
 
@@ -132,9 +134,11 @@ export interface RawSubscriptionApiItem {
   pausedDate?: string | null;
   cancelledDate?: string | null;
   cancelledAt?: string | null;
-  // B-13: Paylaşım e-postaları ve userId'leri (B-12: removeShare için userId gerekli)
+  // B-13: Üyeli paylaşım e-postaları ve userId'leri
   sharedUserEmails?: string[];
   sharedUserIds?: string[];
+  // Üyesiz paylaşımlar
+  sharedGuests?: { id: number; displayName: string }[];
   // Benimle paylaşım alanları (SharedWithMeItemDto'dan)
   sharedAt?: string | null;
   ownerEmail?: string | null;

@@ -126,7 +126,9 @@ namespace SubGuard.Service.Services
 
         public async Task<CustomResponseDto<PagedResponseDto<UserSubscriptionDto>>> GetUserSubscriptionsAsync(string userId, int page, int pageSize, string? q = null)
         {
-            IQueryable<UserSubscription> query = _repo.Where(x => x.UserId == userId).Include(x => x.Catalog);
+            IQueryable<UserSubscription> query = _repo.Where(x => x.UserId == userId)
+                .Include(x => x.Catalog)
+                .Include(x => x.Shares);
             if (!string.IsNullOrWhiteSpace(q))
                 query = query.Where(x => EF.Functions.ILike(x.Name, $"%{q}%"));
 
@@ -316,6 +318,18 @@ namespace SubGuard.Service.Services
 
         // --- Paylaşım ---
 
+        public async Task<CustomResponseDto<bool>> CheckUserByEmailAsync(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+                return CustomResponseDto<bool>.Fail(400, "E-posta adresi boş olamaz.");
+
+            var user = await _userManager.FindByEmailAsync(email.Trim());
+            if (user == null)
+                return CustomResponseDto<bool>.Fail(404, "Bu e-posta adresiyle kayıtlı kullanıcı bulunamadı.");
+
+            return CustomResponseDto<bool>.Success(200, true);
+        }
+
         public async Task<CustomResponseDto<bool>> ShareSubscriptionAsync(int id, string ownerId, string targetEmail)
         {
             var targetUser = await _userManager.FindByEmailAsync(targetEmail);
@@ -356,6 +370,25 @@ namespace SubGuard.Service.Services
             return CustomResponseDto<bool>.Success(200, true);
         }
 
+        public async Task<CustomResponseDto<bool>> ShareGuestAsync(int id, string ownerId, string displayName)
+        {
+            var entity = await _repo.GetByIdAsync(id);
+            if (entity == null) return CustomResponseDto<bool>.Fail(404, "Abonelik bulunamadı.");
+            if (entity.UserId != ownerId) return CustomResponseDto<bool>.Fail(403, "Bu aboneliği paylaşma yetkiniz yok.");
+
+            await _db.SubscriptionShares.AddAsync(new SubscriptionShare
+            {
+                SubscriptionId = id,
+                SharedUserId = null,
+                DisplayName = displayName.Trim(),
+                SharedAt = DateTime.UtcNow
+            });
+            await _unitOfWork.CommitAsync();
+
+            _logger.LogInformation("Üyesiz paylaşım eklendi. SubscriptionId: {Id}, İsim: {Name}", id, displayName);
+            return CustomResponseDto<bool>.Success(200, true);
+        }
+
         public async Task<CustomResponseDto<bool>> RemoveShareAsync(int id, string ownerId, string targetUserId)
         {
             var entity = await _repo.GetByIdAsync(id);
@@ -365,6 +398,23 @@ namespace SubGuard.Service.Services
             var share = await _db.SubscriptionShares
                 .FirstOrDefaultAsync(s => s.SubscriptionId == id && s.SharedUserId == targetUserId);
             if (share == null) return CustomResponseDto<bool>.Fail(404, "Bu kullanıcı paylaşım listesinde değil.");
+
+            share.IsDeleted = true;
+            share.UpdatedDate = DateTime.UtcNow;
+            await _unitOfWork.CommitAsync();
+
+            return CustomResponseDto<bool>.Success(200, true);
+        }
+
+        public async Task<CustomResponseDto<bool>> RemoveGuestShareAsync(int id, string ownerId, int shareId)
+        {
+            var entity = await _repo.GetByIdAsync(id);
+            if (entity == null) return CustomResponseDto<bool>.Fail(404, "Abonelik bulunamadı.");
+            if (entity.UserId != ownerId) return CustomResponseDto<bool>.Fail(403, "Bu aboneliğe erişim yetkiniz yok.");
+
+            var share = await _db.SubscriptionShares
+                .FirstOrDefaultAsync(s => s.Id == shareId && s.SubscriptionId == id && s.SharedUserId == null);
+            if (share == null) return CustomResponseDto<bool>.Fail(404, "Misafir paylaşım bulunamadı.");
 
             share.IsDeleted = true;
             share.UpdatedDate = DateTime.UtcNow;

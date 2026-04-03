@@ -1,0 +1,802 @@
+2026-03-31 19:47:42.575 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-31 19:47:42.709 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonlandı (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 296
+2026-03-31 19:53:55.628 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-31 19:53:57.367 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-31 19:53:57.393 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-31 19:53:57.794 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-31 19:53:57.795 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-31 19:53:57.796 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-31 19:53:57.797 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-31 19:53:57.797 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-31 19:53:57.798 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-31 19:53:57.817 +03:00 [INF] [User: ] Server desktop-25vqrpg:35912:4ab2b679 successfully announced in 9,4887 ms
+2026-03-31 19:53:57.820 +03:00 [INF] [User: ] Server desktop-25vqrpg:35912:4ab2b679 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-31 19:53:57.826 +03:00 [INF] [User: ] Server desktop-25vqrpg:35912:4ab2b679 all the dispatchers started
+2026-03-31 19:54:22.810 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-31 19:54:23.138 +03:00 [INF] [User: Baran Doğan] Güncel kurlar çekiliyor...
+2026-03-31 19:54:23.261 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 464.4358 ms
+2026-03-31 19:54:23.338 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 542.6113 ms
+2026-03-31 19:54:23.402 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 607.3784 ms
+2026-03-31 19:54:23.551 +03:00 [INF] [User: Baran Doğan] Kurlar güncellendi: {"USD":44.48,"EUR":51.143,"GBP":58.898}
+2026-03-31 19:54:23.558 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 763.0271 ms
+2026-03-31 19:54:23.571 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 776.1945 ms
+2026-03-31 19:54:23.943 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 134.2990 ms
+2026-03-31 19:54:25.242 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 6.2133 ms
+2026-03-31 19:54:25.248 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 12.0729 ms
+2026-03-31 19:54:25.255 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 5.2164 ms
+2026-03-31 19:54:25.258 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 7.6579 ms
+2026-03-31 19:54:25.267 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 14.9721 ms
+2026-03-31 19:54:25.326 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.4483 ms
+2026-03-31 19:54:25.460 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 10.4906 ms
+2026-03-31 19:54:27.309 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 5.6383 ms
+2026-03-31 19:54:27.318 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 14.3902 ms
+2026-03-31 19:54:28.723 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.4064 ms
+2026-03-31 19:54:28.732 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.6858 ms
+2026-03-31 19:54:30.614 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 22.0478 ms
+2026-03-31 19:54:30.615 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/83/price-history responded 200 in 6.5955 ms
+2026-03-31 19:54:35.321 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 50.2658 ms
+2026-03-31 19:54:37.660 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 6.8014 ms
+2026-03-31 19:54:46.841 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 10.0195 ms
+2026-03-31 19:54:46.855 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 17.5646 ms
+2026-03-31 19:54:47.179 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/83/price-history responded 200 in 5.3861 ms
+2026-03-31 19:54:50.133 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 6.7408 ms
+2026-03-31 19:54:53.056 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/81/price-history responded 200 in 6.0570 ms
+2026-03-31 19:54:55.620 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/82/price-history responded 200 in 5.8704 ms
+2026-03-31 19:54:58.469 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 6.6098 ms
+2026-03-31 19:54:58.907 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/83/price-history responded 200 in 6.0160 ms
+2026-03-31 19:55:02.947 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 7.2553 ms
+2026-03-31 19:55:08.354 +03:00 [INF] [User: Test] Abonelik silindi. UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a, SubscriptionId: 83
+2026-03-31 19:55:08.356 +03:00 [INF] [User: ] HTTP DELETE /api/usersubscriptions/83 responded 204 in 127.9169 ms
+2026-03-31 19:55:11.592 +03:00 [INF] [User: Test] Abonelik silindi. UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a, SubscriptionId: 82
+2026-03-31 19:55:11.593 +03:00 [INF] [User: ] HTTP DELETE /api/usersubscriptions/82 responded 204 in 10.8604 ms
+2026-03-31 19:55:11.685 +03:00 [ERR] [User: Baran Doğan] An exception occurred in the database while saving changes for context type 'AppDbContext'.
+System.InvalidOperationException: Unable to save changes because a circular dependency was detected in the data to be saved: 'SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified]To show additional information call 'DbContextOptionsBuilder.EnableSensitiveDataLogging'.'.
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.ThrowCycle(List`1 cycle, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.TopologicalSortCore(Boolean withBatching, Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.BatchingTopologicalSort(Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.TopologicalSort(IEnumerable`1 commands)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.BatchCommands(IList`1 entries, IUpdateAdapter updateAdapter)+MoveNext()
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+System.InvalidOperationException: Unable to save changes because a circular dependency was detected in the data to be saved: 'SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified]To show additional information call 'DbContextOptionsBuilder.EnableSensitiveDataLogging'.'.
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.ThrowCycle(List`1 cycle, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.TopologicalSortCore(Boolean withBatching, Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.BatchingTopologicalSort(Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.TopologicalSort(IEnumerable`1 commands)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.BatchCommands(IList`1 entries, IUpdateAdapter updateAdapter)+MoveNext()
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+2026-03-31 19:55:11.689 +03:00 [ERR] [User: ] Bir hata oluştu: Unable to save changes because a circular dependency was detected in the data to be saved: 'SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified]To show additional information call 'DbContextOptionsBuilder.EnableSensitiveDataLogging'.'.
+System.InvalidOperationException: Unable to save changes because a circular dependency was detected in the data to be saved: 'SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified]To show additional information call 'DbContextOptionsBuilder.EnableSensitiveDataLogging'.'.
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.ThrowCycle(List`1 cycle, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.TopologicalSortCore(Boolean withBatching, Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.BatchingTopologicalSort(Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.TopologicalSort(IEnumerable`1 commands)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.BatchCommands(IList`1 entries, IUpdateAdapter updateAdapter)+MoveNext()
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at SubGuard.Data.UnitOfWork.UnitOfWork.CommitAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Data\UnitOfWork\UnitOfWork.cs:line 23
+   at SubGuard.Service.Services.UserSubscriptionService.RemoveSubscriptionAsync(Int32 id, String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 186
+   at SubGuard.API.Controllers.UserSubscriptionsController.Remove(Int32 id) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Controllers\UserSubscriptionsController.cs:line 57
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_19>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 427
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+2026-03-31 19:55:11.721 +03:00 [ERR] [User: ] HTTP DELETE /api/usersubscriptions/79 responded 500 in 62.9591 ms
+2026-03-31 19:55:14.700 +03:00 [INF] [User: Test] Abonelik silindi. UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a, SubscriptionId: 81
+2026-03-31 19:55:14.702 +03:00 [INF] [User: ] HTTP DELETE /api/usersubscriptions/81 responded 204 in 9.8075 ms
+2026-03-31 19:55:15.757 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 429 in 1.0587 ms
+2026-03-31 19:55:18.200 +03:00 [INF] [User: ] HTTP DELETE /api/usersubscriptions/79 responded 429 in 0.1198 ms
+2026-03-31 19:55:20.313 +03:00 [INF] [User: ] HTTP DELETE /api/usersubscriptions/80 responded 429 in 0.0825 ms
+2026-03-31 19:55:25.908 +03:00 [ERR] [User: Test] An exception occurred in the database while saving changes for context type 'AppDbContext'.
+System.InvalidOperationException: Unable to save changes because a circular dependency was detected in the data to be saved: 'SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified]To show additional information call 'DbContextOptionsBuilder.EnableSensitiveDataLogging'.'.
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.ThrowCycle(List`1 cycle, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.TopologicalSortCore(Boolean withBatching, Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.BatchingTopologicalSort(Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.TopologicalSort(IEnumerable`1 commands)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.BatchCommands(IList`1 entries, IUpdateAdapter updateAdapter)+MoveNext()
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+System.InvalidOperationException: Unable to save changes because a circular dependency was detected in the data to be saved: 'SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified]To show additional information call 'DbContextOptionsBuilder.EnableSensitiveDataLogging'.'.
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.ThrowCycle(List`1 cycle, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.TopologicalSortCore(Boolean withBatching, Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.BatchingTopologicalSort(Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.TopologicalSort(IEnumerable`1 commands)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.BatchCommands(IList`1 entries, IUpdateAdapter updateAdapter)+MoveNext()
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+2026-03-31 19:55:25.912 +03:00 [ERR] [User: ] Bir hata oluştu: Unable to save changes because a circular dependency was detected in the data to be saved: 'SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified]To show additional information call 'DbContextOptionsBuilder.EnableSensitiveDataLogging'.'.
+System.InvalidOperationException: Unable to save changes because a circular dependency was detected in the data to be saved: 'SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified]To show additional information call 'DbContextOptionsBuilder.EnableSensitiveDataLogging'.'.
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.ThrowCycle(List`1 cycle, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.TopologicalSortCore(Boolean withBatching, Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.BatchingTopologicalSort(Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.TopologicalSort(IEnumerable`1 commands)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.BatchCommands(IList`1 entries, IUpdateAdapter updateAdapter)+MoveNext()
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at SubGuard.Data.UnitOfWork.UnitOfWork.CommitAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Data\UnitOfWork\UnitOfWork.cs:line 23
+   at SubGuard.Service.Services.UserSubscriptionService.RemoveSubscriptionAsync(Int32 id, String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 186
+   at SubGuard.API.Controllers.UserSubscriptionsController.Remove(Int32 id) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Controllers\UserSubscriptionsController.cs:line 57
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_19>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 427
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+2026-03-31 19:55:25.918 +03:00 [ERR] [User: ] HTTP DELETE /api/usersubscriptions/80 responded 500 in 16.4234 ms
+2026-03-31 19:55:27.256 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/80/price-history responded 200 in 5.8597 ms
+2026-03-31 19:55:32.631 +03:00 [ERR] [User: Test] An exception occurred in the database while saving changes for context type 'AppDbContext'.
+System.InvalidOperationException: Unable to save changes because a circular dependency was detected in the data to be saved: 'SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified]To show additional information call 'DbContextOptionsBuilder.EnableSensitiveDataLogging'.'.
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.ThrowCycle(List`1 cycle, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.TopologicalSortCore(Boolean withBatching, Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.BatchingTopologicalSort(Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.TopologicalSort(IEnumerable`1 commands)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.BatchCommands(IList`1 entries, IUpdateAdapter updateAdapter)+MoveNext()
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+System.InvalidOperationException: Unable to save changes because a circular dependency was detected in the data to be saved: 'SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified]To show additional information call 'DbContextOptionsBuilder.EnableSensitiveDataLogging'.'.
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.ThrowCycle(List`1 cycle, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.TopologicalSortCore(Boolean withBatching, Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.BatchingTopologicalSort(Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.TopologicalSort(IEnumerable`1 commands)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.BatchCommands(IList`1 entries, IUpdateAdapter updateAdapter)+MoveNext()
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+2026-03-31 19:55:32.635 +03:00 [ERR] [User: ] Bir hata oluştu: Unable to save changes because a circular dependency was detected in the data to be saved: 'SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified]To show additional information call 'DbContextOptionsBuilder.EnableSensitiveDataLogging'.'.
+System.InvalidOperationException: Unable to save changes because a circular dependency was detected in the data to be saved: 'SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified]To show additional information call 'DbContextOptionsBuilder.EnableSensitiveDataLogging'.'.
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.ThrowCycle(List`1 cycle, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.TopologicalSortCore(Boolean withBatching, Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.BatchingTopologicalSort(Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.TopologicalSort(IEnumerable`1 commands)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.BatchCommands(IList`1 entries, IUpdateAdapter updateAdapter)+MoveNext()
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at SubGuard.Data.UnitOfWork.UnitOfWork.CommitAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Data\UnitOfWork\UnitOfWork.cs:line 23
+   at SubGuard.Service.Services.UserSubscriptionService.RemoveSubscriptionAsync(Int32 id, String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 186
+   at SubGuard.API.Controllers.UserSubscriptionsController.Remove(Int32 id) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Controllers\UserSubscriptionsController.cs:line 57
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_19>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 427
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+2026-03-31 19:55:32.640 +03:00 [ERR] [User: ] HTTP DELETE /api/usersubscriptions/80 responded 500 in 14.7250 ms
+2026-03-31 19:55:37.705 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 5.4871 ms
+2026-03-31 19:55:39.324 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/80/price-history responded 200 in 5.3688 ms
+2026-03-31 19:55:41.155 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2945 ms
+2026-03-31 19:55:42.299 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 8.3006 ms
+2026-03-31 19:55:44.531 +03:00 [ERR] [User: Baran Doğan] An exception occurred in the database while saving changes for context type 'AppDbContext'.
+System.InvalidOperationException: Unable to save changes because a circular dependency was detected in the data to be saved: 'SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified]To show additional information call 'DbContextOptionsBuilder.EnableSensitiveDataLogging'.'.
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.ThrowCycle(List`1 cycle, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.TopologicalSortCore(Boolean withBatching, Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.BatchingTopologicalSort(Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.TopologicalSort(IEnumerable`1 commands)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.BatchCommands(IList`1 entries, IUpdateAdapter updateAdapter)+MoveNext()
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+System.InvalidOperationException: Unable to save changes because a circular dependency was detected in the data to be saved: 'SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified]To show additional information call 'DbContextOptionsBuilder.EnableSensitiveDataLogging'.'.
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.ThrowCycle(List`1 cycle, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.TopologicalSortCore(Boolean withBatching, Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.BatchingTopologicalSort(Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.TopologicalSort(IEnumerable`1 commands)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.BatchCommands(IList`1 entries, IUpdateAdapter updateAdapter)+MoveNext()
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+2026-03-31 19:55:44.535 +03:00 [ERR] [User: ] Bir hata oluştu: Unable to save changes because a circular dependency was detected in the data to be saved: 'SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified]To show additional information call 'DbContextOptionsBuilder.EnableSensitiveDataLogging'.'.
+System.InvalidOperationException: Unable to save changes because a circular dependency was detected in the data to be saved: 'SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified]To show additional information call 'DbContextOptionsBuilder.EnableSensitiveDataLogging'.'.
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.ThrowCycle(List`1 cycle, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.TopologicalSortCore(Boolean withBatching, Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.BatchingTopologicalSort(Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.TopologicalSort(IEnumerable`1 commands)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.BatchCommands(IList`1 entries, IUpdateAdapter updateAdapter)+MoveNext()
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at SubGuard.Data.UnitOfWork.UnitOfWork.CommitAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Data\UnitOfWork\UnitOfWork.cs:line 23
+   at SubGuard.Service.Services.UserSubscriptionService.RemoveSubscriptionAsync(Int32 id, String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 186
+   at SubGuard.API.Controllers.UserSubscriptionsController.Remove(Int32 id) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Controllers\UserSubscriptionsController.cs:line 57
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_19>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 427
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+2026-03-31 19:55:44.540 +03:00 [ERR] [User: ] HTTP DELETE /api/usersubscriptions/79 responded 500 in 14.6047 ms
+2026-03-31 19:55:50.517 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 8.2896 ms
+2026-03-31 19:55:54.144 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 8.3775 ms
+2026-03-31 19:56:48.222 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.0493 ms
+2026-03-31 19:56:49.321 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.7968 ms
+2026-03-31 19:57:29.629 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.7720 ms
+2026-03-31 19:57:33.743 +03:00 [INF] [User: ] HTTP GET /api/catalogs/trending responded 200 in 41.8165 ms
+2026-03-31 19:57:54.025 +03:00 [INF] [User: Test] Abonelik eklendi. UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a, Name: Netflix
+2026-03-31 19:57:54.033 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions responded 201 in 132.4007 ms
+2026-03-31 19:57:54.344 +03:00 [INF] [User: Test] Üyesiz paylaşım eklendi. SubscriptionId: 84, İsim: Baran
+2026-03-31 19:57:54.346 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions/84/share/guest responded 200 in 18.5737 ms
+2026-03-31 19:57:59.106 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.4922 ms
+2026-03-31 19:58:01.872 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/84/price-history responded 200 in 5.4532 ms
+2026-03-31 19:58:07.231 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 8.1172 ms
+2026-03-31 19:58:11.218 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/84/price-history responded 200 in 4.7502 ms
+2026-03-31 19:58:15.960 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.0988 ms
+2026-03-31 19:58:17.028 +03:00 [INF] [User: Baran Doğan] Kullanıcı giriş yaptı. Email: ba***@gmail.com
+2026-03-31 19:58:17.063 +03:00 [INF] [User: Baran Doğan] Token üretildi. Email: ba***@gmail.com
+2026-03-31 19:58:17.066 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 106.3315 ms
+2026-03-31 19:58:17.298 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.6783 ms
+2026-03-31 19:58:17.301 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.8443 ms
+2026-03-31 19:58:17.303 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.9394 ms
+2026-03-31 19:58:17.305 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 5.9269 ms
+2026-03-31 19:58:17.372 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.6102 ms
+2026-03-31 19:58:17.589 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.5779 ms
+2026-03-31 19:58:21.846 +03:00 [INF] [User: ] HTTP PATCH /api/usersubscriptions/79/survey responded 200 in 44.3340 ms
+2026-03-31 19:58:26.925 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.3062 ms
+2026-03-31 19:58:26.925 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.3753 ms
+2026-03-31 19:58:28.769 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 5.0181 ms
+2026-03-31 19:58:33.382 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 7.6718 ms
+2026-03-31 19:58:35.534 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/84/price-history responded 200 in 5.1586 ms
+2026-03-31 19:58:40.322 +03:00 [ERR] [User: Baran Doğan] An exception occurred in the database while saving changes for context type 'AppDbContext'.
+System.InvalidOperationException: Unable to save changes because a circular dependency was detected in the data to be saved: 'SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified]To show additional information call 'DbContextOptionsBuilder.EnableSensitiveDataLogging'.'.
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.ThrowCycle(List`1 cycle, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.TopologicalSortCore(Boolean withBatching, Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.BatchingTopologicalSort(Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.TopologicalSort(IEnumerable`1 commands)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.BatchCommands(IList`1 entries, IUpdateAdapter updateAdapter)+MoveNext()
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+System.InvalidOperationException: Unable to save changes because a circular dependency was detected in the data to be saved: 'SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified]To show additional information call 'DbContextOptionsBuilder.EnableSensitiveDataLogging'.'.
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.ThrowCycle(List`1 cycle, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.TopologicalSortCore(Boolean withBatching, Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.BatchingTopologicalSort(Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.TopologicalSort(IEnumerable`1 commands)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.BatchCommands(IList`1 entries, IUpdateAdapter updateAdapter)+MoveNext()
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+2026-03-31 19:58:40.326 +03:00 [ERR] [User: ] Bir hata oluştu: Unable to save changes because a circular dependency was detected in the data to be saved: 'SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified]To show additional information call 'DbContextOptionsBuilder.EnableSensitiveDataLogging'.'.
+System.InvalidOperationException: Unable to save changes because a circular dependency was detected in the data to be saved: 'SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified] <-
+Index { 'SubscriptionId', 'SharedUserId' } SubscriptionShare [Modified]To show additional information call 'DbContextOptionsBuilder.EnableSensitiveDataLogging'.'.
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.ThrowCycle(List`1 cycle, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.TopologicalSortCore(Boolean withBatching, Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Utilities.Multigraph`2.BatchingTopologicalSort(Func`4 tryBreakEdge, Func`2 formatCycle, Func`2 formatException)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.TopologicalSort(IEnumerable`1 commands)
+   at Microsoft.EntityFrameworkCore.Update.Internal.CommandBatchPreparer.BatchCommands(IList`1 entries, IUpdateAdapter updateAdapter)+MoveNext()
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at SubGuard.Data.UnitOfWork.UnitOfWork.CommitAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Data\UnitOfWork\UnitOfWork.cs:line 23
+   at SubGuard.Service.Services.UserSubscriptionService.RemoveSubscriptionAsync(Int32 id, String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 186
+   at SubGuard.API.Controllers.UserSubscriptionsController.Remove(Int32 id) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Controllers\UserSubscriptionsController.cs:line 57
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_19>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 427
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+2026-03-31 19:58:40.333 +03:00 [ERR] [User: ] HTTP DELETE /api/usersubscriptions/79 responded 500 in 17.2313 ms
+2026-03-31 20:10:10.806 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-31 20:10:16.613 +03:00 [ERR] [User: ] An error occurred using the connection to database 'SubGuardDb' on server ''.
+2026-03-31 20:10:16.637 +03:00 [ERR] [User: ] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+System.InvalidOperationException: An exception has been raised that is likely due to a transient failure.
+ ---> Npgsql.NpgsqlException (0x80004005): Failed to connect to 127.0.0.1:5432
+ ---> System.Net.Sockets.SocketException (10061): Hedef makine etkin olarak reddettiğinden bağlantı kurulamadı.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Sockets.Socket.<ConnectAsync>g__WaitForConnectWithCancellation|281_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)
+   at Npgsql.TaskTimeoutAndCancellation.ExecuteAsync(Func`2 getTaskFunc, NpgsqlTimeout timeout, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.ConnectAsync(NpgsqlTimeout timeout, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.ConnectAsync(NpgsqlTimeout timeout, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.RawOpen(SslMode sslMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken, Boolean isFirstAttempt)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|204_1(NpgsqlConnector conn, SslMode sslMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken, Boolean isFirstAttempt)
+   at Npgsql.Internal.NpgsqlConnector.Open(NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.OpenNewConnector(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.<Get>g__RentAsync|28_0(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.<Open>g__OpenAsync|45_0(Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: An exception has been raised that is likely due to a transient failure.
+ ---> Npgsql.NpgsqlException (0x80004005): Failed to connect to 127.0.0.1:5432
+ ---> System.Net.Sockets.SocketException (10061): Hedef makine etkin olarak reddettiğinden bağlantı kurulamadı.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Sockets.Socket.<ConnectAsync>g__WaitForConnectWithCancellation|281_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)
+   at Npgsql.TaskTimeoutAndCancellation.ExecuteAsync(Func`2 getTaskFunc, NpgsqlTimeout timeout, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.ConnectAsync(NpgsqlTimeout timeout, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.ConnectAsync(NpgsqlTimeout timeout, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.RawOpen(SslMode sslMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken, Boolean isFirstAttempt)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|204_1(NpgsqlConnector conn, SslMode sslMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken, Boolean isFirstAttempt)
+   at Npgsql.Internal.NpgsqlConnector.Open(NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.OpenNewConnector(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.<Get>g__RentAsync|28_0(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.<Open>g__OpenAsync|45_0(Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+2026-03-31 20:10:16.649 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonlandı (Host Terminated).
+System.InvalidOperationException: An exception has been raised that is likely due to a transient failure.
+ ---> Npgsql.NpgsqlException (0x80004005): Failed to connect to 127.0.0.1:5432
+ ---> System.Net.Sockets.SocketException (10061): Hedef makine etkin olarak reddettiğinden bağlantı kurulamadı.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Sockets.Socket.<ConnectAsync>g__WaitForConnectWithCancellation|281_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)
+   at Npgsql.TaskTimeoutAndCancellation.ExecuteAsync(Func`2 getTaskFunc, NpgsqlTimeout timeout, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.ConnectAsync(NpgsqlTimeout timeout, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.ConnectAsync(NpgsqlTimeout timeout, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.RawOpen(SslMode sslMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken, Boolean isFirstAttempt)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|204_1(NpgsqlConnector conn, SslMode sslMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken, Boolean isFirstAttempt)
+   at Npgsql.Internal.NpgsqlConnector.Open(NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.OpenNewConnector(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.<Get>g__RentAsync|28_0(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.<Open>g__OpenAsync|45_0(Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Identity.RoleManager`1.RoleExistsAsync(String roleName)
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 328
+2026-03-31 20:11:13.287 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-31 20:11:14.993 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-31 20:11:15.015 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-31 20:11:15.728 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-31 20:11:15.729 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-31 20:11:15.729 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-31 20:11:15.730 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-31 20:11:15.731 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-31 20:11:15.731 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-31 20:11:15.759 +03:00 [INF] [User: ] Server desktop-25vqrpg:32468:f2603b1c successfully announced in 13,3437 ms
+2026-03-31 20:11:15.761 +03:00 [INF] [User: ] Server desktop-25vqrpg:32468:f2603b1c is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-31 20:11:15.767 +03:00 [INF] [User: ] Server desktop-25vqrpg:32468:f2603b1c all the dispatchers started
+2026-03-31 20:11:15.767 +03:00 [INF] [User: ] 1 servers were removed due to timeout
+2026-03-31 20:13:55.528 +03:00 [INF] [User: ] Server desktop-25vqrpg:32468:f2603b1c caught stopping signal...
+2026-03-31 20:13:55.530 +03:00 [INF] [User: ] Server desktop-25vqrpg:32468:f2603b1c All dispatchers stopped
+2026-03-31 20:13:55.534 +03:00 [INF] [User: ] Server desktop-25vqrpg:32468:f2603b1c successfully reported itself as stopped in 2,701 ms
+2026-03-31 20:13:55.535 +03:00 [INF] [User: ] Server desktop-25vqrpg:32468:f2603b1c has been stopped in total 6,0223 ms
+2026-03-31 20:13:59.860 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-31 20:14:01.229 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-31 20:14:01.248 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-31 20:14:01.568 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-31 20:14:01.569 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-31 20:14:01.570 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-31 20:14:01.571 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-31 20:14:01.572 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-31 20:14:01.572 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-31 20:14:01.591 +03:00 [INF] [User: ] Server desktop-25vqrpg:4180:2cffa3e2 successfully announced in 10,6905 ms
+2026-03-31 20:14:01.594 +03:00 [INF] [User: ] Server desktop-25vqrpg:4180:2cffa3e2 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-31 20:14:01.604 +03:00 [INF] [User: ] Server desktop-25vqrpg:4180:2cffa3e2 all the dispatchers started
+2026-03-31 20:15:24.759 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-31 20:15:25.165 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ha***@gmail.com
+2026-03-31 20:15:25.343 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ha***@gmail.com
+2026-03-31 20:15:25.438 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 690.8315 ms
+2026-03-31 20:15:25.815 +03:00 [INF] [User: Test] Güncel kurlar çekiliyor...
+2026-03-31 20:15:25.886 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 130.3969 ms
+2026-03-31 20:15:25.989 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 244.8685 ms
+2026-03-31 20:15:26.033 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 288.7805 ms
+2026-03-31 20:15:26.236 +03:00 [INF] [User: Test] Kurlar güncellendi: {"USD":44.48,"EUR":51.143,"GBP":58.898}
+2026-03-31 20:15:26.255 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 511.8012 ms
+2026-03-31 20:15:26.265 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 523.9489 ms
+2026-03-31 20:15:26.638 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 115.1055 ms
+2026-03-31 20:15:31.152 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.3255 ms
+2026-03-31 20:15:31.186 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 4.7579 ms
+2026-03-31 20:15:31.190 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 9.4234 ms
+2026-03-31 20:15:32.048 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/84/price-history responded 200 in 25.7266 ms
+2026-03-31 20:15:32.971 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ba***@gmail.com
+2026-03-31 20:15:32.983 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ba***@gmail.com
+2026-03-31 20:15:32.984 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 69.8041 ms
+2026-03-31 20:15:33.219 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 4.8709 ms
+2026-03-31 20:15:33.223 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.7165 ms
+2026-03-31 20:15:33.225 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.4013 ms
+2026-03-31 20:15:33.226 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.5708 ms
+2026-03-31 20:15:33.292 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 8.7293 ms
+2026-03-31 20:15:33.519 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.0370 ms
+2026-03-31 20:15:38.461 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 4.1273 ms
+2026-03-31 20:15:38.464 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.7326 ms
+2026-03-31 20:15:38.968 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 46.2569 ms
+2026-03-31 20:15:39.254 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 6.7264 ms
+2026-03-31 20:15:41.972 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.6924 ms
+2026-03-31 20:15:42.018 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 50.3368 ms
+2026-03-31 20:15:49.224 +03:00 [INF] [User: Baran Doğan] Abonelik güncellendi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 79
+2026-03-31 20:15:49.226 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions/79 responded 200 in 96.3576 ms
+2026-03-31 20:15:49.364 +03:00 [INF] [User: ] HTTP DELETE /api/usersubscriptions/79/share/guest/11 responded 200 in 22.3532 ms
+2026-03-31 20:15:49.364 +03:00 [INF] [User: ] HTTP DELETE /api/usersubscriptions/79/share/guest/9 responded 200 in 20.4596 ms
+2026-03-31 20:15:49.364 +03:00 [INF] [User: ] HTTP DELETE /api/usersubscriptions/79/share/guest/15 responded 200 in 20.2834 ms
+2026-03-31 20:15:49.364 +03:00 [INF] [User: ] HTTP DELETE /api/usersubscriptions/79/share/guest/14 responded 200 in 21.7466 ms
+2026-03-31 20:15:49.484 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.7361 ms
+2026-03-31 20:15:54.591 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 7.8941 ms
+2026-03-31 20:15:56.894 +03:00 [INF] [User: ] HTTP GET /api/catalogs/trending responded 200 in 45.7651 ms
+2026-03-31 20:15:57.576 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 10.0687 ms
+2026-03-31 20:16:24.167 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 4.1470 ms
+2026-03-31 20:16:24.167 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.2615 ms
+2026-03-31 20:16:32.043 +03:00 [INF] [User: Test] Abonelik eklendi. UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a, Name: YouTube Premium
+2026-03-31 20:16:32.050 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions responded 201 in 41.3831 ms
+2026-03-31 20:16:32.373 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions/85/share responded 404 in 13.9543 ms
+2026-03-31 20:16:36.954 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 8.6260 ms
+2026-03-31 20:16:36.956 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.2690 ms
+2026-03-31 20:16:37.231 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.5346 ms
+2026-03-31 20:16:40.514 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 6.0719 ms
+2026-03-31 20:16:41.571 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/85/price-history responded 200 in 5.0072 ms
+2026-03-31 20:16:44.275 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.6136 ms
+2026-03-31 20:16:45.544 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/85/price-history responded 200 in 5.4700 ms
+2026-03-31 20:16:51.561 +03:00 [INF] [User: ] HTTP GET /api/reports/spending responded 200 in 20.8905 ms
+2026-03-31 20:17:08.012 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 5.4928 ms
+2026-03-31 20:17:13.254 +03:00 [INF] [User: Baran Doğan] Abonelik durumu değiştirildi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 79, YeniDurum: "Paused"
+2026-03-31 20:17:13.255 +03:00 [INF] [User: ] HTTP PATCH /api/usersubscriptions/79/status responded 200 in 25.6439 ms
+2026-03-31 20:17:14.538 +03:00 [INF] [User: Baran Doğan] Abonelik durumu değiştirildi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 79, YeniDurum: "Active"
+2026-03-31 20:17:14.540 +03:00 [INF] [User: ] HTTP PATCH /api/usersubscriptions/79/status responded 200 in 9.4407 ms
+2026-03-31 20:17:50.753 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.6400 ms
+2026-03-31 20:17:50.755 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 7.4525 ms
+2026-03-31 20:17:53.184 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.5284 ms
+2026-03-31 20:17:53.186 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.8490 ms
+2026-03-31 20:17:54.083 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.1407 ms
+2026-03-31 20:17:54.087 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.5209 ms
+2026-03-31 20:17:54.634 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 4.1651 ms
+2026-03-31 20:17:54.648 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.1449 ms
+2026-03-31 20:17:55.356 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.9644 ms
+2026-03-31 20:17:55.360 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.1270 ms
+2026-03-31 20:22:10.032 +03:00 [INF] [User: ] Server desktop-25vqrpg:4180:2cffa3e2 caught stopping signal...
+2026-03-31 20:22:10.034 +03:00 [INF] [User: ] Server desktop-25vqrpg:4180:2cffa3e2 All dispatchers stopped
+2026-03-31 20:22:10.039 +03:00 [INF] [User: ] Server desktop-25vqrpg:4180:2cffa3e2 successfully reported itself as stopped in 2,7628 ms
+2026-03-31 20:22:10.040 +03:00 [INF] [User: ] Server desktop-25vqrpg:4180:2cffa3e2 has been stopped in total 6,9746 ms
+2026-03-31 20:22:24.775 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-31 20:22:26.452 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-31 20:22:26.500 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-31 20:22:26.992 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-31 20:22:26.993 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-31 20:22:26.994 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-31 20:22:26.995 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-31 20:22:26.995 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-31 20:22:26.996 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-31 20:22:27.017 +03:00 [INF] [User: ] Server desktop-25vqrpg:29900:07da8400 successfully announced in 11,415 ms
+2026-03-31 20:22:27.021 +03:00 [INF] [User: ] Server desktop-25vqrpg:29900:07da8400 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-31 20:22:27.028 +03:00 [INF] [User: ] Server desktop-25vqrpg:29900:07da8400 all the dispatchers started
+2026-03-31 20:22:43.754 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-31 20:22:44.046 +03:00 [INF] [User: Baran Doğan] Güncel kurlar çekiliyor...
+2026-03-31 20:22:44.150 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 399.2843 ms
+2026-03-31 20:22:44.228 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 488.1894 ms
+2026-03-31 20:22:44.281 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 541.5532 ms
+2026-03-31 20:22:44.437 +03:00 [INF] [User: Baran Doğan] Kurlar güncellendi: {"USD":44.48,"EUR":51.143,"GBP":58.898}
+2026-03-31 20:22:44.444 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 703.8080 ms
+2026-03-31 20:22:44.454 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 705.0558 ms
+2026-03-31 20:22:44.920 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 117.1315 ms
+2026-03-31 20:22:47.982 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.0165 ms
+2026-03-31 20:22:47.987 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 10.2377 ms
+2026-03-31 20:22:48.642 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 27.4709 ms
+2026-03-31 20:22:48.682 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 4.1882 ms
+2026-03-31 20:22:48.682 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 5.4123 ms
+2026-03-31 20:22:48.685 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 7.8383 ms
+2026-03-31 20:22:48.689 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 9.0911 ms
+2026-03-31 20:22:48.695 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 15.3464 ms
+2026-03-31 20:22:48.769 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2945 ms
+2026-03-31 20:22:48.887 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.6356 ms
+2026-03-31 20:22:55.069 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.2346 ms
+2026-03-31 20:22:55.069 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.5569 ms
+2026-03-31 20:22:55.580 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/85/price-history responded 200 in 7.7080 ms
+2026-03-31 20:23:02.028 +03:00 [INF] [User: Baran Doğan] Abonelik güncellendi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 79
+2026-03-31 20:23:02.031 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions/79 responded 200 in 213.0249 ms
+2026-03-31 20:23:02.278 +03:00 [INF] [User: Baran Doğan] Üyesiz paylaşım eklendi. SubscriptionId: 79, İsim: Erno
+2026-03-31 20:23:02.280 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions/79/share/guest responded 200 in 53.1094 ms
+2026-03-31 20:23:02.401 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.1601 ms
+2026-03-31 20:23:10.525 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/check-user responded 404 in 13.3538 ms
+2026-03-31 20:23:14.274 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 5.5111 ms
+2026-03-31 20:23:19.088 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/check-user responded 200 in 6.5314 ms
+2026-03-31 20:23:24.417 +03:00 [INF] [User: Test] Abonelik güncellendi. UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a, SubscriptionId: 85
+2026-03-31 20:23:24.418 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions/85 responded 200 in 13.9825 ms
+2026-03-31 20:23:24.678 +03:00 [INF] [User: Test] Abonelik paylaşıldı. SubscriptionId: 85, Hedef: baran.dogan19007@gmail.com
+2026-03-31 20:23:24.680 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions/85/share responded 200 in 43.3901 ms
+2026-03-31 20:23:26.243 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.5505 ms
+2026-03-31 20:23:26.253 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 19.9637 ms
+2026-03-31 20:23:27.519 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.0410 ms
+2026-03-31 20:23:29.142 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 45.4472 ms
+2026-03-31 20:23:33.606 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 9.3989 ms
+2026-03-31 20:23:38.961 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 9.7248 ms
+2026-03-31 20:23:39.413 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 5.3900 ms
+2026-03-31 20:23:40.141 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 429 in 0.8732 ms
+2026-03-31 20:23:43.042 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 429 in 0.1204 ms
+2026-03-31 20:23:46.571 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 8.7338 ms
+2026-03-31 20:23:48.145 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 8.2117 ms
+2026-03-31 20:23:50.443 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 7.8876 ms
+2026-03-31 20:23:51.469 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 8.4017 ms
+2026-03-31 20:23:53.200 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 7.3155 ms
+2026-03-31 20:24:16.804 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/85/price-history responded 200 in 5.8116 ms
+2026-03-31 20:24:18.921 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 6.7486 ms
+2026-03-31 20:24:20.311 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 19.9722 ms
+2026-03-31 20:24:20.356 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.3792 ms
+2026-03-31 20:24:42.224 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 5.1435 ms
+2026-03-31 20:24:42.224 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.9540 ms
+2026-03-31 20:24:53.267 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 5.2430 ms
+2026-03-31 20:24:53.268 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.5911 ms
+2026-03-31 20:26:06.217 +03:00 [INF] [User: ] HTTP GET /api/catalogs/trending responded 200 in 38.5235 ms
+2026-03-31 20:26:42.217 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 4.0840 ms
+2026-03-31 20:26:42.220 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.6231 ms
+2026-03-31 20:26:42.222 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.1708 ms
+2026-03-31 20:26:42.291 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 6.3479 ms
+2026-03-31 20:26:42.292 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.2996 ms
+2026-03-31 20:26:42.517 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.4634 ms
+2026-03-31 20:26:43.839 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.3018 ms
+2026-03-31 20:26:43.840 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 3.5823 ms
+2026-03-31 20:27:39.710 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 9.9050 ms
+2026-03-31 20:27:42.542 +03:00 [INF] [User: ] HTTP PUT /api/notifications/12/read responded 200 in 15.5271 ms
+2026-03-31 20:27:42.600 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.7823 ms
+2026-03-31 20:27:42.601 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 6.3598 ms
+2026-03-31 20:27:42.602 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.4483 ms
+2026-03-31 20:27:42.667 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.3850 ms
+2026-03-31 20:27:47.113 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.2543 ms
+2026-03-31 20:27:47.114 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.0279 ms
+2026-03-31 20:27:47.394 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.4400 ms
+2026-03-31 20:27:49.529 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 8.4394 ms
+2026-03-31 20:27:56.818 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 8.2503 ms
+2026-03-31 21:00:35.388 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ba***@gmail.com
+System.Net.Sockets.SocketException (10060): Bağlanılan uygun olarak belli bir süre içinde yanıt vermediğinden veya kurulan
+bağlantı bağlanılan ana bilgisayar yanıt vermediğinden bir bağlantı kurulamadı.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Threading.Tasks.ValueTask.ValueTaskSourceAsTask.<>c.<.cctor>b__4_0(Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.Tasks.TaskToApm.End(IAsyncResult asyncResult)
+   at MailKit.Net.SocketUtils.ConnectAsync(String host, Int32 port, IPEndPoint localEndPoint, CancellationToken cancellationToken)
+   at MailKit.Net.SocketUtils.ConnectAsync(String host, Int32 port, IPEndPoint localEndPoint, Int32 timeout, CancellationToken cancellationToken)
+   at MailKit.MailService.ConnectNetworkAsync(String host, Int32 port, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.ConnectAsync(String host, Int32 port, SecureSocketOptions options, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 47
+2026-03-31 21:00:35.388 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ba***@gmail.com
+System.Net.Sockets.SocketException (10060): Bağlanılan uygun olarak belli bir süre içinde yanıt vermediğinden veya kurulan
+bağlantı bağlanılan ana bilgisayar yanıt vermediğinden bir bağlantı kurulamadı.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Threading.Tasks.ValueTask.ValueTaskSourceAsTask.<>c.<.cctor>b__4_0(Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.Tasks.TaskToApm.End(IAsyncResult asyncResult)
+   at MailKit.Net.SocketUtils.ConnectAsync(String host, Int32 port, IPEndPoint localEndPoint, CancellationToken cancellationToken)
+   at MailKit.Net.SocketUtils.ConnectAsync(String host, Int32 port, IPEndPoint localEndPoint, Int32 timeout, CancellationToken cancellationToken)
+   at MailKit.MailService.ConnectNetworkAsync(String host, Int32 port, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.ConnectAsync(String host, Int32 port, SecureSocketOptions options, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 47
+2026-03-31 21:00:35.412 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 12
+System.Net.Sockets.SocketException (10060): Bağlanılan uygun olarak belli bir süre içinde yanıt vermediğinden veya kurulan
+bağlantı bağlanılan ana bilgisayar yanıt vermediğinden bir bağlantı kurulamadı.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Threading.Tasks.ValueTask.ValueTaskSourceAsTask.<>c.<.cctor>b__4_0(Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.Tasks.TaskToApm.End(IAsyncResult asyncResult)
+   at MailKit.Net.SocketUtils.ConnectAsync(String host, Int32 port, IPEndPoint localEndPoint, CancellationToken cancellationToken)
+   at MailKit.Net.SocketUtils.ConnectAsync(String host, Int32 port, IPEndPoint localEndPoint, Int32 timeout, CancellationToken cancellationToken)
+   at MailKit.MailService.ConnectNetworkAsync(String host, Int32 port, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.ConnectAsync(String host, Int32 port, SecureSocketOptions options, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 47
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 554
+2026-03-31 21:00:35.413 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 12
+System.Net.Sockets.SocketException (10060): Bağlanılan uygun olarak belli bir süre içinde yanıt vermediğinden veya kurulan
+bağlantı bağlanılan ana bilgisayar yanıt vermediğinden bir bağlantı kurulamadı.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Threading.Tasks.ValueTask.ValueTaskSourceAsTask.<>c.<.cctor>b__4_0(Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.Tasks.TaskToApm.End(IAsyncResult asyncResult)
+   at MailKit.Net.SocketUtils.ConnectAsync(String host, Int32 port, IPEndPoint localEndPoint, CancellationToken cancellationToken)
+   at MailKit.Net.SocketUtils.ConnectAsync(String host, Int32 port, IPEndPoint localEndPoint, Int32 timeout, CancellationToken cancellationToken)
+   at MailKit.MailService.ConnectNetworkAsync(String host, Int32 port, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.ConnectAsync(String host, Int32 port, SecureSocketOptions options, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 47
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 554
+2026-03-31 21:00:35.416 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 12, UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7
+2026-03-31 21:00:35.419 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 12, UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7
+2026-03-31 21:00:35.422 +03:00 [INF] [User: ] Bildirim kuyruğu işlendi. Gönderilen: 0, Başarısız: 1
+2026-03-31 21:00:35.422 +03:00 [INF] [User: ] Bildirim kuyruğu işlendi. Gönderilen: 0, Başarısız: 1
+2026-03-31 21:22:27.137 +03:00 [INF] [User: ] Removed 2 outdated record(s) from 'aggregatedcounter' table.
+2026-03-31 21:22:28.166 +03:00 [INF] [User: ] Removed 19 outdated record(s) from 'job' table.
+2026-03-31 22:00:02.899 +03:00 [INF] [User: ] Email gönderildi. Alıcı: ba***@gmail.com, Konu: Abonelik Paylaşıldı
+2026-03-31 22:00:02.961 +03:00 [INF] [User: ] Bildirim kuyruğu işlendi. Gönderilen: 1, Başarısız: 0
+2026-03-31 22:00:23.196 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ba***@gmail.com
+System.Net.Sockets.SocketException (10060): Bağlanılan uygun olarak belli bir süre içinde yanıt vermediğinden veya kurulan
+bağlantı bağlanılan ana bilgisayar yanıt vermediğinden bir bağlantı kurulamadı.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Threading.Tasks.ValueTask.ValueTaskSourceAsTask.<>c.<.cctor>b__4_0(Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.Tasks.TaskToApm.End(IAsyncResult asyncResult)
+   at MailKit.Net.SocketUtils.ConnectAsync(String host, Int32 port, IPEndPoint localEndPoint, CancellationToken cancellationToken)
+   at MailKit.Net.SocketUtils.ConnectAsync(String host, Int32 port, IPEndPoint localEndPoint, Int32 timeout, CancellationToken cancellationToken)
+   at MailKit.MailService.ConnectNetworkAsync(String host, Int32 port, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.ConnectAsync(String host, Int32 port, SecureSocketOptions options, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 47
+2026-03-31 22:00:23.199 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 12
+System.Net.Sockets.SocketException (10060): Bağlanılan uygun olarak belli bir süre içinde yanıt vermediğinden veya kurulan
+bağlantı bağlanılan ana bilgisayar yanıt vermediğinden bir bağlantı kurulamadı.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Threading.Tasks.ValueTask.ValueTaskSourceAsTask.<>c.<.cctor>b__4_0(Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.Tasks.TaskToApm.End(IAsyncResult asyncResult)
+   at MailKit.Net.SocketUtils.ConnectAsync(String host, Int32 port, IPEndPoint localEndPoint, CancellationToken cancellationToken)
+   at MailKit.Net.SocketUtils.ConnectAsync(String host, Int32 port, IPEndPoint localEndPoint, Int32 timeout, CancellationToken cancellationToken)
+   at MailKit.MailService.ConnectNetworkAsync(String host, Int32 port, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.ConnectAsync(String host, Int32 port, SecureSocketOptions options, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 47
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 554
+2026-03-31 22:00:23.203 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 12, UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7
+2026-03-31 22:00:23.206 +03:00 [INF] [User: ] Bildirim kuyruğu işlendi. Gönderilen: 0, Başarısız: 1
+2026-03-31 22:22:29.205 +03:00 [INF] [User: ] Removed 1 outdated record(s) from 'aggregatedcounter' table.
+2026-03-31 22:22:30.220 +03:00 [INF] [User: ] Removed 8 outdated record(s) from 'job' table.
+2026-03-31 23:00:05.770 +03:00 [INF] [User: ] Email gönderildi. Alıcı: ba***@gmail.com, Konu: Abonelik Paylaşıldı
+2026-03-31 23:00:05.812 +03:00 [INF] [User: ] Email gönderildi. Alıcı: ba***@gmail.com, Konu: Abonelik Paylaşıldı
+2026-03-31 23:00:05.830 +03:00 [INF] [User: ] Bildirim kuyruğu işlendi. Gönderilen: 1, Başarısız: 0
+2026-03-31 23:00:05.906 +03:00 [INF] [User: ] Bildirim kuyruğu işlendi. Gönderilen: 1, Başarısız: 0
+2026-03-31 23:22:31.266 +03:00 [INF] [User: ] Removed 1 outdated record(s) from 'aggregatedcounter' table.
+2026-03-31 23:22:32.282 +03:00 [INF] [User: ] Removed 8 outdated record(s) from 'job' table.

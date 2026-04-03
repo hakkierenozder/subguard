@@ -203,7 +203,19 @@
       "Bash(cmd /c \"taskkill /F /PID 9852\")",
       "Bash(cmd /c \"taskkill /F /PID 9852 && ping -n 3 127.0.0.1 > nul && dotnet build SubGuard.API\")",
       "Bash(kill -9 9852)",
-      "Bash(powershell -Command \"Stop-Process -Id 9852 -Force; Start-Sleep 2; Get-Process | Where-Object {$_Name -like ''*SubGuard*''}\")"
+      "Bash(powershell -Command \"Stop-Process -Id 9852 -Force; Start-Sleep 2; Get-Process | Where-Object {$_Name -like ''*SubGuard*''}\")",
+      "Bash(find C:ProjectsSubGuardSubGuardSubGuard.DataMigrations -type f -name *.cs)",
+      "Bash(ls /c/Projects/SubGuard/SubGuard/SubGuard.Data/Migrations/*.cs)",
+      "Bash(find /c/Projects/SubGuard/SubGuard -name *UserSubscriptionDto* -type f)",
+      "Bash(find /c/Projects/SubGuard/SubGuard -name MapProfile* -type f)",
+      "Bash(find /c/Projects/SubGuard/SubGuard -name *SubscriptionController* -o -name *subscription*controller*)",
+      "Bash(find /c/Projects/SubGuard/SubGuard -path *Controllers* -name * -type f)",
+      "Bash(ls -lh /c/Projects/SubGuard/SubGuard/SubGuard.Data/Migrations/*Share*)",
+      "Bash(grep -r CreateTable.*SubscriptionShares /c/Projects/SubGuard/SubGuard/SubGuard.Data/Migrations/*.cs)",
+      "Bash(grep -l \"SubscriptionShares\" /c/Projects/SubGuard/SubGuard/SubGuard.Data/Migrations/*.cs)",
+      "Bash(grep -r SubscriptionShares /c/Projects/SubGuard/SubGuard/SubGuard.Data/Migrations/*.cs)",
+      "Bash(find /c/Projects/SubGuard/SubGuard -name *Config* -o -name *Configuration*)",
+      "Bash(grep -n \"GuestShareItemDto\" /c/Projects/SubGuard/SubGuard/SubGuard.Core/DTOs/*.cs)"
     ]
   }
 }

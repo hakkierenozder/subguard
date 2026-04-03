@@ -64,6 +64,14 @@ namespace SubGuard.API.Controllers
             return CreateActionResult(await _service.ChangeStatusAsync(id, LoggedInUserId, dto.Status, dto.ForceCancel));
         }
 
+        // GET api/usersubscriptions/check-user?email=xxx
+        // Paylaşım ekranında e-posta doğrulama için — sadece var/yok döner, kullanıcı detayı vermez
+        [HttpGet("check-user")]
+        public async Task<IActionResult> CheckUser([FromQuery] string email)
+        {
+            return CreateActionResult(await _service.CheckUserByEmailAsync(email));
+        }
+
         // GET api/usersubscriptions/shared-with-me
         [HttpGet("shared-with-me")]
         public async Task<IActionResult> GetSharedWithMe([FromQuery] PagedRequestDto paged)
@@ -83,6 +91,20 @@ namespace SubGuard.API.Controllers
         public async Task<IActionResult> RemoveShare(int id, string targetUserId)
         {
             return CreateActionResult(await _service.RemoveShareAsync(id, LoggedInUserId, targetUserId));
+        }
+
+        // POST api/usersubscriptions/5/share/guest
+        [HttpPost("{id}/share/guest")]
+        public async Task<IActionResult> ShareGuest(int id, [FromBody] ShareGuestDto dto)
+        {
+            return CreateActionResult(await _service.ShareGuestAsync(id, LoggedInUserId, dto.DisplayName));
+        }
+
+        // DELETE api/usersubscriptions/5/share/guest/42
+        [HttpDelete("{id}/share/guest/{shareId:int}")]
+        public async Task<IActionResult> RemoveGuestShare(int id, int shareId)
+        {
+            return CreateActionResult(await _service.RemoveGuestShareAsync(id, LoggedInUserId, shareId));
         }
 
         // GET api/usersubscriptions/5/usage

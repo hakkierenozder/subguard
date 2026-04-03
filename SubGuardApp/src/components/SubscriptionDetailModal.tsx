@@ -26,7 +26,7 @@ function DetailLogo({ logoUrl, brandColor, name, size = 80 }: { logoUrl?: string
         );
     }
     return (
-        <Text style={{ fontSize: size * 0.4, fontWeight: 'bold', color: '#FFFFFF' }}>
+        <Text style={{ fontSize: size * 0.4, fontWeight: '800', color: '#FFFFFF' }}>
             {name.charAt(0).toUpperCase()}
         </Text>
     );
@@ -206,7 +206,7 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
     // --- HESAPLAMALAR ---
     const totalCost = subscription.price;
     const partners = subscription.sharedWith || [];
-    const partnersCount = partners.length;
+    const partnersCount = partners.length + (subscription.sharedGuests?.length ?? 0);
     const myShare = totalCost / (partnersCount + 1);
 
     const getBillingData = () => {
@@ -319,8 +319,10 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                         <Text style={[styles.heroTitle, { color: colors.textMain }]}>{subscription.name}</Text>
                         <View style={styles.priceContainer}>
                             <Text style={[styles.heroCurrency, { color: colors.textSec }]}>{subscription.currency}</Text>
-                            <Text style={[styles.heroPrice, { color: colors.textMain }]}>{subscription.price}</Text>
-                            <Text style={[styles.heroPeriod, { color: colors.textSec }]}>/ay</Text>
+                            <Text style={[styles.heroPrice, { color: colors.textMain }]}>{subscription.price.toFixed(2)}</Text>
+                            <Text style={[styles.heroPeriod, { color: colors.textSec }]}>
+                                {subscription.billingPeriod === 'Yearly' ? '/yıl' : '/ay'}
+                            </Text>
                         </View>
                         {/* Durum badge */}
                         {currentStatus !== 'active' && (
@@ -491,7 +493,7 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                                     ]}
                                 >
                                     <View style={[styles.iconBox, { backgroundColor: colors.inputBg }]}>
-                                        <Ionicons name="swap-vertical-outline" size={18} color={colors.primary} />
+                                        <Ionicons name="swap-vertical-outline" size={18} color={colors.accent} />
                                     </View>
                                     <View style={{ flex: 1 }}>
                                         <View style={styles.priceHistoryPrices}>
@@ -544,7 +546,7 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                         <View style={[styles.detailItem, { borderBottomColor: colors.border, borderBottomWidth: 1 }]}>
                             <View style={styles.detailLeft}>
                                 <View style={[styles.iconBox, { backgroundColor: colors.inputBg }]}>
-                                    <Ionicons name="folder-open" size={18} color={colors.primary} />
+                                    <Ionicons name="folder-open" size={18} color={colors.accent} />
                                 </View>
                                 <Text style={[styles.detailLabel, { color: colors.textMain }]}>Kategori</Text>
                             </View>
@@ -553,7 +555,7 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                         <View style={[styles.detailItem, { borderBottomColor: colors.border, borderBottomWidth: partnersCount > 0 ? 1 : 0 }]}>
                             <View style={styles.detailLeft}>
                                 <View style={[styles.iconBox, { backgroundColor: colors.inputBg }]}>
-                                    <Ionicons name="people" size={18} color={colors.primary} />
+                                    <Ionicons name="people" size={18} color={colors.accent} />
                                 </View>
                                 <Text style={[styles.detailLabel, { color: colors.textMain }]}>Abonelik Tipi</Text>
                             </View>
@@ -562,17 +564,45 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                             </Text>
                         </View>
                         {partnersCount > 0 && (
-                            <View style={styles.detailItem}>
-                                <View style={styles.detailLeft}>
-                                    <View style={[styles.iconBox, { backgroundColor: colors.inputBg }]}>
-                                        <Ionicons name="wallet" size={18} color={colors.primary} />
+                            <>
+                                <View style={[styles.detailItem, { borderBottomColor: colors.border, borderBottomWidth: 1 }]}>
+                                    <View style={styles.detailLeft}>
+                                        <View style={[styles.iconBox, { backgroundColor: colors.inputBg }]}>
+                                            <Ionicons name="wallet" size={18} color={colors.accent} />
+                                        </View>
+                                        <Text style={[styles.detailLabel, { color: colors.textMain }]}>Payına Düşen</Text>
                                     </View>
-                                    <Text style={[styles.detailLabel, { color: colors.textMain }]}>Payına Düşen</Text>
+                                    <Text style={[styles.detailValue, { color: colors.success, fontWeight: '700' }]}>
+                                        {myShare.toFixed(2)} {subscription.currency}
+                                    </Text>
                                 </View>
-                                <Text style={[styles.detailValue, { color: colors.success, fontWeight: '700' }]}>
-                                    {myShare.toFixed(2)} {subscription.currency}
-                                </Text>
-                            </View>
+                                <View style={styles.detailItem}>
+                                    <View style={styles.detailLeft}>
+                                        <View style={[styles.iconBox, { backgroundColor: colors.inputBg }]}>
+                                            <Ionicons name="people-outline" size={18} color={colors.accent} />
+                                        </View>
+                                        <Text style={[styles.detailLabel, { color: colors.textMain }]}>Ortaklar</Text>
+                                    </View>
+                                    <View style={{ alignItems: 'flex-end', gap: 4, maxWidth: '60%' }}>
+                                        {(subscription.sharedWith ?? []).map((p, i) => (
+                                            <View key={`sw-${i}`} style={[styles.partnerChip, { backgroundColor: colors.accent + '15' }]}>
+                                                <Ionicons name="mail-outline" size={11} color={colors.accent} />
+                                                <Text style={[styles.partnerChipText, { color: colors.accent }]} numberOfLines={1}>
+                                                    {typeof p === 'string' ? p : p.email}
+                                                </Text>
+                                            </View>
+                                        ))}
+                                        {(subscription.sharedGuests ?? []).map((g, i) => (
+                                            <View key={`sg-${i}`} style={[styles.partnerChip, { backgroundColor: colors.inputBg }]}>
+                                                <Ionicons name="person-outline" size={11} color={colors.textSec} />
+                                                <Text style={[styles.partnerChipText, { color: colors.textSec }]} numberOfLines={1}>
+                                                    {g.displayName}
+                                                </Text>
+                                            </View>
+                                        ))}
+                                    </View>
+                                </View>
+                            </>
                         )}
                     </View>
 
@@ -616,7 +646,7 @@ const styles = StyleSheet.create({
         shadowRadius: 12,
         elevation: 10,
     },
-    logoText: { fontSize: 32, fontWeight: 'bold', color: '#FFFFFF' },
+    logoText: { fontSize: 32, fontWeight: '800', color: '#FFFFFF' },
     heroTitle: { fontSize: 24, fontWeight: '800', marginBottom: 6, textAlign: 'center' },
     priceContainer: { flexDirection: 'row', alignItems: 'flex-end' },
     heroCurrency: { fontSize: 18, fontWeight: '600', marginBottom: 8, marginRight: 4 },
@@ -696,7 +726,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 8,
         borderBottomWidth: 1,
-        borderBottomColor: 'rgba(239,68,68,0.12)',
+        borderBottomColor: 'transparent',
     },
     cancelRowLast: {
         borderBottomWidth: 0,
@@ -810,6 +840,15 @@ const styles = StyleSheet.create({
         marginTop: 2,
     },
 
+    partnerChip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 8,
+    },
+    partnerChipText: { fontSize: 12, fontWeight: '600' },
     errorRow: {
         flexDirection: 'row',
         alignItems: 'center',

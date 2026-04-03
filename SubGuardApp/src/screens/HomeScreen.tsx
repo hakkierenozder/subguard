@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl, StatusBar, TouchableOpacity, Animated, Easing, Platform, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, StatusBar, TouchableOpacity, Animated, Easing, Platform, Image, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -64,6 +64,7 @@ export default function HomeScreen() {
     // MODAL YÖNETİMİ (Tek merkezden)
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedCatalogItem, setSelectedCatalogItem] = useState<CatalogItem | null>(null);
+    const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
 
     const [refreshing, setRefreshing] = useState(false);
     const [surveySub, setSurveySub] = useState<UserSubscription | null>(null);
@@ -183,8 +184,10 @@ export default function HomeScreen() {
         return d > 7 && d <= 30;
     });
 
-    const thisWeekTotal  = thisWeekPayments.reduce((sum, s) => sum + s.price, 0);
-    const thisMonthTotal = thisMonthPayments.reduce((sum, s) => sum + s.price, 0);
+    const toTRY = (s: typeof sortedPayments[0]) => s.price * (exchangeRates[s.currency] ?? 1);
+    const thisWeekTotal     = thisWeekPayments.reduce((sum, s) => sum + toTRY(s), 0);
+    const thisMonthTotal    = thisMonthPayments.reduce((sum, s) => sum + toTRY(s), 0);
+    const thisMonthAllTotal = thisWeekTotal + thisMonthTotal;
 
     const categoryCount = new Set(subscriptions.filter(s => s.isActive !== false).map(s => s.category)).size;
 
@@ -253,7 +256,7 @@ export default function HomeScreen() {
                             <Ionicons
                                 name={unreadCount > 0 ? 'notifications' : 'notifications-outline'}
                                 size={20}
-                                color={colors.primary}
+                                color={colors.accent}
                             />
                             {unreadCount > 0 && (
                                 <View style={{
@@ -277,10 +280,10 @@ export default function HomeScreen() {
 
                 {/* 2. DASHBOARD CARD */}
                 <LinearGradient
-                    colors={isOverBudget ? [colors.error + 'CC', colors.error] : [colors.primaryDark, colors.primary]}
+                    colors={isOverBudget ? [colors.error + 'CC', colors.error] : ['#4F46E5', '#6D28D9']}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
-                    style={[styles.dashboardCard, { shadowColor: isDarkMode ? '#000' : colors.primary }]}
+                    style={[styles.dashboardCard, { shadowColor: isOverBudget ? colors.error : '#4F46E5' }]}
                 >
                     {/* Dekoratif daire */}
                     <View style={styles.dashDecorCircle} />
@@ -288,7 +291,7 @@ export default function HomeScreen() {
                     <View style={styles.dashTopRow}>
                         <View style={{ flex: 1 }}>
                             <Text style={styles.dashLabel}>AYLIK TOPLAM</Text>
-                            <Text style={styles.dashValue}>{totalExpense.toFixed(2)} ₺</Text>
+                            <Text style={styles.dashValue}>₺{totalExpense.toFixed(2)}</Text>
                             <View style={styles.dashSubRow}>
                                 <View style={styles.dashCountBadge}>
                                     <Ionicons name="apps-outline" size={11} color="rgba(255,255,255,0.9)" />
@@ -323,7 +326,7 @@ export default function HomeScreen() {
                         <View style={styles.budgetBox}>
                             <Text style={styles.budgetLabel}>HEDEF</Text>
                             <Text style={styles.budgetValue}>
-                                {monthlyBudget > 0 ? `${monthlyBudget} ₺` : '-'}
+                                {monthlyBudget > 0 ? `₺${monthlyBudget}` : '-'}
                             </Text>
                             {monthlyBudget > 0 && (
                                 <Text style={styles.budgetRemain}>
@@ -365,7 +368,7 @@ export default function HomeScreen() {
                         title="Henüz abonelik yok"
                         description="İlk aboneliğini ekle, harcamalarını takip etmeye başla."
                         actionLabel="Abonelik Ekle"
-                        onAction={handleCreateCustom}
+                        onAction={() => setBottomSheetVisible(true)}
                     />
                 )}
 
@@ -384,6 +387,14 @@ export default function HomeScreen() {
                                 <Text style={[styles.calendarBtnText, { color: colors.accent }]}>Takvim</Text>
                             </TouchableOpacity>
                         </View>
+                        {/* Bu Ay Gerçek Toplamı */}
+                        <View style={[styles.monthSummaryRow, { backgroundColor: colors.accent + '10', borderColor: colors.accent + '25' }]}>
+                            <Ionicons name="wallet-outline" size={13} color={colors.accent} />
+                            <Text style={[styles.monthSummaryLabel, { color: colors.textSec }]}>Bu ay toplam harcama</Text>
+                            <Text style={[styles.monthSummaryValue, { color: colors.accent }]}>
+                                ₺{thisMonthAllTotal.toFixed(2)}
+                            </Text>
+                        </View>
 
                         {/* BU HAFTA */}
                         {thisWeekPayments.length > 0 && (
@@ -393,7 +404,7 @@ export default function HomeScreen() {
                                     <Text style={[styles.upGroupTitle, { color: colors.textSec }]}>Bu Hafta</Text>
                                     <View style={{ flex: 1 }} />
                                     <Text style={[styles.upGroupTotal, { color: colors.textMain }]}>
-                                        {thisWeekTotal.toFixed(2)} ₺
+                                        ₺{thisWeekTotal.toFixed(2)}
                                     </Text>
                                 </View>
                                 {thisWeekPayments.map((item, idx) => {
@@ -404,7 +415,7 @@ export default function HomeScreen() {
                                     const anim = getCardAnim(idx);
                                     const itemColor = item.colorCode || colors.primary;
                                     const catalogLogoUrl = catalogItems.find(c => c.id === item.catalogId)?.logoUrl;
-                                    const partnerCount = item.sharedWith?.length ?? 0;
+                                    const partnerCount = (item.sharedWith?.length ?? 0) + (item.sharedGuests?.length ?? 0);
                                     const myShare = partnerCount > 0 ? item.price / (partnerCount + 1) : null;
                                     const contractDaysLeft = item.hasContract && item.contractEndDate
                                         ? Math.ceil((new Date(item.contractEndDate).getTime() - Date.now()) / 86400000)
@@ -478,11 +489,11 @@ export default function HomeScreen() {
                         {thisMonthPayments.length > 0 && (
                             <>
                                 <View style={[styles.upGroupHeader, { marginTop: thisWeekPayments.length > 0 ? 14 : 0 }]}>
-                                    <View style={[styles.upGroupDot, { backgroundColor: colors.primary }]} />
-                                    <Text style={[styles.upGroupTitle, { color: colors.textSec }]}>Bu Ay</Text>
+                                    <View style={[styles.upGroupDot, { backgroundColor: colors.accent }]} />
+                                    <Text style={[styles.upGroupTitle, { color: colors.textSec }]}>Kalan Ay</Text>
                                     <View style={{ flex: 1 }} />
                                     <Text style={[styles.upGroupTotal, { color: colors.textMain }]}>
-                                        {thisMonthTotal.toFixed(2)} ₺
+                                        ₺{thisMonthTotal.toFixed(2)}
                                     </Text>
                                 </View>
                                 {thisMonthPayments.slice(0, 4).map((item, idx) => {
@@ -491,7 +502,7 @@ export default function HomeScreen() {
                                     const anim = getCardAnim(animIdx);
                                     const itemColor = item.colorCode || colors.primary;
                                     const catalogLogoUrl = catalogItems.find(c => c.id === item.catalogId)?.logoUrl;
-                                    const partnerCount = item.sharedWith?.length ?? 0;
+                                    const partnerCount = (item.sharedWith?.length ?? 0) + (item.sharedGuests?.length ?? 0);
                                     const myShare = partnerCount > 0 ? item.price / (partnerCount + 1) : null;
                                     const contractDaysLeft = item.hasContract && item.contractEndDate
                                         ? Math.ceil((new Date(item.contractEndDate).getTime() - Date.now()) / 86400000)
@@ -572,60 +583,75 @@ export default function HomeScreen() {
                     </View>
                 )}
 
-                {/* 5. KEŞFET & ABONELİK EKLEME */}
-                <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: colors.textMain, marginBottom: 12 }]}>Abonelik Ekle</Text>
-
-                    {/* Katalog — PRIMARY aksiyon */}
-                    <TouchableOpacity
-                        style={styles.catalogCard}
-                        onPress={() => navigation.navigate('Discover')}
-                        activeOpacity={0.85}
-                    >
-                        <LinearGradient
-                            colors={[colors.accent, colors.primary]}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 1 }}
-                            style={styles.catalogCardGradient}
-                        >
-                            <View style={styles.catalogDecorCircle} />
-                            <View style={{ flex: 1 }}>
-                                <Text style={styles.catalogCardTitle}>Katalogdan Seç</Text>
-                                <Text style={styles.catalogCardSub}>50+ popüler servis hazır, tek dokunuşla ekle</Text>
-                            </View>
-                            <View style={styles.catalogCardIconWrap}>
-                                <Ionicons name="compass" size={30} color="rgba(255,255,255,0.95)" />
-                            </View>
-                        </LinearGradient>
-                    </TouchableOpacity>
-
-                    {/* Manuel ekleme — SECONDARY aksiyon */}
-                    <TouchableOpacity
-                        style={[styles.createCustomCard, { borderColor: colors.border, backgroundColor: colors.cardBg }]}
-                        onPress={handleCreateCustom}
-                        activeOpacity={0.7}
-                    >
-                        <View style={[styles.createIconCircle, { backgroundColor: colors.inputBg }]}>
-                            <Ionicons name="add" size={24} color={colors.primary} />
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <Text style={[styles.createCustomTitle, { color: colors.textMain }]}>Kendin Oluştur</Text>
-                            <Text style={[styles.createCustomSub, { color: colors.textSec }]}>Listede olmayan bir servisi ekle</Text>
-                        </View>
-                        <Ionicons name="chevron-forward" size={20} color={colors.inactive} />
-                    </TouchableOpacity>
-                </View>
-
             </ScrollView>
 
             {/* FAB — Abonelik Ekle */}
             <TouchableOpacity
                 style={[styles.fab, { backgroundColor: colors.accent }]}
-                onPress={handleCreateCustom}
+                onPress={() => setBottomSheetVisible(true)}
                 activeOpacity={0.85}
             >
                 <Ionicons name="add" size={28} color="#FFF" />
             </TouchableOpacity>
+
+            {/* BOTTOM SHEET */}
+            <Modal
+                visible={bottomSheetVisible}
+                transparent
+                animationType="slide"
+                onRequestClose={() => setBottomSheetVisible(false)}
+            >
+                <TouchableOpacity
+                    style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }}
+                    activeOpacity={1}
+                    onPress={() => setBottomSheetVisible(false)}
+                />
+                <View style={[styles.bottomSheet, { backgroundColor: colors.cardBg }]}>
+                    <View style={[styles.bottomSheetHandle, { backgroundColor: colors.border }]} />
+                    <Text style={[styles.bottomSheetTitle, { color: colors.textMain }]}>Abonelik Ekle</Text>
+
+                    <TouchableOpacity
+                        style={[styles.bottomSheetOption, { backgroundColor: colors.inputBg }]}
+                        onPress={() => {
+                            setBottomSheetVisible(false);
+                            navigation.navigate('Discover');
+                        }}
+                        activeOpacity={0.8}
+                    >
+                        <LinearGradient
+                            colors={[colors.accent, colors.primary]}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                            style={styles.bottomSheetOptionIcon}
+                        >
+                            <Ionicons name="compass" size={22} color="#FFF" />
+                        </LinearGradient>
+                        <View style={{ flex: 1 }}>
+                            <Text style={[styles.bottomSheetOptionTitle, { color: colors.textMain }]}>Katalogdan Seç</Text>
+                            <Text style={[styles.bottomSheetOptionSub, { color: colors.textSec }]}>50+ popüler servis hazır, tek dokunuşla ekle</Text>
+                        </View>
+                        <Ionicons name="chevron-forward" size={18} color={colors.inactive} />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[styles.bottomSheetOption, { backgroundColor: colors.inputBg }]}
+                        onPress={() => {
+                            setBottomSheetVisible(false);
+                            handleCreateCustom();
+                        }}
+                        activeOpacity={0.8}
+                    >
+                        <View style={[styles.bottomSheetOptionIcon, { backgroundColor: colors.primary + '22' }]}>
+                            <Ionicons name="create-outline" size={22} color={colors.primary} />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                            <Text style={[styles.bottomSheetOptionTitle, { color: colors.textMain }]}>Kendin Oluştur</Text>
+                            <Text style={[styles.bottomSheetOptionSub, { color: colors.textSec }]}>Listede olmayan bir servis ekle</Text>
+                        </View>
+                        <Ionicons name="chevron-forward" size={18} color={colors.inactive} />
+                    </TouchableOpacity>
+                </View>
+            </Modal>
 
             {/* MODALS */}
             {/* Tek Bir Modal, hem manuel hem katalog için */}
@@ -634,6 +660,11 @@ export default function HomeScreen() {
                 onClose={() => {
                     setModalVisible(false);
                     setSelectedCatalogItem(null);
+                }}
+                onSaved={() => {
+                    setModalVisible(false);
+                    setSelectedCatalogItem(null);
+                    (navigation as any).navigate('MySubscriptions');
                 }}
                 selectedCatalogItem={selectedCatalogItem}
                 // subscriptionToEdit prop'u boş, çünkü yeni ekleme yapıyoruz
@@ -674,7 +705,7 @@ const styles = StyleSheet.create({
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
     greeting: { fontSize: 14, fontWeight: '500' },
     username: { fontSize: 22, fontWeight: '800' },
-    avatar: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
+    avatar: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center' },
     avatarText: { fontSize: 18, fontWeight: '700' },
 
     dashboardCard: {
@@ -699,7 +730,7 @@ const styles = StyleSheet.create({
     dashTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
     dashLabel: { color: 'rgba(255,255,255,0.6)', fontSize: 11, fontWeight: '700', marginBottom: 4, letterSpacing: 1.2 },
     dashValue: { color: '#FFF', fontSize: 34, fontWeight: '800', letterSpacing: -0.5 },
-    dashSubRow: { flexDirection: 'row', alignItems: 'center', marginTop: 8 },
+    dashSubRow: { flexDirection: 'row', alignItems: 'center', marginTop: 8, flexWrap: 'wrap', gap: 6 },
     dashCountBadge: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -738,6 +769,18 @@ const styles = StyleSheet.create({
         borderWidth: 1,
     },
     calendarBtnText: { fontSize: 12, fontWeight: '700', marginLeft: 4 },
+    monthSummaryRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 10,
+        borderWidth: 1,
+        marginBottom: 12,
+    },
+    monthSummaryLabel: { flex: 1, fontSize: 12, fontWeight: '500' },
+    monthSummaryValue: { fontSize: 14, fontWeight: '800' },
 
     upGroupHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
     upGroupDot: { width: 8, height: 8, borderRadius: 4, marginRight: 7 },
@@ -783,61 +826,41 @@ const styles = StyleSheet.create({
     },
     upMoreText: { fontSize: 13, fontWeight: '600' },
 
-    // "KENDİN OLUŞTUR" KARTI
-    createCustomCard: {
+    // BOTTOM SHEET
+    bottomSheet: {
+        borderTopLeftRadius: 28,
+        borderTopRightRadius: 28,
+        padding: 24,
+        paddingBottom: Platform.OS === 'ios' ? 40 : 28,
+        gap: 12,
+    },
+    bottomSheetHandle: {
+        width: 40,
+        height: 4,
+        borderRadius: 2,
+        alignSelf: 'center',
+        marginBottom: 16,
+    },
+    bottomSheetTitle: {
+        fontSize: 18,
+        fontWeight: '800',
+        marginBottom: 4,
+    },
+    bottomSheetOption: {
         flexDirection: 'row',
         alignItems: 'center',
         padding: 16,
         borderRadius: 16,
-        borderWidth: 1,
+        gap: 14,
     },
-    createIconCircle: {
+    bottomSheetOptionIcon: {
         width: 48,
         height: 48,
-        borderRadius: 16,
+        borderRadius: 14,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 16,
     },
-    createCustomTitle: { fontSize: 16, fontWeight: '700', marginBottom: 2 },
-    createCustomSub: { fontSize: 13 },
-
-    // Katalog primary kart
-    catalogCard: {
-        borderRadius: 20,
-        marginBottom: 10,
-        overflow: 'hidden',
-        shadowColor: THEME.primary,
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.25,
-        shadowRadius: 12,
-        elevation: 8,
-    },
-    catalogCardGradient: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 20,
-        overflow: 'hidden',
-    },
-    catalogDecorCircle: {
-        position: 'absolute',
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-        backgroundColor: 'rgba(255,255,255,0.08)',
-        top: -30,
-        right: 40,
-    },
-    catalogCardTitle: { color: '#FFF', fontSize: 17, fontWeight: '800', marginBottom: 4 },
-    catalogCardSub: { color: 'rgba(255,255,255,0.75)', fontSize: 12, fontWeight: '500', lineHeight: 17 },
-    catalogCardIconWrap: {
-        width: 52,
-        height: 52,
-        borderRadius: 16,
-        backgroundColor: 'rgba(255,255,255,0.15)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginLeft: 12,
-    },
+    bottomSheetOptionTitle: { fontSize: 15, fontWeight: '700', marginBottom: 2 },
+    bottomSheetOptionSub: { fontSize: 12 },
 
 });

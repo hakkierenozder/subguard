@@ -1,0 +1,1402 @@
+2026-03-30 20:42:22.690 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-30 20:42:25.222 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-30 20:42:25.246 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-30 20:42:25.881 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-30 20:42:25.883 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-30 20:42:25.884 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-30 20:42:25.885 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-30 20:42:25.886 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-30 20:42:25.887 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-30 20:42:25.918 +03:00 [INF] [User: ] Server desktop-25vqrpg:27748:cd7d8194 successfully announced in 15,8748 ms
+2026-03-30 20:42:25.922 +03:00 [INF] [User: ] Server desktop-25vqrpg:27748:cd7d8194 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-30 20:42:25.929 +03:00 [INF] [User: ] 1 servers were removed due to timeout
+2026-03-30 20:42:25.931 +03:00 [INF] [User: ] Server desktop-25vqrpg:27748:cd7d8194 all the dispatchers started
+2026-03-30 20:42:25.968 +03:00 [INF] [User: ] Removed 3 outdated record(s) from 'aggregatedcounter' table.
+2026-03-30 20:42:26.279 +03:00 [INF] [User: ] Güncel kurlar çekiliyor...
+2026-03-30 20:42:26.317 +03:00 [INF] [User: ] Süresi dolmuş 0 refresh token ve 0 revocation kaydı temizlendi.
+2026-03-30 20:42:26.436 +03:00 [INF] [User: ] Güncel kurlar çekiliyor...
+2026-03-30 20:42:26.910 +03:00 [INF] [User: ] Kurlar güncellendi: {"USD":44.456,"EUR":51.053,"GBP":58.815}
+2026-03-30 20:42:26.910 +03:00 [INF] [User: ] Kurlar güncellendi: {"USD":44.456,"EUR":51.053,"GBP":58.815}
+2026-03-30 20:42:27.000 +03:00 [INF] [User: ] Removed 22 outdated record(s) from 'job' table.
+2026-03-30 20:42:28.736 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ha***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-30 20:42:28.736 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ha***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-30 20:42:28.763 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 7
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 554
+2026-03-30 20:42:28.763 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 7
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 554
+2026-03-30 20:42:28.767 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 7, UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-30 20:42:28.771 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 7, UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-30 20:42:30.451 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ha***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-30 20:42:30.455 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 8
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 554
+2026-03-30 20:42:30.455 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ha***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-30 20:42:30.458 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 8, UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-30 20:42:30.462 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 8
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 554
+2026-03-30 20:42:30.467 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 8, UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-30 20:42:30.545 +03:00 [INF] [User: ] Bildirim kuyruğu işlendi. Gönderilen: 0, Başarısız: 2
+2026-03-30 20:42:30.545 +03:00 [INF] [User: ] Bildirim kuyruğu işlendi. Gönderilen: 0, Başarısız: 2
+2026-03-30 20:44:55.109 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-30 20:44:55.144 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 47.7842 ms
+2026-03-30 20:53:02.149 +03:00 [INF] [User: ] Server desktop-25vqrpg:27748:cd7d8194 caught stopping signal...
+2026-03-30 20:53:02.152 +03:00 [INF] [User: ] Server desktop-25vqrpg:27748:cd7d8194 All dispatchers stopped
+2026-03-30 20:53:02.157 +03:00 [INF] [User: ] Server desktop-25vqrpg:27748:cd7d8194 successfully reported itself as stopped in 2,5377 ms
+2026-03-30 20:53:02.158 +03:00 [INF] [User: ] Server desktop-25vqrpg:27748:cd7d8194 has been stopped in total 7,6353 ms
+2026-03-30 20:53:24.154 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-30 20:53:25.488 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-30 20:53:25.509 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-30 20:53:25.842 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-30 20:53:25.843 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-30 20:53:25.843 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-30 20:53:25.844 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-30 20:53:25.845 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-30 20:53:25.846 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-30 20:53:25.863 +03:00 [INF] [User: ] Server desktop-25vqrpg:11632:204a4293 successfully announced in 9,2457 ms
+2026-03-30 20:53:25.866 +03:00 [INF] [User: ] Server desktop-25vqrpg:11632:204a4293 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-30 20:53:25.880 +03:00 [INF] [User: ] Server desktop-25vqrpg:11632:204a4293 all the dispatchers started
+2026-03-30 20:57:32.051 +03:00 [INF] [User: ] HTTP GET /swagger responded 301 in 7.9207 ms
+2026-03-30 20:57:32.273 +03:00 [INF] [User: ] HTTP GET /swagger/index.html responded 200 in 61.6389 ms
+2026-03-30 20:57:32.480 +03:00 [INF] [User: ] HTTP GET /swagger/swagger-ui.css responded 200 in 12.0368 ms
+2026-03-30 20:57:32.580 +03:00 [INF] [User: ] HTTP GET /swagger/swagger-ui-standalone-preset.js responded 200 in 116.8650 ms
+2026-03-30 20:57:32.717 +03:00 [INF] [User: ] HTTP GET /swagger/swagger-ui-bundle.js responded 200 in 243.9058 ms
+2026-03-30 20:57:33.213 +03:00 [INF] [User: ] HTTP GET /swagger/favicon-32x32.png responded 200 in 0.3079 ms
+2026-03-30 20:57:33.308 +03:00 [INF] [User: ] HTTP GET /swagger/v1/swagger.json responded 200 in 117.8488 ms
+2026-03-30 20:57:39.391 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-30 20:57:39.414 +03:00 [INF] [User: ] HTTP GET / responded 404 in 25.2423 ms
+2026-03-30 20:57:43.438 +03:00 [INF] [User: ] HTTP GET /swagger/index.html responded 200 in 0.7179 ms
+2026-03-30 20:57:43.790 +03:00 [INF] [User: ] HTTP GET /swagger/v1/swagger.json responded 200 in 22.4106 ms
+2026-03-30 21:00:13.630 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ha***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-30 21:00:13.630 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ha***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-30 21:00:13.641 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 7
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 554
+2026-03-30 21:00:13.641 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 7
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 554
+2026-03-30 21:00:13.645 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 7, UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-30 21:00:13.647 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 7, UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-30 21:00:15.322 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ha***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-30 21:00:15.325 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 8
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 554
+2026-03-30 21:00:15.328 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 8, UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-30 21:00:15.363 +03:00 [ERR] [User: ] Email gönderilemedi. Alıcı: ha***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-30 21:00:15.366 +03:00 [WRN] [User: ] Bildirim kanalı başarısız. Kanal: "Email", NotificationId: 8
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.NotificationService.ProcessNotificationQueueAsync() in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\NotificationService.cs:line 554
+2026-03-30 21:00:15.370 +03:00 [ERR] [User: ] Bildirim hiçbir kanaldan gönderilemedi. NotificationId: 8, UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a
+2026-03-30 21:00:15.404 +03:00 [INF] [User: ] Bildirim kuyruğu işlendi. Gönderilen: 0, Başarısız: 2
+2026-03-30 21:00:15.404 +03:00 [INF] [User: ] Bildirim kuyruğu işlendi. Gönderilen: 0, Başarısız: 2
+2026-03-30 21:02:32.939 +03:00 [WRN] [User: Anonymous] Kayıt başarısız. Email: ba***@gmail.com. Hatalar: Username 'baran.dogan19007@gmail.com' is already taken., Email 'baran.dogan19007@gmail.com' is already taken.
+2026-03-30 21:02:32.948 +03:00 [INF] [User: ] HTTP POST /api/auth/register responded 400 in 147.8874 ms
+2026-03-30 21:02:42.675 +03:00 [WRN] [User: Anonymous] Kayıt başarısız. Email: ba***@gmail.com. Hatalar: Username 'baran.dogan19007@gmail.com' is already taken., Email 'baran.dogan19007@gmail.com' is already taken.
+2026-03-30 21:02:42.677 +03:00 [INF] [User: ] HTTP POST /api/auth/register responded 400 in 70.2603 ms
+2026-03-30 21:02:47.700 +03:00 [WRN] [User: Anonymous] Kayıt başarısız. Email: ba***@gmail.com. Hatalar: Username 'baran.dogan19007@gmail.com' is already taken., Email 'baran.dogan19007@gmail.com' is already taken.
+2026-03-30 21:02:47.704 +03:00 [INF] [User: ] HTTP POST /api/auth/register responded 400 in 65.7436 ms
+2026-03-30 21:02:52.475 +03:00 [WRN] [User: Anonymous] Kayıt başarısız. Email: ba***@gmail.com. Hatalar: Username 'baran.dogan19007@gmail.com' is already taken., Email 'baran.dogan19007@gmail.com' is already taken.
+2026-03-30 21:02:52.479 +03:00 [INF] [User: ] HTTP POST /api/auth/register responded 400 in 59.4874 ms
+2026-03-30 21:03:02.743 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2250 ms
+2026-03-30 21:04:49.203 +03:00 [ERR] [User: Anonymous] Email gönderilemedi. Alıcı: ba***@gmail.com
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+2026-03-30 21:04:49.206 +03:00 [WRN] [User: Anonymous] Doğrulama e-postası gönderilemedi. UserId: ab6046af-be61-4226-9cb7-dc38cb97420d
+MailKit.Net.Smtp.SmtpProtocolException: The SMTP server has unexpectedly disconnected.
+   at MailKit.Net.Smtp.SmtpStream.ReadAheadAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.ReadResponseAsync(CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpStream.SendCommandAsync(String command, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.AuthenticateAsync(Encoding encoding, ICredentials credentials, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 48
+   at SubGuard.Service.Services.SmtpEmailSender.SendAsync(String toEmail, String toName, String subject, String htmlBody) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\SmtpEmailSender.cs:line 61
+   at SubGuard.Service.Services.AuthService.SendConfirmationEmailAsync(AppUser user) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\AuthService.cs:line 345
+2026-03-30 21:04:49.209 +03:00 [INF] [User: Anonymous] Yeni kullanıcı kaydı oluşturuldu. Email: ba***@gmail.com
+2026-03-30 21:04:49.210 +03:00 [INF] [User: ] HTTP POST /api/auth/register responded 201 in 1866.6885 ms
+2026-03-30 21:05:36.613 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2119 ms
+2026-03-30 21:06:37.169 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.3398 ms
+2026-03-30 21:06:45.115 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1533 ms
+2026-03-30 21:08:25.300 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1688 ms
+2026-03-30 21:13:02.975 +03:00 [INF] [User: ] Server desktop-25vqrpg:11632:204a4293 caught stopping signal...
+2026-03-30 21:13:02.977 +03:00 [INF] [User: ] Server desktop-25vqrpg:11632:204a4293 All dispatchers stopped
+2026-03-30 21:13:02.982 +03:00 [INF] [User: ] Server desktop-25vqrpg:11632:204a4293 successfully reported itself as stopped in 2,2521 ms
+2026-03-30 21:13:02.982 +03:00 [INF] [User: ] Server desktop-25vqrpg:11632:204a4293 has been stopped in total 5,9551 ms
+2026-03-30 21:13:10.845 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-30 21:13:12.182 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-30 21:13:12.203 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-30 21:13:12.533 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-30 21:13:12.534 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-30 21:13:12.535 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-30 21:13:12.535 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-30 21:13:12.536 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-30 21:13:12.537 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-30 21:13:12.556 +03:00 [INF] [User: ] Server desktop-25vqrpg:12260:09d2179c successfully announced in 9,0508 ms
+2026-03-30 21:13:12.558 +03:00 [INF] [User: ] Server desktop-25vqrpg:12260:09d2179c is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-30 21:13:12.563 +03:00 [INF] [User: ] Server desktop-25vqrpg:12260:09d2179c all the dispatchers started
+2026-03-30 21:13:12.568 +03:00 [INF] [User: ] Removed 1 outdated record(s) from 'aggregatedcounter' table.
+2026-03-30 21:13:13.601 +03:00 [INF] [User: ] Removed 8 outdated record(s) from 'job' table.
+2026-03-30 21:13:51.832 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-30 21:13:52.093 +03:00 [WRN] [User: Anonymous] Kayıt başarısız. Email: ba***@gmail.com. Hatalar: Username 'baran.dogan19007@gmail.com' is already taken., Email 'baran.dogan19007@gmail.com' is already taken.
+2026-03-30 21:13:52.110 +03:00 [INF] [User: ] HTTP POST /api/auth/register responded 400 in 287.7435 ms
+2026-03-30 21:14:21.448 +03:00 [INF] [User: Anonymous] Email gönderildi. Alıcı: ba***@gmail.com, Konu: SubGuard — E-posta Doğrulama
+2026-03-30 21:14:21.512 +03:00 [INF] [User: Anonymous] Yeni kullanıcı kaydı oluşturuldu. Email: ba***@gmail.com
+2026-03-30 21:14:21.515 +03:00 [INF] [User: ] HTTP POST /api/auth/register responded 201 in 1369.8978 ms
+2026-03-30 21:22:53.240 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 2.5226 ms
+2026-03-30 21:24:15.601 +03:00 [INF] [User: Anonymous] Email gönderildi. Alıcı: ba***@gmail.com, Konu: SubGuard — E-posta Doğrulama
+2026-03-30 21:24:15.660 +03:00 [INF] [User: Anonymous] Yeni kullanıcı kaydı oluşturuldu. Email: ba***@gmail.com
+2026-03-30 21:24:15.661 +03:00 [INF] [User: ] HTTP POST /api/auth/register responded 201 in 1004.6295 ms
+2026-03-30 21:25:28.577 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2146 ms
+2026-03-30 21:25:44.833 +03:00 [INF] [User: ] Server desktop-25vqrpg:12260:09d2179c caught stopping signal...
+2026-03-30 21:25:44.835 +03:00 [INF] [User: ] Server desktop-25vqrpg:12260:09d2179c All dispatchers stopped
+2026-03-30 21:25:44.840 +03:00 [INF] [User: ] Server desktop-25vqrpg:12260:09d2179c successfully reported itself as stopped in 2,3283 ms
+2026-03-30 21:25:44.841 +03:00 [INF] [User: ] Server desktop-25vqrpg:12260:09d2179c has been stopped in total 6,8305 ms
+2026-03-30 21:25:49.906 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-30 21:25:51.469 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-30 21:25:51.489 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-30 21:25:51.845 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-30 21:25:51.846 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-30 21:25:51.847 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-30 21:25:51.847 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-30 21:25:51.848 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-30 21:25:51.848 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-30 21:25:51.869 +03:00 [INF] [User: ] Server desktop-25vqrpg:24272:3c0805a2 successfully announced in 10,4644 ms
+2026-03-30 21:25:51.871 +03:00 [INF] [User: ] Server desktop-25vqrpg:24272:3c0805a2 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-30 21:25:51.876 +03:00 [INF] [User: ] Server desktop-25vqrpg:24272:3c0805a2 all the dispatchers started
+2026-03-30 21:26:05.814 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-30 21:26:07.115 +03:00 [INF] [User: Anonymous] Email gönderildi. Alıcı: ba***@gmail.com, Konu: SubGuard — E-posta Doğrulama
+2026-03-30 21:26:07.177 +03:00 [INF] [User: Anonymous] Yeni kullanıcı kaydı oluşturuldu. Email: ba***@gmail.com
+2026-03-30 21:26:07.197 +03:00 [INF] [User: ] HTTP POST /api/auth/register responded 201 in 1392.1216 ms
+2026-03-30 21:26:18.124 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 2.0253 ms
+2026-03-30 21:26:28.266 +03:00 [INF] [User: Anonymous] E-posta doğrulandı. Email: ba***@gmail.com
+2026-03-30 21:26:28.274 +03:00 [INF] [User: ] HTTP POST /api/auth/confirm-email responded 200 in 58.7847 ms
+2026-03-30 21:26:56.917 +03:00 [WRN] [User: Anonymous] Başarısız giriş denemesi. Email: ba***@gmail.com
+2026-03-30 21:26:56.919 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 400 in 83.7548 ms
+2026-03-30 21:27:01.412 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ba***@gmail.com
+2026-03-30 21:27:01.565 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ba***@gmail.com
+2026-03-30 21:27:01.572 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 223.6973 ms
+2026-03-30 21:27:32.349 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2219 ms
+2026-03-30 21:27:33.097 +03:00 [INF] [User: ] HTTP PUT /api/auth/profile responded 204 in 83.1308 ms
+2026-03-30 21:27:33.362 +03:00 [INF] [User: Baran Doğan] Güncel kurlar çekiliyor...
+2026-03-30 21:27:33.415 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 67.7591 ms
+2026-03-30 21:27:33.425 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 78.3122 ms
+2026-03-30 21:27:33.480 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 133.2220 ms
+2026-03-30 21:27:33.544 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 201.5655 ms
+2026-03-30 21:27:33.691 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 35.4206 ms
+2026-03-30 21:27:33.760 +03:00 [INF] [User: Baran Doğan] Kurlar güncellendi: {"USD":44.456,"EUR":51.053,"GBP":58.815}
+2026-03-30 21:27:33.766 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 416.7262 ms
+2026-03-30 21:28:01.099 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1731 ms
+2026-03-30 21:28:04.968 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 5.2208 ms
+2026-03-30 21:28:04.974 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.7201 ms
+2026-03-30 21:28:06.091 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 18.5565 ms
+2026-03-30 21:28:06.151 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.0993 ms
+2026-03-30 21:28:07.450 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.3132 ms
+2026-03-30 21:28:07.453 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 8.5272 ms
+2026-03-30 21:28:27.688 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1929 ms
+2026-03-30 21:28:49.549 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 14.6582 ms
+2026-03-30 21:28:50.650 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 6.6457 ms
+2026-03-30 21:28:50.651 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.0841 ms
+2026-03-30 21:28:51.315 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.7845 ms
+2026-03-30 21:28:52.036 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.5290 ms
+2026-03-30 21:28:52.036 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 5.2505 ms
+2026-03-30 21:30:06.606 +03:00 [INF] [User: Baran Doğan] Abonelik eklendi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, Name: Vize Harcı
+2026-03-30 21:30:06.618 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions responded 201 in 148.9485 ms
+2026-03-30 21:32:25.907 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1529 ms
+2026-03-30 21:33:01.309 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 5.0454 ms
+2026-03-30 21:33:01.315 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.3246 ms
+2026-03-30 21:33:08.923 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.5933 ms
+2026-03-30 21:33:08.929 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 9.1059 ms
+2026-03-30 21:33:10.480 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 6.5776 ms
+2026-03-30 21:33:10.552 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.5597 ms
+2026-03-30 21:33:19.053 +03:00 [INF] [User: ] HTTP GET /api/catalogs/trending responded 200 in 43.3578 ms
+2026-03-30 21:34:28.435 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/75/price-history responded 200 in 32.4299 ms
+2026-03-30 21:34:31.259 +03:00 [ERR] [User: Baran Doğan] Failed executing DbCommand (14ms) [Parameters=[@__id_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT s."Id", s."CreatedBy", s."CreatedDate", s."IsDeleted", s."SharedAt", s."SharedUserEmail", s."SharedUserId", s."SubscriptionId", s."UpdatedBy", s."UpdatedDate"
+FROM "SubscriptionShares" AS s
+WHERE NOT (s."IsDeleted") AND s."SubscriptionId" = @__id_0
+2026-03-30 21:34:31.272 +03:00 [ERR] [User: Baran Doğan] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column s.CreatedDate does not exist
+
+POSITION: 31
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column s.CreatedDate does not exist
+    Hint: Perhaps you meant to reference the column "s.UpdatedDate".
+    Position: 31
+    File: parse_relation.c
+    Line: 3829
+    Routine: errorMissingColumn
+Npgsql.PostgresException (0x80004005): 42703: column s.CreatedDate does not exist
+
+POSITION: 31
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column s.CreatedDate does not exist
+    Hint: Perhaps you meant to reference the column "s.UpdatedDate".
+    Position: 31
+    File: parse_relation.c
+    Line: 3829
+    Routine: errorMissingColumn
+2026-03-30 21:34:31.278 +03:00 [ERR] [User: ] Bir hata oluştu: 42703: column s.CreatedDate does not exist
+
+POSITION: 31
+Npgsql.PostgresException (0x80004005): 42703: column s.CreatedDate does not exist
+
+POSITION: 31
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.UserSubscriptionService.RemoveSubscriptionAsync(Int32 id, String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 175
+   at SubGuard.API.Controllers.UserSubscriptionsController.Remove(Int32 id) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Controllers\UserSubscriptionsController.cs:line 57
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_19>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 427
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column s.CreatedDate does not exist
+    Hint: Perhaps you meant to reference the column "s.UpdatedDate".
+    Position: 31
+    File: parse_relation.c
+    Line: 3829
+    Routine: errorMissingColumn
+2026-03-30 21:34:31.301 +03:00 [ERR] [User: ] HTTP DELETE /api/usersubscriptions/75 responded 500 in 63.1891 ms
+2026-03-30 21:34:38.093 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/75/price-history responded 200 in 6.6724 ms
+2026-03-30 21:35:12.605 +03:00 [INF] [User: Baran Doğan] Abonelik durumu değiştirildi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 75, YeniDurum: "Paused"
+2026-03-30 21:35:12.607 +03:00 [INF] [User: ] HTTP PATCH /api/usersubscriptions/75/status responded 200 in 33.1859 ms
+2026-03-30 21:35:19.781 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/75/price-history responded 200 in 8.1697 ms
+2026-03-30 21:35:25.173 +03:00 [INF] [User: Baran Doğan] Abonelik durumu değiştirildi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 75, YeniDurum: "Cancelled"
+2026-03-30 21:35:25.175 +03:00 [INF] [User: ] HTTP PATCH /api/usersubscriptions/75/status responded 200 in 10.9055 ms
+2026-03-30 21:35:28.384 +03:00 [ERR] [User: Baran Doğan] Failed executing DbCommand (4ms) [Parameters=[@__id_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT s."Id", s."CreatedBy", s."CreatedDate", s."IsDeleted", s."SharedAt", s."SharedUserEmail", s."SharedUserId", s."SubscriptionId", s."UpdatedBy", s."UpdatedDate"
+FROM "SubscriptionShares" AS s
+WHERE NOT (s."IsDeleted") AND s."SubscriptionId" = @__id_0
+2026-03-30 21:35:28.386 +03:00 [ERR] [User: Baran Doğan] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column s.CreatedDate does not exist
+
+POSITION: 31
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column s.CreatedDate does not exist
+    Hint: Perhaps you meant to reference the column "s.UpdatedDate".
+    Position: 31
+    File: parse_relation.c
+    Line: 3829
+    Routine: errorMissingColumn
+Npgsql.PostgresException (0x80004005): 42703: column s.CreatedDate does not exist
+
+POSITION: 31
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column s.CreatedDate does not exist
+    Hint: Perhaps you meant to reference the column "s.UpdatedDate".
+    Position: 31
+    File: parse_relation.c
+    Line: 3829
+    Routine: errorMissingColumn
+2026-03-30 21:35:28.394 +03:00 [ERR] [User: ] Bir hata oluştu: 42703: column s.CreatedDate does not exist
+
+POSITION: 31
+Npgsql.PostgresException (0x80004005): 42703: column s.CreatedDate does not exist
+
+POSITION: 31
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.UserSubscriptionService.RemoveSubscriptionAsync(Int32 id, String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 175
+   at SubGuard.API.Controllers.UserSubscriptionsController.Remove(Int32 id) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Controllers\UserSubscriptionsController.cs:line 57
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_19>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 427
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column s.CreatedDate does not exist
+    Hint: Perhaps you meant to reference the column "s.UpdatedDate".
+    Position: 31
+    File: parse_relation.c
+    Line: 3829
+    Routine: errorMissingColumn
+2026-03-30 21:35:28.406 +03:00 [ERR] [User: ] HTTP DELETE /api/usersubscriptions/75 responded 500 in 29.1480 ms
+2026-03-30 21:35:45.154 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/75/price-history responded 200 in 7.3985 ms
+2026-03-30 21:36:16.097 +03:00 [INF] [User: ] Server desktop-25vqrpg:24272:3c0805a2 caught stopping signal...
+2026-03-30 21:36:16.100 +03:00 [INF] [User: ] Server desktop-25vqrpg:24272:3c0805a2 All dispatchers stopped
+2026-03-30 21:36:16.104 +03:00 [INF] [User: ] Server desktop-25vqrpg:24272:3c0805a2 successfully reported itself as stopped in 2,9722 ms
+2026-03-30 21:36:16.105 +03:00 [INF] [User: ] Server desktop-25vqrpg:24272:3c0805a2 has been stopped in total 6,5935 ms
+2026-03-30 21:36:43.414 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-30 21:36:43.525 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonlandı (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 296
+2026-03-30 21:37:07.558 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-30 21:37:07.671 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonlandı (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 296
+2026-03-30 21:37:14.230 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-30 21:37:15.570 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-30 21:37:15.589 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-30 21:37:15.911 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-30 21:37:15.912 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-30 21:37:15.913 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-30 21:37:15.914 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-30 21:37:15.915 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-30 21:37:15.915 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-30 21:37:15.933 +03:00 [INF] [User: ] Server desktop-25vqrpg:24504:c32a26c6 successfully announced in 9,4046 ms
+2026-03-30 21:37:15.936 +03:00 [INF] [User: ] Server desktop-25vqrpg:24504:c32a26c6 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-30 21:37:15.942 +03:00 [INF] [User: ] Server desktop-25vqrpg:24504:c32a26c6 all the dispatchers started
+2026-03-30 21:37:33.260 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-30 21:37:33.515 +03:00 [INF] [User: Baran Doğan] Güncel kurlar çekiliyor...
+2026-03-30 21:37:33.601 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 334.6679 ms
+2026-03-30 21:37:33.601 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 350.4271 ms
+2026-03-30 21:37:33.636 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 370.4425 ms
+2026-03-30 21:37:33.718 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 469.0415 ms
+2026-03-30 21:37:33.938 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 102.0452 ms
+2026-03-30 21:37:33.959 +03:00 [INF] [User: Baran Doğan] Kurlar güncellendi: {"USD":44.456,"EUR":51.053,"GBP":58.815}
+2026-03-30 21:37:33.964 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 699.2690 ms
+2026-03-30 21:37:36.354 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 6.4816 ms
+2026-03-30 21:37:36.358 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 10.0133 ms
+2026-03-30 21:37:37.449 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/75/price-history responded 200 in 28.7150 ms
+2026-03-30 21:37:40.621 +03:00 [ERR] [User: Baran Doğan] Failed executing DbCommand (18ms) [Parameters=[@__id_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT s."Id", s."CreatedBy", s."CreatedDate", s."IsDeleted", s."SharedAt", s."SharedUserEmail", s."SharedUserId", s."SubscriptionId", s."UpdatedBy", s."UpdatedDate"
+FROM "SubscriptionShares" AS s
+WHERE NOT (s."IsDeleted") AND s."SubscriptionId" = @__id_0
+2026-03-30 21:37:40.630 +03:00 [ERR] [User: Baran Doğan] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column s.CreatedDate does not exist
+
+POSITION: 31
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column s.CreatedDate does not exist
+    Hint: Perhaps you meant to reference the column "s.UpdatedDate".
+    Position: 31
+    File: parse_relation.c
+    Line: 3829
+    Routine: errorMissingColumn
+Npgsql.PostgresException (0x80004005): 42703: column s.CreatedDate does not exist
+
+POSITION: 31
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column s.CreatedDate does not exist
+    Hint: Perhaps you meant to reference the column "s.UpdatedDate".
+    Position: 31
+    File: parse_relation.c
+    Line: 3829
+    Routine: errorMissingColumn
+2026-03-30 21:37:40.638 +03:00 [ERR] [User: ] Bir hata oluştu: 42703: column s.CreatedDate does not exist
+
+POSITION: 31
+Npgsql.PostgresException (0x80004005): 42703: column s.CreatedDate does not exist
+
+POSITION: 31
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.UserSubscriptionService.RemoveSubscriptionAsync(Int32 id, String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 175
+   at SubGuard.API.Controllers.UserSubscriptionsController.Remove(Int32 id) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Controllers\UserSubscriptionsController.cs:line 57
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_19>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 427
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column s.CreatedDate does not exist
+    Hint: Perhaps you meant to reference the column "s.UpdatedDate".
+    Position: 31
+    File: parse_relation.c
+    Line: 3829
+    Routine: errorMissingColumn
+2026-03-30 21:37:40.659 +03:00 [ERR] [User: ] HTTP DELETE /api/usersubscriptions/75 responded 500 in 64.3979 ms
+2026-03-30 21:37:50.637 +03:00 [INF] [User: ] HTTP GET /api/catalogs/trending responded 200 in 45.5776 ms
+2026-03-30 21:37:57.767 +03:00 [INF] [User: Baran Doğan] Abonelik eklendi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, Name: Netflix
+2026-03-30 21:37:57.774 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions responded 201 in 200.0378 ms
+2026-03-30 21:38:01.468 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/76/price-history responded 200 in 7.2510 ms
+2026-03-30 21:38:03.495 +03:00 [ERR] [User: Baran Doğan] Failed executing DbCommand (3ms) [Parameters=[@__id_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT s."Id", s."CreatedBy", s."CreatedDate", s."IsDeleted", s."SharedAt", s."SharedUserEmail", s."SharedUserId", s."SubscriptionId", s."UpdatedBy", s."UpdatedDate"
+FROM "SubscriptionShares" AS s
+WHERE NOT (s."IsDeleted") AND s."SubscriptionId" = @__id_0
+2026-03-30 21:38:03.498 +03:00 [ERR] [User: Baran Doğan] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column s.CreatedDate does not exist
+
+POSITION: 31
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column s.CreatedDate does not exist
+    Hint: Perhaps you meant to reference the column "s.UpdatedDate".
+    Position: 31
+    File: parse_relation.c
+    Line: 3829
+    Routine: errorMissingColumn
+Npgsql.PostgresException (0x80004005): 42703: column s.CreatedDate does not exist
+
+POSITION: 31
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column s.CreatedDate does not exist
+    Hint: Perhaps you meant to reference the column "s.UpdatedDate".
+    Position: 31
+    File: parse_relation.c
+    Line: 3829
+    Routine: errorMissingColumn
+2026-03-30 21:38:03.505 +03:00 [ERR] [User: ] Bir hata oluştu: 42703: column s.CreatedDate does not exist
+
+POSITION: 31
+Npgsql.PostgresException (0x80004005): 42703: column s.CreatedDate does not exist
+
+POSITION: 31
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.UserSubscriptionService.RemoveSubscriptionAsync(Int32 id, String userId) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 175
+   at SubGuard.API.Controllers.UserSubscriptionsController.Remove(Int32 id) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Controllers\UserSubscriptionsController.cs:line 57
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_19>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 427
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column s.CreatedDate does not exist
+    Hint: Perhaps you meant to reference the column "s.UpdatedDate".
+    Position: 31
+    File: parse_relation.c
+    Line: 3829
+    Routine: errorMissingColumn
+2026-03-30 21:38:03.516 +03:00 [ERR] [User: ] HTTP DELETE /api/usersubscriptions/76 responded 500 in 26.1385 ms
+2026-03-30 21:38:31.949 +03:00 [INF] [User: Baran Doğan] Abonelik güncellendi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 76
+2026-03-30 21:38:31.952 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions/76 responded 200 in 41.7442 ms
+2026-03-30 21:38:40.497 +03:00 [INF] [User: Baran Doğan] Email gönderildi. Alıcı: ba***@gmail.com, Konu: Netflix - Manuel Hatırlatma
+2026-03-30 21:38:40.562 +03:00 [INF] [User: Baran Doğan] Manuel hatırlatma gönderildi. SubscriptionId: 76, UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, AnySent: true
+2026-03-30 21:38:40.564 +03:00 [INF] [User: ] HTTP POST /api/notifications/send-reminder/76 responded 200 in 1015.0071 ms
+2026-03-30 21:38:41.666 +03:00 [INF] [User: Baran Doğan] Email gönderildi. Alıcı: ba***@gmail.com, Konu: Netflix - Manuel Hatırlatma
+2026-03-30 21:38:41.738 +03:00 [INF] [User: Baran Doğan] Manuel hatırlatma gönderildi. SubscriptionId: 76, UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, AnySent: true
+2026-03-30 21:38:41.740 +03:00 [INF] [User: ] HTTP POST /api/notifications/send-reminder/76 responded 200 in 832.6498 ms
+2026-03-30 21:38:44.838 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/76/price-history responded 200 in 7.9357 ms
+2026-03-30 21:38:48.198 +03:00 [INF] [User: Baran Doğan] Abonelik durumu değiştirildi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 76, YeniDurum: "Paused"
+2026-03-30 21:38:48.200 +03:00 [INF] [User: ] HTTP PATCH /api/usersubscriptions/76/status responded 200 in 25.1824 ms
+2026-03-30 21:38:50.614 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/76/price-history responded 200 in 8.1277 ms
+2026-03-30 21:38:51.583 +03:00 [INF] [User: Baran Doğan] Abonelik durumu değiştirildi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 76, YeniDurum: "Active"
+2026-03-30 21:38:51.584 +03:00 [INF] [User: ] HTTP PATCH /api/usersubscriptions/76/status responded 200 in 8.9905 ms
+2026-03-30 21:38:53.925 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/75/price-history responded 200 in 8.4187 ms
+2026-03-30 21:39:21.886 +03:00 [ERR] [User: Baran Doğan] Failed executing DbCommand (27ms) [Parameters=[@__userId_0='?', @__p_2='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT t0."Id", t0."CreatedBy", t0."CreatedDate", t0."IsDeleted", t0."SharedAt", t0."SharedUserEmail", t0."SharedUserId", t0."SubscriptionId", t0."UpdatedBy", t0."UpdatedDate", t0."Id0", t0."BillingDay", t0."BillingMonth", t0."BillingPeriod", t0."CancelledDate", t0."CatalogId", t0."Category", t0."ColorCode", t0."ContractEndDate", t0."ContractStartDate", t0."CreatedBy0", t0."CreatedDate0", t0."Currency", t0."HasContract", t0."IsActive", t0."IsDeleted0", t0."Name", t0."Notes", t0."PausedDate", t0."Price", t0."RowVersion", t0."Status", t0."UpdatedBy0", t0."UpdatedDate0", t0."UserId", t1."Id", t1."Category", t1."ColorCode", t1."CreatedBy", t1."CreatedDate", t1."IsDeleted", t1."LogoUrl", t1."Name", t1."RequiresContract", t1."UpdatedBy", t1."UpdatedDate"
+FROM (
+    SELECT s."Id", s."CreatedBy", s."CreatedDate", s."IsDeleted", s."SharedAt", s."SharedUserEmail", s."SharedUserId", s."SubscriptionId", s."UpdatedBy", s."UpdatedDate", t."Id" AS "Id0", t."BillingDay", t."BillingMonth", t."BillingPeriod", t."CancelledDate", t."CatalogId", t."Category", t."ColorCode", t."ContractEndDate", t."ContractStartDate", t."CreatedBy" AS "CreatedBy0", t."CreatedDate" AS "CreatedDate0", t."Currency", t."HasContract", t."IsActive", t."IsDeleted" AS "IsDeleted0", t."Name", t."Notes", t."PausedDate", t."Price", t."RowVersion", t."Status", t."UpdatedBy" AS "UpdatedBy0", t."UpdatedDate" AS "UpdatedDate0", t."UserId"
+    FROM "SubscriptionShares" AS s
+    INNER JOIN (
+        SELECT u."Id", u."BillingDay", u."BillingMonth", u."BillingPeriod", u."CancelledDate", u."CatalogId", u."Category", u."ColorCode", u."ContractEndDate", u."ContractStartDate", u."CreatedBy", u."CreatedDate", u."Currency", u."HasContract", u."IsActive", u."IsDeleted", u."Name", u."Notes", u."PausedDate", u."Price", u."RowVersion", u."Status", u."UpdatedBy", u."UpdatedDate", u."UserId"
+        FROM "UserSubscriptions" AS u
+        WHERE NOT (u."IsDeleted")
+    ) AS t ON s."SubscriptionId" = t."Id"
+    WHERE NOT (s."IsDeleted") AND s."SharedUserId" = @__userId_0 AND NOT (t."IsDeleted") AND t."IsActive"
+    ORDER BY s."SharedAt" DESC
+    LIMIT @__p_2 OFFSET @__p_1
+) AS t0
+LEFT JOIN (
+    SELECT c."Id", c."Category", c."ColorCode", c."CreatedBy", c."CreatedDate", c."IsDeleted", c."LogoUrl", c."Name", c."RequiresContract", c."UpdatedBy", c."UpdatedDate"
+    FROM "Catalogs" AS c
+    WHERE NOT (c."IsDeleted")
+) AS t1 ON t0."CatalogId" = t1."Id"
+ORDER BY t0."SharedAt" DESC
+2026-03-30 21:39:21.890 +03:00 [ERR] [User: Baran Doğan] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column s.CreatedDate does not exist
+
+POSITION: 803
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column s.CreatedDate does not exist
+    Hint: Perhaps you meant to reference the column "t.CreatedDate".
+    Position: 803
+    File: parse_relation.c
+    Line: 3829
+    Routine: errorMissingColumn
+Npgsql.PostgresException (0x80004005): 42703: column s.CreatedDate does not exist
+
+POSITION: 803
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column s.CreatedDate does not exist
+    Hint: Perhaps you meant to reference the column "t.CreatedDate".
+    Position: 803
+    File: parse_relation.c
+    Line: 3829
+    Routine: errorMissingColumn
+2026-03-30 21:39:21.898 +03:00 [ERR] [User: ] Bir hata oluştu: 42703: column s.CreatedDate does not exist
+
+POSITION: 803
+Npgsql.PostgresException (0x80004005): 42703: column s.CreatedDate does not exist
+
+POSITION: 803
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.UserSubscriptionService.GetSharedWithMeAsync(String userId, Int32 page, Int32 pageSize) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 387
+   at SubGuard.API.Controllers.UserSubscriptionsController.GetSharedWithMe(PagedRequestDto paged) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Controllers\UserSubscriptionsController.cs:line 71
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_19>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 427
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column s.CreatedDate does not exist
+    Hint: Perhaps you meant to reference the column "t.CreatedDate".
+    Position: 803
+    File: parse_relation.c
+    Line: 3829
+    Routine: errorMissingColumn
+2026-03-30 21:39:21.913 +03:00 [ERR] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 500 in 57.1356 ms
+2026-03-30 21:39:55.089 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/76/price-history responded 200 in 7.8360 ms
+2026-03-30 21:40:01.896 +03:00 [INF] [User: Baran Doğan] Abonelik güncellendi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 76
+2026-03-30 21:40:01.898 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions/76 responded 200 in 18.5259 ms
+2026-03-30 21:40:46.787 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.2154 ms
+2026-03-30 21:40:46.798 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 27.2292 ms
+2026-03-30 21:41:01.309 +03:00 [INF] [User: ] Server desktop-25vqrpg:24504:c32a26c6 caught stopping signal...
+2026-03-30 21:41:01.311 +03:00 [INF] [User: ] Server desktop-25vqrpg:24504:c32a26c6 All dispatchers stopped
+2026-03-30 21:41:01.316 +03:00 [INF] [User: ] Server desktop-25vqrpg:24504:c32a26c6 successfully reported itself as stopped in 2,854 ms
+2026-03-30 21:41:01.316 +03:00 [INF] [User: ] Server desktop-25vqrpg:24504:c32a26c6 has been stopped in total 6,7865 ms
+2026-03-30 21:41:11.059 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-30 21:41:11.168 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonlandı (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 296
+2026-03-30 21:41:54.749 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-30 21:41:54.871 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonlandı (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 296
+2026-03-30 21:42:05.907 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-30 21:42:07.136 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-30 21:42:07.155 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-30 21:42:07.463 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-30 21:42:07.464 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-30 21:42:07.465 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-30 21:42:07.466 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-30 21:42:07.466 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-30 21:42:07.467 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-30 21:42:07.485 +03:00 [INF] [User: ] Server desktop-25vqrpg:21332:9630ff52 successfully announced in 8,8605 ms
+2026-03-30 21:42:07.487 +03:00 [INF] [User: ] Server desktop-25vqrpg:21332:9630ff52 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-30 21:42:07.491 +03:00 [INF] [User: ] Server desktop-25vqrpg:21332:9630ff52 all the dispatchers started
+2026-03-30 21:42:51.999 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-30 21:42:52.286 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ba***@gmail.com
+2026-03-30 21:42:52.456 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ba***@gmail.com
+2026-03-30 21:42:52.478 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 488.4001 ms
+2026-03-30 21:42:52.830 +03:00 [INF] [User: Baran Doğan] Güncel kurlar çekiliyor...
+2026-03-30 21:42:52.887 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 117.7231 ms
+2026-03-30 21:42:52.898 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 130.3564 ms
+2026-03-30 21:42:52.946 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 178.4153 ms
+2026-03-30 21:42:53.009 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 173.1568 ms
+2026-03-30 21:42:53.258 +03:00 [INF] [User: Baran Doğan] Kurlar güncellendi: {"USD":44.456,"EUR":51.053,"GBP":58.815}
+2026-03-30 21:42:53.264 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 496.8063 ms
+2026-03-30 21:42:53.348 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 85.9152 ms
+2026-03-30 21:42:59.725 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 9.2223 ms
+2026-03-30 21:42:59.726 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.1994 ms
+2026-03-30 21:43:01.104 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/75/price-history responded 200 in 27.5440 ms
+2026-03-30 21:43:03.155 +03:00 [INF] [User: Baran Doğan] Abonelik silindi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 75
+2026-03-30 21:43:03.157 +03:00 [INF] [User: ] HTTP DELETE /api/usersubscriptions/75 responded 204 in 43.0488 ms
+2026-03-30 21:43:08.782 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/76/price-history responded 200 in 6.8827 ms
+2026-03-30 21:43:13.676 +03:00 [INF] [User: Baran Doğan] Abonelik durumu değiştirildi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 76, YeniDurum: "Cancelled"
+2026-03-30 21:43:13.678 +03:00 [INF] [User: ] HTTP PATCH /api/usersubscriptions/76/status responded 200 in 32.6197 ms
+2026-03-30 21:43:21.924 +03:00 [INF] [User: Baran Doğan] Abonelik silindi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 76
+2026-03-30 21:43:21.925 +03:00 [INF] [User: ] HTTP DELETE /api/usersubscriptions/76 responded 204 in 11.9379 ms
+2026-03-30 21:43:23.332 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.8071 ms
+2026-03-30 21:43:23.346 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 19.2172 ms
+2026-03-30 21:43:24.386 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.7451 ms
+2026-03-30 21:43:24.460 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 9.3149 ms
+2026-03-30 21:43:38.596 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.9009 ms
+2026-03-30 21:43:38.599 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 10.1987 ms
+2026-03-30 21:43:38.879 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.8030 ms
+2026-03-30 21:45:50.977 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.1585 ms
+2026-03-30 21:45:51.040 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 4.0314 ms
+2026-03-30 21:46:29.916 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.3024 ms
+2026-03-30 21:47:00.309 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1965 ms
+2026-03-30 21:47:41.553 +03:00 [INF] [User: ] HTTP PUT /api/auth/profile responded 204 in 53.6995 ms
+2026-03-30 21:47:46.108 +03:00 [INF] [User: ] HTTP GET /api/catalogs/trending responded 200 in 47.2167 ms
+2026-03-30 21:47:48.781 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.6325 ms
+2026-03-30 21:47:48.846 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 4.7488 ms
+2026-03-30 21:47:51.882 +03:00 [INF] [User: ] HTTP PUT /api/auth/profile responded 204 in 12.2931 ms
+2026-03-30 21:47:52.945 +03:00 [INF] [User: ] HTTP PUT /api/auth/profile responded 204 in 8.5449 ms
+2026-03-30 21:47:53.602 +03:00 [INF] [User: ] HTTP PUT /api/auth/profile responded 204 in 7.9287 ms
+2026-03-30 21:47:55.432 +03:00 [INF] [User: ] HTTP PUT /api/auth/profile responded 204 in 9.3978 ms
+2026-03-30 21:47:57.803 +03:00 [INF] [User: ] HTTP GET /api/catalogs/trending responded 200 in 5.8843 ms
+2026-03-30 21:48:05.930 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.2735 ms
+2026-03-30 21:48:05.933 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.0181 ms
+2026-03-30 21:48:10.040 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.2885 ms
+2026-03-30 21:48:10.043 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.3599 ms
+2026-03-30 21:48:41.824 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.1793 ms
+2026-03-30 21:48:41.827 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 9.2556 ms
+2026-03-30 21:48:42.164 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.8571 ms
+2026-03-30 21:48:43.989 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.9768 ms
+2026-03-30 21:48:43.992 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.3170 ms
+2026-03-30 21:48:44.906 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.7836 ms
+2026-03-30 21:48:44.908 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.4287 ms
+2026-03-30 21:48:45.222 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.5362 ms
+2026-03-30 21:49:07.138 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2335 ms
+2026-03-30 21:49:14.452 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.7793 ms
+2026-03-30 21:49:20.097 +03:00 [INF] [User: ] HTTP GET /api/reports/spending responded 200 in 17.9500 ms
+2026-03-30 21:49:21.474 +03:00 [INF] [User: ] HTTP GET /api/reports/spending responded 200 in 5.3022 ms
+2026-03-30 21:49:23.042 +03:00 [INF] [User: ] HTTP GET /api/reports/spending responded 200 in 6.4666 ms
+2026-03-30 21:49:24.054 +03:00 [INF] [User: ] HTTP GET /api/reports/spending responded 200 in 4.5854 ms
+2026-03-30 21:49:24.704 +03:00 [INF] [User: ] HTTP GET /api/reports/spending responded 200 in 4.1214 ms
+2026-03-30 21:49:25.124 +03:00 [INF] [User: ] HTTP GET /api/reports/spending responded 200 in 4.8262 ms
+2026-03-30 21:49:37.179 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.0991 ms
+2026-03-30 21:52:46.588 +03:00 [INF] [User: ] Server desktop-25vqrpg:21332:9630ff52 caught stopping signal...
+2026-03-30 21:52:46.590 +03:00 [INF] [User: ] Server desktop-25vqrpg:21332:9630ff52 All dispatchers stopped
+2026-03-30 21:52:46.595 +03:00 [INF] [User: ] Server desktop-25vqrpg:21332:9630ff52 successfully reported itself as stopped in 2,6452 ms
+2026-03-30 21:52:46.596 +03:00 [INF] [User: ] Server desktop-25vqrpg:21332:9630ff52 has been stopped in total 6,8708 ms
+2026-03-30 21:53:05.393 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-30 21:53:06.725 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-30 21:53:06.745 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-30 21:53:07.062 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-30 21:53:07.063 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-30 21:53:07.063 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-30 21:53:07.064 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-30 21:53:07.064 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-30 21:53:07.065 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-30 21:53:07.082 +03:00 [INF] [User: ] Server desktop-25vqrpg:21332:5110d4dc successfully announced in 8,903 ms
+2026-03-30 21:53:07.085 +03:00 [INF] [User: ] Server desktop-25vqrpg:21332:5110d4dc is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-30 21:53:07.090 +03:00 [INF] [User: ] Server desktop-25vqrpg:21332:5110d4dc all the dispatchers started
+2026-03-30 21:54:09.659 +03:00 [INF] [User: ] Server desktop-25vqrpg:21332:5110d4dc caught stopping signal...
+2026-03-30 21:54:09.661 +03:00 [INF] [User: ] Server desktop-25vqrpg:21332:5110d4dc All dispatchers stopped
+2026-03-30 21:54:09.666 +03:00 [INF] [User: ] Server desktop-25vqrpg:21332:5110d4dc successfully reported itself as stopped in 2,7298 ms
+2026-03-30 21:54:09.666 +03:00 [INF] [User: ] Server desktop-25vqrpg:21332:5110d4dc has been stopped in total 6,3036 ms
+2026-03-30 21:54:14.123 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-30 21:54:15.367 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-30 21:54:15.385 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-30 21:54:15.693 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-30 21:54:15.694 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-30 21:54:15.694 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-30 21:54:15.695 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-30 21:54:15.696 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-30 21:54:15.696 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-30 21:54:15.715 +03:00 [INF] [User: ] Server desktop-25vqrpg:29828:2031501a successfully announced in 9,4845 ms
+2026-03-30 21:54:15.717 +03:00 [INF] [User: ] Server desktop-25vqrpg:29828:2031501a is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-30 21:54:15.722 +03:00 [INF] [User: ] Server desktop-25vqrpg:29828:2031501a all the dispatchers started
+2026-03-30 21:55:38.650 +03:00 [INF] [User: ] Server desktop-25vqrpg:29828:2031501a caught stopping signal...
+2026-03-30 21:55:38.653 +03:00 [INF] [User: ] Server desktop-25vqrpg:29828:2031501a All dispatchers stopped
+2026-03-30 21:55:38.657 +03:00 [INF] [User: ] Server desktop-25vqrpg:29828:2031501a successfully reported itself as stopped in 2,7903 ms
+2026-03-30 21:55:38.658 +03:00 [INF] [User: ] Server desktop-25vqrpg:29828:2031501a has been stopped in total 6,5152 ms
+2026-03-30 21:55:42.719 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-30 21:55:44.021 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-30 21:55:44.040 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-30 21:55:44.361 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-30 21:55:44.362 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-30 21:55:44.362 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-30 21:55:44.363 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-30 21:55:44.363 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-30 21:55:44.364 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-30 21:55:44.383 +03:00 [INF] [User: ] Server desktop-25vqrpg:28156:659e2a9b successfully announced in 9,8572 ms
+2026-03-30 21:55:44.386 +03:00 [INF] [User: ] Server desktop-25vqrpg:28156:659e2a9b is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-30 21:55:44.391 +03:00 [INF] [User: ] Server desktop-25vqrpg:28156:659e2a9b all the dispatchers started
+2026-03-30 21:57:13.955 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-30 21:57:14.242 +03:00 [INF] [User: Baran Doğan] Güncel kurlar çekiliyor...
+2026-03-30 21:57:14.347 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 406.4499 ms
+2026-03-30 21:57:14.391 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 451.8409 ms
+2026-03-30 21:57:14.489 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 550.4607 ms
+2026-03-30 21:57:14.672 +03:00 [INF] [User: Baran Doğan] Kurlar güncellendi: {"USD":44.456,"EUR":51.053,"GBP":58.815}
+2026-03-30 21:57:14.679 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 740.3193 ms
+2026-03-30 21:57:14.688 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 748.8982 ms
+2026-03-30 21:57:14.998 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 51.7346 ms
+2026-03-30 21:57:35.774 +03:00 [INF] [User: ] HTTP GET /api/catalogs/trending responded 200 in 51.0429 ms
+2026-03-30 21:58:41.261 +03:00 [INF] [User: ] HTTP GET /api/catalogs/trending responded 401 in 8.3938 ms
+2026-03-30 21:58:41.624 +03:00 [INF] [User: Anonymous] Token atomik olarak yenilendi. Email: ba***@gmail.com
+2026-03-30 21:58:41.627 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 172.7768 ms
+2026-03-30 21:58:41.770 +03:00 [INF] [User: ] HTTP GET /api/catalogs/trending responded 200 in 8.0795 ms
+2026-03-30 21:58:49.631 +03:00 [INF] [User: Baran Doğan] Abonelik eklendi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, Name: YouTube Premium
+2026-03-30 21:58:49.646 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions responded 201 in 155.3296 ms
+2026-03-30 21:59:03.306 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 4.2704 ms
+2026-03-30 21:59:03.311 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 15.6159 ms
+2026-03-30 21:59:12.952 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/77/price-history responded 200 in 21.8031 ms
+2026-03-30 21:59:27.175 +03:00 [INF] [User: Baran Doğan] Abonelik güncellendi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 77
+2026-03-30 21:59:27.178 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions/77 responded 200 in 54.9659 ms
+2026-03-30 21:59:30.026 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/77/price-history responded 200 in 10.2493 ms
+2026-03-30 21:59:49.366 +03:00 [INF] [User: Baran Doğan] Abonelik güncellendi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 77
+2026-03-30 21:59:49.368 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions/77 responded 200 in 19.9594 ms
+2026-03-30 21:59:50.662 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/77/price-history responded 200 in 7.0071 ms
+2026-03-30 21:59:56.452 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 4.0294 ms
+2026-03-30 21:59:56.459 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.5976 ms
+2026-03-30 22:00:01.366 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/77/price-history responded 200 in 6.7087 ms
+2026-03-30 22:00:15.033 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.6237 ms
+2026-03-30 22:00:15.037 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.1382 ms
+2026-03-30 22:00:15.767 +03:00 [INF] [User: ] Email gönderildi. Alıcı: ha***@gmail.com, Konu: YouTube Premium - Manuel Hatırlatma
+2026-03-30 22:00:15.768 +03:00 [INF] [User: ] Email gönderildi. Alıcı: ha***@gmail.com, Konu: YouTube Premium - Manuel Hatırlatma
+2026-03-30 22:00:16.652 +03:00 [INF] [User: ] Email gönderildi. Alıcı: ha***@gmail.com, Konu: Netflix - Manuel Hatırlatma
+2026-03-30 22:00:16.653 +03:00 [INF] [User: ] Email gönderildi. Alıcı: ha***@gmail.com, Konu: Netflix - Manuel Hatırlatma
+2026-03-30 22:00:16.726 +03:00 [INF] [User: ] Bildirim kuyruğu işlendi. Gönderilen: 2, Başarısız: 0
+2026-03-30 22:00:16.726 +03:00 [INF] [User: ] Bildirim kuyruğu işlendi. Gönderilen: 2, Başarısız: 0
+2026-03-30 22:00:48.949 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.8150 ms
+2026-03-30 22:00:48.953 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.0073 ms
+2026-03-30 22:00:51.305 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 9.2830 ms
+2026-03-30 22:01:30.463 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 12.5649 ms
+2026-03-30 22:01:30.465 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 4.5785 ms
+2026-03-30 22:01:30.465 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 5.1782 ms
+2026-03-30 22:01:30.472 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 11.7032 ms
+2026-03-30 22:01:30.476 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 27.7950 ms
+2026-03-30 22:01:30.711 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.9168 ms
+2026-03-30 22:01:36.272 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.6645 ms
+2026-03-30 22:01:36.281 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.8793 ms
+2026-03-30 22:01:36.915 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/77/price-history responded 200 in 6.0260 ms
+2026-03-30 22:01:38.885 +03:00 [INF] [User: Baran Doğan] Abonelik silindi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 77
+2026-03-30 22:01:38.886 +03:00 [INF] [User: ] HTTP DELETE /api/usersubscriptions/77 responded 204 in 15.9123 ms
+2026-03-30 22:01:59.090 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.8846 ms
+2026-03-30 22:01:59.098 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 16.8496 ms
+2026-03-30 22:02:11.397 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 28.9801 ms
+2026-03-30 22:02:22.307 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.9890 ms
+2026-03-30 22:02:22.312 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 8.0385 ms
+2026-03-30 22:02:25.466 +03:00 [INF] [User: ] HTTP PUT /api/auth/profile responded 204 in 49.9798 ms
+2026-03-30 22:02:30.806 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.6917 ms
+2026-03-30 22:02:30.807 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.8121 ms
+2026-03-30 22:02:39.289 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.5357 ms
+2026-03-30 22:02:39.301 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.7756 ms
+2026-03-30 22:02:41.568 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.9636 ms
+2026-03-30 22:02:41.599 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.7252 ms
+2026-03-30 22:02:41.926 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.1063 ms
+2026-03-30 22:03:02.214 +03:00 [INF] [User: ] HTTP GET /api/catalogs/trending responded 200 in 6.1104 ms
+2026-03-30 22:03:18.469 +03:00 [INF] [User: ] HTTP GET /api/catalogs/trending responded 200 in 3.5018 ms
+2026-03-30 22:04:22.843 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.4884 ms
+2026-03-30 22:04:22.843 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.0486 ms
+2026-03-30 22:04:22.844 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.4591 ms
+2026-03-30 22:04:22.846 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.8162 ms
+2026-03-30 22:04:22.846 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.9812 ms
+2026-03-30 22:04:23.123 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.4056 ms
+2026-03-30 22:04:30.378 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.6164 ms
+2026-03-30 22:04:30.381 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.8761 ms
+2026-03-30 22:04:31.948 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 4.7641 ms
+2026-03-30 22:04:31.951 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.8373 ms
+2026-03-30 22:04:36.293 +03:00 [INF] [User: ] HTTP GET /api/catalogs/trending responded 200 in 4.5286 ms
+2026-03-30 22:05:39.526 +03:00 [INF] [User: Baran Doğan] Abonelik eklendi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, Name: Spotify
+2026-03-30 22:05:39.528 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions responded 201 in 15.9522 ms
+2026-03-30 22:05:45.824 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/78/price-history responded 200 in 5.8285 ms
+2026-03-30 22:05:48.748 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/78/price-history responded 200 in 5.8822 ms
+2026-03-30 22:06:03.709 +03:00 [INF] [User: Baran Doğan] Abonelik güncellendi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 78
+2026-03-30 22:06:03.710 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions/78 responded 200 in 13.0260 ms
+2026-03-30 22:06:07.731 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/78/price-history responded 200 in 7.4951 ms
+2026-03-30 22:06:16.025 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions/78/share responded 400 in 14.3550 ms
+2026-03-30 22:07:08.337 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/78/price-history responded 200 in 6.4758 ms
+2026-03-30 22:08:08.216 +03:00 [INF] [User: ] HTTP GET /api/catalogs/trending responded 200 in 6.6954 ms
+2026-03-30 22:08:21.273 +03:00 [INF] [User: Baran Doğan] Abonelik eklendi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, Name: Netflix
+2026-03-30 22:08:21.275 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions responded 201 in 15.4052 ms
+2026-03-30 22:08:29.433 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 5.2151 ms
+2026-03-30 22:09:24.768 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/78/price-history responded 200 in 6.8722 ms
+2026-03-30 22:09:32.550 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions/78/share responded 400 in 5.3120 ms
+2026-03-30 22:09:56.681 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.3364 ms
+2026-03-30 22:11:02.670 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 4.6643 ms
+2026-03-30 22:11:02.672 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 11.2169 ms
+2026-03-30 22:11:02.672 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.7922 ms
+2026-03-30 22:11:02.673 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 7.7581 ms
+2026-03-30 22:11:02.683 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 8.8945 ms
+2026-03-30 22:11:02.992 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.0341 ms
+2026-03-30 22:11:09.410 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1232 ms
+2026-03-30 22:12:05.126 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.9528 ms
+2026-03-30 22:12:05.126 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.5797 ms
+2026-03-30 22:12:05.129 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 6.5590 ms
+2026-03-30 22:12:05.137 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 14.5440 ms
+2026-03-30 22:12:05.198 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.9482 ms
+2026-03-30 22:12:05.455 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.6345 ms
+2026-03-30 22:12:11.113 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.2179 ms
+2026-03-30 22:12:11.117 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.1696 ms
+2026-03-30 22:12:11.992 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/78/price-history responded 200 in 7.3569 ms
+2026-03-30 22:12:21.904 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions/78/share responded 400 in 3.9079 ms
+2026-03-30 22:12:45.646 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/78/price-history responded 200 in 5.6321 ms
+2026-03-30 22:12:57.167 +03:00 [INF] [User: Baran Doğan] Abonelik güncellendi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 78
+2026-03-30 22:12:57.168 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions/78 responded 200 in 11.3589 ms
+2026-03-30 22:13:02.748 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/78/price-history responded 200 in 5.1844 ms
+2026-03-30 22:13:23.160 +03:00 [INF] [User: Baran Doğan] Abonelik güncellendi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 78
+2026-03-30 22:13:23.161 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions/78 responded 200 in 12.4463 ms
+2026-03-30 22:13:26.681 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/78/price-history responded 200 in 8.3236 ms
+2026-03-30 22:13:38.471 +03:00 [INF] [User: Baran Doğan] Abonelik silindi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 78
+2026-03-30 22:13:38.472 +03:00 [INF] [User: ] HTTP DELETE /api/usersubscriptions/78 responded 204 in 9.0273 ms
+2026-03-30 22:17:24.010 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ba***@gmail.com
+2026-03-30 22:17:24.018 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ba***@gmail.com
+2026-03-30 22:17:24.019 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 77.3950 ms
+2026-03-30 22:17:24.338 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 8.8177 ms
+2026-03-30 22:17:24.340 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.6178 ms
+2026-03-30 22:17:24.341 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.4982 ms
+2026-03-30 22:17:24.345 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.0626 ms
+2026-03-30 22:17:24.365 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 6.1060 ms
+2026-03-30 22:17:24.817 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.1013 ms
+2026-03-30 22:17:30.282 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.0428 ms
+2026-03-30 22:17:30.352 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.5029 ms
+2026-03-30 22:17:31.169 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 5.6966 ms
+2026-03-30 22:17:33.775 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 5.6443 ms
+2026-03-30 22:17:43.793 +03:00 [INF] [User: Baran Doğan] Abonelik güncellendi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 79
+2026-03-30 22:17:43.794 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions/79 responded 200 in 10.8778 ms
+2026-03-30 22:17:43.923 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions/79/share responded 400 in 3.9178 ms
+2026-03-30 22:17:49.739 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 5.4995 ms
+2026-03-30 22:17:58.442 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 6.7438 ms
+2026-03-30 22:17:58.447 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.4105 ms
+2026-03-30 22:17:58.633 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.5931 ms
+2026-03-30 22:18:04.865 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 4.5742 ms
+2026-03-30 22:18:19.859 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 5.1562 ms
+2026-03-30 22:18:50.140 +03:00 [INF] [User: Baran Doğan] Abonelik güncellendi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 79
+2026-03-30 22:18:50.141 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions/79 responded 200 in 10.1877 ms
+2026-03-30 22:18:50.289 +03:00 [INF] [User: Baran Doğan] Abonelik paylaşıldı. SubscriptionId: 79, Hedef: hako19071@gmail.com
+2026-03-30 22:18:50.290 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions/79/share responded 200 in 38.2378 ms
+2026-03-30 22:18:58.061 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 7.0401 ms
+2026-03-30 22:20:04.973 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ha***@gmail.com
+2026-03-30 22:20:04.982 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ha***@gmail.com
+2026-03-30 22:20:04.983 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 59.1094 ms
+2026-03-30 22:20:05.247 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 10.6258 ms
+2026-03-30 22:20:05.250 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.2288 ms
+2026-03-30 22:20:05.253 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 6.5267 ms
+2026-03-30 22:20:05.268 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.3819 ms
+2026-03-30 22:20:05.273 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 8.5807 ms
+2026-03-30 22:20:05.505 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.7101 ms
+2026-03-30 22:20:08.804 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.3000 ms
+2026-03-30 22:20:08.804 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.0910 ms
+2026-03-30 22:20:13.567 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 12.9685 ms
+2026-03-30 22:20:47.822 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1088 ms
+2026-03-30 22:21:10.722 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 9.3313 ms
+2026-03-30 22:21:11.504 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 7.4943 ms
+2026-03-30 22:21:16.751 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.0748 ms
+2026-03-30 22:21:20.238 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 7.2176 ms
+2026-03-30 22:21:30.910 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/71/price-history responded 200 in 5.9906 ms
+2026-03-30 22:21:38.358 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 8.3500 ms
+2026-03-30 22:26:57.850 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1627 ms
+2026-03-30 22:28:20.184 +03:00 [INF] [User: Test] Abonelik silindi. UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a, SubscriptionId: 71
+2026-03-30 22:28:20.185 +03:00 [INF] [User: ] HTTP DELETE /api/usersubscriptions/71 responded 204 in 10.8111 ms
+2026-03-30 22:28:23.950 +03:00 [INF] [User: Test] Abonelik silindi. UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a, SubscriptionId: 72
+2026-03-30 22:28:23.952 +03:00 [INF] [User: ] HTTP DELETE /api/usersubscriptions/72 responded 204 in 9.7963 ms
+2026-03-30 22:28:29.363 +03:00 [INF] [User: Test] Abonelik silindi. UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a, SubscriptionId: 74
+2026-03-30 22:28:29.364 +03:00 [INF] [User: ] HTTP DELETE /api/usersubscriptions/74 responded 204 in 8.8029 ms
+2026-03-30 22:28:32.450 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 8.7469 ms
+2026-03-30 22:28:32.462 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.7619 ms
+2026-03-30 22:28:32.734 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.3600 ms
+2026-03-30 22:28:34.261 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 7.2215 ms
+2026-03-30 22:28:40.576 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 6.0559 ms
+2026-03-30 22:28:46.039 +03:00 [INF] [User: ] HTTP PUT /api/notifications/11/read responded 200 in 15.4597 ms
+2026-03-30 22:28:46.138 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.0975 ms
+2026-03-30 22:28:46.138 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.3652 ms
+2026-03-30 22:28:46.142 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.3851 ms
+2026-03-30 22:28:46.146 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.2680 ms
+2026-03-30 22:28:47.697 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.2911 ms
+2026-03-30 22:28:47.697 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 6.5896 ms
+2026-03-30 22:28:47.983 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.5123 ms
+2026-03-30 22:28:49.493 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.9205 ms
+2026-03-30 22:28:54.786 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.6369 ms
+2026-03-30 22:28:54.789 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 5.7489 ms
+2026-03-30 22:28:55.090 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.1048 ms
+2026-03-30 22:28:56.820 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.4793 ms
+2026-03-30 22:28:56.822 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 8.6700 ms
+2026-03-30 22:28:57.063 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.2753 ms
+2026-03-30 22:29:01.620 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.7758 ms
+2026-03-30 22:29:01.620 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 6.8424 ms
+2026-03-30 22:29:01.861 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.4822 ms
+2026-03-30 22:29:08.164 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.7504 ms
+2026-03-30 22:29:08.180 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 15.7016 ms
+2026-03-30 22:29:10.723 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.5136 ms
+2026-03-30 22:29:10.728 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.0498 ms
+2026-03-30 22:29:12.574 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.5017 ms
+2026-03-30 22:29:12.574 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 5.8843 ms
+2026-03-30 22:29:12.844 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.0547 ms
+2026-03-30 22:29:14.655 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.6011 ms
+2026-03-30 22:29:21.563 +03:00 [INF] [User: ] HTTP GET /api/catalogs/trending responded 200 in 5.9165 ms
+2026-03-30 22:29:45.814 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 6.4254 ms
+2026-03-30 22:30:34.267 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1185 ms
+2026-03-30 22:30:35.569 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 7.5342 ms
+2026-03-30 22:31:03.175 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1005 ms
+2026-03-30 22:31:06.489 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 10.0366 ms
+2026-03-30 22:31:10.119 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 9.4226 ms
+2026-03-30 22:31:12.893 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.3761 ms
+2026-03-30 22:31:12.896 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 6.8967 ms
+2026-03-30 22:31:13.142 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.9302 ms
+2026-03-30 22:31:27.270 +03:00 [INF] [User: ] Server desktop-25vqrpg:28156:659e2a9b caught stopping signal...
+2026-03-30 22:31:27.305 +03:00 [INF] [User: ] Server desktop-25vqrpg:28156:659e2a9b All dispatchers stopped
+2026-03-30 22:31:27.310 +03:00 [INF] [User: ] Server desktop-25vqrpg:28156:659e2a9b successfully reported itself as stopped in 2,8092 ms
+2026-03-30 22:31:27.310 +03:00 [INF] [User: ] Server desktop-25vqrpg:28156:659e2a9b has been stopped in total 39,2312 ms
+2026-03-30 22:31:41.556 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-30 22:31:41.689 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonlandı (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 296
+2026-03-30 22:31:53.002 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-30 22:31:53.123 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonlandı (Host Terminated).
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 296
+2026-03-30 22:38:51.182 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-03-30 22:38:52.529 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-03-30 22:38:52.549 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-03-30 22:38:52.923 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-03-30 22:38:52.924 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-03-30 22:38:52.925 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-03-30 22:38:52.925 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-03-30 22:38:52.926 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-03-30 22:38:52.927 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-03-30 22:38:52.945 +03:00 [INF] [User: ] Server desktop-25vqrpg:31408:e66d60e3 successfully announced in 9,4616 ms
+2026-03-30 22:38:52.948 +03:00 [INF] [User: ] Server desktop-25vqrpg:31408:e66d60e3 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-03-30 22:38:52.953 +03:00 [INF] [User: ] Server desktop-25vqrpg:31408:e66d60e3 all the dispatchers started
+2026-03-30 22:38:52.981 +03:00 [INF] [User: ] Removed 1 outdated record(s) from 'aggregatedcounter' table.
+2026-03-30 22:38:54.009 +03:00 [INF] [User: ] Removed 8 outdated record(s) from 'job' table.
+2026-03-30 22:39:53.670 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-03-30 22:39:54.006 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ha***@gmail.com
+2026-03-30 22:39:54.185 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ha***@gmail.com
+2026-03-30 22:39:54.211 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 553.3987 ms
+2026-03-30 22:39:54.646 +03:00 [INF] [User: Test] Güncel kurlar çekiliyor...
+2026-03-30 22:39:54.715 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 135.7060 ms
+2026-03-30 22:39:54.817 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 239.8425 ms
+2026-03-30 22:39:54.845 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 268.2153 ms
+2026-03-30 22:39:55.079 +03:00 [INF] [User: Test] Kurlar güncellendi: {"USD":44.456,"EUR":51.053,"GBP":58.815}
+2026-03-30 22:39:55.085 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 507.5969 ms
+2026-03-30 22:39:55.094 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 519.1030 ms
+2026-03-30 22:39:55.385 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 44.9612 ms
+2026-03-30 22:39:58.567 +03:00 [INF] [User: ] HTTP GET /api/catalogs/trending responded 200 in 53.4952 ms
+2026-03-30 22:39:59.178 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ba***@gmail.com
+2026-03-30 22:39:59.187 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ba***@gmail.com
+2026-03-30 22:39:59.188 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 81.7541 ms
+2026-03-30 22:39:59.458 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.1030 ms
+2026-03-30 22:39:59.461 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 7.6265 ms
+2026-03-30 22:39:59.462 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.6331 ms
+2026-03-30 22:39:59.468 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 5.9027 ms
+2026-03-30 22:39:59.472 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 18.1020 ms
+2026-03-30 22:39:59.753 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 55.0839 ms
+2026-03-30 22:40:04.338 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 5.9076 ms
+2026-03-30 22:40:04.345 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 9.7630 ms
+2026-03-30 22:40:04.972 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 21.1449 ms
+2026-03-30 22:40:18.742 +03:00 [INF] [User: Baran Doğan] Abonelik güncellendi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 79
+2026-03-30 22:40:18.744 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions/79 responded 200 in 105.0078 ms
+2026-03-30 22:40:18.912 +03:00 [INF] [User: Baran Doğan] Üyesiz paylaşım eklendi. SubscriptionId: 79, İsim: Erno
+2026-03-30 22:40:18.914 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions/79/share/guest responded 200 in 38.0788 ms
+2026-03-30 22:40:26.484 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 6.9402 ms
+2026-03-30 22:40:35.322 +03:00 [INF] [User: Baran Doğan] Abonelik güncellendi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 79
+2026-03-30 22:40:35.324 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions/79 responded 200 in 15.0131 ms
+2026-03-30 22:40:39.612 +03:00 [INF] [User: Test] Abonelik eklendi. UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a, Name: Netflix
+2026-03-30 22:40:39.621 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions responded 201 in 45.9321 ms
+2026-03-30 22:40:39.895 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.8764 ms
+2026-03-30 22:40:39.902 +03:00 [INF] [User: Test] Üyesiz paylaşım eklendi. SubscriptionId: 80, İsim: Barno
+2026-03-30 22:40:39.903 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions/80/share/guest responded 200 in 8.0121 ms
+2026-03-30 22:40:41.106 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 38.2727 ms
+2026-03-30 22:40:43.888 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.5493 ms
+2026-03-30 22:40:43.890 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.0962 ms
+2026-03-30 22:40:44.066 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 7.7250 ms
+2026-03-30 22:40:44.335 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.0097 ms
+2026-03-30 22:40:45.512 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.9339 ms
+2026-03-30 22:40:46.533 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/80/price-history responded 200 in 5.3895 ms
+2026-03-30 22:40:47.055 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/79/price-history responded 200 in 5.9397 ms
+2026-03-30 22:40:50.294 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/80/price-history responded 200 in 5.3480 ms
+2026-03-30 22:40:59.070 +03:00 [INF] [User: Baran Doğan] Abonelik güncellendi. UserId: c23ca2a2-c6dd-4f93-8457-880c50011ba7, SubscriptionId: 79
+2026-03-30 22:40:59.071 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions/79 responded 200 in 11.0007 ms
+2026-03-30 22:40:59.202 +03:00 [INF] [User: Baran Doğan] Üyesiz paylaşım eklendi. SubscriptionId: 79, İsim: Erno
+2026-03-30 22:40:59.203 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions/79/share/guest responded 200 in 7.5157 ms
+2026-03-30 22:41:02.430 +03:00 [INF] [User: Test] Abonelik güncellendi. UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a, SubscriptionId: 80
+2026-03-30 22:41:02.431 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions/80 responded 200 in 12.0981 ms
+2026-03-30 22:41:02.572 +03:00 [INF] [User: Test] Üyesiz paylaşım eklendi. SubscriptionId: 80, İsim: Barno
+2026-03-30 22:41:02.573 +03:00 [INF] [User: ] HTTP POST /api/usersubscriptions/80/share/guest responded 200 in 9.9633 ms
+2026-03-30 22:41:06.040 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.6481 ms
+2026-03-30 22:41:07.123 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/80/price-history responded 200 in 5.7784 ms
+2026-03-30 22:41:07.356 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.8230 ms
+2026-03-30 22:41:07.368 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 18.9100 ms
+2026-03-30 22:41:09.185 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 12.7161 ms
+2026-03-30 22:41:13.975 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.3447 ms
+2026-03-30 22:41:13.976 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.0653 ms
+2026-03-30 22:41:14.197 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.9368 ms
+2026-03-30 22:41:15.425 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 6.7662 ms
+2026-03-30 22:41:15.425 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.0616 ms
+2026-03-30 22:41:15.632 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.5427 ms
+2026-03-30 22:41:16.995 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.7121 ms
+2026-03-30 22:41:16.995 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 8.0143 ms
+2026-03-30 22:41:20.594 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.0075 ms
+2026-03-30 22:41:20.606 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 17.9250 ms
+2026-03-30 23:00:10.158 +03:00 [INF] [User: ] Email gönderildi. Alıcı: ha***@gmail.com, Konu: Abonelik Paylaşıldı
+2026-03-30 23:00:10.182 +03:00 [INF] [User: ] Email gönderildi. Alıcı: ha***@gmail.com, Konu: Abonelik Paylaşıldı
+2026-03-30 23:00:10.231 +03:00 [INF] [User: ] Bildirim kuyruğu işlendi. Gönderilen: 1, Başarısız: 0
+2026-03-30 23:00:10.246 +03:00 [INF] [User: ] Bildirim kuyruğu işlendi. Gönderilen: 1, Başarısız: 0

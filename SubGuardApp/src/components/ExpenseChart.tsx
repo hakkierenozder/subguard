@@ -35,7 +35,7 @@ export default function ExpenseChart({ onCategoryPress, selectedCategory }: Prop
         : (exchangeRates[sub.currency] ?? 0);
       if (rate === 0) return; // Bilinmeyen kur → bu aboneliği grafikten hariç tut
       const amountInTry = sub.price * rate;
-      const partnerCount = sub.sharedWith?.length || 0;
+      const partnerCount = (sub.sharedWith?.length || 0) + (sub.sharedGuests?.length || 0);
       const myShare = amountInTry / (partnerCount + 1);
       categoryTotals[cat] = (categoryTotals[cat] || 0) + myShare;
     });

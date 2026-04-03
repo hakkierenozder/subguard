@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
-import { View, Text, FlatList, ScrollView, StyleSheet, TouchableOpacity, Alert, Linking, TextInput, RefreshControl, StatusBar, Animated, ActivityIndicator, Modal, Switch, Image } from 'react-native';
+import { View, Text, FlatList, ScrollView, StyleSheet, TouchableOpacity, Alert, Linking, TextInput, RefreshControl, StatusBar, Animated, ActivityIndicator, Modal, Switch, Image, Platform } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import AnimatedPressable from '../components/AnimatedPressable';
 import { SubscriptionSkeletonList } from '../components/SkeletonLoader';
@@ -20,7 +20,6 @@ import { useThemeColors } from '../constants/theme';
 import { useCatalogStore } from '../store/useCatalogStore';
 import agent from '../api/agent';
 import Toast from 'react-native-toast-message';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Dosya düzeyinde logo bileşeni — render içinde tanımlanırsa state sıfırlanır
 function SubscriptionLogo({ logoUrl, brandColor, name }: { logoUrl?: string; brandColor: string; name: string }) {
@@ -86,6 +85,8 @@ export default function MySubscriptionsScreen() {
   // State Yönetimi
   const [editingSub, setEditingSub] = useState<UserSubscription | null>(null);
   const [detailSub, setDetailSub] = useState<UserSubscription | null>(null);
+  const [addBottomSheetVisible, setAddBottomSheetVisible] = useState(false);
+  const [addNewVisible, setAddNewVisible] = useState(false);
 
   // Bildirimden deep link: openSubscriptionId route param varsa detail aç
   const openSubscriptionId = route.params?.openSubscriptionId;
@@ -100,39 +101,11 @@ export default function MySubscriptionsScreen() {
   const [searchText, setSearchText] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
-  const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const SEARCH_HISTORY_KEY = 'sub_search_history';
-
-  // Arama geçmişini AsyncStorage'dan yükle
-  useEffect(() => {
-    AsyncStorage.getItem(SEARCH_HISTORY_KEY)
-      .then(raw => {
-        if (raw) { try { setSearchHistory(JSON.parse(raw)); } catch (e) { console.warn('Search history parse hatası:', e); } }
-      })
-      .catch(e => console.warn('Arama geçmişi yüklenemedi:', e));
-  }, []);
 
   // [33] searchTimer cleanup — bellek sızıntısını önler
   useEffect(() => () => {
     if (searchTimer.current) clearTimeout(searchTimer.current);
-  }, []);
-
-  const saveSearchHistory = useCallback(async (query: string) => {
-    if (!query.trim()) return;
-    setSearchHistory(prev => {
-      const filtered = prev.filter(h => h !== query);
-      const updated = [query, ...filtered].slice(0, 5);
-      AsyncStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(updated))
-        .catch(e => console.warn('Arama geçmişi kaydedilemedi:', e));
-      return updated;
-    });
-  }, []);
-
-  const clearSearchHistory = useCallback(() => {
-    setSearchHistory([]);
-    AsyncStorage.removeItem(SEARCH_HISTORY_KEY)
-      .catch(e => console.warn('Arama geçmişi silinemedi:', e));
   }, []);
 
   const handleSearch = useCallback((text: string) => {
@@ -140,9 +113,8 @@ export default function MySubscriptionsScreen() {
     if (searchTimer.current) clearTimeout(searchTimer.current);
     searchTimer.current = setTimeout(() => {
       setDebouncedQuery(text);
-      if (text.trim()) saveSearchHistory(text.trim());
     }, 300);
-  }, [saveSearchHistory]);
+  }, []);
   const [sortBy, setSortBy] = useState<SortType>('date');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -235,9 +207,9 @@ export default function MySubscriptionsScreen() {
   };
 
   const handleShareOnWhatsApp = (item: UserSubscription) => {
-    const partnerCount = item.sharedWith?.length || 0;
-    const shareAmount = partnerCount > 0 
-        ? (item.price / (partnerCount + 1)).toFixed(2) 
+    const partnerCount = (item.sharedWith?.length || 0) + (item.sharedGuests?.length || 0);
+    const shareAmount = partnerCount > 0
+        ? (item.price / (partnerCount + 1)).toFixed(2)
         : item.price.toFixed(2);
 
     const message = `Selam! 👋 ${item.name} aboneliği yenileniyor. Bu ayki payına düşen miktar: ${shareAmount} ${item.currency}.`;
@@ -323,7 +295,7 @@ export default function MySubscriptionsScreen() {
     for (const cat of sortedCategories) {
       const items = groupMap[cat];
       const totalTRY = items.reduce((sum, sub) => {
-        const partnerCount = sub.sharedWith?.length || 0;
+        const partnerCount = (sub.sharedWith?.length || 0) + (sub.sharedGuests?.length || 0);
         return sum + convertToTRY(sub.price, sub.currency) / (partnerCount + 1);
       }, 0);
 
@@ -506,36 +478,34 @@ export default function MySubscriptionsScreen() {
       <View style={styles.headerContainer}>
         {/* HERO CARD */}
         <LinearGradient
-          colors={[colors.primaryDark, colors.primary]}
+          colors={['#4F46E5', '#6D28D9']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={[styles.heroCard, { shadowColor: isDarkMode ? '#000' : colors.primaryDark }]}
+          style={[styles.heroCard, { shadowColor: '#4F46E5' }]}
         >
-          {/* Dekoratif daire */}
+          {/* Dekoratif daireler */}
           <View style={styles.heroDecorCircle} />
+          <View style={styles.heroDecorCircle2} />
 
           <View style={styles.heroCardTop}>
               <View style={{ flex: 1 }}>
-                  <Text style={styles.heroLabel}>ABONELİKLERİM</Text>
-                  <Text style={styles.heroAmount}>{activeSubsCount} aktif</Text>
-                  {categoryList.length > 0 && (
-                      <Text style={[styles.heroLabel, { marginTop: 3, opacity: 0.75 }]}>
-                          {categoryList.length} kategori
-                      </Text>
-                  )}
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 14 }}>
-                  <TouchableOpacity
-                      onPress={() => navigation.navigate('Calendar')}
-                      activeOpacity={0.7}
-                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                  >
-                      <Ionicons name="calendar-outline" size={26} color="rgba(255,255,255,0.9)" />
-                  </TouchableOpacity>
-                  <View style={styles.heroIconContainer}>
-                      <MaterialCommunityIcons name="layers-outline" size={28} color="rgba(255,255,255,0.9)" />
+                  <Text style={styles.heroLabel}>AYLIK TOPLAM</Text>
+                  <View style={styles.heroAmountRow}>
+                      <Text style={styles.heroCurrency}>₺</Text>
+                      <Text style={styles.heroAmount}>{totalExpense.toFixed(2)}</Text>
                   </View>
+                  <Text style={[styles.heroLabel, { marginTop: 4, opacity: 0.8 }]}>
+                      {activeSubsCount} aktif abonelik{categoryList.length > 0 ? ` · ${categoryList.length} kategori` : ''}
+                  </Text>
               </View>
+              <TouchableOpacity
+                  onPress={() => navigation.navigate('Calendar')}
+                  activeOpacity={0.7}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  style={styles.heroIconContainer}
+              >
+                  <Ionicons name="calendar-outline" size={22} color="rgba(255,255,255,0.9)" />
+              </TouchableOpacity>
           </View>
 
           {/* Kategori özeti satırı */}
@@ -585,30 +555,6 @@ export default function MySubscriptionsScreen() {
               </TouchableOpacity>
             )}
         </View>
-
-        {/* Arama Geçmişi — sadece odaklanıldığında ve arama kutusu boşken göster */}
-        {searchFocused && searchText.length === 0 && searchHistory.length > 0 && (
-          <View style={{ marginHorizontal: 16, marginTop: 4, marginBottom: 2 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-              <Text style={{ fontSize: 11, fontWeight: '600', color: colors.textSec }}>SON ARAMALAR</Text>
-              <TouchableOpacity onPress={clearSearchHistory} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
-                <Text style={{ fontSize: 11, fontWeight: '600', color: colors.accent }}>Temizle</Text>
-              </TouchableOpacity>
-            </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }}>
-              {searchHistory.map((h, i) => (
-                <TouchableOpacity
-                  key={i}
-                  onPress={() => handleSearch(h)}
-                  style={{ flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 16, backgroundColor: colors.inputBg, borderWidth: 1, borderColor: colors.border }}
-                >
-                  <Ionicons name="time-outline" size={12} color={colors.textSec} />
-                  <Text style={{ fontSize: 12, color: colors.textSec, fontWeight: '500' }}>{h}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-        )}
 
         {/* Kategori Filtreleri */}
         {categoryList.length > 1 && (
@@ -660,7 +606,12 @@ export default function MySubscriptionsScreen() {
         )}
 
         {/* Filtre & Sıralama — tek buton */}
-        <View style={styles.filterActionRow}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filterActionRow}
+          style={styles.filterActionScroll}
+        >
           <TouchableOpacity
             style={[styles.filterSortBtn, {
               backgroundColor: totalBadgeCount > 0 ? colors.primary : colors.cardBg,
@@ -738,7 +689,7 @@ export default function MySubscriptionsScreen() {
               <Text style={[styles.clearInlineBtnText, { color: colors.textSec }]}>Temizle</Text>
             </TouchableOpacity>
           )}
-        </View>
+        </ScrollView>
 
       </View>
     );
@@ -777,7 +728,7 @@ export default function MySubscriptionsScreen() {
     const isForeignCurrency = sub.currency !== 'TRY';
 
     // PAYLAŞIM KONTROLÜ
-    const isShared = sub.sharedWith && sub.sharedWith.length > 0;
+    const isShared = ((sub.sharedWith?.length || 0) + (sub.sharedGuests?.length || 0)) > 0;
 
     const catalogLogoUrl = catalogItems.find(c => c.id === sub.catalogId)?.logoUrl;
     const renderLogo = () => (
@@ -861,7 +812,7 @@ export default function MySubscriptionsScreen() {
           </Text>
           {isShared && !isPassive && (
             <Text style={[styles.currencyText, { color: colors.textSec, fontSize: 10, marginTop: 1 }]}>
-              {(sub.price / ((sub.sharedWith?.length ?? 0) + 1)).toFixed(2)} kişi başı
+              {(sub.price / ((sub.sharedWith?.length ?? 0) + (sub.sharedGuests?.length ?? 0) + 1)).toFixed(2)} kişi başı
             </Text>
           )}
           <View style={styles.currencyAndActionRow}>
@@ -933,7 +884,7 @@ export default function MySubscriptionsScreen() {
             item._type === 'header' ? `header-${item.category}` : (item as UserSubscription).id
           }
           renderItem={renderItem}
-          ListHeaderComponent={renderHeader}
+          ListHeaderComponent={renderHeader()}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           onEndReached={() => { if (hasMore && !loadingMore) loadMoreSubscriptions(); }}
@@ -974,6 +925,16 @@ export default function MySubscriptionsScreen() {
                   onPress={() => setSelectedCategory(null)}
                 >
                   <Text style={[styles.emptyResetText, { color: colors.primary }]}>Filtreyi Kaldır</Text>
+                </TouchableOpacity>
+              )}
+              {!selectedCategory && !searchText && !archiveMode && (
+                <TouchableOpacity
+                  style={[styles.emptyAddBtn, { backgroundColor: colors.accent }]}
+                  onPress={() => setAddBottomSheetVisible(true)}
+                  activeOpacity={0.85}
+                >
+                  <Ionicons name="add" size={18} color="#FFF" />
+                  <Text style={styles.emptyAddBtnText}>İlk Aboneliğini Ekle</Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -1046,6 +1007,82 @@ export default function MySubscriptionsScreen() {
             </TouchableOpacity>
           </View>
         )}
+
+        {/* FAB */}
+        {!selectMode && (
+          <TouchableOpacity
+            style={[styles.fab, { backgroundColor: colors.accent }]}
+            onPress={() => setAddBottomSheetVisible(true)}
+            activeOpacity={0.85}
+          >
+            <Ionicons name="add" size={28} color="#FFF" />
+          </TouchableOpacity>
+        )}
+
+        {/* Abonelik Ekle Bottom Sheet */}
+        <Modal
+          visible={addBottomSheetVisible}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setAddBottomSheetVisible(false)}
+        >
+          <TouchableOpacity
+            style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)' }}
+            activeOpacity={1}
+            onPress={() => setAddBottomSheetVisible(false)}
+          />
+          <View style={[styles.addBottomSheet, { backgroundColor: colors.cardBg }]}>
+            <View style={[styles.addBottomSheetHandle, { backgroundColor: colors.border }]} />
+            <Text style={[styles.addBottomSheetTitle, { color: colors.textMain }]}>Abonelik Ekle</Text>
+
+            <TouchableOpacity
+              style={[styles.addBottomSheetOption, { backgroundColor: colors.inputBg }]}
+              onPress={() => {
+                setAddBottomSheetVisible(false);
+                navigation.navigate('Discover');
+              }}
+              activeOpacity={0.8}
+            >
+              <LinearGradient
+                colors={[colors.accent, colors.primary]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.addBottomSheetOptionIcon}
+              >
+                <Ionicons name="compass" size={22} color="#FFF" />
+              </LinearGradient>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.addBottomSheetOptionTitle, { color: colors.textMain }]}>Katalogdan Seç</Text>
+                <Text style={[styles.addBottomSheetOptionSub, { color: colors.textSec }]}>50+ popüler servis hazır, tek dokunuşla ekle</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={colors.inactive} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.addBottomSheetOption, { backgroundColor: colors.inputBg }]}
+              onPress={() => {
+                setAddBottomSheetVisible(false);
+                setAddNewVisible(true);
+              }}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.addBottomSheetOptionIcon, { backgroundColor: colors.primary + '22' }]}>
+                <Ionicons name="create-outline" size={22} color={colors.primary} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.addBottomSheetOptionTitle, { color: colors.textMain }]}>Kendin Oluştur</Text>
+                <Text style={[styles.addBottomSheetOptionSub, { color: colors.textSec }]}>Listede olmayan bir servis ekle</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={colors.inactive} />
+            </TouchableOpacity>
+          </View>
+        </Modal>
+
+        <AddSubscriptionModal
+          visible={addNewVisible}
+          onClose={() => setAddNewVisible(false)}
+          selectedCatalogItem={null}
+        />
 
         <AddSubscriptionModal
           visible={!!editingSub}
@@ -1212,9 +1249,18 @@ const styles = StyleSheet.create({
     width: 180,
     height: 180,
     borderRadius: 90,
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: 'rgba(255,255,255,0.07)',
     top: -50,
     right: -40,
+  },
+  heroDecorCircle2: {
+    position: 'absolute',
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    bottom: -20,
+    left: 20,
   },
   heroCardTop: {
     flexDirection: 'row',
@@ -1340,11 +1386,16 @@ const styles = StyleSheet.create({
   catChipCountText: { fontSize: 10, fontWeight: '700' },
 
   // ─── Filtre & Sırala Satırı ─────────────────────────────────────────────
+  filterActionScroll: {
+    flexGrow: 0,
+    flexShrink: 0,
+    marginBottom: 8,
+  },
   filterActionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
     gap: 8,
+    paddingRight: 4,
   },
   filterSortBtn: {
     flexDirection: 'row',
@@ -1646,6 +1697,62 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   emptyResetText: { fontSize: 13, fontWeight: '700' },
+  emptyAddBtn: {
+    marginTop: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    paddingHorizontal: 24,
+    paddingVertical: 13,
+    borderRadius: 16,
+  },
+  emptyAddBtnText: { color: '#FFF', fontSize: 15, fontWeight: '700' },
+
+  fab: {
+    position: 'absolute',
+    right: 20,
+    bottom: Platform.OS === 'ios' ? 24 : 20,
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 10,
+  },
+  addBottomSheet: {
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    padding: 24,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 28,
+    gap: 12,
+  },
+  addBottomSheetHandle: {
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
+  addBottomSheetTitle: { fontSize: 18, fontWeight: '800', marginBottom: 4 },
+  addBottomSheetOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 16,
+    gap: 14,
+  },
+  addBottomSheetOptionIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  addBottomSheetOptionTitle: { fontSize: 15, fontWeight: '700', marginBottom: 2 },
+  addBottomSheetOptionSub: { fontSize: 12 },
 
   loadMoreFooter: {
     flexDirection: 'row',

@@ -31,7 +31,7 @@ export default function EmptyState({
       ) : null}
       {actionLabel && onAction ? (
         <TouchableOpacity
-          style={[styles.actionBtn, { backgroundColor: colors.primary }]}
+          style={[styles.actionBtn, { backgroundColor: colors.accent }]}
           onPress={onAction}
           activeOpacity={0.8}
         >

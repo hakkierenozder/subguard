@@ -74,7 +74,7 @@ export default function CalendarScreen() {
     return activeSubs.reduce((total, sub) => {
       const rate = exchangeRates[sub.currency] ?? 1;
       const priceInTry = sub.price * rate;
-      const partnerCount = sub.sharedWith?.length ?? 0;
+      const partnerCount = (sub.sharedWith?.length ?? 0) + (sub.sharedGuests?.length ?? 0);
       const monthlyPrice = sub.billingPeriod === 'Yearly'
         ? priceInTry / 12
         : sub.billingPeriod === 'Weekly'
@@ -127,7 +127,7 @@ export default function CalendarScreen() {
 
       {/* HEADER */}
       <LinearGradient
-        colors={[colors.primary, colors.primaryDark]}
+        colors={['#4F46E5', '#6D28D9']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.header}
@@ -253,7 +253,7 @@ export default function CalendarScreen() {
               selectedSubs.map((sub) => {
                 const rate = exchangeRates[sub.currency] ?? 1;
                 const priceInTry = sub.price * rate;
-                const partnerCount = sub.sharedWith?.length ?? 0;
+                const partnerCount = (sub.sharedWith?.length ?? 0) + (sub.sharedGuests?.length ?? 0);
                 const myShare = priceInTry / (partnerCount + 1);
                 const isForeign = sub.currency !== 'TRY';
 
@@ -311,7 +311,7 @@ export default function CalendarScreen() {
               .sort((a, b) => a.billingDay - b.billingDay)
               .map((sub) => {
                 const rate = exchangeRates[sub.currency] ?? 1;
-                const myShare = (sub.price * rate) / ((sub.sharedWith?.length ?? 0) + 1);
+                const myShare = (sub.price * rate) / ((sub.sharedWith?.length ?? 0) + (sub.sharedGuests?.length ?? 0) + 1);
                 const isPast =
                   currentYear === today.getFullYear() &&
                   currentMonth === today.getMonth() &&

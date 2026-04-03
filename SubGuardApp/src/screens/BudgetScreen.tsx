@@ -16,7 +16,6 @@ import {
 import { CategoryBudget } from '../types';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { ProgressChart } from 'react-native-chart-kit';
 import { useThemeColors, getCategoryColor } from '../constants/theme';
 import { useSettingsStore } from '../store/useSettingsStore';
@@ -94,7 +93,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
   // Toplam harcama (TRY)
   const totalExpense = useMemo(() => {
     return activeSubs.reduce((total, sub) => {
-      const partnerCount = sub.sharedWith?.length ?? 0;
+      const partnerCount = (sub.sharedWith?.length ?? 0) + (sub.sharedGuests?.length ?? 0);
       return total + convertToTRY(sub.price, sub.currency) / (partnerCount + 1);
     }, 0);
   }, [activeSubs]);
@@ -103,7 +102,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
   const categoryBreakdown = useMemo(() => {
     const map: Record<string, number> = {};
     activeSubs.forEach((sub) => {
-      const myShare = convertToTRY(sub.price, sub.currency) / ((sub.sharedWith?.length ?? 0) + 1);
+      const myShare = convertToTRY(sub.price, sub.currency) / ((sub.sharedWith?.length ?? 0) + (sub.sharedGuests?.length ?? 0) + 1);
       map[sub.category] = (map[sub.category] ?? 0) + myShare;
     });
     return Object.entries(map)
@@ -269,21 +268,6 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
         backgroundColor="transparent"
         translucent
       />
-
-      {/* HEADER */}
-      <LinearGradient
-        colors={[colors.primary, colors.primaryDark]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.header}
-      >
-        <Text style={styles.headerTitle}>Bütçe Yönetimi</Text>
-        <Text style={styles.headerSub}>
-          {monthlyBudget > 0
-            ? `Hedef: ${currencySymbol}${monthlyBudget.toLocaleString('tr-TR')}`
-            : 'Henüz bütçe belirlenmedi'}
-        </Text>
-      </LinearGradient>
 
       <ScrollView
         ref={scrollRef}
@@ -698,16 +682,6 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-
-  header: {
-    paddingTop: 16,
-    paddingBottom: 28,
-    paddingHorizontal: 20,
-    borderBottomLeftRadius: 28,
-    borderBottomRightRadius: 28,
-  },
-  headerTitle: { fontSize: 26, fontWeight: '800', color: '#FFF' },
-  headerSub: { fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 4, fontWeight: '500' },
 
   scrollContent: { padding: 16, gap: 14 },
 

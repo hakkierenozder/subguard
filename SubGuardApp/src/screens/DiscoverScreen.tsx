@@ -64,9 +64,16 @@ function TrendingCard({ item, isSubscribed, colors, onAdd }: {
   const [imgFailed, setImgFailed] = useState(false);
   return (
     <TouchableOpacity
-      style={[styles.trendingCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}
+      style={[
+        styles.trendingCard,
+        {
+          backgroundColor: isSubscribed ? colors.inputBg : colors.cardBg,
+          borderColor: isSubscribed ? colors.success + '50' : colors.border,
+        },
+      ]}
       onPress={() => !isSubscribed && onAdd(item)}
-      activeOpacity={0.75}
+      activeOpacity={isSubscribed ? 1 : 0.75}
+      disabled={isSubscribed}
     >
       <View style={[styles.trendingIcon, { backgroundColor: (item.colorCode || '#4F46E5') + '18' }]}>
         {item.logoUrl && !imgFailed ? (
@@ -77,9 +84,18 @@ function TrendingCard({ item, isSubscribed, colors, onAdd }: {
           </Text>
         )}
       </View>
-      <Text style={[styles.trendingName, { color: colors.textMain }]} numberOfLines={1}>{item.name}</Text>
-      {isSubscribed && (
-        <Ionicons name="checkmark-circle" size={14} color={colors.success} style={{ marginTop: 2 }} />
+      <Text style={[styles.trendingName, { color: isSubscribed ? colors.textSec : colors.textMain }]} numberOfLines={1}>
+        {item.name}
+      </Text>
+      {isSubscribed ? (
+        <View style={[styles.trendingSubscribedBadge, { backgroundColor: colors.success + '20' }]}>
+          <Ionicons name="checkmark-circle" size={11} color={colors.success} />
+          <Text style={[styles.trendingSubscribedText, { color: colors.success }]}>Ekli</Text>
+        </View>
+      ) : (
+        <View style={[styles.trendingAddHint, { backgroundColor: colors.accent + '15' }]}>
+          <Ionicons name="add" size={11} color={colors.accent} />
+        </View>
       )}
     </TouchableOpacity>
   );
@@ -131,9 +147,9 @@ function CatalogCard({ item, isSubscribed, isRecommended, colors, onAdd }: CardP
         </Text>
       )}
       {isSubscribed ? (
-        <View style={styles.subscribedBadge}>
-          <Ionicons name="checkmark-circle" size={13} color="#16A34A" />
-          <Text style={styles.subscribedText}>Ekli</Text>
+        <View style={[styles.subscribedBadge, { backgroundColor: colors.success + '20' }]}>
+          <Ionicons name="checkmark-circle" size={13} color={colors.success} />
+          <Text style={[styles.subscribedText, { color: colors.success }]}>Ekli</Text>
         </View>
       ) : (
         <TouchableOpacity
@@ -290,7 +306,7 @@ export default function DiscoverScreen({ navigation }: Props) {
 
       {/* HEADER */}
       <LinearGradient
-        colors={[colors.primary, colors.primaryDark]}
+        colors={['#4F46E5', '#6D28D9']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.header}
@@ -511,7 +527,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 2,
+    marginBottom: 8,
   },
   cardImg: { width: 36, height: 36, resizeMode: 'contain' },
   cardInitial: { fontSize: 22, fontWeight: '800' },
@@ -522,13 +538,12 @@ const styles = StyleSheet.create({
   subscribedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#DCFCE7',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 10,
     marginTop: 6,
   },
-  subscribedText: { color: '#16A34A', fontSize: 11, fontWeight: '700', marginLeft: 4 },
+  subscribedText: { fontSize: 11, fontWeight: '700', marginLeft: 4 },
   addBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -565,4 +580,22 @@ const styles = StyleSheet.create({
   trendingImg: { width: 30, height: 30, resizeMode: 'contain' },
   trendingInitial: { fontSize: 18, fontWeight: '800' },
   trendingName: { fontSize: 10, fontWeight: '700', textAlign: 'center' },
+  trendingSubscribedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    borderRadius: 8,
+    marginTop: 4,
+  },
+  trendingSubscribedText: { fontSize: 9, fontWeight: '700' },
+  trendingAddHint: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 4,
+  },
 });

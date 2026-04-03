@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Modal, StyleSheet, TouchableOpacity, TextInput, ScrollView, Switch, Alert, Platform, KeyboardAvoidingView, Image, Animated } from 'react-native';
+import { View, Text, Modal, StyleSheet, TouchableOpacity, TextInput, ScrollView, Switch, Alert, Platform, KeyboardAvoidingView, Image, Animated, ActivityIndicator } from 'react-native';
 import { CatalogItem, UserSubscription, Plan, AddSubscriptionPayload } from '../types';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
+import agent from '../api/agent';
 import { useThemeColors } from '../constants/theme';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -9,6 +10,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 interface Props {
   visible: boolean;
   onClose: () => void;
+  onSaved?: () => void;
   selectedCatalogItem: CatalogItem | null;
   subscriptionToEdit?: UserSubscription | null;
 }
@@ -60,7 +62,7 @@ const siStyles = StyleSheet.create({
 });
 
 // ─── Ana bileşen ──────────────────────────────────────────────────────────────
-export default function AddSubscriptionModal({ visible, onClose, selectedCatalogItem, subscriptionToEdit }: Props) {
+export default function AddSubscriptionModal({ visible, onClose, onSaved, selectedCatalogItem, subscriptionToEdit }: Props) {
   const colors = useThemeColors();
   const { addSubscription, updateSubscription } = useUserSubscriptionStore();
 
@@ -93,9 +95,15 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
 
   const [notes, setNotes] = useState('');
 
-  const [sharedWith, setSharedWith] = useState<string[]>([]);
-  const [tempPerson, setTempPerson] = useState('');
+  const [memberEmails, setMemberEmails] = useState<string[]>([]);
+  const [tempMemberEmail, setTempMemberEmail] = useState('');
+  const [guestNames, setGuestNames] = useState<string[]>([]);
+  const [tempGuestName, setTempGuestName] = useState('');
   const [showShareInput, setShowShareInput] = useState(false);
+  const [shareTab, setShareTab] = useState<'member' | 'guest'>('member');
+  const [checkingEmail, setCheckingEmail] = useState(false);
+  const [memberEmailError, setMemberEmailError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   const isEditing = !!subscriptionToEdit;
   const isCatalogItem = !!selectedCatalogItem;
@@ -133,8 +141,10 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
         const sharedEmails = (subscriptionToEdit.sharedWith ?? []).map((p) =>
           typeof p === 'string' ? p : p.email
         );
-        setSharedWith(sharedEmails);
-        setShowShareInput(sharedEmails.length > 0);
+        const guests = (subscriptionToEdit.sharedGuests ?? []).map((g) => g.displayName);
+        setMemberEmails(sharedEmails);
+        setGuestNames(guests);
+        setShowShareInput(sharedEmails.length > 0 || guests.length > 0);
         setBillingPeriod(subscriptionToEdit.billingPeriod ?? 'Monthly');
         setSelectedPlanId(null);
       } else if (selectedCatalogItem) {
@@ -161,8 +171,14 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
     nextYear.setFullYear(nextYear.getFullYear() + 1);
     setEndDate(nextYear);
     setNotes('');
-    setSharedWith([]);
+    setMemberEmails([]);
+    setTempMemberEmail('');
+    setGuestNames([]);
+    setTempGuestName('');
     setShowShareInput(false);
+    setShareTab('member');
+    setCheckingEmail(false);
+    setMemberEmailError(null);
     setBillingPeriod('Monthly');
     setSelectedPlanId(null);
   };
@@ -174,10 +190,42 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
     setCurrency(plan.currency as CurrencyType);
   };
 
-  const handleAddPerson = () => {
-    if (tempPerson.trim().length > 0) {
-      setSharedWith([...sharedWith, tempPerson.trim()]);
-      setTempPerson('');
+  const handleAddMember = async () => {
+    const email = tempMemberEmail.trim();
+    if (!email) return;
+
+    // Basit format kontrolü
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setMemberEmailError('Geçerli bir e-posta adresi girin.');
+      return;
+    }
+
+    if (memberEmails.includes(email)) {
+      setMemberEmailError('Bu e-posta zaten eklendi.');
+      return;
+    }
+
+    setMemberEmailError(null);
+    setCheckingEmail(true);
+    try {
+      await agent.UserSubscriptions.checkUser(email);
+      // 200 döndü → kullanıcı var
+      setMemberEmails([...memberEmails, email]);
+      setTempMemberEmail('');
+    } catch (err: any) {
+      const msg = err?.response?.data?.errors?.[0];
+      setMemberEmailError(msg ?? 'Bu e-posta adresiyle kayıtlı kullanıcı bulunamadı.');
+    } finally {
+      setCheckingEmail(false);
+    }
+  };
+
+  const handleAddGuest = () => {
+    const name = tempGuestName.trim();
+    if (name.length > 0 && !guestNames.includes(name)) {
+      setGuestNames([...guestNames, name]);
+      setTempGuestName('');
     }
   };
 
@@ -197,10 +245,12 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
   };
 
   const handleSave = async () => {
+    if (saving) return;
     if (!name || !price) {
       Alert.alert('Eksik Bilgi', 'Lütfen isim ve fiyat alanlarını doldurun.');
       return;
     }
+    setSaving(true);
     const day = billingDate.getDate();
     if (day < 1 || day > 31) {
       Alert.alert('Geçersiz Gün', 'Fatura günü 1 ile 31 arasında olmalıdır.');
@@ -220,7 +270,8 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
       billingMonth: billingPeriod === 'Yearly' ? billingDate.getMonth() + 1 : null,
       category,
       colorCode: colorToSave,
-      sharedWith: showShareInput ? sharedWith : [],
+      sharedWith: showShareInput ? memberEmails : [],
+      sharedGuests: showShareInput ? guestNames : [],
       hasContract,
       contractStartDate: hasContract ? startDate.toISOString() : undefined,
       contractEndDate: hasContract ? endDate.toISOString() : undefined,
@@ -229,17 +280,41 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
 
     try {
       if (isEditing && subscriptionToEdit) {
-        await updateSubscription(subscriptionToEdit.id, subData);
+        // Mevcut guest'leri ID'leriyle birlikte koru, yeni eklenenleri id:0 ile ekle
+        const existingGuestMap = new Map(
+          (subscriptionToEdit.sharedGuests ?? []).map((g) => [g.displayName, g.id])
+        );
+        const mergedGuests = (showShareInput ? guestNames : []).map((name) => ({
+          id: existingGuestMap.get(name) ?? 0,
+          displayName: name,
+        }));
+        await updateSubscription(subscriptionToEdit.id, {
+          ...subData,
+          sharedWith: showShareInput
+            ? memberEmails.map((email) => {
+                const existing = (subscriptionToEdit.sharedWith ?? []).find(
+                  (p) => (typeof p === 'string' ? p : p.email) === email
+                );
+                return { email, userId: (existing && typeof existing !== 'string') ? existing.userId : '' };
+              })
+            : [],
+          sharedGuests: mergedGuests,
+        } as any);
       } else {
         await addSubscription(subData);
+        onSaved ? onSaved() : onClose();
+        return;
       }
       onClose();
     } catch (error) {
       Alert.alert('Hata', 'Kaydedilirken bir sorun oluştu.');
+    } finally {
+      setSaving(false);
     }
   };
 
-  const shareAmount = price ? (parseFloat(price) / (sharedWith.length + 1)).toFixed(2) : '0';
+  const totalShareCount = memberEmails.length + guestNames.length;
+  const shareAmount = price ? (parseFloat(price) / (totalShareCount + 1)).toFixed(2) : '0';
 
   const renderLogoSection = () => {
     if (selectedCatalogItem?.logoUrl && !imgFailed) {
@@ -311,12 +386,12 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
                   key={plan.id}
                   style={[
                     styles.planChip,
-                    { backgroundColor: isSelected ? colors.primary : colors.inputBg, borderColor: isSelected ? colors.primary : colors.border },
+                    { backgroundColor: isSelected ? colors.accent : colors.inputBg, borderColor: isSelected ? colors.accent : colors.border },
                   ]}
                   onPress={() => handleSelectPlan(plan)}
                 >
-                  <Text style={[styles.planName, { color: isSelected ? colors.white : colors.textMain }]}>{plan.name}</Text>
-                  <Text style={[styles.planPrice, { color: isSelected ? colors.white + 'EE' : colors.textSec }]}>{plan.price} {plan.currency}</Text>
+                  <Text style={[styles.planName, { color: isSelected ? '#FFF' : colors.textMain }]}>{plan.name}</Text>
+                  <Text style={[styles.planPrice, { color: isSelected ? 'rgba(255,255,255,0.85)' : colors.textSec }]}>{plan.price} {plan.currency}</Text>
                 </TouchableOpacity>
               );
             })}
@@ -333,7 +408,7 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
               return (
                 <TouchableOpacity
                   key={cat}
-                  style={[styles.catChip, { backgroundColor: isActive ? colors.primary : colors.inputBg }]}
+                  style={[styles.catChip, { backgroundColor: isActive ? colors.accent : colors.inputBg }]}
                   onPress={() => setCategory(cat)}
                 >
                   <Text style={[styles.catText, { color: isActive ? colors.white : colors.textMain }]}>{cat}</Text>
@@ -356,7 +431,7 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
           onPress={() => setShowBillingDatePicker(true)}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <MaterialCommunityIcons name="calendar-today" size={20} color={colors.primary} style={{ marginRight: 12 }} />
+            <MaterialCommunityIcons name="calendar-today" size={20} color={colors.accent} style={{ marginRight: 12 }} />
             <Text style={{ fontSize: 15, fontWeight: '600', color: colors.textMain }}>
               {billingDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}
             </Text>
@@ -373,10 +448,10 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
           <View style={{
             flexDirection: 'row', alignItems: 'flex-start', gap: 6,
             marginTop: 8, padding: 10, borderRadius: 10,
-            backgroundColor: colors.primary + '15',
+            backgroundColor: colors.accent + '15',
           }}>
-            <Ionicons name="information-circle-outline" size={16} color={colors.primary} style={{ marginTop: 1 }} />
-            <Text style={{ fontSize: 12, color: colors.primary, flex: 1, lineHeight: 17 }}>
+            <Ionicons name="information-circle-outline" size={16} color={colors.accent} style={{ marginTop: 1 }} />
+            <Text style={{ fontSize: 12, color: colors.accent, flex: 1, lineHeight: 17 }}>
               Yıllık aboneliklerde seçtiğiniz tarih her yıl tekrarlanır.
               Ödeme ayı olarak bu tarihin ayı kullanılır.
             </Text>
@@ -406,8 +481,8 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
               style={[
                 styles.periodBtn,
                 {
-                  borderColor: billingPeriod === period ? colors.primary : colors.border,
-                  backgroundColor: billingPeriod === period ? colors.primary : colors.inputBg,
+                  borderColor: billingPeriod === period ? colors.accent : colors.border,
+                  backgroundColor: billingPeriod === period ? colors.accent : colors.inputBg,
                 },
               ]}
             >
@@ -431,38 +506,119 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
             <Ionicons name="people" size={20} color={colors.textMain} style={{ marginRight: 10 }} />
             <Text style={[styles.cardTitle, { color: colors.textMain }]}>Ortak Kullanım</Text>
           </View>
-          <Switch value={showShareInput} onValueChange={setShowShareInput} trackColor={{ false: colors.border, true: colors.primary }} />
+          <Switch value={showShareInput} onValueChange={setShowShareInput} trackColor={{ false: colors.border, true: colors.accent }} />
         </View>
 
         {showShareInput && (
           <View style={{ marginTop: 12 }}>
-            <View style={styles.addPersonRow}>
-              <TextInput
-                style={[styles.smallInput, { backgroundColor: colors.cardBg, color: colors.textMain, borderColor: colors.border }]}
-                placeholder="Kişi Adı"
-                placeholderTextColor={colors.textSec}
-                value={tempPerson}
-                onChangeText={setTempPerson}
-              />
-              <TouchableOpacity style={[styles.addBtn, { backgroundColor: colors.primary }]} onPress={handleAddPerson}>
-                <Ionicons name="add" size={24} color={colors.white} />
+            {/* Segmented tab */}
+            <View style={[styles.shareTabRow, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+              <TouchableOpacity
+                style={[styles.shareTabBtn, shareTab === 'member' && { backgroundColor: colors.accent }]}
+                onPress={() => { setShareTab('member'); setMemberEmailError(null); }}
+              >
+                <Ionicons name="mail-outline" size={13} color={shareTab === 'member' ? '#fff' : colors.textSec} />
+                <Text style={[styles.shareTabText, { color: shareTab === 'member' ? '#fff' : colors.textSec }]}>Kayıtlı Kullanıcı</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.shareTabBtn, shareTab === 'guest' && { backgroundColor: colors.accent }]}
+                onPress={() => { setShareTab('guest'); setMemberEmailError(null); }}
+              >
+                <Ionicons name="person-outline" size={13} color={shareTab === 'guest' ? '#fff' : colors.textSec} />
+                <Text style={[styles.shareTabText, { color: shareTab === 'guest' ? '#fff' : colors.textSec }]}>Misafir</Text>
               </TouchableOpacity>
             </View>
-            <View style={styles.chipRow}>
-              {sharedWith.map((person, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={[styles.personChip, { backgroundColor: colors.cardBg }]}
-                  onPress={() => { const n = [...sharedWith]; n.splice(index, 1); setSharedWith(n); }}
-                >
-                  <Text style={[styles.personName, { color: colors.textMain }]}>{person}</Text>
-                  <Ionicons name="close" size={12} color={colors.error} style={{ marginLeft: 4 }} />
+
+            {/* Aktif tab input */}
+            {shareTab === 'member' ? (
+              <View>
+                <View style={styles.addPersonRow}>
+                  <TextInput
+                    style={[
+                      styles.smallInput,
+                      {
+                        backgroundColor: colors.cardBg,
+                        color: colors.textMain,
+                        borderColor: memberEmailError ? colors.error : colors.border,
+                      },
+                    ]}
+                    placeholder="ornek@email.com"
+                    placeholderTextColor={colors.textSec}
+                    value={tempMemberEmail}
+                    onChangeText={(t) => { setTempMemberEmail(t); setMemberEmailError(null); }}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    onSubmitEditing={handleAddMember}
+                    returnKeyType="done"
+                    editable={!checkingEmail}
+                  />
+                  <TouchableOpacity
+                    style={[styles.addBtn, { backgroundColor: checkingEmail ? colors.border : colors.accent }]}
+                    onPress={handleAddMember}
+                    disabled={checkingEmail}
+                  >
+                    {checkingEmail
+                      ? <ActivityIndicator size="small" color={colors.white} />
+                      : <Ionicons name="add" size={24} color={colors.white} />
+                    }
+                  </TouchableOpacity>
+                </View>
+                {memberEmailError && (
+                  <Text style={{ fontSize: 11, color: colors.error, marginTop: -6, marginBottom: 8, marginLeft: 2 }}>
+                    {memberEmailError}
+                  </Text>
+                )}
+              </View>
+            ) : (
+              <View style={styles.addPersonRow}>
+                <TextInput
+                  style={[styles.smallInput, { backgroundColor: colors.cardBg, color: colors.textMain, borderColor: colors.border }]}
+                  placeholder="Ad Soyad"
+                  placeholderTextColor={colors.textSec}
+                  value={tempGuestName}
+                  onChangeText={setTempGuestName}
+                  onSubmitEditing={handleAddGuest}
+                  returnKeyType="done"
+                />
+                <TouchableOpacity style={[styles.addBtn, { backgroundColor: colors.accent }]} onPress={handleAddGuest}>
+                  <Ionicons name="add" size={24} color={colors.white} />
                 </TouchableOpacity>
-              ))}
-            </View>
-            <Text style={{ color: colors.success, fontWeight: '700', fontSize: 12, marginTop: 6, textAlign: 'right' }}>
-              Kişi başı: {shareAmount} {currency}
-            </Text>
+              </View>
+            )}
+
+            {/* Tüm eklenenler */}
+            {totalShareCount > 0 && (
+              <View style={styles.chipRow}>
+                {memberEmails.map((email, index) => (
+                  <TouchableOpacity
+                    key={`m-${index}`}
+                    style={[styles.personChip, { backgroundColor: colors.cardBg, borderColor: colors.primary + '44' }]}
+                    onPress={() => { const n = [...memberEmails]; n.splice(index, 1); setMemberEmails(n); }}
+                  >
+                    <Ionicons name="mail-outline" size={12} color={colors.primary} style={{ marginRight: 3 }} />
+                    <Text style={[styles.personName, { color: colors.textMain }]}>{email}</Text>
+                    <Ionicons name="close-circle" size={13} color={colors.error} style={{ marginLeft: 4 }} />
+                  </TouchableOpacity>
+                ))}
+                {guestNames.map((name, index) => (
+                  <TouchableOpacity
+                    key={`g-${index}`}
+                    style={[styles.personChip, { backgroundColor: colors.cardBg, borderColor: colors.border }]}
+                    onPress={() => { const n = [...guestNames]; n.splice(index, 1); setGuestNames(n); }}
+                  >
+                    <Ionicons name="person-outline" size={12} color={colors.textSec} style={{ marginRight: 3 }} />
+                    <Text style={[styles.personName, { color: colors.textMain }]}>{name}</Text>
+                    <Ionicons name="close-circle" size={13} color={colors.error} style={{ marginLeft: 4 }} />
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+
+            {totalShareCount > 0 && (
+              <Text style={{ color: colors.success, fontWeight: '700', fontSize: 12, marginTop: 6, textAlign: 'right' }}>
+                Kişi başı: {shareAmount} {currency}
+              </Text>
+            )}
           </View>
         )}
       </View>
@@ -506,7 +662,7 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
             <Ionicons name="document-text" size={20} color={colors.textMain} style={{ marginRight: 10 }} />
             <Text style={[styles.cardTitle, { color: colors.textMain }]}>Taahhütlü Abonelik</Text>
           </View>
-          <Switch value={hasContract} onValueChange={setHasContract} trackColor={{ false: colors.border, true: colors.primary }} />
+          <Switch value={hasContract} onValueChange={setHasContract} trackColor={{ false: colors.border, true: colors.accent }} />
         </View>
 
         {hasContract && (
@@ -608,7 +764,7 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
           <View style={[styles.footer, { backgroundColor: colors.cardBg, borderTopColor: colors.border }]}>
             {step === 1 ? (
               <TouchableOpacity
-                style={[styles.nextButtonFull, { backgroundColor: colors.primary }]}
+                style={[styles.nextButtonFull, { backgroundColor: colors.accent }]}
                 onPress={handleNext}
                 activeOpacity={0.8}
               >
@@ -628,7 +784,7 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
 
                 {step < 3 ? (
                   <TouchableOpacity
-                    style={[styles.nextButton, { backgroundColor: colors.primary }]}
+                    style={[styles.nextButton, { backgroundColor: colors.accent }]}
                     onPress={handleNext}
                     activeOpacity={0.8}
                   >
@@ -637,13 +793,18 @@ export default function AddSubscriptionModal({ visible, onClose, selectedCatalog
                   </TouchableOpacity>
                 ) : (
                   <TouchableOpacity
-                    style={[styles.saveButton, { backgroundColor: colors.primary, shadowColor: colors.primary }]}
+                    style={[styles.saveButton, { backgroundColor: colors.accent, shadowColor: colors.accent }]}
                     onPress={handleSave}
-                    activeOpacity={0.8}
+                    activeOpacity={saving ? 1 : 0.8}
+                    disabled={saving}
                   >
-                    <Text style={styles.saveButtonText}>
-                      {isEditing ? 'Değişiklikleri Kaydet' : 'Aboneliği Başlat'}
-                    </Text>
+                    {saving ? (
+                      <ActivityIndicator size="small" color="#FFF" />
+                    ) : (
+                      <Text style={styles.saveButtonText}>
+                        {isEditing ? 'Değişiklikleri Kaydet' : 'Aboneliği Başlat'}
+                      </Text>
+                    )}
                   </TouchableOpacity>
                 )}
               </View>
@@ -782,11 +943,15 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center' },
   cardTitle: { fontSize: 15, fontWeight: '600' },
 
+  shareTabRow: { flexDirection: 'row', borderRadius: 12, borderWidth: 1, overflow: 'hidden', marginBottom: 10 },
+  shareTabBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 9 },
+  shareTabText: { fontSize: 12, fontWeight: '700' },
+
   addPersonRow: { flexDirection: 'row', marginBottom: 10 },
   smallInput: { flex: 1, height: 44, borderRadius: 12, paddingHorizontal: 12, borderWidth: 1, marginRight: 8 },
   addBtn: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap' },
-  personChip: { flexDirection: 'row', alignItems: 'center', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 12, marginRight: 6, marginBottom: 6 },
+  chipRow: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 4 },
+  personChip: { flexDirection: 'row', alignItems: 'center', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 20, marginRight: 6, marginBottom: 6, borderWidth: 1 },
   personName: { fontSize: 12, fontWeight: '500' },
 
   contractDatesRow: { flexDirection: 'row', marginTop: 12, gap: 10 },
@@ -841,5 +1006,5 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 6,
   },
-  saveButtonText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' },
+  saveButtonText: { color: '#FFF', fontSize: 16, fontWeight: '700' },
 });

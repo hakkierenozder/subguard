@@ -12,9 +12,14 @@ namespace SubGuard.Core.Services
         Task<CustomResponseDto<bool>> RemoveSubscriptionAsync(int id, string userId);
         Task<CustomResponseDto<bool>> ChangeStatusAsync(int id, string userId, SubscriptionStatus newStatus, bool forceCancel = false);
 
+        // Kullanıcı Kontrolü (paylaşım öncesi e-posta doğrulama)
+        Task<CustomResponseDto<bool>> CheckUserByEmailAsync(string email);
+
         // Paylaşım
         Task<CustomResponseDto<bool>> ShareSubscriptionAsync(int id, string ownerId, string targetEmail);
         Task<CustomResponseDto<bool>> RemoveShareAsync(int id, string ownerId, string targetUserId);
+        Task<CustomResponseDto<bool>> ShareGuestAsync(int id, string ownerId, string displayName);
+        Task<CustomResponseDto<bool>> RemoveGuestShareAsync(int id, string ownerId, int shareId);
         Task<CustomResponseDto<PagedResponseDto<SharedWithMeItemDto>>> GetSharedWithMeAsync(string userId, int page, int pageSize);
 
         // Kullanım Geçmişi

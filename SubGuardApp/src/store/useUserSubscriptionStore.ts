@@ -70,6 +70,7 @@ const formatItems = (rawItems: RawSubscriptionApiItem[]): UserSubscription[] =>
       email,
       userId: item.sharedUserIds?.[i] ?? '',
     })),
+    sharedGuests: item.sharedGuests ?? [],
     // Backend CancelledDate → camelCase cancelledDate (canonical field)
     cancelledDate: item.cancelledDate ?? item.cancelledAt ?? null,
     // usageHistory (survey): AsyncStorage'dan ayrıca yüklenir, burada boş başlar
@@ -332,8 +333,33 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
           usageLogs: [],
         };
         set((state) => ({ subscriptions: [...state.subscriptions, createdSub] }));
-        await saveCache('subscriptions', { items: get().subscriptions, totalCount: get().totalCount }); // [42]
-        // F-8: takvim senkronizasyonu
+        await saveCache('subscriptions', { items: get().subscriptions, totalCount: get().totalCount });
+
+        // Paylaşım e-postaları varsa oluşturulan aboneliğe share isteği at.
+        // Backend create sırasında kayıtsız emaili sessizce geçiyor; burada hata yakala ve uyar.
+        const emails: string[] = payload.sharedUserEmails ?? [];
+        const guests: string[] = newSub.sharedGuests ?? [];
+        if (emails.length > 0 || guests.length > 0) {
+          const shareResults = await Promise.allSettled([
+            ...emails.map((email) => agent.UserSubscriptions.share(Number(createdSub.id), email)),
+            ...guests.map((name) => agent.UserSubscriptions.shareGuest(Number(createdSub.id), name)),
+          ]);
+          const failedShares = shareResults
+            .filter((r): r is PromiseRejectedResult => r.status === 'rejected')
+            .map((r) => r.reason?.response?.data?.errors?.[0] ?? 'Bir paylaşım işlemi başarısız oldu.');
+          if (failedShares.length > 0) {
+            Alert.alert('Paylaşım Uyarısı', failedShares[0]);
+          }
+          // Store'u paylaşım verileriyle güncelle (ID'ler 0, sonraki fetch'te doğrulanır)
+          set((state) => ({
+            subscriptions: state.subscriptions.map((s) =>
+              s.id === createdSub.id
+                ? { ...s, sharedGuests: guests.map((name) => ({ id: 0, displayName: name })) }
+                : s
+            ),
+          }));
+        }
+
         if (useSettingsStore.getState().calendarSyncEnabled) {
           await syncSubscriptionsToCalendar(get().subscriptions);
         }
@@ -421,7 +447,10 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
           // B-6: sharedWithJson kaldırıldı — paylaşım değişikliği ayrı share/removeShare çağrılarıyla yapılıyor
         };
 
-        // B-6: Paylaşım değişikliklerini share/removeShare endpoint'leriyle senkronize et
+        await agent.UserSubscriptions.update(id, payload);
+
+        // Paylaşım değişikliklerini share/removeShare endpoint'leriyle senkronize et.
+        // Update'ten sonra, bağımsız olarak çalışır — sharing hatası update'i engellemez.
         if (updatedData.sharedWith !== undefined) {
           const currentShared = (oldSub.sharedWith ?? []) as { email: string; userId: string }[];
           const incomingRaw = (updatedData.sharedWith ?? []) as (string | { email: string; userId?: string })[];
@@ -431,15 +460,63 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
           const addedEmails = [...newEmails].filter((e) => !currentEmails.has(e));
           const removedUsers = currentShared.filter((p) => !newEmails.has(p.email));
 
-          await Promise.all([
+          const shareResults = await Promise.allSettled([
             ...addedEmails.map((email) => agent.UserSubscriptions.share(Number(id), email)),
             ...removedUsers
               .filter((p) => p.userId)
               .map((p) => agent.UserSubscriptions.removeShare(Number(id), p.userId)),
           ]);
+
+          const failedShares = shareResults
+            .filter((r): r is PromiseRejectedResult => r.status === 'rejected')
+            .map((r) => r.reason?.response?.data?.errors?.[0] ?? 'Bir paylaşım işlemi başarısız oldu.');
+
+          if (failedShares.length > 0) {
+            Alert.alert('Paylaşım Uyarısı', failedShares[0]);
+          }
         }
 
-        await agent.UserSubscriptions.update(id, payload);
+        // Üyesiz paylaşım (guest) değişikliklerini senkronize et
+        if (updatedData.sharedGuests !== undefined) {
+          const currentGuests = oldSub.sharedGuests ?? [];
+          const newGuests = updatedData.sharedGuests ?? [];
+          const newGuestNames = new Set(newGuests.map((g) => g.displayName));
+          const currentGuestNames = new Set(currentGuests.map((g) => g.displayName));
+
+          const addedGuests = newGuests
+            .filter((g) => !currentGuestNames.has(g.displayName))
+            .map((g) => g.displayName);
+          const removedGuests = currentGuests.filter((g) => !newGuestNames.has(g.displayName));
+
+          const guestResults = await Promise.allSettled([
+            ...addedGuests.map((name) => agent.UserSubscriptions.shareGuest(Number(id), name)),
+            ...removedGuests.map((g) => agent.UserSubscriptions.removeGuestShare(Number(id), g.id)),
+          ]);
+
+          const failedGuests = guestResults
+            .filter((r): r is PromiseRejectedResult => r.status === 'rejected')
+            .map((r) => r.reason?.response?.data?.errors?.[0] ?? 'Bir misafir paylaşım işlemi başarısız oldu.');
+          if (failedGuests.length > 0) {
+            Alert.alert('Paylaşım Uyarısı', failedGuests[0]);
+          }
+
+          // Gerçek ID'leri almak için tek aboneliği sessizce yenile
+          if (addedGuests.length > 0 || removedGuests.length > 0) {
+            try {
+              const refreshed = await agent.UserSubscriptions.list(1, PAGE_SIZE);
+              if (refreshed?.data) {
+                const rawItems: any[] = Array.isArray(refreshed.data) ? refreshed.data : (refreshed.data?.items ?? []);
+                const formatted = formatItems(rawItems);
+                const updated = formatted.find((s) => s.id === id);
+                if (updated) {
+                  set((state) => ({
+                    subscriptions: state.subscriptions.map((s) => s.id === id ? { ...s, sharedGuests: updated.sharedGuests } : s),
+                  }));
+                }
+              }
+            } catch {}
+          }
+        }
       }
       await saveCache('subscriptions', { items: get().subscriptions, totalCount: get().totalCount }); // [42]
       // F-8: takvim senkronizasyonu
@@ -572,7 +649,7 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
         // F-1: yıllık aboneliği aylık eşdeğerine çevir
         const monthlyPrice = sub.billingPeriod === 'Yearly' ? sub.price / 12 : sub.price;
         const priceInTry = monthlyPrice * rate;
-        const partnerCount = (sub.sharedWith?.length || 0);
+        const partnerCount = (sub.sharedWith?.length || 0) + (sub.sharedGuests?.length || 0);
         const myShare = priceInTry / (partnerCount + 1);
         return total + myShare;
       }, 0);
