@@ -35,7 +35,7 @@ export default function EmptyState({
           onPress={onAction}
           activeOpacity={0.8}
         >
-          <Text style={[styles.actionText, { color: colors.onPrimary ?? '#FFF' }]}>{actionLabel}</Text>
+          <Text style={[styles.actionText, { color: colors.white }]}>{actionLabel}</Text>
         </TouchableOpacity>
       ) : null}
     </View>

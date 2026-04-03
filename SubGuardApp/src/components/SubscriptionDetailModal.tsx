@@ -12,6 +12,8 @@ import { useThemeColors } from '../constants/theme';
 import { useCatalogStore } from '../store/useCatalogStore';
 import agent from '../api/agent';
 import { CurrencyService } from '../utils/CurrencyService';
+import { getNextBillingDateForSub } from '../utils/dateUtils';
+import { getSubscriptionCycleShare } from '../utils/subscriptionMath';
 
 function DetailLogo({ logoUrl, brandColor, name, size = 80 }: { logoUrl?: string; brandColor: string; name: string; size?: number }) {
     const [imgFailed, setImgFailed] = useState(false);
@@ -204,41 +206,23 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
     };
 
     // --- HESAPLAMALAR ---
-    const totalCost = subscription.price;
-    const partners = subscription.sharedWith || [];
-    const partnersCount = partners.length + (subscription.sharedGuests?.length ?? 0);
-    const myShare = totalCost / (partnersCount + 1);
+    const partnersCount = (subscription.sharedWith?.length ?? 0) + (subscription.sharedGuests?.length ?? 0);
+    const myShare = getSubscriptionCycleShare(subscription);
+    const shareCycleLabel = subscription.billingPeriod === 'Yearly' ? 'Payın / yıl' : 'Payın / ay';
 
     const getBillingData = () => {
         const todayMidnight = new Date();
         todayMidnight.setHours(0, 0, 0, 0);
-
-        // İlk ödeme tarihi gelecekteyse → o tarihi doğrudan döndür (yıl dahil doğru tarih)
-        if (subscription.contractStartDate) {
-            const start = new Date(subscription.contractStartDate);
-            start.setHours(0, 0, 0, 0);
-            if (start > todayMidnight) {
-                const daysLeft = Math.round((start.getTime() - todayMidnight.getTime()) / 86400000);
-                return { nextDate: start, daysLeft };
-            }
-        }
-
-        // Abonelik başlamış → billingDay üzerinden normal hesaplama
-        const today = new Date();
-        const billingDay = subscription.billingDay;
-        const safeDay = (billingDay > 0 && billingDay <= 31) ? billingDay : 1;
-        const clampToMonth = (year: number, month: number, day: number) =>
-            Math.min(day, new Date(year, month + 1, 0).getDate());
-        const thisMonth = today.getMonth();
-        const thisYear = today.getFullYear();
-        let nextDate = new Date(thisYear, thisMonth, clampToMonth(thisYear, thisMonth, safeDay));
-        if (nextDate <= todayMidnight) {
-            const nextMonth = thisMonth === 11 ? 0 : thisMonth + 1;
-            const nextYear  = thisMonth === 11 ? thisYear + 1 : thisYear;
-            nextDate = new Date(nextYear, nextMonth, clampToMonth(nextYear, nextMonth, safeDay));
-        }
-        const diffTime = Math.abs(nextDate.getTime() - todayMidnight.getTime());
-        const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const nextDate = getNextBillingDateForSub(
+            subscription.billingDay,
+            subscription.billingPeriod,
+            subscription.billingMonth,
+            subscription.createdDate,
+            subscription.firstPaymentDate,
+            subscription.contractStartDate,
+            todayMidnight,
+        );
+        const daysLeft = Math.round((nextDate.getTime() - todayMidnight.getTime()) / 86400000);
         return { nextDate, daysLeft };
     };
     const { nextDate, daysLeft } = getBillingData();
@@ -584,7 +568,7 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
                                         <View style={[styles.iconBox, { backgroundColor: colors.inputBg }]}>
                                             <Ionicons name="wallet" size={18} color={colors.accent} />
                                         </View>
-                                        <Text style={[styles.detailLabel, { color: colors.textMain }]}>Payına Düşen</Text>
+                                        <Text style={[styles.detailLabel, { color: colors.textMain }]}>{shareCycleLabel}</Text>
                                     </View>
                                     <Text style={[styles.detailValue, { color: colors.success, fontWeight: '700' }]}>
                                         {myShare.toFixed(2)} {subscription.currency}

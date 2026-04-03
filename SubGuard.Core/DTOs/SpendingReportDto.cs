@@ -13,6 +13,7 @@ namespace SubGuard.Core.DTOs
     {
         public int SubscriptionId { get; set; }
         public string Name { get; set; } = default!;
+        public string Category { get; set; } = default!;
         public string Currency { get; set; } = default!;
         public decimal UnitPrice { get; set; }
         public int PaymentCount { get; set; }

@@ -39,6 +39,7 @@ export interface UserSubscription {
   billingDay: number;
   /** Yıllık abonelikler için fatura ayı (1-12). Null/undefined ise createdDate.getMonth()+1 kullanılır. */
   billingMonth?: number | null;
+  firstPaymentDate?: string;
 
   hasContract: boolean;
   contractStartDate?: string;  // ISO string
@@ -101,6 +102,7 @@ export interface AddSubscriptionPayload {
   billingDay: number;
   billingMonth?: number | null;
   billingPeriod?: 'Monthly' | 'Yearly';
+  firstPaymentDate?: string;
   category: string;
   colorCode?: string;
   hasContract?: boolean;
@@ -124,6 +126,7 @@ export interface RawSubscriptionApiItem {
   billingDay: number;
   billingMonth?: number | null;
   billingPeriod?: 'Monthly' | 'Yearly';
+  firstPaymentDate?: string | null;
   colorCode?: string | null;
   hasContract: boolean;
   contractStartDate?: string | null;
@@ -186,12 +189,33 @@ export interface NotificationDto {
 // ─── DASHBOARD (SubGuard.Core.DTOs.DashboardDto ile birebir) ─────────────────
 export interface DashboardDto {
   activeSubscriptionCount: number;
+  pendingSubscriptionCount: number;
   pausedCount: number;
   cancelledCount: number;
+  startedMonthlyEquivalentTotal: number;
+  pendingMonthlyEquivalentTotal: number;
   totalByCurrency: CurrencyTotalDto[];
   spendingByCategory: CategorySpendingDto[];
   upcomingPayments: UpcomingPaymentDto[];
   budgetSummary: BudgetSummaryDto | null;
+}
+
+export interface SpendingLineDto {
+  subscriptionId: number;
+  name: string;
+  category: string;
+  currency: string;
+  unitPrice: number;
+  paymentCount: number;
+  totalAmount: number;
+  billingPeriod: 'Monthly' | 'Yearly' | string;
+}
+
+export interface SpendingReportDto {
+  from: string;
+  to: string;
+  totalByCurrency: Record<string, number>;
+  lines: SpendingLineDto[];
 }
 
 export interface BudgetSummaryDto {

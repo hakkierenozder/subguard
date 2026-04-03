@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using SubGuard.Core.DTOs;
 using SubGuard.Core.Services;
 using System.Security.Claims;
 
@@ -20,14 +21,23 @@ namespace SubGuard.API.Controllers
             _reportService = reportService;
         }
 
-        // GET api/reports/spending?from=2025-01-01T00:00:00%2B03:00&to=2025-12-31T23:59:59%2B03:00
+        // GET api/reports/spending?from=2025-01-01&to=2025-12-31
         [HttpGet("spending")]
         public async Task<IActionResult> GetSpending(
-            [FromQuery] DateTimeOffset from,
-            [FromQuery] DateTimeOffset to)
+            [FromQuery] string from,
+            [FromQuery] string to)
         {
+            if (!DateOnly.TryParse(from, out var fromDate) || !DateOnly.TryParse(to, out var toDate))
+            {
+                return CreateActionResult(CustomResponseDto<SpendingReportDto>.Fail(
+                    400,
+                    "Geçerli bir tarih aralığı gönderin. Beklenen format: YYYY-MM-DD."));
+            }
+
             return CreateActionResult(await _reportService.GetSpendingReportAsync(
-                LoggedInUserId, from.UtcDateTime, to.UtcDateTime));
+                LoggedInUserId,
+                DateTime.SpecifyKind(fromDate.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc),
+                DateTime.SpecifyKind(toDate.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc)));
         }
     }
 }

@@ -17,8 +17,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemeColors, THEME } from '../constants/theme';
 import { useCatalogStore } from '../store/useCatalogStore';
-import { getDaysLeftForSub } from '../utils/dateUtils';
+import { getDaysLeftForSub, isSubscriptionActiveNow } from '../utils/dateUtils';
 import { CurrencyService } from '../utils/CurrencyService';
+import { getSubscriptionPortfolioMetrics } from '../utils/subscriptionMath';
 
 function UpcomingPaymentLogo({ logoUrl, colorCode, name }: { logoUrl?: string; colorCode: string; name: string }) {
   const [imgFailed, setImgFailed] = useState(false);
@@ -52,7 +53,7 @@ export default function HomeScreen() {
         subscriptions,
         loading,
         fetchUserSubscriptions,
-        getTotalExpense,
+        fetchExchangeRates,
         getPendingSurvey,
         logUsage,
         exchangeRates,
@@ -119,7 +120,10 @@ export default function HomeScreen() {
             setError(true); // [29] hata durumunu işaretle
         }
 
-        await fetchUserSubscriptions();
+        await Promise.all([
+            fetchUserSubscriptions(),
+            fetchExchangeRates(),
+        ]);
         checkSurvey();
     };
 
@@ -144,8 +148,9 @@ export default function HomeScreen() {
     };
 
     // Hesaplamalar
-    const totalExpense = getTotalExpense();
-    const activeCount = subscriptions.filter(s => s.isActive !== false).length;
+    const portfolioMetrics = getSubscriptionPortfolioMetrics(subscriptions, exchangeRates);
+    const totalExpense = portfolioMetrics.monthlyEquivalentTotalTRY;
+    const activeCount = portfolioMetrics.startedCount;
     const budgetPercentage = monthlyBudget > 0 ? (totalExpense / monthlyBudget) * 100 : 0;
     const isOverBudget = totalExpense > monthlyBudget;
 
@@ -178,13 +183,13 @@ export default function HomeScreen() {
     const sortedPayments = [...subscriptions]
         .filter(sub => sub.isActive !== false)
         .sort((a, b) =>
-            getDaysLeftForSub(a.billingDay, a.billingPeriod, a.billingMonth, a.createdDate, a.contractStartDate)
-            - getDaysLeftForSub(b.billingDay, b.billingPeriod, b.billingMonth, b.createdDate, b.contractStartDate)
+            getDaysLeftForSub(a.billingDay, a.billingPeriod, a.billingMonth, a.createdDate, a.firstPaymentDate, a.contractStartDate)
+            - getDaysLeftForSub(b.billingDay, b.billingPeriod, b.billingMonth, b.createdDate, b.firstPaymentDate, b.contractStartDate)
         );
 
-    const thisWeekPayments  = sortedPayments.filter(s => getDaysLeftForSub(s.billingDay, s.billingPeriod, s.billingMonth, s.createdDate, s.contractStartDate) <= 7);
+    const thisWeekPayments  = sortedPayments.filter(s => getDaysLeftForSub(s.billingDay, s.billingPeriod, s.billingMonth, s.createdDate, s.firstPaymentDate, s.contractStartDate) <= 7);
     const thisMonthPayments = sortedPayments.filter(s => {
-        const d = getDaysLeftForSub(s.billingDay, s.billingPeriod, s.billingMonth, s.createdDate, s.contractStartDate);
+        const d = getDaysLeftForSub(s.billingDay, s.billingPeriod, s.billingMonth, s.createdDate, s.firstPaymentDate, s.contractStartDate);
         return d > 7 && d <= 30;
     });
 
@@ -193,7 +198,11 @@ export default function HomeScreen() {
     const thisMonthTotal    = thisMonthPayments.reduce((sum, s) => sum + toTRY(s), 0);
     const thisMonthAllTotal = thisWeekTotal + thisMonthTotal;
 
-    const categoryCount = new Set(subscriptions.filter(s => s.isActive !== false).map(s => s.category)).size;
+    const categoryCount = new Set(
+        subscriptions
+            .filter(s => isSubscriptionActiveNow(s.isActive, s.firstPaymentDate, s.contractStartDate, new Date(), s.createdDate))
+            .map(s => s.category)
+    ).size;
 
     // #40: Animasyon değerleri — lazy Map tabanlı; kaç kart olursa olsun doğru çalışır.
     // Eski `Array.from({ length: 8 })` yaklaşımı 8+ abonelikte idx-out-of-bounds veriyordu.
@@ -308,17 +317,23 @@ export default function HomeScreen() {
 
                     <View style={styles.dashTopRow}>
                         <View style={{ flex: 1 }}>
-                            <Text style={styles.dashLabel}>AYLIK TOPLAM</Text>
+                            <Text style={styles.dashLabel}>AKTİF AYLIK YÜK</Text>
                             <Text style={styles.dashValue}>₺{totalExpense.toFixed(2)}</Text>
                             <View style={styles.dashSubRow}>
                                 <View style={styles.dashCountBadge}>
                                     <Ionicons name="apps-outline" size={11} color="rgba(255,255,255,0.9)" />
-                                    <Text style={styles.dashCountText}>{activeCount} abonelik</Text>
+                                    <Text style={styles.dashCountText}>{activeCount} başlamış</Text>
                                 </View>
                                 {categoryCount > 0 && (
                                     <View style={styles.dashCountBadge}>
                                         <Ionicons name="grid-outline" size={11} color="rgba(255,255,255,0.9)" />
                                         <Text style={styles.dashCountText}>{categoryCount} kategori</Text>
+                                    </View>
+                                )}
+                                {portfolioMetrics.pendingCount > 0 && (
+                                    <View style={[styles.dashCountBadge, { backgroundColor: 'rgba(255,255,255,0.22)' }]}>
+                                        <Ionicons name="time-outline" size={11} color="rgba(255,255,255,0.95)" />
+                                        <Text style={styles.dashCountText}>{portfolioMetrics.pendingCount} bekliyor</Text>
                                     </View>
                                 )}
                                 {thisWeekPayments.length > 0 && (
@@ -378,6 +393,44 @@ export default function HomeScreen() {
                             </View>
                         </View>
                     )}
+
+                    <View style={styles.billingSplitRow}>
+                        <View style={styles.billingSplitCard}>
+                            <Text style={styles.billingSplitLabel}>AYLIK</Text>
+                            <Text style={styles.billingSplitValue}>₺{portfolioMetrics.monthlyStartedTotalTRY.toFixed(2)}</Text>
+                            <Text style={styles.billingSplitMeta}>
+                                {portfolioMetrics.monthlyStartedCount} başlamış
+                                {portfolioMetrics.pendingMonthlyCount > 0
+                                    ? ` · ${portfolioMetrics.pendingMonthlyCount} bekleyen (₺${portfolioMetrics.pendingMonthlyTotalTRY.toFixed(2)})`
+                                    : ''}
+                            </Text>
+                        </View>
+                        <View style={styles.billingSplitCard}>
+                            <Text style={styles.billingSplitLabel}>YILLIK</Text>
+                            <Text style={styles.billingSplitValue}>₺{portfolioMetrics.yearlyStartedTotalTRY.toFixed(2)}</Text>
+                            <Text style={styles.billingSplitMeta}>
+                                {portfolioMetrics.yearlyStartedCount} başlamış
+                                {portfolioMetrics.pendingYearlyCount > 0
+                                    ? ` · ${portfolioMetrics.pendingYearlyCount} bekleyen (₺${portfolioMetrics.pendingYearlyTotalTRY.toFixed(2)})`
+                                    : ''}
+                            </Text>
+                            <Text style={styles.billingSplitMeta}>
+                                ≈ ₺{(portfolioMetrics.yearlyStartedTotalTRY / 12).toFixed(2)}/ay eşdeğeri
+                            </Text>
+                        </View>
+                    </View>
+
+                    {portfolioMetrics.pendingCount > 0 && (
+                        <View style={styles.pendingInfoRow}>
+                            <Ionicons name="hourglass-outline" size={13} color="rgba(255,255,255,0.9)" />
+                            <Text style={styles.pendingInfoText}>
+                                {portfolioMetrics.pendingCount} abonelik henüz başlamadı
+                                {` · ${portfolioMetrics.pendingMonthlyCount} aylık`}
+                                {` · ${portfolioMetrics.pendingYearlyCount} yıllık`}
+                                {` · ≈ ₺${portfolioMetrics.pendingMonthlyEquivalentTRY.toFixed(2)}/ay bekliyor`}
+                            </Text>
+                        </View>
+                    )}
                 </LinearGradient>
 
                 {/* 3. BOŞ DURUM / SKELETON (#42) */}
@@ -430,7 +483,7 @@ export default function HomeScreen() {
                                     </Text>
                                 </View>
                                 {thisWeekPayments.slice(0, 4).map((item, idx) => {
-                                    const daysLeft = getDaysLeftForSub(item.billingDay, item.billingPeriod, item.billingMonth, item.createdDate, item.contractStartDate);
+                                    const daysLeft = getDaysLeftForSub(item.billingDay, item.billingPeriod, item.billingMonth, item.createdDate, item.firstPaymentDate, item.contractStartDate);
                                     const urgencyColor = daysLeft <= 2 ? colors.error : colors.orange;
                                     const urgencyBg   = daysLeft <= 2 ? (colors.error + '20') : (colors.orange + '20');
                                     const urgencyLabel = daysLeft === 0 ? 'Bugün!' : daysLeft === 1 ? 'Yarın!' : `${daysLeft} gün`;
@@ -532,7 +585,7 @@ export default function HomeScreen() {
                                     </Text>
                                 </View>
                                 {thisMonthPayments.slice(0, 4).map((item, idx) => {
-                                    const daysLeft = getDaysLeftForSub(item.billingDay, item.billingPeriod, item.billingMonth, item.createdDate, item.contractStartDate);
+                                    const daysLeft = getDaysLeftForSub(item.billingDay, item.billingPeriod, item.billingMonth, item.createdDate, item.firstPaymentDate, item.contractStartDate);
                                     const animIdx = thisWeekPayments.length + idx;
                                     const anim = getCardAnim(animIdx);
                                     const itemColor = item.colorCode || colors.primary;
@@ -789,6 +842,30 @@ const styles = StyleSheet.create({
     progressFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginTop: 6 },
     progressDot: { width: 6, height: 6, borderRadius: 3, marginRight: 5 },
     progressText: { color: 'rgba(255,255,255,0.85)', fontSize: 11, fontWeight: '700' },
+    billingSplitRow: { flexDirection: 'row', gap: 10, marginTop: 18 },
+    billingSplitCard: {
+        flex: 1,
+        backgroundColor: 'rgba(255,255,255,0.12)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.14)',
+        borderRadius: 16,
+        paddingHorizontal: 14,
+        paddingVertical: 12,
+    },
+    billingSplitLabel: { color: 'rgba(255,255,255,0.65)', fontSize: 10, fontWeight: '800', letterSpacing: 1.1 },
+    billingSplitValue: { color: '#FFF', fontSize: 18, fontWeight: '800', marginTop: 6 },
+    billingSplitMeta: { color: 'rgba(255,255,255,0.72)', fontSize: 11, fontWeight: '600', marginTop: 4, lineHeight: 16 },
+    pendingInfoRow: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        gap: 6,
+        marginTop: 12,
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+        borderRadius: 12,
+        backgroundColor: 'rgba(255,255,255,0.12)',
+    },
+    pendingInfoText: { color: 'rgba(255,255,255,0.88)', fontSize: 11, fontWeight: '600', lineHeight: 17, flex: 1 },
 
     section: { marginBottom: 24 },
     sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },

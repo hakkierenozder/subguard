@@ -6,6 +6,7 @@ import agent from '../api/agent';
 import { useThemeColors } from '../constants/theme';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { serializeCalendarDate } from '../utils/dateUtils';
 
 interface Props {
   visible: boolean;
@@ -17,6 +18,77 @@ interface Props {
 
 const CATEGORIES = ['Streaming', 'Music', 'Gaming', 'Cloud', 'Food', 'Gym', 'Rent', 'Bills', 'Other'];
 type CurrencyType = 'TRY' | 'USD' | 'EUR';
+
+const normalizeDate = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+const addDays = (date: Date, days: number) => {
+  const next = normalizeDate(date);
+  next.setDate(next.getDate() + days);
+  return next;
+};
+
+const getDefaultContractEndDate = (start: Date) => {
+  const nextYear = normalizeDate(start);
+  nextYear.setFullYear(nextYear.getFullYear() + 1);
+  return nextYear > normalizeDate(start) ? nextYear : addDays(start, 1);
+};
+
+const ensureContractDates = (billingDate: Date, startDate: Date, endDate: Date) => {
+  const minStartDate = normalizeDate(billingDate);
+  const safeStartDate = normalizeDate(startDate);
+  const alignedStartDate = safeStartDate < minStartDate ? minStartDate : safeStartDate;
+  const safeEndDate = normalizeDate(endDate);
+  const alignedEndDate = safeEndDate <= alignedStartDate
+    ? getDefaultContractEndDate(alignedStartDate)
+    : safeEndDate;
+
+  return {
+    startDate: alignedStartDate,
+    endDate: alignedEndDate,
+  };
+};
+
+const getFallbackBillingDateForEdit = (subscription: UserSubscription) => {
+  if (subscription.firstPaymentDate) {
+    return normalizeDate(new Date(subscription.firstPaymentDate));
+  }
+
+  if (subscription.contractStartDate) {
+    return normalizeDate(new Date(subscription.contractStartDate));
+  }
+
+  const now = normalizeDate(new Date());
+
+  if (subscription.billingPeriod === 'Yearly' && subscription.billingMonth != null) {
+    const targetMonth = subscription.billingMonth - 1;
+    const daysInTargetMonth = new Date(now.getFullYear(), targetMonth + 1, 0).getDate();
+    const safeDay = Math.min(subscription.billingDay, daysInTargetMonth);
+    let targetDate = new Date(now.getFullYear(), targetMonth, safeDay);
+
+    if (targetDate < now) {
+      const daysInNextYearTargetMonth = new Date(now.getFullYear() + 1, targetMonth + 1, 0).getDate();
+      targetDate = new Date(
+        now.getFullYear() + 1,
+        targetMonth,
+        Math.min(subscription.billingDay, daysInNextYearTargetMonth),
+      );
+    }
+
+    return normalizeDate(targetDate);
+  }
+
+  let targetYear = now.getFullYear();
+  let targetMonth = now.getDate() > subscription.billingDay ? now.getMonth() + 1 : now.getMonth();
+  if (targetMonth > 11) {
+    targetMonth = 0;
+    targetYear += 1;
+  }
+
+  const daysInMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
+  const safeDay = Math.min(subscription.billingDay, daysInMonth);
+
+  return normalizeDate(new Date(targetYear, targetMonth, safeDay));
+};
 
 // ─── Adım göstergesi ─────────────────────────────────────────────────────────
 function StepIndicator({ step, colors }: { step: number; colors: ReturnType<typeof useThemeColors> }) {
@@ -65,6 +137,7 @@ const siStyles = StyleSheet.create({
 export default function AddSubscriptionModal({ visible, onClose, onSaved, selectedCatalogItem, subscriptionToEdit }: Props) {
   const colors = useThemeColors();
   const { addSubscription, updateSubscription } = useUserSubscriptionStore();
+  const today = normalizeDate(new Date());
 
   const [step, setStep] = useState(1);
   const stepAnim = useRef(new Animated.Value(1)).current;
@@ -83,12 +156,12 @@ export default function AddSubscriptionModal({ visible, onClose, onSaved, select
   const [currency, setCurrency] = useState<CurrencyType>('TRY');
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
 
-  const [billingDate, setBillingDate] = useState(new Date());
+  const [billingDate, setBillingDate] = useState(today);
   const [showBillingDatePicker, setShowBillingDatePicker] = useState(false);
 
   const [hasContract, setHasContract] = useState(false);
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
+  const [startDate, setStartDate] = useState(today);
+  const [endDate, setEndDate] = useState(getDefaultContractEndDate(today));
   const [showContractDatePicker, setShowContractDatePicker] = useState<'start' | 'end' | null>(null);
 
   const [billingPeriod, setBillingPeriod] = useState<'Monthly' | 'Yearly'>('Monthly');
@@ -121,20 +194,27 @@ export default function AddSubscriptionModal({ visible, onClose, onSaved, select
         setCurrency((subscriptionToEdit.currency as CurrencyType) || 'TRY');
         setCategory(subscriptionToEdit.category || 'Other');
 
-        const now = new Date();
-        let targetYear = now.getFullYear();
-        let targetMonth = now.getDate() > subscriptionToEdit.billingDay ? now.getMonth() + 1 : now.getMonth();
-        // Ay taşmasını düzelt (örn. Aralık+1 → Ocak yeni yıl)
-        if (targetMonth > 11) { targetMonth = 0; targetYear += 1; }
-        // billingDay o ayda geçersizse (örn. Şubat'ta 29-31) ayın son gününe clamp et
-        const daysInMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
-        const safeDay = Math.min(subscriptionToEdit.billingDay, daysInMonth);
-        const derivedDate = new Date(targetYear, targetMonth, safeDay);
+        const derivedDate = getFallbackBillingDateForEdit(subscriptionToEdit);
         setBillingDate(derivedDate);
 
-        setHasContract(subscriptionToEdit.hasContract || false);
-        if (subscriptionToEdit.contractStartDate) setStartDate(new Date(subscriptionToEdit.contractStartDate));
-        if (subscriptionToEdit.contractEndDate) setEndDate(new Date(subscriptionToEdit.contractEndDate));
+        const nextHasContract = subscriptionToEdit.hasContract || false;
+        setHasContract(nextHasContract);
+
+        const nextStartDate = subscriptionToEdit.contractStartDate
+          ? normalizeDate(new Date(subscriptionToEdit.contractStartDate))
+          : derivedDate;
+        const nextEndDate = subscriptionToEdit.contractEndDate
+          ? normalizeDate(new Date(subscriptionToEdit.contractEndDate))
+          : getDefaultContractEndDate(nextStartDate);
+
+        if (nextHasContract) {
+          const alignedContractDates = ensureContractDates(derivedDate, nextStartDate, nextEndDate);
+          setStartDate(alignedContractDates.startDate);
+          setEndDate(alignedContractDates.endDate);
+        } else {
+          setStartDate(nextStartDate);
+          setEndDate(nextEndDate);
+        }
 
         setNotes(subscriptionToEdit.notes || '');
         // sharedWith artık { email, userId }[] — form için sadece email string'lerini al
@@ -151,25 +231,24 @@ export default function AddSubscriptionModal({ visible, onClose, onSaved, select
         resetForm();
         setName(selectedCatalogItem.name);
         setCategory(selectedCatalogItem.category);
-        setBillingDate(new Date());
+        setBillingDate(normalizeDate(new Date()));
       } else {
         resetForm();
-        setBillingDate(new Date());
+        setBillingDate(normalizeDate(new Date()));
       }
     }
   }, [visible, selectedCatalogItem, subscriptionToEdit]);
 
   const resetForm = () => {
+    const baseDate = normalizeDate(new Date());
     setName('');
     setPrice('');
     setCategory('Other');
     setCurrency('TRY');
-    setBillingDate(new Date());
+    setBillingDate(baseDate);
     setHasContract(false);
-    setStartDate(new Date());
-    const nextYear = new Date();
-    nextYear.setFullYear(nextYear.getFullYear() + 1);
-    setEndDate(nextYear);
+    setStartDate(baseDate);
+    setEndDate(getDefaultContractEndDate(baseDate));
     setNotes('');
     setMemberEmails([]);
     setTempMemberEmail('');
@@ -181,6 +260,29 @@ export default function AddSubscriptionModal({ visible, onClose, onSaved, select
     setMemberEmailError(null);
     setBillingPeriod('Monthly');
     setSelectedPlanId(null);
+  };
+
+  useEffect(() => {
+    if (!hasContract) return;
+
+    const alignedContractDates = ensureContractDates(billingDate, startDate, endDate);
+
+    if (alignedContractDates.startDate.getTime() !== normalizeDate(startDate).getTime()) {
+      setStartDate(alignedContractDates.startDate);
+    }
+    if (alignedContractDates.endDate.getTime() !== normalizeDate(endDate).getTime()) {
+      setEndDate(alignedContractDates.endDate);
+    }
+  }, [billingDate, endDate, hasContract, startDate]);
+
+  const handleContractToggle = (value: boolean) => {
+    setHasContract(value);
+
+    if (!value) return;
+
+    const alignedContractDates = ensureContractDates(billingDate, startDate, endDate);
+    setStartDate(alignedContractDates.startDate);
+    setEndDate(alignedContractDates.endDate);
   };
 
   const handleSelectPlan = (plan: Plan) => {
@@ -251,9 +353,22 @@ export default function AddSubscriptionModal({ visible, onClose, onSaved, select
       return;
     }
     setSaving(true);
-    const day = billingDate.getDate();
+    const normalizedBillingDate = normalizeDate(billingDate);
+    const normalizedContractDates = ensureContractDates(normalizedBillingDate, startDate, endDate);
+
+    if (hasContract) {
+      if (normalizedContractDates.startDate.getTime() !== normalizeDate(startDate).getTime()) {
+        setStartDate(normalizedContractDates.startDate);
+      }
+      if (normalizedContractDates.endDate.getTime() !== normalizeDate(endDate).getTime()) {
+        setEndDate(normalizedContractDates.endDate);
+      }
+    }
+
+    const day = normalizedBillingDate.getDate();
     if (day < 1 || day > 31) {
       Alert.alert('Geçersiz Gün', 'Fatura günü 1 ile 31 arasında olmalıdır.');
+      setSaving(false);
       return;
     }
     const finalCatalogId = selectedCatalogItem?.id ?? subscriptionToEdit?.catalogId ?? undefined;
@@ -267,19 +382,15 @@ export default function AddSubscriptionModal({ visible, onClose, onSaved, select
       billingDay: day,
       billingPeriod,
       // B-1: Yıllık abonelikte billingDate.getMonth()+1 = fatura ayı, aylıkta null
-      billingMonth: billingPeriod === 'Yearly' ? billingDate.getMonth() + 1 : null,
+      billingMonth: billingPeriod === 'Yearly' ? normalizedBillingDate.getMonth() + 1 : null,
       category,
       colorCode: colorToSave,
       sharedWith: showShareInput ? memberEmails : [],
       sharedGuests: showShareInput ? guestNames : [],
       hasContract,
-      // contractStartDate iki amaca hizmet eder:
-      // 1) hasContract=true → kullanıcının girdiği sözleşme başlangıç tarihi
-      // 2) hasContract=false → billingDate (seçilen ilk ödeme tarihi, YIL dahil)
-      //    Bu sayede "3 Nisan 2027" gibi gelecek tarihler backend'de korunur
-      //    ve tüm hesaplamalar (getDaysLeftForSub vb.) doğru çalışır.
-      contractStartDate: hasContract ? startDate.toISOString() : billingDate.toISOString(),
-      contractEndDate: hasContract ? endDate.toISOString() : undefined,
+      firstPaymentDate: serializeCalendarDate(normalizedBillingDate),
+      contractStartDate: hasContract ? serializeCalendarDate(normalizedContractDates.startDate) : undefined,
+      contractEndDate: hasContract ? serializeCalendarDate(normalizedContractDates.endDate) : undefined,
       notes: notes.trim() || undefined,
     };
 
@@ -470,7 +581,7 @@ export default function AddSubscriptionModal({ visible, onClose, onSaved, select
             display="default"
             onChange={(e, d) => {
               setShowBillingDatePicker(false);
-              if (d) setBillingDate(d);
+              if (d) setBillingDate(normalizeDate(d));
             }}
           />
         )}
@@ -667,27 +778,33 @@ export default function AddSubscriptionModal({ visible, onClose, onSaved, select
             <Ionicons name="document-text" size={20} color={colors.textMain} style={{ marginRight: 10 }} />
             <Text style={[styles.cardTitle, { color: colors.textMain }]}>Taahhütlü Abonelik</Text>
           </View>
-          <Switch value={hasContract} onValueChange={setHasContract} trackColor={{ false: colors.border, true: colors.accent }} />
+          <Switch value={hasContract} onValueChange={handleContractToggle} trackColor={{ false: colors.border, true: colors.accent }} />
         </View>
 
         {hasContract && (
-          <View style={styles.contractDatesRow}>
-            <TouchableOpacity
-              style={[styles.dateBox, { backgroundColor: colors.cardBg, borderColor: colors.border }]}
-              onPress={() => setShowContractDatePicker('start')}
-            >
-              <Text style={{ fontSize: 10, color: colors.textSec }}>BAŞLANGIÇ</Text>
-              <Text style={{ fontWeight: '600', color: colors.textMain, marginTop: 2 }}>{startDate.toLocaleDateString('tr-TR')}</Text>
-            </TouchableOpacity>
+          <>
+            <View style={styles.contractDatesRow}>
+              <TouchableOpacity
+                style={[styles.dateBox, { backgroundColor: colors.cardBg, borderColor: colors.border }]}
+                onPress={() => setShowContractDatePicker('start')}
+              >
+                <Text style={{ fontSize: 10, color: colors.textSec }}>BAŞLANGIÇ</Text>
+                <Text style={{ fontWeight: '600', color: colors.textMain, marginTop: 2 }}>{startDate.toLocaleDateString('tr-TR')}</Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[styles.dateBox, { backgroundColor: colors.cardBg, borderColor: colors.border }]}
-              onPress={() => setShowContractDatePicker('end')}
-            >
-              <Text style={{ fontSize: 10, color: colors.textSec }}>BİTİŞ</Text>
-              <Text style={{ fontWeight: '600', color: colors.textMain, marginTop: 2 }}>{endDate.toLocaleDateString('tr-TR')}</Text>
-            </TouchableOpacity>
-          </View>
+              <TouchableOpacity
+                style={[styles.dateBox, { backgroundColor: colors.cardBg, borderColor: colors.border }]}
+                onPress={() => setShowContractDatePicker('end')}
+              >
+                <Text style={{ fontSize: 10, color: colors.textSec }}>BİTİŞ</Text>
+                <Text style={{ fontWeight: '600', color: colors.textMain, marginTop: 2 }}>{endDate.toLocaleDateString('tr-TR')}</Text>
+              </TouchableOpacity>
+            </View>
+
+            <Text style={{ fontSize: 12, color: colors.textSec, marginTop: 10, lineHeight: 18 }}>
+              Taahhüt başlangıcı, ilk ödeme tarihinden önce seçilemez.
+            </Text>
+          </>
         )}
       </View>
     </View>
@@ -741,21 +858,30 @@ export default function AddSubscriptionModal({ visible, onClose, onSaved, select
                 value={showContractDatePicker === 'start' ? startDate : endDate}
                 mode="date"
                 display="default"
-                minimumDate={showContractDatePicker === 'end' ? startDate : undefined}
+                minimumDate={showContractDatePicker === 'start'
+                  ? normalizeDate(billingDate)
+                  : addDays(startDate, 1)}
                 onChange={(e, d) => {
                   const mode = showContractDatePicker;
                   setShowContractDatePicker(null);
                   if (d) {
+                    const normalizedPickedDate = normalizeDate(d);
                     if (mode === 'start') {
-                      setStartDate(d);
-                      // Başlangıç bitiş tarihini geçerse bitiş tarihini de güncelle
-                      if (d >= endDate) {
-                        const newEnd = new Date(d);
-                        newEnd.setFullYear(newEnd.getFullYear() + 1);
-                        setEndDate(newEnd);
-                      }
+                      const alignedContractDates = ensureContractDates(
+                        billingDate,
+                        normalizedPickedDate,
+                        endDate
+                      );
+                      setStartDate(alignedContractDates.startDate);
+                      setEndDate(alignedContractDates.endDate);
                     } else {
-                      setEndDate(d);
+                      const alignedContractDates = ensureContractDates(
+                        billingDate,
+                        startDate,
+                        normalizedPickedDate
+                      );
+                      setStartDate(alignedContractDates.startDate);
+                      setEndDate(alignedContractDates.endDate);
                     }
                   }
                 }}

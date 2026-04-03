@@ -21,6 +21,9 @@ namespace SubGuard.Service.Validations
                 .NotEmpty().WithMessage("Para birimi seçilmelidir.")
                 .Length(3).WithMessage("Para birimi kodu 3 karakter olmalıdır (ör: USD, TRY, EUR).");
 
+            RuleFor(x => x.FirstPaymentDate)
+                .NotNull().WithMessage("İlk ödeme tarihi zorunludur.");
+
             RuleFor(x => x.Notes)
                 .MaximumLength(500).WithMessage("Not alanı en fazla 500 karakter olabilir.")
                 .When(x => x.Notes != null);
@@ -33,6 +36,11 @@ namespace SubGuard.Service.Validations
             RuleFor(x => x.ContractEndDate)
                 .NotNull().WithMessage("Sözleşme bitiş tarihi zorunludur.")
                 .When(x => x.HasContract);
+
+            RuleFor(x => x.ContractStartDate)
+                .GreaterThanOrEqualTo(x => x.FirstPaymentDate)
+                .WithMessage("Taahhüt başlangıç tarihi, ilk ödeme tarihinden önce olamaz.")
+                .When(x => x.HasContract && x.ContractStartDate.HasValue && x.FirstPaymentDate.HasValue);
 
             // Kontrat tarihleri girilmişse başlangıç < bitiş olmalı
             RuleFor(x => x.ContractEndDate)

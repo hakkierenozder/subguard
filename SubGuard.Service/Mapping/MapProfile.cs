@@ -29,7 +29,8 @@ namespace SubGuard.Service.Mapping
                         .ToList()))
                 .ReverseMap()
                 .ForMember(dest => dest.Shares, opt => opt.Ignore());
-            CreateMap<UserSubscription, SharedWithMeItemDto>();
+            CreateMap<UserSubscription, SharedWithMeItemDto>()
+                .IncludeBase<UserSubscription, UserSubscriptionDto>();
             CreateMap<AddUserSubscriptionDto, UserSubscription>();
             CreateMap<UpdateUserSubscriptionDto, UserSubscription>();
             CreateMap<NotificationQueue, NotificationDto>();

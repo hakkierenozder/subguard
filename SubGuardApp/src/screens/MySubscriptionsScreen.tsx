@@ -16,11 +16,12 @@ import { useSettingsStore } from '../store/useSettingsStore';
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { convertToTRY } from '../utils/CurrencyService';
-import { getDaysLeftForSub } from '../utils/dateUtils';
+import { getDaysLeftForSub, getNextBillingDateForSub, isSubscriptionActiveNow } from '../utils/dateUtils';
 import { useThemeColors } from '../constants/theme';
 import { useCatalogStore } from '../store/useCatalogStore';
 import agent from '../api/agent';
 import Toast from 'react-native-toast-message';
+import { getSubscriptionMonthlyShareInTry, getSubscriptionPortfolioMetrics } from '../utils/subscriptionMath';
 
 // Dosya düzeyinde logo bileşeni — render içinde tanımlanırsa state sıfırlanır
 function SubscriptionLogo({ logoUrl, brandColor, name }: { logoUrl?: string; brandColor: string; name: string }) {
@@ -66,7 +67,6 @@ export default function MySubscriptionsScreen() {
     loading,
     loadingMore,
     hasMore,
-    getTotalExpense,
     fetchUserSubscriptions,
     loadMoreSubscriptions,
     fetchExchangeRates,
@@ -81,7 +81,8 @@ export default function MySubscriptionsScreen() {
     if (catalogItems.length === 0) fetchCatalog();
   }, []);
 
-  const totalExpense = getTotalExpense();
+  const portfolioMetrics = getSubscriptionPortfolioMetrics(subscriptions, exchangeRates);
+  const totalExpense = portfolioMetrics.monthlyEquivalentTotalTRY;
 
   // State Yönetimi
   const [editingSub, setEditingSub] = useState<UserSubscription | null>(null);
@@ -189,36 +190,33 @@ export default function MySubscriptionsScreen() {
     setRefreshing(false);
   }, []);
 
-  const getNextPaymentDateText = (billingDay: number, contractStartDate?: string | null): string => {
+  const getNextPaymentDateText = (sub: UserSubscription): string => {
     const todayMidnight = new Date();
     todayMidnight.setHours(0, 0, 0, 0);
+    const nextPaymentDate = getNextBillingDateForSub(
+      sub.billingDay,
+      sub.billingPeriod,
+      sub.billingMonth,
+      sub.createdDate,
+      sub.firstPaymentDate,
+      sub.contractStartDate,
+      todayMidnight,
+    );
+    const diffDays = Math.round((nextPaymentDate.getTime() - todayMidnight.getTime()) / 86400000);
+    const firstPaymentDate = sub.firstPaymentDate ? new Date(sub.firstPaymentDate) : null;
+    if (firstPaymentDate) firstPaymentDate.setHours(0, 0, 0, 0);
 
-    // İlk ödeme tarihi gelecekteyse → o tarihe kalan gün / tarih formatı
-    if (contractStartDate) {
-      const start = new Date(contractStartDate);
-      start.setHours(0, 0, 0, 0);
-      if (start > todayMidnight) {
-        const diffDays = Math.round((start.getTime() - todayMidnight.getTime()) / 86400000);
-        if (diffDays === 1) return 'Yarın başlıyor';
-        if (diffDays <= 30) return `${diffDays} günde başlıyor`;
-        return start.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
-      }
+    if (firstPaymentDate && firstPaymentDate > todayMidnight) {
+      if (diffDays === 1) return 'Yarın başlıyor';
+      if (diffDays <= 30) return `${diffDays} günde başlıyor`;
+      return nextPaymentDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
     }
 
-    // Normal hesaplama — billingDay üzerinden
-    const today = new Date();
-    const currentDay = today.getDate();
-
-    if (billingDay === currentDay) return 'Bugün';
-    if (billingDay === currentDay + 1) return 'Yarın';
-
-    let targetDate = new Date(today.getFullYear(), today.getMonth(), billingDay);
-    if (currentDay > billingDay) {
-      targetDate = new Date(today.getFullYear(), today.getMonth() + 1, billingDay);
+    if (diffDays === 0) return 'Bugün';
+    if (diffDays === 1) return 'Yarın';
+    if (diffDays > 30) {
+      return nextPaymentDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' });
     }
-
-    const diffTime = Math.abs(targetDate.getTime() - today.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return `${diffDays} gün kaldı`;
   };
 
@@ -272,8 +270,8 @@ export default function MySubscriptionsScreen() {
       switch (sortBy) {
         case 'date':
            // getDaysLeftForSub: billingPeriod, yıllık ayı ve gelecek başlangıç tarihini dikkate alır
-           return getDaysLeftForSub(a.billingDay, a.billingPeriod, a.billingMonth, a.createdDate, a.contractStartDate)
-                - getDaysLeftForSub(b.billingDay, b.billingPeriod, b.billingMonth, b.createdDate, b.contractStartDate);
+           return getDaysLeftForSub(a.billingDay, a.billingPeriod, a.billingMonth, a.createdDate, a.firstPaymentDate, a.contractStartDate)
+                - getDaysLeftForSub(b.billingDay, b.billingPeriod, b.billingMonth, b.createdDate, b.firstPaymentDate, b.contractStartDate);
         case 'price_desc':
           return convertToTRY(b.price, b.currency) - convertToTRY(a.price, a.currency);
         case 'price_asc':
@@ -310,8 +308,10 @@ export default function MySubscriptionsScreen() {
     for (const cat of sortedCategories) {
       const items = groupMap[cat];
       const totalTRY = items.reduce((sum, sub) => {
-        const partnerCount = (sub.sharedWith?.length || 0) + (sub.sharedGuests?.length || 0);
-        return sum + convertToTRY(sub.price, sub.currency) / (partnerCount + 1);
+        if (!isSubscriptionActiveNow(sub.isActive, sub.firstPaymentDate, sub.contractStartDate, new Date(), sub.createdDate)) {
+          return sum;
+        }
+        return sum + getSubscriptionMonthlyShareInTry(sub, exchangeRates);
       }, 0);
 
       rows.push({ _type: 'header', category: cat, count: items.length, totalTRY });
@@ -486,7 +486,7 @@ export default function MySubscriptionsScreen() {
   // --- Render Components ---
 
   const renderHeader = () => {
-    const activeSubsCount = subscriptions.filter(s => s.isActive !== false).length;
+    const activeSubsCount = portfolioMetrics.startedCount;
     const categoryList = Object.keys(categories).sort();
 
     return (
@@ -504,13 +504,15 @@ export default function MySubscriptionsScreen() {
 
           <View style={styles.heroCardTop}>
               <View style={{ flex: 1 }}>
-                  <Text style={styles.heroLabel}>AYLIK TOPLAM</Text>
+                  <Text style={styles.heroLabel}>AKTİF AYLIK YÜK</Text>
                   <View style={styles.heroAmountRow}>
                       <Text style={styles.heroCurrency}>₺</Text>
                       <Text style={styles.heroAmount}>{totalExpense.toFixed(2)}</Text>
                   </View>
                   <Text style={[styles.heroLabel, { marginTop: 4, opacity: 0.8 }]}>
-                      {activeSubsCount} aktif abonelik{categoryList.length > 0 ? ` · ${categoryList.length} kategori` : ''}
+                      {activeSubsCount} başlamış abonelik
+                      {portfolioMetrics.pendingCount > 0 ? ` · ${portfolioMetrics.pendingCount} bekliyor` : ''}
+                      {categoryList.length > 0 ? ` · ${categoryList.length} kategori` : ''}
                   </Text>
               </View>
               <TouchableOpacity
@@ -720,7 +722,7 @@ export default function MySubscriptionsScreen() {
         </View>
       </View>
       <View style={styles.groupHeaderRight}>
-        <Text style={[styles.groupHeaderTotalLabel, { color: colors.textSec }]}>Toplam</Text>
+        <Text style={[styles.groupHeaderTotalLabel, { color: colors.textSec }]}>Aktif yük</Text>
         <Text style={[styles.groupHeaderTotal, { color: colors.textMain }]}>
           ₺{row.totalTRY.toFixed(2)}
         </Text>
@@ -735,7 +737,7 @@ export default function MySubscriptionsScreen() {
 
     const sub = item as UserSubscription & { _type: 'item' };
     const brandColor = sub.colorCode || colors.primary;
-    const nextPaymentText = getNextPaymentDateText(sub.billingDay, sub.contractStartDate);
+    const nextPaymentText = getNextPaymentDateText(sub);
     const isPassive = sub.isActive === false;
 
     const currentRate = exchangeRates[sub.currency] || 1;

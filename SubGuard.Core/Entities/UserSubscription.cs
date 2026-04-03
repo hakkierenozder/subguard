@@ -31,6 +31,11 @@ namespace SubGuard.Core.Entities
         /// </summary>
         public int? BillingMonth { get; set; }
         public BillingPeriod BillingPeriod { get; set; } = BillingPeriod.Monthly;
+        /// <summary>
+        /// Aboneliğin ilk gerçek ödeme/başlangıç tarihi.
+        /// Bütçe, yaklaşan ödeme ve rapor hesapları bu alanı esas alır.
+        /// </summary>
+        public DateTime? FirstPaymentDate { get; set; }
         [Required]
         public string Category { get; set; }
 

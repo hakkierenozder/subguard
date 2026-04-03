@@ -19,8 +19,15 @@ namespace SubGuard.Core.Helpers
             _                     => price   // Bilinmeyen dönem → olduğu gibi döndür
         };
 
+        public static decimal ApplyUserShare(decimal amount, int shareCount)
+        {
+            var divisor = shareCount + 1;
+            return divisor <= 0 ? amount : amount / divisor;
+        }
+
         /// <summary>
-        /// Frankfurter API kurları EUR bazlıdır: 1 EUR = rates[X] X birimi.
+        /// Kur servisi her para birimi için TRY karşılığını döndürür:
+        /// örn. rates["USD"] = 34.50 ise 1 USD = 34.50 TRY.
         /// Bilinmeyen para birimi için 0 döner — bu kasıtlı bir tasarım kararıdır:
         ///   • 0 döndürmek bilinmeyen kuru toplamdan hariç tutar (1 döndürmek yanlış dönüşüme yol açar).
         ///   • Frontend (ExpenseChart) da aynı kuralı uygulamalı: bilinmeyen kur → grafikten hariç tut.
@@ -33,13 +40,13 @@ namespace SubGuard.Core.Helpers
         {
             if (fromCurrency == toCurrency) return amount;
 
-            decimal fromRate = fromCurrency == "EUR" ? 1m : rates.GetValueOrDefault(fromCurrency, 0m);
-            decimal toRate   = toCurrency   == "EUR" ? 1m : rates.GetValueOrDefault(toCurrency,   0m);
+            decimal fromRate = fromCurrency == "TRY" ? 1m : rates.GetValueOrDefault(fromCurrency, 0m);
+            decimal toRate   = toCurrency   == "TRY" ? 1m : rates.GetValueOrDefault(toCurrency,   0m);
 
             if (fromRate == 0) return 0; // Bilinmeyen kaynak para birimi → toplamdan hariç tut
             if (toRate   == 0) return 0; // Bilinmeyen hedef para birimi → toplamdan hariç tut (sessiz sıfır önlendi)
 
-            return amount / fromRate * toRate;
+            return amount * fromRate / toRate;
         }
     }
 }

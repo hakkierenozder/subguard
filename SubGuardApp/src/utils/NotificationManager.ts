@@ -1,11 +1,9 @@
 import * as Notifications from 'expo-notifications';
 import * as Calendar from 'expo-calendar';
 import { Alert, Platform } from 'react-native';
-import { UserSubscription } from '../types'; // Tip tanımının doğru yerden geldiğine emin olun
+import { UserSubscription } from '../types';
+import { getNextBillingDateForSub } from './dateUtils';
 
-// --- 1. NOTIFICATION CONFIGURATION ---
-
-// Bildirimlerin uygulama açıkken nasıl görüneceği
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -16,7 +14,6 @@ Notifications.setNotificationHandler({
   }),
 });
 
-// İzin İsteme (Push Notification)
 export async function registerForPushNotificationsAsync(): Promise<boolean> {
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('default', {
@@ -43,7 +40,6 @@ export async function registerForPushNotificationsAsync(): Promise<boolean> {
   return true;
 }
 
-// Expo Push Token Al
 export async function getExpoPushToken(): Promise<string | null> {
   try {
     const tokenData = await Notifications.getExpoPushTokenAsync();
@@ -53,8 +49,11 @@ export async function getExpoPushToken(): Promise<string | null> {
   }
 }
 
-// Bildirim Planla
-export async function scheduleSubscriptionNotification(title: string, body: string, triggerDate: Date) {
+export async function scheduleSubscriptionNotification(
+  title: string,
+  body: string,
+  triggerDate: Date,
+) {
   try {
     const id = await Notifications.scheduleNotificationAsync({
       content: { title, body, sound: 'default' },
@@ -65,7 +64,7 @@ export async function scheduleSubscriptionNotification(title: string, body: stri
     });
     return id;
   } catch (error) {
-    console.log("Bildirim planlama hatası:", error);
+    console.log('Bildirim planlama hatasi:', error);
     return null;
   }
 }
@@ -75,76 +74,84 @@ export async function cancelNotification(notificationId: string) {
 }
 
 export async function cancelAllNotifications() {
-    await Notifications.cancelAllScheduledNotificationsAsync();
+  await Notifications.cancelAllScheduledNotificationsAsync();
 }
 
+const toLocalClockDate = (date: Date, hour: number) =>
+  new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, 0, 0, 0);
+
 export async function syncLocalNotifications(subscriptions: UserSubscription[]) {
-  // Mevcut tüm planlı bildirimleri temizle
   await cancelAllNotifications();
 
   const now = new Date();
-
   const activeSubs = subscriptions.filter((s) => s.isActive !== false);
 
   for (const sub of activeSubs) {
     if (!sub.billingDay || sub.billingDay < 1) continue;
 
-    // Bir sonraki ödeme tarihini hesapla
-    const safeDay = Math.min(sub.billingDay, 28);
-    let nextDate = new Date(now.getFullYear(), now.getMonth(), safeDay, 9, 0, 0, 0);
-    if (nextDate <= now) {
-      nextDate = new Date(now.getFullYear(), now.getMonth() + 1, safeDay, 9, 0, 0, 0);
-    }
-
-    // Ödeme günü sabah 09:00'da bildirim gönder
-    await scheduleSubscriptionNotification(
-      `${sub.name} ödemesi yaklaşıyor`,
-      `${sub.price} ${sub.currency} tutarında ödemeniz bugün.`,
-      nextDate,
+    const nextBillingDate = getNextBillingDateForSub(
+      sub.billingDay,
+      sub.billingPeriod,
+      sub.billingMonth,
+      sub.createdDate,
+      sub.firstPaymentDate,
+      sub.contractStartDate,
+      now,
     );
 
-    // 3 gün öncesinde de hatırlatma gönder (geçmiyorsa)
-    const reminderDate = new Date(nextDate.getTime() - 3 * 24 * 60 * 60 * 1000);
+    const nominalPaymentDate = toLocalClockDate(nextBillingDate, 9);
+    const paymentNotificationDate =
+      nominalPaymentDate > now
+        ? nominalPaymentDate
+        : new Date(now.getTime() + 60 * 1000);
+
+    await scheduleSubscriptionNotification(
+      `${sub.name} odemesi yaklasiyor`,
+      `${sub.price} ${sub.currency} tutarinda odemeniz bugun.`,
+      paymentNotificationDate,
+    );
+
+    const reminderDate = new Date(nominalPaymentDate.getTime() - 3 * 24 * 60 * 60 * 1000);
     if (reminderDate > now) {
       await scheduleSubscriptionNotification(
-        `${sub.name} ödemesine 3 gün kaldı`,
-        `${sub.price} ${sub.currency} tutarında ödemeniz 3 gün sonra.`,
+        `${sub.name} odemesine 3 gun kaldi`,
+        `${sub.price} ${sub.currency} tutarinda odemeniz 3 gun sonra.`,
         reminderDate,
       );
     }
   }
 }
 
-// --- 2. CALENDAR INTEGRATION ---
-
 export const requestCalendarPermissions = async (): Promise<boolean> => {
   const { status } = await Calendar.requestCalendarPermissionsAsync();
   if (status !== 'granted') return false;
-  // iOS: Reminders izni istenir ama reddedilse bile takvim işlemleri devam eder
+
   if (Platform.OS === 'ios') {
     await Calendar.requestRemindersPermissionsAsync();
   }
+
   return true;
 };
 
-// Cihazda 'SubGuard' adında bir takvim var mı bakar, yoksa oluşturur.
 const ensureSubGuardCalendar = async (): Promise<string | null> => {
   try {
     const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
-    const subGuardCal = calendars.find(c => c.source.name === 'SubGuard' || c.title === 'SubGuard');
+    const subGuardCal = calendars.find(
+      (calendar) => calendar.source.name === 'SubGuard' || calendar.title === 'SubGuard',
+    );
 
     if (subGuardCal) {
       return subGuardCal.id;
     }
 
-    // iOS ve Android için kaynak (source) belirleme
-    const defaultCalendarSource = Platform.OS === 'ios'
-      ? await Calendar.getDefaultCalendarAsync().then(c => c.source)
-      : { isLocalAccount: true, name: 'SubGuard', type: Calendar.SourceType.LOCAL };
+    const defaultCalendarSource =
+      Platform.OS === 'ios'
+        ? await Calendar.getDefaultCalendarAsync().then((calendar) => calendar.source)
+        : { isLocalAccount: true, name: 'SubGuard', type: Calendar.SourceType.LOCAL };
 
     const newCalendarId = await Calendar.createCalendarAsync({
       title: 'SubGuard',
-      color: '#334155', // SubGuard Slate Blue
+      color: '#334155',
       entityType: Calendar.EntityTypes.EVENT,
       sourceId: defaultCalendarSource.id,
       source: defaultCalendarSource,
@@ -155,71 +162,89 @@ const ensureSubGuardCalendar = async (): Promise<string | null> => {
 
     return newCalendarId;
   } catch (error) {
-    console.log('Takvim oluşturma hatası:', error);
+    console.log('Takvim olusturma hatasi:', error);
     return null;
   }
 };
 
-// Abonelikleri Takvime Senkronize Et
+const buildRecurrenceRule = (sub: UserSubscription, nextBillingDate: Date) => {
+  if (sub.billingPeriod === 'Yearly') {
+    return {
+      frequency: Calendar.Frequency.YEARLY,
+      interval: 1,
+      ...(Platform.OS === 'ios'
+        ? {
+            monthsOfTheYear: [
+              (nextBillingDate.getMonth() + 1) as Calendar.MonthOfTheYear,
+            ],
+          }
+        : {}),
+    };
+  }
+
+  return {
+    frequency: Calendar.Frequency.MONTHLY,
+    interval: 1,
+    ...(Platform.OS === 'ios'
+      ? {
+          daysOfTheMonth: [sub.billingDay],
+        }
+      : {}),
+  };
+};
+
 export const syncSubscriptionsToCalendar = async (subscriptions: UserSubscription[]) => {
   try {
     const hasPermission = await requestCalendarPermissions();
     if (!hasPermission) {
-      Alert.alert("İzin Gerekli", "Takvim izni verilmedi. Ayarlardan izin verebilirsiniz.");
+      Alert.alert('Izin Gerekli', 'Takvim izni verilmedi. Ayarlardan izin verebilirsiniz.');
       return;
     }
 
     const calendarId = await ensureSubGuardCalendar();
     if (!calendarId) return;
 
-    // 1. Önce SubGuard takvimindeki eski etkinlikleri temizleyelim (Dublike olmaması için)
     const now = new Date();
-    const oneYearLater = new Date();
-    oneYearLater.setFullYear(now.getFullYear() + 1);
-    
-    const existingEvents = await Calendar.getEventsAsync([calendarId], now, oneYearLater);
+    const cleanupStart = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+    const cleanupEnd = new Date(now.getFullYear() + 2, now.getMonth(), now.getDate());
+    const existingEvents = await Calendar.getEventsAsync([calendarId], cleanupStart, cleanupEnd);
+
     for (const event of existingEvents) {
       await Calendar.deleteEventAsync(event.id);
     }
 
-    // 2. Aktif abonelikleri ekle
-    const activeSubs = subscriptions.filter(s => s.isActive !== false);
+    const activeSubs = subscriptions.filter((s) => s.isActive !== false);
     const deviceTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     for (const sub of activeSubs) {
-      // billingDay geçersizse atla
       if (!sub.billingDay || sub.billingDay < 1) continue;
 
-      // Bir sonraki ödeme tarihini hesapla
-      const today = new Date();
-      let eventDate = new Date(today.getFullYear(), today.getMonth(), sub.billingDay);
+      const nextBillingDate = getNextBillingDateForSub(
+        sub.billingDay,
+        sub.billingPeriod,
+        sub.billingMonth,
+        sub.createdDate,
+        sub.firstPaymentDate,
+        sub.contractStartDate,
+        now,
+      );
 
-      // Eğer bu ayki gün geçtiyse, gelecek aya at
-      if (eventDate < today) {
-         eventDate.setMonth(eventDate.getMonth() + 1);
-      }
+      // Noon avoids timezone drift that can push midnight events to the previous day.
+      const eventDate = toLocalClockDate(nextBillingDate, 12);
 
-      const safeBillingDay = sub.billingDay > 28 ? 28 : sub.billingDay;
-
-      // Etkinlik oluştur
       await Calendar.createEventAsync(calendarId, {
-        title: `${sub.name} Ödemesi`,
+        title: `${sub.name} Odemesi`,
         startDate: eventDate,
-        endDate: new Date(eventDate.getTime() + 60 * 60 * 1000), // 1 saatlik etkinlik
+        endDate: new Date(eventDate.getTime() + 60 * 60 * 1000),
         timeZone: deviceTimeZone,
         notes: `Tutar: ${sub.price} ${sub.currency}`,
-        recurrenceRule: {
-          frequency: Calendar.Frequency.MONTHLY,
-          interval: 1,
-          daysOfTheMonth: [safeBillingDay],
-        },
+        recurrenceRule: buildRecurrenceRule(sub, nextBillingDate),
       });
     }
-    
-    Alert.alert("Başarılı", "Abonelikler cihaz takviminize işlendi.");
 
+    Alert.alert('Basarili', 'Abonelikler cihaz takviminize islendi.');
   } catch (error) {
-    console.error("Takvim senkronizasyon hatası:", error);
-    Alert.alert("Hata", "Takvim senkronizasyonu sırasında bir hata oluştu.");
+    console.error('Takvim senkronizasyon hatasi:', error);
+    Alert.alert('Hata', 'Takvim senkronizasyonu sirasinda bir hata olustu.');
   }
 };

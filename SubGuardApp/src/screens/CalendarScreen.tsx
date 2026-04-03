@@ -20,6 +20,7 @@ import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import { UserSubscription } from '../types';
 import SubscriptionDetailModal from '../components/SubscriptionDetailModal';
 import { RootStackParamList } from '../../App';
+import { getSubscriptionStartDate } from '../utils/dateUtils';
 
 const DAYS_TR = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
 const MONTHS_TR = [
@@ -42,9 +43,7 @@ function getFirstDayOffset(year: number, month: number): number {
 
 // Yıllık abonelik için ödeme tarihi anchor'ı
 function getYearlyAnchor(sub: UserSubscription): Date | null {
-  if (sub.contractStartDate) return new Date(sub.contractStartDate);
-  if (sub.createdDate) return new Date(sub.createdDate);
-  return null;
+  return getSubscriptionStartDate(sub.firstPaymentDate, sub.contractStartDate, sub.createdDate);
 }
 
 // Özet listede ve sıralamada kullanılacak gün numarası
@@ -60,9 +59,8 @@ function getDisplayDay(sub: UserSubscription): number {
 // Aboneliğin başladığı ay/yılı döndürür
 // Öncelik: contractStartDate → createdDate → null (başlangıç tarihi bilinmiyor)
 function getSubStartYearMonth(sub: UserSubscription): { year: number; month: number } | null {
-  const dateStr = sub.contractStartDate || sub.createdDate;
-  if (!dateStr) return null;
-  const d = new Date(dateStr);
+  const d = getSubscriptionStartDate(sub.firstPaymentDate, sub.contractStartDate, sub.createdDate);
+  if (!d) return null;
   return { year: d.getFullYear(), month: d.getMonth() };
 }
 
@@ -166,8 +164,6 @@ export default function CalendarScreen() {
         const partnerCount = (sub.sharedWith?.length ?? 0) + (sub.sharedGuests?.length ?? 0);
         const monthlyPrice = sub.billingPeriod === 'Yearly'
           ? priceInTry / 12
-          : sub.billingPeriod === 'Weekly'
-          ? priceInTry * 4.33
           : priceInTry;
         return total + monthlyPrice / (partnerCount + 1);
       }, 0);

@@ -39,24 +39,43 @@ namespace SubGuard.Service.Services
 
             // Kullanıcının kategori bütçelerini çek
             var budgets = await _db.CategoryBudgets
-                .Where(b => b.UserId == userId)
+                .Where(b => b.UserId == userId && !b.IsDeleted)
                 .ToListAsync();
 
             // B-9: Tüm para birimlerindeki abonelikleri çek, hedef currency'ye çevir
             var allSubs = await _db.UserSubscriptions
                 .Where(s => s.UserId == userId && s.Status == SubscriptionStatus.Active)
-                .Select(s => new { s.Category, s.Price, s.Currency, s.BillingPeriod })
+                .Select(s => new
+                {
+                    s.Category,
+                    s.Price,
+                    s.Currency,
+                    s.BillingPeriod,
+                    s.CreatedDate,
+                    s.FirstPaymentDate,
+                    s.ContractStartDate,
+                    ShareCount = s.Shares.Count(share => !share.IsDeleted)
+                })
                 .ToListAsync();
 
             var rates = await _currencyService.GetRatesAsync();
 
             var spendingByCategory = allSubs
+                .Where(s => SubscriptionBillingHelper.HasStarted(
+                    s.CreatedDate,
+                    s.FirstPaymentDate,
+                    s.ContractStartDate,
+                    DateTime.UtcNow))
                 .GroupBy(s => s.Category)
                 .ToDictionary(
                     g => g.Key,
-                    g => g.Sum(s => BillingPriceHelper.ConvertToTargetCurrency(
-                        BillingPriceHelper.ToMonthlyEquivalent(s.Price, s.BillingPeriod),
-                        s.Currency, currency, rates)));
+                    g => g.Sum(s => BillingPriceHelper.ApplyUserShare(
+                        BillingPriceHelper.ConvertToTargetCurrency(
+                            BillingPriceHelper.ToMonthlyEquivalent(s.Price, s.BillingPeriod),
+                            s.Currency,
+                            currency,
+                            rates),
+                        s.ShareCount)));
 
             var result = budgets.Select(b =>
             {
@@ -90,6 +109,7 @@ namespace SubGuard.Service.Services
             if (existing != null)
             {
                 existing.MonthlyLimit = dto.MonthlyLimit;
+                existing.IsDeleted = false;
             }
             else
             {
@@ -109,13 +129,32 @@ namespace SubGuard.Service.Services
                 .Where(s => s.UserId == userId
                          && s.Category == dto.Category
                          && s.Status == SubscriptionStatus.Active)
-                .Select(s => new { s.Price, s.Currency, s.BillingPeriod })
+                .Select(s => new
+                {
+                    s.Price,
+                    s.Currency,
+                    s.BillingPeriod,
+                    s.CreatedDate,
+                    s.FirstPaymentDate,
+                    s.ContractStartDate,
+                    ShareCount = s.Shares.Count(share => !share.IsDeleted)
+                })
                 .ToListAsync();
 
             var rates = await _currencyService.GetRatesAsync();
-            var spent = subsForCategory.Sum(s => BillingPriceHelper.ConvertToTargetCurrency(
-                BillingPriceHelper.ToMonthlyEquivalent(s.Price, s.BillingPeriod),
-                s.Currency, currency, rates));
+            var spent = subsForCategory
+                .Where(s => SubscriptionBillingHelper.HasStarted(
+                    s.CreatedDate,
+                    s.FirstPaymentDate,
+                    s.ContractStartDate,
+                    DateTime.UtcNow))
+                .Sum(s => BillingPriceHelper.ApplyUserShare(
+                    BillingPriceHelper.ConvertToTargetCurrency(
+                        BillingPriceHelper.ToMonthlyEquivalent(s.Price, s.BillingPeriod),
+                        s.Currency,
+                        currency,
+                        rates),
+                    s.ShareCount));
 
             var result = new CategoryBudgetDto
             {

@@ -93,6 +93,13 @@ namespace SubGuard.API.Controllers
             return CreateActionResult(await _service.RemoveShareAsync(id, LoggedInUserId, targetUserId));
         }
 
+        // DELETE api/usersubscriptions/5/shared-with-me
+        [HttpDelete("{id}/shared-with-me")]
+        public async Task<IActionResult> LeaveSharedSubscription(int id)
+        {
+            return CreateActionResult(await _service.LeaveSharedSubscriptionAsync(id, LoggedInUserId));
+        }
+
         // POST api/usersubscriptions/5/share/guest
         [HttpPost("{id}/share/guest")]
         public async Task<IActionResult> ShareGuest(int id, [FromBody] ShareGuestDto dto)

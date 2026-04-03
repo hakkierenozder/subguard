@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.Entities;
-using SubGuard.Core.Enums;
+using SubGuard.Core.Helpers;
 using SubGuard.Core.Repositories;
 using SubGuard.Core.Services;
 
@@ -27,27 +27,36 @@ namespace SubGuard.Service.Services
 
             // Tüm abonelikler rapora dahil edilir (aktif, duraklatılmış ve iptal edilmiş).
             // İptal tarihi aralık başlangıcından önce ise dahil edilmez.
-            var subscriptions = await _subRepo
+            var subscriptions = (await _subRepo
                 .Where(x => x.UserId == userId
-                    && x.CreatedDate.Date <= to.Date
                     && (x.CancelledDate == null || x.CancelledDate.Value.Date >= from.Date))
-                .ToListAsync();
+                .Include(x => x.Shares)
+                .ToListAsync())
+                .Where(x => SubscriptionBillingHelper.GetEffectiveFirstPaymentDate(x) <= to.Date)
+                .ToList();
 
             var lines = new List<SpendingLineDto>();
 
             foreach (var sub in subscriptions)
             {
-                var paymentCount = CountPaymentsInRange(sub, from, to);
+                var effectiveTo = GetEffectiveReportEndDate(sub, to);
+                if (effectiveTo < from.Date) continue;
+
+                var paymentCount = CountPaymentsInRange(sub, from, effectiveTo);
                 if (paymentCount == 0) continue;
+
+                var shareCount = sub.Shares.Count(share => !share.IsDeleted);
+                var userShareUnitPrice = BillingPriceHelper.ApplyUserShare(sub.Price, shareCount);
 
                 lines.Add(new SpendingLineDto
                 {
                     SubscriptionId = sub.Id,
                     Name = sub.Name,
+                    Category = sub.Category,
                     Currency = sub.Currency,
-                    UnitPrice = sub.Price,
+                    UnitPrice = userShareUnitPrice,
                     PaymentCount = paymentCount,
-                    TotalAmount = sub.Price * paymentCount,
+                    TotalAmount = userShareUnitPrice * paymentCount,
                     BillingPeriod = sub.BillingPeriod.ToString()
                 });
             }
@@ -68,53 +77,24 @@ namespace SubGuard.Service.Services
         /// <summary>
         /// Belirli bir abonelik için [from, to] aralığında kaç ödeme tarihi düşüyor hesaplar.
         /// </summary>
-        private static int CountPaymentsInRange(UserSubscription sub, DateTime from, DateTime to)
+        private static int CountPaymentsInRange(UserSubscription sub, DateTime from, DateTime to) =>
+            SubscriptionBillingHelper.CountPaymentsInRange(sub, from, to);
+
+        private static DateTime GetEffectiveReportEndDate(UserSubscription sub, DateTime requestedTo)
         {
-            // Abonelik oluşturulmadan önceki ödemeler sayılmamalı
-            var effectiveFrom = from.Date < sub.CreatedDate.Date ? sub.CreatedDate.Date : from.Date;
-            if (effectiveFrom > to.Date) return 0;
+            var effectiveTo = requestedTo.Date;
 
-            DateTime cursor;
+            if (sub.CancelledDate.HasValue && sub.CancelledDate.Value.Date < effectiveTo)
+                effectiveTo = sub.CancelledDate.Value.Date;
 
-            if (sub.BillingPeriod == BillingPeriod.Yearly)
+            if (sub.Status == SubGuard.Core.Enums.SubscriptionStatus.Paused &&
+                sub.PausedDate.HasValue &&
+                sub.PausedDate.Value.Date < effectiveTo)
             {
-                // B-4: Yıllık abonelikler için cursor, BillingMonth (yoksa CreatedDate.Month) ile başlar.
-                // Raporun başlangıç ayından değil, aboneliğin ödeme ayından başlamazsa aylar arası
-                // ödemeler atlanabilir veya yanlış yıla atanabilir.
-                var billingMonth = sub.BillingMonth ?? sub.CreatedDate.Month;
-                var candidateYear = effectiveFrom.Year;
-                var safeDay = Math.Min(sub.BillingDay, DateTime.DaysInMonth(candidateYear, billingMonth));
-                cursor = new DateTime(candidateYear, billingMonth, safeDay, 0, 0, 0, DateTimeKind.Utc);
-
-                // Eğer bu yılın ödeme tarihi effectiveFrom'dan önceyse bir sonraki yıla geç
-                if (cursor < effectiveFrom)
-                    cursor = cursor.AddYears(1);
-            }
-            else
-            {
-                // Aylık: İlk potansiyel ödeme tarihini bul — effectiveFrom ayının BillingDay'i
-                cursor = new DateTime(effectiveFrom.Year, effectiveFrom.Month,
-                    Math.Min(sub.BillingDay, DateTime.DaysInMonth(effectiveFrom.Year, effectiveFrom.Month)),
-                    0, 0, 0, DateTimeKind.Utc);
-
-                // Cursor effectiveFrom'dan önceyse bir ay ilerlet
-                if (cursor < effectiveFrom)
-                    cursor = AdvanceByPeriod(cursor, sub.BillingPeriod);
+                effectiveTo = sub.PausedDate.Value.Date;
             }
 
-            int count = 0;
-            while (cursor <= to.Date)
-            {
-                count++;
-                cursor = AdvanceByPeriod(cursor, sub.BillingPeriod);
-            }
-            return count;
+            return effectiveTo;
         }
-
-        private static DateTime AdvanceByPeriod(DateTime date, BillingPeriod period) => period switch
-        {
-            BillingPeriod.Yearly => date.AddYears(1),
-            _ => date.AddMonths(1)  // Monthly
-        };
     }
 }

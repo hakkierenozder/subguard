@@ -192,6 +192,8 @@ const UserSubscriptions = {
     requests.post(`/usersubscriptions/${id}/share`, { email }),
   removeShare:    (id: number | string, targetUserId: string) =>
     requests.del(`/usersubscriptions/${id}/share/${targetUserId}`),
+  leaveShared:    (id: number | string) =>
+    requests.del(`/usersubscriptions/${id}/shared-with-me`),
   shareGuest:     (id: number | string, displayName: string) =>
     requests.post(`/usersubscriptions/${id}/share/guest`, { displayName }),
   removeGuestShare: (id: number | string, shareId: number) =>

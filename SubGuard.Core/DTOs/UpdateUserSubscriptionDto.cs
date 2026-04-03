@@ -16,6 +16,7 @@ namespace SubGuard.Core.DTOs
         /// <summary>Yıllık abonelikler için fatura ayı (1-12). Aylık aboneliklerde gönderilmez.</summary>
         public int? BillingMonth { get; set; }
         public BillingPeriod BillingPeriod { get; set; } = BillingPeriod.Monthly;
+        public DateTime? FirstPaymentDate { get; set; }
         public string Category { get; set; }
         public string? ColorCode { get; set; }
         public bool HasContract { get; set; }

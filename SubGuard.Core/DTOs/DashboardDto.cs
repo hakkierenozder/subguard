@@ -5,8 +5,11 @@ namespace SubGuard.Core.DTOs
     public class DashboardDto
     {
         public int ActiveSubscriptionCount { get; set; }
+        public int PendingSubscriptionCount { get; set; }
         public int PausedCount { get; set; }
         public int CancelledCount { get; set; }
+        public decimal StartedMonthlyEquivalentTotal { get; set; }
+        public decimal PendingMonthlyEquivalentTotal { get; set; }
         public List<CurrencyTotalDto> TotalByCurrency { get; set; }
         public List<CategorySpendingDto> SpendingByCategory { get; set; }
         public List<UpcomingPaymentDto> UpcomingPayments { get; set; }

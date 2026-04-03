@@ -25,6 +25,9 @@ namespace SubGuard.Service.Validations
                 .NotEmpty().WithMessage("Kategori boş bırakılamaz.")
                 .MaximumLength(100).WithMessage("Kategori adı en fazla 100 karakter olabilir.");
 
+            RuleFor(x => x.FirstPaymentDate)
+                .NotNull().WithMessage("İlk ödeme tarihi zorunludur.");
+
             RuleFor(x => x.Notes)
                 .MaximumLength(500).WithMessage("Not alanı en fazla 500 karakter olabilir.")
                 .When(x => x.Notes != null);
@@ -36,6 +39,11 @@ namespace SubGuard.Service.Validations
             RuleFor(x => x.ContractEndDate)
                 .NotNull().WithMessage("Sözleşme bitiş tarihi zorunludur.")
                 .When(x => x.HasContract);
+
+            RuleFor(x => x.ContractStartDate)
+                .GreaterThanOrEqualTo(x => x.FirstPaymentDate)
+                .WithMessage("Taahhüt başlangıç tarihi, ilk ödeme tarihinden önce olamaz.")
+                .When(x => x.HasContract && x.ContractStartDate.HasValue && x.FirstPaymentDate.HasValue);
 
             RuleFor(x => x.ContractEndDate)
                 .GreaterThan(x => x.ContractStartDate)

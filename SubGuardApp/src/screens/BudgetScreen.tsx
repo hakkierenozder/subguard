@@ -20,7 +20,9 @@ import { ProgressChart } from 'react-native-chart-kit';
 import { useThemeColors, getCategoryColor } from '../constants/theme';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
-import { convertToTRY } from '../utils/CurrencyService';
+import { isSubscriptionActiveNow } from '../utils/dateUtils';
+import { getSubscriptionMonthlyShareInCurrency } from '../utils/subscriptionMath';
+import { getCurrencySymbol, SUPPORTED_CURRENCIES } from '../utils/CurrencyService';
 import agent from '../api/agent';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -42,12 +44,16 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
       Alert.alert('Senkronizasyon Hatası', 'Uyarı eşiği sunucuya kaydedilemedi. Bağlantınızı kontrol edin.');
     }
   };
-  const { subscriptions } = useUserSubscriptionStore();
+  const {
+    subscriptions,
+    exchangeRates,
+    fetchAllUserSubscriptions,
+    fetchExchangeRates,
+  } = useUserSubscriptionStore();
   const [budgetCurrency, setBudgetCurrency] = useState('TRY');
   const [budgetInput, setBudgetInput] = useState('');
 
-  // Para birimi sembolü
-  const currencySymbol = budgetCurrency === 'USD' ? '$' : budgetCurrency === 'EUR' ? '€' : '₺';
+  const currencySymbol = getCurrencySymbol(budgetCurrency);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false); // [39] hata durumu
@@ -60,60 +66,99 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
   const [savingCat, setSavingCat] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
 
-  useEffect(() => {
-    // Seed input from store while API loads
-    if (monthlyBudget > 0) setBudgetInput(monthlyBudget.toString());
-    Promise.all([
-      agent.Auth.getProfile(),
-      agent.CategoryBudgets.getAll(),
-    ])
-      .then(([profileRes, catRes]) => {
-        const data = profileRes?.data;
-        if (data) {
-          if (data.monthlyBudget > 0) {
-            setMonthlyBudget(data.monthlyBudget);
-            setBudgetInput(data.monthlyBudget.toString());
-          }
-          setBudgetCurrency(data.monthlyBudgetCurrency ?? 'TRY');
-          if (data.budgetAlertThreshold > 0) {
-            setBudgetAlertThreshold(data.budgetAlertThreshold);
-          }
+  const formatCurrencyAmount = (
+    amount: number,
+    options?: { minimumFractionDigits?: number; maximumFractionDigits?: number },
+  ) =>
+    `${currencySymbol}${amount.toLocaleString('tr-TR', {
+      minimumFractionDigits: options?.minimumFractionDigits ?? 2,
+      maximumFractionDigits: options?.maximumFractionDigits ?? 2,
+    })}`;
+
+  const loadBudgetData = async () => {
+    setError(false);
+    setLoading(true);
+
+    try {
+      const [profileRes, catRes] = await Promise.all([
+        agent.Auth.getProfile(),
+        agent.CategoryBudgets.getAll(),
+        fetchAllUserSubscriptions(),
+        fetchExchangeRates(),
+      ]);
+
+      const data = profileRes?.data;
+      if (data) {
+        if (data.monthlyBudget > 0) {
+          setMonthlyBudget(data.monthlyBudget);
+          setBudgetInput(data.monthlyBudget.toString());
+        } else {
+          setMonthlyBudget(0);
+          setBudgetInput('');
         }
-        setCategoryBudgets(catRes?.data ?? []);
-      })
-      .catch(() => { setError(true); })
-      .finally(() => setLoading(false));
+
+        setBudgetCurrency(data.monthlyBudgetCurrency ?? 'TRY');
+
+        if (data.budgetAlertThreshold > 0) {
+          setBudgetAlertThreshold(data.budgetAlertThreshold);
+        }
+      }
+
+      setCategoryBudgets(catRes?.data ?? []);
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (monthlyBudget > 0) {
+      setBudgetInput(monthlyBudget.toString());
+    }
+
+    loadBudgetData();
   }, []);
 
   const activeSubs = useMemo(
-    () => subscriptions.filter((s) => s.isActive !== false),
+    () => subscriptions.filter((s) => isSubscriptionActiveNow(s.isActive, s.firstPaymentDate, s.contractStartDate, new Date(), s.createdDate)),
     [subscriptions],
   );
 
-  // Toplam harcama (TRY)
+  // Toplam harcama (bütçe para biriminde)
   const totalExpense = useMemo(() => {
     return activeSubs.reduce((total, sub) => {
-      const partnerCount = (sub.sharedWith?.length ?? 0) + (sub.sharedGuests?.length ?? 0);
-      return total + convertToTRY(sub.price, sub.currency) / (partnerCount + 1);
+      return total + getSubscriptionMonthlyShareInCurrency(
+        sub,
+        exchangeRates,
+        budgetCurrency,
+        { unknownRateAsZero: true },
+      );
     }, 0);
-  }, [activeSubs]);
+  }, [activeSubs, budgetCurrency, exchangeRates]);
 
   // Kategori bazlı harcama
   const categoryBreakdown = useMemo(() => {
     const map: Record<string, number> = {};
     activeSubs.forEach((sub) => {
-      const myShare = convertToTRY(sub.price, sub.currency) / ((sub.sharedWith?.length ?? 0) + (sub.sharedGuests?.length ?? 0) + 1);
+      const myShare = getSubscriptionMonthlyShareInCurrency(
+        sub,
+        exchangeRates,
+        budgetCurrency,
+        { unknownRateAsZero: true },
+      );
       map[sub.category] = (map[sub.category] ?? 0) + myShare;
     });
     return Object.entries(map)
       .map(([category, amount]) => ({ category, amount }))
       .sort((a, b) => b.amount - a.amount);
-  }, [activeSubs]);
+  }, [activeSubs, budgetCurrency, exchangeRates]);
 
-  const budgetPercentage = monthlyBudget > 0 ? Math.min(totalExpense / monthlyBudget, 1) : 0;
-  const percentDisplay = (budgetPercentage * 100).toFixed(0);
+  const budgetUsageRatio = monthlyBudget > 0 ? totalExpense / monthlyBudget : 0;
+  const budgetPercentage = monthlyBudget > 0 ? Math.min(budgetUsageRatio, 1) : 0;
+  const percentDisplay = monthlyBudget > 0 ? (budgetUsageRatio * 100).toFixed(0) : '0';
   const isOverBudget = totalExpense > monthlyBudget && monthlyBudget > 0;
-  const isNearLimit = !isOverBudget && budgetPercentage * 100 >= budgetAlertThreshold;
+  const isNearLimit = !isOverBudget && budgetUsageRatio * 100 >= budgetAlertThreshold;
 
   const ringColor =
     isOverBudget ? colors.error : isNearLimit ? colors.warning : colors.accent;
@@ -127,7 +172,9 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
     // Mevcut kategori limitlerinden büyük olanlar varsa uyar
     const exceedingCats = categoryBudgets.filter(b => parsed > 0 && b.monthlyLimit > parsed);
     if (exceedingCats.length > 0) {
-      const names = exceedingCats.map(b => `• ${b.category} (${currencySymbol}${b.monthlyLimit.toLocaleString('tr-TR')})`).join('\n');
+      const names = exceedingCats
+        .map(b => `• ${b.category} (${formatCurrencyAmount(b.monthlyLimit, { minimumFractionDigits: 0, maximumFractionDigits: 0 })})`)
+        .join('\n');
       Alert.alert(
         'Kategori Limitleri Uyarısı',
         `Aşağıdaki kategori limitleri yeni bütçe hedefini aşıyor:\n\n${names}\n\nBütçeyi kaydetmek istiyor musun?`,
@@ -172,7 +219,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
     if (monthlyBudget > 0 && parsed > monthlyBudget) {
       Alert.alert(
         'Limit Aşıldı',
-        `Kategori limiti, aylık bütçe hedefini (${currencySymbol}${monthlyBudget.toLocaleString('tr-TR')}) aşamaz.`,
+        `Kategori limiti, aylık bütçe hedefini (${formatCurrencyAmount(monthlyBudget, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}) aşamaz.`,
       );
       return;
     }
@@ -233,19 +280,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
         <TouchableOpacity
           onPress={() => {
             setError(false);
-            setLoading(true);
-            Promise.all([agent.Auth.getProfile(), agent.CategoryBudgets.getAll()])
-              .then(([profileRes, catRes]) => {
-                const data = profileRes?.data;
-                if (data) {
-                  if (data.monthlyBudget > 0) { setMonthlyBudget(data.monthlyBudget); setBudgetInput(data.monthlyBudget.toString()); }
-                  setBudgetCurrency(data.monthlyBudgetCurrency ?? 'TRY');
-                  if (data.budgetAlertThreshold > 0) setBudgetAlertThreshold(data.budgetAlertThreshold);
-                }
-                setCategoryBudgets(catRes?.data ?? []);
-              })
-              .catch(() => setError(true))
-              .finally(() => setLoading(false));
+            loadBudgetData();
           }}
           style={{ marginTop: 16, paddingHorizontal: 20, paddingVertical: 10, backgroundColor: colors.primary, borderRadius: 10 }}
         >
@@ -318,9 +353,9 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
           {/* Harcama / Hedef bilgisi */}
           <View style={styles.statsRow}>
             <View style={styles.statBox}>
-              <Text style={[styles.statLabel, { color: colors.textSec }]}>Bu Ay Harcama</Text>
+              <Text style={[styles.statLabel, { color: colors.textSec }]}>Aktif Aylık Yük</Text>
               <Text style={[styles.statValue, { color: colors.textMain }]}>
-                {currencySymbol}{totalExpense.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                {formatCurrencyAmount(totalExpense)}
               </Text>
             </View>
             <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
@@ -328,7 +363,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
               <Text style={[styles.statLabel, { color: colors.textSec }]}>Bütçe Hedefi</Text>
               <Text style={[styles.statValue, { color: colors.textMain }]}>
                 {monthlyBudget > 0
-                  ? `${currencySymbol}${monthlyBudget.toLocaleString('tr-TR')}`
+                  ? formatCurrencyAmount(monthlyBudget, { minimumFractionDigits: 0, maximumFractionDigits: 0 })
                   : '—'}
               </Text>
             </View>
@@ -344,7 +379,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
                 ]}
               >
                 {monthlyBudget > 0
-                  ? `${currencySymbol}${Math.abs(monthlyBudget - totalExpense).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                  ? formatCurrencyAmount(Math.abs(monthlyBudget - totalExpense))
                   : '—'}
               </Text>
             </View>
@@ -370,7 +405,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
               />
               <Text style={[styles.warningText, { color: isOverBudget ? colors.error : colors.warning }]}>
                 {isOverBudget
-                  ? `Bütçen ${currencySymbol}${(totalExpense - monthlyBudget).toFixed(2)} aşıldı!`
+                  ? `Bütçen ${formatCurrencyAmount(totalExpense - monthlyBudget)} aşıldı.`
                   : `Bütçenin %${percentDisplay}'ini kullandın.`}
               </Text>
             </View>
@@ -396,40 +431,73 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
           </View>
 
           {editMode ? (
-            <View style={styles.editRow}>
-              <View style={[styles.inputWrap, { backgroundColor: colors.inputBg, borderColor: colors.border }]}>
-                <Text style={[styles.inputPrefix, { color: colors.textSec }]}>{currencySymbol}</Text>
-                <TextInput
-                  style={[styles.budgetInput, { color: colors.textMain }]}
-                  value={budgetInput}
-                  onChangeText={setBudgetInput}
-                  keyboardType="numeric"
-                  placeholder="0"
-                  placeholderTextColor={colors.textSec}
-                  autoFocus
-                />
+            <View style={styles.editSection}>
+              <View style={styles.editRow}>
+                <View style={[styles.inputWrap, { backgroundColor: colors.inputBg, borderColor: colors.border }]}>
+                  <Text style={[styles.inputPrefix, { color: colors.textSec }]}>{currencySymbol}</Text>
+                  <TextInput
+                    style={[styles.budgetInput, { color: colors.textMain }]}
+                    value={budgetInput}
+                    onChangeText={setBudgetInput}
+                    keyboardType="numeric"
+                    placeholder="0"
+                    placeholderTextColor={colors.textSec}
+                    autoFocus
+                  />
+                </View>
+                <TouchableOpacity
+                  style={[styles.saveBtn, { backgroundColor: colors.accent, opacity: saving ? 0.7 : 1 }]}
+                  onPress={handleSaveBudget}
+                  disabled={saving}
+                >
+                  {saving ? (
+                    <ActivityIndicator size="small" color="#FFF" />
+                  ) : (
+                    <Text style={styles.saveBtnText}>Kaydet</Text>
+                  )}
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.cancelBtn, { borderColor: colors.border }]}
+                  onPress={() => setEditMode(false)}
+                >
+                  <Text style={[styles.cancelBtnText, { color: colors.textSec }]}>İptal</Text>
+                </TouchableOpacity>
               </View>
-              <TouchableOpacity
-                style={[styles.saveBtn, { backgroundColor: colors.accent, opacity: saving ? 0.7 : 1 }]}
-                onPress={handleSaveBudget}
-                disabled={saving}
-              >
-                {saving ? (
-                  <ActivityIndicator size="small" color="#FFF" />
-                ) : (
-                  <Text style={styles.saveBtnText}>Kaydet</Text>
-                )}
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.cancelBtn, { borderColor: colors.border }]}
-                onPress={() => setEditMode(false)}
-              >
-                <Text style={[styles.cancelBtnText, { color: colors.textSec }]}>İptal</Text>
-              </TouchableOpacity>
+
+              <View style={styles.currencyChipRow}>
+                {SUPPORTED_CURRENCIES.map((currency) => {
+                  const selected = budgetCurrency === currency;
+
+                  return (
+                    <TouchableOpacity
+                      key={currency}
+                      style={[
+                        styles.currencyChip,
+                        {
+                          backgroundColor: selected ? colors.accent : colors.inputBg,
+                          borderColor: selected ? colors.accent : colors.border,
+                        },
+                      ]}
+                      onPress={() => setBudgetCurrency(currency)}
+                    >
+                      <Text
+                        style={[
+                          styles.currencyChipText,
+                          { color: selected ? '#FFF' : colors.textMain },
+                        ]}
+                      >
+                        {currency}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
             </View>
           ) : (
             <Text style={[styles.currentBudgetText, { color: monthlyBudget > 0 ? colors.accent : colors.textSec }]}>
-              {monthlyBudget > 0 ? `${currencySymbol}${monthlyBudget.toLocaleString('tr-TR')} / ay` : 'Henüz belirlenmedi'}
+              {monthlyBudget > 0
+                ? `${formatCurrencyAmount(monthlyBudget, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} / ay`
+                : 'Henüz belirlenmedi'}
             </Text>
           )}
         </View>
@@ -442,7 +510,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
               <Text style={[styles.cardTitle, { color: colors.textMain }]}>Önerilen Bütçe</Text>
             </View>
             <Text style={[{ fontSize: 12, color: colors.textSec, marginBottom: 12, lineHeight: 18 }]}>
-              Mevcut harcamanıza göre uygun bütçe aralıkları:
+              Mevcut aktif aylık yükünüze göre uygun bütçe aralıkları:
             </Text>
             <View style={{ gap: 8 }}>
               {[
@@ -476,7 +544,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                       <Text style={{ fontSize: 16, fontWeight: '800', color: isCurrentMatch ? colors.accent : colors.textMain }}>
-                        {currencySymbol}{suggested.toLocaleString('tr-TR')}
+                        {formatCurrencyAmount(suggested, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                       </Text>
                       {!isCurrentMatch && (
                         <Ionicons name="chevron-forward" size={14} color={colors.textSec} />
@@ -544,15 +612,22 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
               const dotColor = getCategoryColor(category);
               const catBudget = categoryBudgets.find((b) => b.category === category);
               const isEditing = editingCategory === category;
+              const categoryBudgetRatio = catBudget && catBudget.monthlyLimit > 0
+                ? amount / catBudget.monthlyLimit
+                : 0;
+              const isCategoryOverBudget = !!catBudget && categoryBudgetRatio > 1;
+              const isCategoryNearLimit = !!catBudget
+                && !isCategoryOverBudget
+                && categoryBudgetRatio * 100 >= budgetAlertThreshold;
 
               // Bar değerleri: bütçe varsa spent/limit, yoksa toplam içindeki pay
               const barPct = catBudget
-                ? Math.min(amount / catBudget.monthlyLimit, 1)
+                ? Math.min(categoryBudgetRatio, 1)
                 : pct;
               const barColor = catBudget
-                ? catBudget.isOverBudget
+                ? isCategoryOverBudget
                   ? colors.error
-                  : catBudget.isNearLimit
+                  : isCategoryNearLimit
                     ? colors.warning
                     : colors.success
                 : dotColor;
@@ -568,7 +643,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
                     {catBudget ? (
                       <>
                         <Text style={[styles.catAmount, { color: barColor, flex: 1, textAlign: 'right' }]}>
-                          {currencySymbol}{amount.toFixed(0)} / {currencySymbol}{catBudget.monthlyLimit.toFixed(0)}
+                          {formatCurrencyAmount(amount, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} / {formatCurrencyAmount(catBudget.monthlyLimit, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                         </Text>
                         <TouchableOpacity
                           onPress={() => isEditing
@@ -591,7 +666,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
                           %{(pct * 100).toFixed(0)}
                         </Text>
                         <Text style={[styles.catAmount, { color: dotColor }]}>
-                          {currencySymbol}{amount.toFixed(2)}
+                          {formatCurrencyAmount(amount)}
                         </Text>
                         <TouchableOpacity
                           onPress={() => isEditing
@@ -660,7 +735,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
                           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6 }}>
                             <Ionicons name="alert-circle-outline" size={13} color={colors.error} />
                             <Text style={{ fontSize: 11, color: colors.error, fontWeight: '600' }}>
-                              Ana bütçeyi ({currencySymbol}{monthlyBudget.toLocaleString('tr-TR')}) aşamazsın
+                              Ana bütçeyi ({formatCurrencyAmount(monthlyBudget, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}) aşamazsın
                             </Text>
                           </View>
                         )}
@@ -745,6 +820,7 @@ const styles = StyleSheet.create({
   // Edit budget
   editBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10 },
   editBtnText: { fontSize: 13, fontWeight: '700' },
+  editSection: { gap: 12 },
   editRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   inputWrap: {
     flex: 1,
@@ -757,6 +833,15 @@ const styles = StyleSheet.create({
   },
   inputPrefix: { fontSize: 16, fontWeight: '600', marginRight: 4 },
   budgetInput: { flex: 1, fontSize: 16, fontWeight: '700' },
+  currencyChipRow: { flexDirection: 'row', gap: 8 },
+  currencyChip: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: 'center',
+  },
+  currencyChipText: { fontSize: 13, fontWeight: '700' },
   saveBtn: {
     paddingHorizontal: 16,
     height: 44,

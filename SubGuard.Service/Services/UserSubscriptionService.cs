@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -6,6 +6,7 @@ using SubGuard.Core.Constants;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.Enums;
 using SubGuard.Core.Entities;
+using SubGuard.Core.Helpers;
 using SubGuard.Core.Repositories;
 using SubGuard.Core.Services;
 using SubGuard.Core.UnitOfWork;
@@ -21,8 +22,8 @@ namespace SubGuard.Service.Services
         private readonly IMapper _mapper;
         private readonly ILogger<UserSubscriptionService> _logger;
         private readonly UserManager<AppUser> _userManager;
-        // TODO: Teknik borç — AppDbContext doğrudan enjekte ediliyor.
-        // PriceHistory, SubscriptionShare, SubscriptionUsageLog için IGenericRepository<T> kullanılmalı.
+        // TODO: Teknik borÃ§ â€” AppDbContext doÄŸrudan enjekte ediliyor.
+        // PriceHistory, SubscriptionShare, SubscriptionUsageLog iÃ§in IGenericRepository<T> kullanÄ±lmalÄ±.
         private readonly AppDbContext _db;
         private readonly INotificationService _notificationService;
 
@@ -72,8 +73,8 @@ namespace SubGuard.Service.Services
             var duplicate = await _repo.Where(x => x.UserId == userId && x.Name == dto.Name).AnyAsync();
             if (duplicate)
             {
-                _logger.LogWarning("Mükerrer abonelik ekleme denemesi. UserId: {UserId}, Name: {Name}", userId, dto.Name);
-                return CustomResponseDto<UserSubscriptionDto>.Fail(409, $"'{dto.Name}' adında bir aboneliğiniz zaten mevcut.");
+                _logger.LogWarning("MÃ¼kerrer abonelik ekleme denemesi. UserId: {UserId}, Name: {Name}", userId, dto.Name);
+                return CustomResponseDto<UserSubscriptionDto>.Fail(409, $"'{dto.Name}' adÄ±nda bir aboneliÄŸiniz zaten mevcut.");
             }
 
             await _unitOfWork.BeginTransactionAsync();
@@ -81,18 +82,29 @@ namespace SubGuard.Service.Services
             {
                 var entity = _mapper.Map<UserSubscription>(dto);
                 entity.UserId = userId;
-                // U-8: Kategori normalize — "müzik", "MÜZİK", "Müzik" → "Müzik"
+                // U-8: Kategori normalize â€” "mÃ¼zik", "MÃœZÄ°K", "MÃ¼zik" â†’ "MÃ¼zik"
                 if (!string.IsNullOrWhiteSpace(entity.Category))
                     entity.Category = System.Globalization.CultureInfo.GetCultureInfo("tr-TR")
                         .TextInfo.ToTitleCase(entity.Category.Trim().ToLower());
+                entity.FirstPaymentDate = SubscriptionBillingHelper.GetEffectiveFirstPaymentDate(
+                    DateTime.UtcNow,
+                    dto.FirstPaymentDate,
+                    dto.ContractStartDate);
+                if (!entity.HasContract)
+                {
+                    entity.ContractStartDate = null;
+                    entity.ContractEndDate = null;
+                }
+                if (entity.BillingPeriod != BillingPeriod.Yearly)
+                    entity.BillingMonth = null;
                 entity.ColorCode = await ResolveColorCodeAsync(entity);
 
-                // B-8: Abonelik kaydı ve paylaşımlar tek transaction içinde commit edilir.
-                // İlk CommitAsync entity.Id'yi üretir; ikincisi paylaşımları kaydeder.
+                // B-8: Abonelik kaydÄ± ve paylaÅŸÄ±mlar tek transaction iÃ§inde commit edilir.
+                // Ä°lk CommitAsync entity.Id'yi Ã¼retir; ikincisi paylaÅŸÄ±mlarÄ± kaydeder.
                 await _repo.AddAsync(entity);
                 await _unitOfWork.CommitAsync();
 
-                // Paylaşım e-postaları varsa her biri için SubscriptionShare kaydı oluştur
+                // PaylaÅŸÄ±m e-postalarÄ± varsa her biri iÃ§in SubscriptionShare kaydÄ± oluÅŸtur
                 if (dto.SharedUserEmails != null && dto.SharedUserEmails.Any())
                 {
                     foreach (var email in dto.SharedUserEmails)
@@ -119,7 +131,7 @@ namespace SubGuard.Service.Services
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackTransactionAsync();
-                _logger.LogError(ex, "Abonelik ekleme hatası. UserId: {UserId}", userId);
+                _logger.LogError(ex, "Abonelik ekleme hatasÄ±. UserId: {UserId}", userId);
                 throw;
             }
         }
@@ -163,17 +175,17 @@ namespace SubGuard.Service.Services
         {
             var entity = await _repo.GetByIdAsync(id);
             if (entity == null)
-                return CustomResponseDto<bool>.Fail(404, "Kayıt bulunamadı.");
+                return CustomResponseDto<bool>.Fail(404, "KayÄ±t bulunamadÄ±.");
 
             if (entity.UserId != userId)
             {
                 _logger.LogWarning("Yetkisiz abonelik silme denemesi. UserId: {UserId}, SubscriptionId: {Id}", userId, id);
-                return CustomResponseDto<bool>.Fail(403, "Bu aboneliği silme yetkiniz yok.");
+                return CustomResponseDto<bool>.Fail(403, "Bu aboneliÄŸi silme yetkiniz yok.");
             }
 
             _repo.Remove(entity);
 
-            // Aboneliğe ait paylaşımları da soft-delete et
+            // AboneliÄŸe ait paylaÅŸÄ±mlarÄ± da soft-delete et
             var shares = await _db.SubscriptionShares
                 .Where(s => s.SubscriptionId == id)
                 .ToListAsync();
@@ -194,12 +206,12 @@ namespace SubGuard.Service.Services
             var entity = await _repo.GetByIdAsync(id);
 
             if (entity == null)
-                return CustomResponseDto<bool>.Fail(404, "Abonelik bulunamadı.");
+                return CustomResponseDto<bool>.Fail(404, "Abonelik bulunamadÄ±.");
 
             if (entity.UserId != userId)
-                return CustomResponseDto<bool>.Fail(403, "Bu aboneliğe erişim yetkiniz yok.");
+                return CustomResponseDto<bool>.Fail(403, "Bu aboneliÄŸe eriÅŸim yetkiniz yok.");
 
-            // Geçerli durum geçişlerini kontrol et
+            // GeÃ§erli durum geÃ§iÅŸlerini kontrol et
             var validTransitions = new Dictionary<SubscriptionStatus, List<SubscriptionStatus>>
             {
                 { SubscriptionStatus.Active,    new List<SubscriptionStatus> { SubscriptionStatus.Paused, SubscriptionStatus.Cancelled } },
@@ -208,9 +220,9 @@ namespace SubGuard.Service.Services
             };
 
             if (!validTransitions[entity.Status].Contains(newStatus))
-                return CustomResponseDto<bool>.Fail(422, $"'{entity.Status}' durumundan '{newStatus}' durumuna geçiş yapılamaz.");
+                return CustomResponseDto<bool>.Fail(422, $"'{entity.Status}' durumundan '{newStatus}' durumuna geÃ§iÅŸ yapÄ±lamaz.");
 
-            // İptal edilmek isteniyorsa ve aktif bir kontrat varsa onay iste
+            // Ä°ptal edilmek isteniyorsa ve aktif bir kontrat varsa onay iste
             if (newStatus == SubscriptionStatus.Cancelled
                 && entity.HasContract
                 && entity.ContractEndDate.HasValue
@@ -220,8 +232,8 @@ namespace SubGuard.Service.Services
                 var endDateStr = entity.ContractEndDate.Value.ToString("dd.MM.yyyy");
                 return CustomResponseDto<bool>.Fail(
                     409,
-                    $"Bu aboneliğin sözleşmesi {endDateStr} tarihine kadar geçerlidir. " +
-                    "Erken iptal etmek için 'forceCancel: true' ile tekrar gönderin.");
+                    $"Bu aboneliÄŸin sÃ¶zleÅŸmesi {endDateStr} tarihine kadar geÃ§erlidir. " +
+                    "Erken iptal etmek iÃ§in 'forceCancel: true' ile tekrar gÃ¶nderin.");
             }
 
             entity.Status = newStatus;
@@ -243,7 +255,7 @@ namespace SubGuard.Service.Services
             _repo.Update(entity);
             await _unitOfWork.CommitAsync();
 
-            _logger.LogInformation("Abonelik durumu değiştirildi. UserId: {UserId}, SubscriptionId: {Id}, YeniDurum: {Status}",
+            _logger.LogInformation("Abonelik durumu deÄŸiÅŸtirildi. UserId: {UserId}, SubscriptionId: {Id}, YeniDurum: {Status}",
                 userId, id, newStatus);
 
             return CustomResponseDto<bool>.Success(200, true);
@@ -259,22 +271,22 @@ namespace SubGuard.Service.Services
                 if (entity == null)
                 {
                     await _unitOfWork.RollbackTransactionAsync();
-                    return CustomResponseDto<bool>.Fail(404, "Abonelik bulunamadı.");
+                    return CustomResponseDto<bool>.Fail(404, "Abonelik bulunamadÄ±.");
                 }
 
                 if (entity.UserId != userId)
                 {
-                    _logger.LogWarning("Yetkisiz abonelik güncelleme denemesi. UserId: {UserId}, SubscriptionId: {Id}", userId, id);
+                    _logger.LogWarning("Yetkisiz abonelik gÃ¼ncelleme denemesi. UserId: {UserId}, SubscriptionId: {Id}", userId, id);
                     await _unitOfWork.RollbackTransactionAsync();
-                    return CustomResponseDto<bool>.Fail(403, "Bu aboneliği güncelleme yetkiniz yok.");
+                    return CustomResponseDto<bool>.Fail(403, "Bu aboneliÄŸi gÃ¼ncelleme yetkiniz yok.");
                 }
 
                 var duplicate = await _repo.Where(x => x.UserId == userId && x.Name == dto.Name && x.Id != id).AnyAsync();
                 if (duplicate)
                 {
-                    _logger.LogWarning("Mükerrer abonelik güncelleme denemesi. UserId: {UserId}, Name: {Name}", userId, dto.Name);
+                    _logger.LogWarning("MÃ¼kerrer abonelik gÃ¼ncelleme denemesi. UserId: {UserId}, Name: {Name}", userId, dto.Name);
                     await _unitOfWork.RollbackTransactionAsync();
-                    return CustomResponseDto<bool>.Fail(409, $"'{dto.Name}' adında bir aboneliğiniz zaten mevcut.");
+                    return CustomResponseDto<bool>.Fail(409, $"'{dto.Name}' adÄ±nda bir aboneliÄŸiniz zaten mevcut.");
                 }
 
                 var oldColor = entity.ColorCode;
@@ -284,9 +296,20 @@ namespace SubGuard.Service.Services
                 if (!string.IsNullOrWhiteSpace(entity.Category))
                     entity.Category = System.Globalization.CultureInfo.GetCultureInfo("tr-TR")
                         .TextInfo.ToTitleCase(entity.Category.Trim().ToLower());
+                entity.FirstPaymentDate = SubscriptionBillingHelper.GetEffectiveFirstPaymentDate(
+                    entity.CreatedDate == default ? DateTime.UtcNow : entity.CreatedDate,
+                    dto.FirstPaymentDate,
+                    dto.ContractStartDate);
+                if (!entity.HasContract)
+                {
+                    entity.ContractStartDate = null;
+                    entity.ContractEndDate = null;
+                }
+                if (entity.BillingPeriod != BillingPeriod.Yearly)
+                    entity.BillingMonth = null;
                 entity.ColorCode = await ResolveColorCodeAsync(entity, oldColor);
 
-                // Fiyat değiştiyse geçmişe kaydet
+                // Fiyat deÄŸiÅŸtiyse geÃ§miÅŸe kaydet
                 if (oldPrice != entity.Price)
                 {
                     var priceHistory = new PriceHistory
@@ -305,27 +328,27 @@ namespace SubGuard.Service.Services
                 await _unitOfWork.CommitAsync();
                 await _unitOfWork.CommitTransactionAsync();
 
-                _logger.LogInformation("Abonelik güncellendi. UserId: {UserId}, SubscriptionId: {Id}", userId, id);
+                _logger.LogInformation("Abonelik gÃ¼ncellendi. UserId: {UserId}, SubscriptionId: {Id}", userId, id);
                 return CustomResponseDto<bool>.Success(200, true);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Abonelik güncelleme hatası. Id: {Id}", id);
+                _logger.LogError(ex, "Abonelik gÃ¼ncelleme hatasÄ±. Id: {Id}", id);
                 await _unitOfWork.RollbackTransactionAsync();
                 throw;
             }
         }
 
-        // --- Paylaşım ---
+        // --- PaylaÅŸÄ±m ---
 
         public async Task<CustomResponseDto<bool>> CheckUserByEmailAsync(string email)
         {
             if (string.IsNullOrWhiteSpace(email))
-                return CustomResponseDto<bool>.Fail(400, "E-posta adresi boş olamaz.");
+                return CustomResponseDto<bool>.Fail(400, "E-posta adresi boÅŸ olamaz.");
 
             var user = await _userManager.FindByEmailAsync(email.Trim());
             if (user == null)
-                return CustomResponseDto<bool>.Fail(404, "Bu e-posta adresiyle kayıtlı kullanıcı bulunamadı.");
+                return CustomResponseDto<bool>.Fail(404, "Bu e-posta adresiyle kayÄ±tlÄ± kullanÄ±cÄ± bulunamadÄ±.");
 
             return CustomResponseDto<bool>.Success(200, true);
         }
@@ -333,16 +356,16 @@ namespace SubGuard.Service.Services
         public async Task<CustomResponseDto<bool>> ShareSubscriptionAsync(int id, string ownerId, string targetEmail)
         {
             var targetUser = await _userManager.FindByEmailAsync(targetEmail);
-            if (targetUser == null) return CustomResponseDto<bool>.Fail(404, "Kullanıcı bulunamadı.");
-            if (targetUser.Id == ownerId) return CustomResponseDto<bool>.Fail(400, "Aboneliği kendinizle paylaşamazsınız.");
+            if (targetUser == null) return CustomResponseDto<bool>.Fail(404, "KullanÄ±cÄ± bulunamadÄ±.");
+            if (targetUser.Id == ownerId) return CustomResponseDto<bool>.Fail(400, "AboneliÄŸi kendinizle paylaÅŸamazsÄ±nÄ±z.");
 
             var entity = await _repo.GetByIdAsync(id);
-            if (entity == null) return CustomResponseDto<bool>.Fail(404, "Abonelik bulunamadı.");
-            if (entity.UserId != ownerId) return CustomResponseDto<bool>.Fail(403, "Bu aboneliği paylaşma yetkiniz yok.");
+            if (entity == null) return CustomResponseDto<bool>.Fail(404, "Abonelik bulunamadÄ±.");
+            if (entity.UserId != ownerId) return CustomResponseDto<bool>.Fail(403, "Bu aboneliÄŸi paylaÅŸma yetkiniz yok.");
 
             var alreadyShared = await _db.SubscriptionShares
                 .AnyAsync(s => s.SubscriptionId == id && s.SharedUserId == targetUser.Id);
-            if (alreadyShared) return CustomResponseDto<bool>.Fail(409, "Bu kullanıcıyla zaten paylaşılmış.");
+            if (alreadyShared) return CustomResponseDto<bool>.Fail(409, "Bu kullanÄ±cÄ±yla zaten paylaÅŸÄ±lmÄ±ÅŸ.");
 
             await _db.SubscriptionShares.AddAsync(new SubscriptionShare
             {
@@ -353,51 +376,76 @@ namespace SubGuard.Service.Services
             });
             await _unitOfWork.CommitAsync();
 
-            // Hedef kullanıcıya paylaşım bildirimi gönder
+            // Hedef kullanÄ±cÄ±ya paylaÅŸÄ±m bildirimi gÃ¶nder
             var owner = await _userManager.FindByIdAsync(ownerId);
-            var ownerName = owner?.FullName ?? owner?.Email ?? "Bir kullanıcı";
+            var ownerName = owner?.FullName ?? owner?.Email ?? "Bir kullanÄ±cÄ±";
             try
             {
                 await _notificationService.QueueShareNotificationAsync(targetUser.Id, id, entity.Name, ownerName);
             }
             catch (Exception ex)
             {
-                // Bildirim hatası paylaşım işlemini geri almasın
-                _logger.LogWarning(ex, "Paylaşım bildirimi kuyruğa eklenemedi. SubscriptionId: {Id}", id);
+                // Bildirim hatasÄ± paylaÅŸÄ±m iÅŸlemini geri almasÄ±n
+                _logger.LogWarning(ex, "PaylaÅŸÄ±m bildirimi kuyruÄŸa eklenemedi. SubscriptionId: {Id}", id);
             }
 
-            _logger.LogInformation("Abonelik paylaşıldı. SubscriptionId: {Id}, Hedef: {Email}", id, targetEmail);
+            _logger.LogInformation("Abonelik paylaÅŸÄ±ldÄ±. SubscriptionId: {Id}, Hedef: {Email}", id, targetEmail);
             return CustomResponseDto<bool>.Success(200, true);
         }
 
         public async Task<CustomResponseDto<bool>> ShareGuestAsync(int id, string ownerId, string displayName)
         {
             var entity = await _repo.GetByIdAsync(id);
-            if (entity == null) return CustomResponseDto<bool>.Fail(404, "Abonelik bulunamadı.");
-            if (entity.UserId != ownerId) return CustomResponseDto<bool>.Fail(403, "Bu aboneliği paylaşma yetkiniz yok.");
+            if (entity == null) return CustomResponseDto<bool>.Fail(404, "Abonelik bulunamadi.");
+            if (entity.UserId != ownerId) return CustomResponseDto<bool>.Fail(403, "Bu aboneligi paylasma yetkiniz yok.");
+
+            var trimmedName = displayName?.Trim();
+            if (string.IsNullOrWhiteSpace(trimmedName))
+                return CustomResponseDto<bool>.Fail(400, "Misafir ismi bos olamaz.");
+
+            var duplicateGuest = await _db.SubscriptionShares.AnyAsync(s =>
+                s.SubscriptionId == id &&
+                s.SharedUserId == null &&
+                s.DisplayName != null &&
+                s.DisplayName.ToLower() == trimmedName.ToLower());
+            if (duplicateGuest)
+                return CustomResponseDto<bool>.Fail(409, "Bu misafir zaten paylasim listesinde.");
 
             await _db.SubscriptionShares.AddAsync(new SubscriptionShare
             {
                 SubscriptionId = id,
                 SharedUserId = null,
-                DisplayName = displayName.Trim(),
+                DisplayName = trimmedName,
                 SharedAt = DateTime.UtcNow
             });
             await _unitOfWork.CommitAsync();
 
-            _logger.LogInformation("Üyesiz paylaşım eklendi. SubscriptionId: {Id}, İsim: {Name}", id, displayName);
+            _logger.LogInformation("Uyesiz paylasim eklendi. SubscriptionId: {Id}, Isim: {Name}", id, trimmedName);
             return CustomResponseDto<bool>.Success(200, true);
         }
 
         public async Task<CustomResponseDto<bool>> RemoveShareAsync(int id, string ownerId, string targetUserId)
         {
             var entity = await _repo.GetByIdAsync(id);
-            if (entity == null) return CustomResponseDto<bool>.Fail(404, "Abonelik bulunamadı.");
-            if (entity.UserId != ownerId) return CustomResponseDto<bool>.Fail(403, "Bu aboneliğe erişim yetkiniz yok.");
+            if (entity == null) return CustomResponseDto<bool>.Fail(404, "Abonelik bulunamadÄ±.");
+            if (entity.UserId != ownerId) return CustomResponseDto<bool>.Fail(403, "Bu aboneliÄŸe eriÅŸim yetkiniz yok.");
 
             var share = await _db.SubscriptionShares
                 .FirstOrDefaultAsync(s => s.SubscriptionId == id && s.SharedUserId == targetUserId);
-            if (share == null) return CustomResponseDto<bool>.Fail(404, "Bu kullanıcı paylaşım listesinde değil.");
+            if (share == null) return CustomResponseDto<bool>.Fail(404, "Bu kullanÄ±cÄ± paylaÅŸÄ±m listesinde deÄŸil.");
+
+            share.IsDeleted = true;
+            share.UpdatedDate = DateTime.UtcNow;
+            await _unitOfWork.CommitAsync();
+
+            return CustomResponseDto<bool>.Success(200, true);
+        }
+
+                public async Task<CustomResponseDto<bool>> LeaveSharedSubscriptionAsync(int id, string userId)
+        {
+            var share = await _db.SubscriptionShares
+                .FirstOrDefaultAsync(s => s.SubscriptionId == id && s.SharedUserId == userId);
+            if (share == null) return CustomResponseDto<bool>.Fail(404, "Bu paylasim bulunamadi.");
 
             share.IsDeleted = true;
             share.UpdatedDate = DateTime.UtcNow;
@@ -409,12 +457,12 @@ namespace SubGuard.Service.Services
         public async Task<CustomResponseDto<bool>> RemoveGuestShareAsync(int id, string ownerId, int shareId)
         {
             var entity = await _repo.GetByIdAsync(id);
-            if (entity == null) return CustomResponseDto<bool>.Fail(404, "Abonelik bulunamadı.");
-            if (entity.UserId != ownerId) return CustomResponseDto<bool>.Fail(403, "Bu aboneliğe erişim yetkiniz yok.");
+            if (entity == null) return CustomResponseDto<bool>.Fail(404, "Abonelik bulunamadÄ±.");
+            if (entity.UserId != ownerId) return CustomResponseDto<bool>.Fail(403, "Bu aboneliÄŸe eriÅŸim yetkiniz yok.");
 
             var share = await _db.SubscriptionShares
                 .FirstOrDefaultAsync(s => s.Id == shareId && s.SubscriptionId == id && s.SharedUserId == null);
-            if (share == null) return CustomResponseDto<bool>.Fail(404, "Misafir paylaşım bulunamadı.");
+            if (share == null) return CustomResponseDto<bool>.Fail(404, "Misafir paylaÅŸÄ±m bulunamadÄ±.");
 
             share.IsDeleted = true;
             share.UpdatedDate = DateTime.UtcNow;
@@ -425,12 +473,10 @@ namespace SubGuard.Service.Services
 
         public async Task<CustomResponseDto<PagedResponseDto<SharedWithMeItemDto>>> GetSharedWithMeAsync(string userId, int page, int pageSize)
         {
-            // T-3: SubscriptionShares tablosu sayesinde artık raw SQL + IgnoreQueryFilters yok.
             var baseQuery = _db.SubscriptionShares
-                .Where(s => s.SharedUserId == userId
-                         && !s.Subscription.IsDeleted
-                         && s.Subscription.IsActive)
+                .Where(s => s.SharedUserId == userId && !s.Subscription.IsDeleted)
                 .Include(s => s.Subscription).ThenInclude(sub => sub.Catalog)
+                .Include(s => s.Subscription).ThenInclude(sub => sub.Shares)
                 .OrderByDescending(s => s.SharedAt);
 
             var totalCount = await baseQuery.CountAsync();
@@ -439,7 +485,6 @@ namespace SubGuard.Service.Services
                 .Take(pageSize)
                 .ToListAsync();
 
-            // Owner bilgileri için unique userId'ler tek sorguda çözümleniyor (N+1 önlendi)
             var ownerIds = shares.Select(s => s.Subscription.UserId).Distinct().ToList();
             var ownerMap = await _userManager.Users
                 .Where(u => ownerIds.Contains(u.Id))
@@ -448,11 +493,11 @@ namespace SubGuard.Service.Services
             var items = shares.Select(s =>
             {
                 var dto = _mapper.Map<SharedWithMeItemDto>(s.Subscription);
-                dto.ColorCode  = ResolveColorCode(dto.ColorCode, s.Subscription.Catalog?.ColorCode);
-                dto.SharedAt   = s.SharedAt;
+                dto.ColorCode = ResolveColorCode(dto.ColorCode, s.Subscription.Catalog?.ColorCode);
+                dto.SharedAt = s.SharedAt;
                 if (ownerMap.TryGetValue(s.Subscription.UserId, out var owner))
                 {
-                    dto.OwnerEmail    = owner.Email ?? string.Empty;
+                    dto.OwnerEmail = owner.Email ?? string.Empty;
                     dto.OwnerFullName = owner.FullName ?? string.Empty;
                 }
                 return dto;
@@ -467,13 +512,13 @@ namespace SubGuard.Service.Services
             });
         }
 
-        // --- Kullanım Geçmişi ---
+        // --- KullanÄ±m GeÃ§miÅŸi ---
 
         private async Task<(UserSubscription? entity, CustomResponseDto<T>? error)> GetOwnedSubscription<T>(int id, string userId)
         {
             var entity = await _repo.GetByIdAsync(id);
-            if (entity == null) return (null, CustomResponseDto<T>.Fail(404, "Abonelik bulunamadı."));
-            if (entity.UserId != userId) return (null, CustomResponseDto<T>.Fail(403, "Bu aboneliğe erişim yetkiniz yok."));
+            if (entity == null) return (null, CustomResponseDto<T>.Fail(404, "Abonelik bulunamadÄ±."));
+            if (entity.UserId != userId) return (null, CustomResponseDto<T>.Fail(403, "Bu aboneliÄŸe eriÅŸim yetkiniz yok."));
             return (entity, null);
         }
 
@@ -533,13 +578,13 @@ namespace SubGuard.Service.Services
             if (error != null) return error;
 
             if (!int.TryParse(logId, out var logIdInt))
-                return CustomResponseDto<bool>.Fail(400, "Geçersiz log ID formatı.");
+                return CustomResponseDto<bool>.Fail(400, "GeÃ§ersiz log ID formatÄ±.");
 
             var log = await _db.SubscriptionUsageLogs
                 .FirstOrDefaultAsync(l => l.Id == logIdInt && l.SubscriptionId == id);
 
             if (log == null)
-                return CustomResponseDto<bool>.Fail(404, "Kullanım kaydı bulunamadı.");
+                return CustomResponseDto<bool>.Fail(404, "KullanÄ±m kaydÄ± bulunamadÄ±.");
 
             log.IsDeleted = true;
             log.UpdatedDate = DateTime.UtcNow;
@@ -548,8 +593,8 @@ namespace SubGuard.Service.Services
             return CustomResponseDto<bool>.Success(200, true);
         }
 
-        // --- Survey Geçmişi ---
-        // Toplu güncelleme: mevcut kayıtları siler, gelenlerle değiştirir.
+        // --- Survey GeÃ§miÅŸi ---
+        // Toplu gÃ¼ncelleme: mevcut kayÄ±tlarÄ± siler, gelenlerle deÄŸiÅŸtirir.
         public async Task<CustomResponseDto<bool>> UpdateSurveyHistoryAsync(int id, string userId, string usageHistoryJson)
         {
             var (_, error) = await GetOwnedSubscription<bool>(id, userId);
@@ -557,7 +602,7 @@ namespace SubGuard.Service.Services
 
             List<UsageLogDto> incoming;
             try { incoming = JsonSerializer.Deserialize<List<UsageLogDto>>(usageHistoryJson) ?? new(); }
-            catch { return CustomResponseDto<bool>.Fail(400, "Geçersiz kullanım geçmişi formatı."); }
+            catch { return CustomResponseDto<bool>.Fail(400, "GeÃ§ersiz kullanÄ±m geÃ§miÅŸi formatÄ±."); }
 
             await _unitOfWork.BeginTransactionAsync();
             try
@@ -590,19 +635,19 @@ namespace SubGuard.Service.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Kullanım geçmişi güncelleme hatası. SubscriptionId: {Id}", id);
+                _logger.LogError(ex, "KullanÄ±m geÃ§miÅŸi gÃ¼ncelleme hatasÄ±. SubscriptionId: {Id}", id);
                 await _unitOfWork.RollbackTransactionAsync();
                 throw;
             }
         }
 
-        // --- Fiyat Geçmişi ---
+        // --- Fiyat GeÃ§miÅŸi ---
 
         public async Task<CustomResponseDto<List<PriceHistoryDto>>> GetPriceHistoryAsync(int id, string userId)
         {
             var entity = await _repo.GetByIdAsync(id);
-            if (entity == null) return CustomResponseDto<List<PriceHistoryDto>>.Fail(404, "Abonelik bulunamadı.");
-            if (entity.UserId != userId) return CustomResponseDto<List<PriceHistoryDto>>.Fail(403, "Bu aboneliğe erişim yetkiniz yok.");
+            if (entity == null) return CustomResponseDto<List<PriceHistoryDto>>.Fail(404, "Abonelik bulunamadÄ±.");
+            if (entity.UserId != userId) return CustomResponseDto<List<PriceHistoryDto>>.Fail(403, "Bu aboneliÄŸe eriÅŸim yetkiniz yok.");
 
             var history = await _db.PriceHistories
                 .Where(h => h.SubscriptionId == id && h.UserId == userId)
@@ -626,7 +671,7 @@ namespace SubGuard.Service.Services
             var (source, error) = await GetOwnedSubscription<UserSubscriptionDto>(id, userId);
             if (error != null) return error;
 
-            // B-9: Benzersiz kopya adı bul — "(Kopya)", "(Kopya 2)", "(Kopya 3)" ...
+            // B-9: Benzersiz kopya adÄ± bul â€” "(Kopya)", "(Kopya 2)", "(Kopya 3)" ...
             var baseName = $"{source.Name} (Kopya)";
             var candidateName = baseName;
             var suffixIndex = 2;
@@ -641,7 +686,9 @@ namespace SubGuard.Service.Services
                 Price = source.Price,
                 Currency = source.Currency,
                 BillingDay = source.BillingDay,
+                BillingMonth = source.BillingMonth,
                 BillingPeriod = source.BillingPeriod,
+                FirstPaymentDate = source.FirstPaymentDate ?? source.ContractStartDate ?? DateTime.UtcNow.Date,
                 Category = source.Category,
                 ColorCode = source.ColorCode,
                 HasContract = false,
@@ -657,17 +704,17 @@ namespace SubGuard.Service.Services
             catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("duplicate") == true
                                                 || ex.InnerException?.Message.Contains("unique") == true)
             {
-                // Eş zamanlı istek aynı adı aldıysa 409 döndür
-                _logger.LogWarning(ex, "Klonlama sırasında unique constraint ihlali. SourceId: {SourceId}", id);
-                return CustomResponseDto<UserSubscriptionDto>.Fail(409, "Aynı isimde bir abonelik zaten mevcut. Lütfen tekrar deneyin.");
+                // EÅŸ zamanlÄ± istek aynÄ± adÄ± aldÄ±ysa 409 dÃ¶ndÃ¼r
+                _logger.LogWarning(ex, "Klonlama sÄ±rasÄ±nda unique constraint ihlali. SourceId: {SourceId}", id);
+                return CustomResponseDto<UserSubscriptionDto>.Fail(409, "AynÄ± isimde bir abonelik zaten mevcut. LÃ¼tfen tekrar deneyin.");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Abonelik klonlama hatası. SourceId: {SourceId}", id);
+                _logger.LogError(ex, "Abonelik klonlama hatasÄ±. SourceId: {SourceId}", id);
                 throw;
             }
 
-            _logger.LogInformation("Abonelik klonlandı. SourceId: {SourceId}, NewId: {NewId}", id, copy.Id);
+            _logger.LogInformation("Abonelik klonlandÄ±. SourceId: {SourceId}, NewId: {NewId}", id, copy.Id);
             return CustomResponseDto<UserSubscriptionDto>.Success(201, _mapper.Map<UserSubscriptionDto>(copy));
         }
     }

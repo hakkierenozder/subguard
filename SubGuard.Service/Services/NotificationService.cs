@@ -93,18 +93,10 @@ namespace SubGuard.Service.Services
 
                 // Kullanıcının tercih ettiği hatırlatma günü
                 var reminderDays = subUser.NotifReminderDays > 0 ? subUser.NotifReminderDays : 3;
-                var paymentDate = DateTime.UtcNow.AddDays(reminderDays);
-                var targetDay = paymentDate.Day;
+                var paymentDate = SubscriptionBillingHelper.GetNextBillingDate(sub, today);
+                var daysUntilPayment = (int)(paymentDate - today).TotalDays;
 
-                if (sub.BillingDay != targetDay) continue;
-
-                // B-3: Yıllık abonelikler için BillingMonth de kontrol edilir.
-                // BillingMonth null ise CreatedDate.Month anchor olarak kullanılır.
-                if (sub.BillingPeriod == BillingPeriod.Yearly)
-                {
-                    var billingMonth = sub.BillingMonth ?? sub.CreatedDate.Month;
-                    if (billingMonth != paymentDate.Month) continue;
-                }
+                if (daysUntilPayment != reminderDays) continue;
 
                 if (alreadyQueuedSet.Contains(sub.Id)) continue;
 
@@ -113,7 +105,7 @@ namespace SubGuard.Service.Services
                     UserId = sub.UserId,
                     UserSubscriptionId = sub.Id,
                     Title = "Ödeme Hatırlatması",
-                    Message = $"{sub.Name} aboneliğinizin ödemesi {reminderDays} gün sonra ({paymentDate:dd.MM.yyyy}). Tutar: {sub.Price} {sub.Currency}",
+                    Message = $"{sub.Name} aboneliğinizin ödemesi {daysUntilPayment} gün sonra ({paymentDate:dd.MM.yyyy}). Tutar: {sub.Price} {sub.Currency}",
                     // B-5: Gerçek ödeme tarihini yaz (today değil), böylece daysUntil hesabı doğru kalır
                     // ve aynı abonelik için farklı günlerde duplicate bildirim engellenir.
                     ScheduledDate = paymentDate.Date,
@@ -154,7 +146,7 @@ namespace SubGuard.Service.Services
             // N+1 FIX: Tüm kullanıcıların aktif aboneliklerini tek sorguda çek
             var allBudgetSubs = await _subscriptionRepo
                 .Where(x => budgetUserIds.Contains(x.UserId) && x.Status == SubscriptionStatus.Active)
-                .Select(x => new { x.UserId, x.Price, x.Currency, x.BillingPeriod })
+                .Select(x => new { x.UserId, x.Price, x.Currency, x.BillingPeriod, x.CreatedDate, x.FirstPaymentDate, x.ContractStartDate })
                 .ToListAsync();
 
             // N+1 FIX: Kurları döngü dışında tek seferinde çek
@@ -164,7 +156,9 @@ namespace SubGuard.Service.Services
             {
                 if (alreadyQueuedBudgetSet.Contains(user.Id)) continue;
 
-                var userSubs = allBudgetSubs.Where(s => s.UserId == user.Id);
+                var userSubs = allBudgetSubs.Where(s =>
+                    s.UserId == user.Id &&
+                    SubscriptionBillingHelper.HasStarted(s.CreatedDate, s.FirstPaymentDate, s.ContractStartDate, today));
                 var totalMonthly = userSubs.Sum(s =>
                     BillingPriceHelper.ConvertToTargetCurrency(
                         BillingPriceHelper.ToMonthlyEquivalent(s.Price, s.BillingPeriod),
@@ -217,7 +211,7 @@ namespace SubGuard.Service.Services
             // N+1 FIX: Tüm aktif abonelikleri tek sorguda çek
             var allCatSubs = await _subscriptionRepo
                 .Where(s => usersWithCategoryBudgets.Contains(s.UserId) && s.Status == SubscriptionStatus.Active)
-                .Select(s => new { s.UserId, s.Category, s.Price, s.Currency, s.BillingPeriod })
+                .Select(s => new { s.UserId, s.Category, s.Price, s.Currency, s.BillingPeriod, s.CreatedDate, s.FirstPaymentDate, s.ContractStartDate })
                 .ToListAsync();
 
             // N+1 FIX: Kurları tek seferinde çek (döngü dışı)
@@ -249,7 +243,11 @@ namespace SubGuard.Service.Services
                 var currency = user.MonthlyBudgetCurrency;
 
                 var catBudgets = allCatBudgets.Where(b => b.UserId == userId).ToList();
-                var userSubs   = allCatSubs.Where(s => s.UserId == userId).ToList();
+                var userSubs   = allCatSubs
+                    .Where(s =>
+                        s.UserId == userId &&
+                        SubscriptionBillingHelper.HasStarted(s.CreatedDate, s.FirstPaymentDate, s.ContractStartDate, today))
+                    .ToList();
 
                 var spendingByCategory = userSubs
                     .GroupBy(s => s.Category)
@@ -651,24 +649,8 @@ namespace SubGuard.Service.Services
                 return CustomResponseDto<bool>.Fail(404, "Kullanıcı bulunamadı.");
 
             // B-3: Aboneliğin sonraki ödeme tarihine kaç gün kaldığını hesapla
-            // Yıllık abonelikler için BillingMonth anchor'u kullanılıyor.
             var today = DateTime.UtcNow.Date;
-            DateTime nextBilling;
-            if (sub.BillingPeriod == BillingPeriod.Yearly)
-            {
-                var billingMonth = sub.BillingMonth ?? sub.CreatedDate.Month;
-                var safeDay = Math.Min(sub.BillingDay, DateTime.DaysInMonth(today.Year, billingMonth));
-                nextBilling = new DateTime(today.Year, billingMonth, safeDay);
-                if (nextBilling < today)
-                    nextBilling = nextBilling.AddYears(1);
-            }
-            else
-            {
-                var clampedDay = Math.Min(sub.BillingDay, DateTime.DaysInMonth(today.Year, today.Month));
-                nextBilling = new DateTime(today.Year, today.Month, clampedDay);
-                if (nextBilling < today)
-                    nextBilling = nextBilling.AddMonths(1);
-            }
+            var nextBilling = SubscriptionBillingHelper.GetNextBillingDate(sub, today);
             int daysUntil = (int)(nextBilling - today).TotalDays;
 
             // Bildirim kuyruğuna ekle (manuel — ScheduledDate = şu an)

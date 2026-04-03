@@ -28,10 +28,9 @@ namespace SubGuard.Service.Services
         public async Task<CustomResponseDto<DashboardDto>> GetDashboardAsync(string userId, int upcomingDays = 30)
         {
             var baseQuery = _repo.Where(x => x.UserId == userId && x.IsActive);
+            var today = DateTime.UtcNow.Date;
 
             // Tüm aggregation'lar DB'de yapılıyor — RAM'e tam liste yüklenmiyor
-
-            var activeCount = await baseQuery.CountAsync();
 
             // Pasif abonelik sayıları (IsActive false olanlar)
             var inactiveQuery = _repo.Where(x => x.UserId == userId && !x.IsActive);
@@ -46,11 +45,27 @@ namespace SubGuard.Service.Services
                     x.Id, x.Name, x.Price, x.Currency, x.BillingDay,
                     x.ColorCode, x.BillingPeriod, x.Category,
                     // B-2: BillingMonth eklendi — yıllık ödeme ayı doğru anchor'lanıyor
-                    x.BillingMonth, x.CreatedDate, x.ContractStartDate, x.Notes
+                    x.BillingMonth, x.CreatedDate, x.FirstPaymentDate, x.ContractStartDate, x.Notes
                 })
                 .ToListAsync();
 
-            var totalByCurrency = allSubData
+            var startedSubs = allSubData
+                .Where(x => SubscriptionBillingHelper.HasStarted(
+                    x.CreatedDate,
+                    x.FirstPaymentDate,
+                    x.ContractStartDate,
+                    today))
+                .ToList();
+
+            var pendingSubs = allSubData
+                .Where(x => !SubscriptionBillingHelper.HasStarted(
+                    x.CreatedDate,
+                    x.FirstPaymentDate,
+                    x.ContractStartDate,
+                    today))
+                .ToList();
+
+            var totalByCurrency = startedSubs
                 .GroupBy(x => x.Currency)
                 .Select(g => new CurrencyTotalDto
                 {
@@ -60,7 +75,7 @@ namespace SubGuard.Service.Services
                 .OrderByDescending(x => x.Total)
                 .ToList();
 
-            var spendingByCategory = allSubData
+            var spendingByCategory = startedSubs
                 .GroupBy(x => new { x.Category, x.Currency })
                 .Select(g => new CategorySpendingDto
                 {
@@ -76,13 +91,12 @@ namespace SubGuard.Service.Services
             var paymentProjections = allSubData
                 .Select(x => new SubscriptionPaymentData(
                     x.Id, x.Name, x.Price, x.Currency, x.BillingDay, x.ColorCode,
-                    x.BillingPeriod, x.BillingMonth, x.CreatedDate, x.ContractStartDate, x.Notes))
+                    x.BillingPeriod, x.BillingMonth, x.CreatedDate, x.FirstPaymentDate, x.ContractStartDate, x.Notes))
                 .ToList();
 
-            var today = DateTime.UtcNow;
             var upcomingPayments = CalcUpcomingPayments(paymentProjections, today, upcomingDays);
 
-            var budgetCalcItems = allSubData
+            var budgetCalcItems = startedSubs
                 .Select(x => new BudgetCalcItem(x.Price, x.Currency, x.BillingPeriod))
                 .ToList();
 
@@ -90,9 +104,12 @@ namespace SubGuard.Service.Services
 
             var dashboard = new DashboardDto
             {
-                ActiveSubscriptionCount = activeCount,
+                ActiveSubscriptionCount = startedSubs.Count,
+                PendingSubscriptionCount = pendingSubs.Count,
                 PausedCount    = pausedCount,
                 CancelledCount = cancelledCount,
+                StartedMonthlyEquivalentTotal = startedSubs.Sum(x => BillingPriceHelper.ToMonthlyEquivalent(x.Price, x.BillingPeriod)),
+                PendingMonthlyEquivalentTotal = pendingSubs.Sum(x => BillingPriceHelper.ToMonthlyEquivalent(x.Price, x.BillingPeriod)),
                 TotalByCurrency = totalByCurrency,
                 SpendingByCategory = spendingByCategory,
                 UpcomingPayments = upcomingPayments,
@@ -136,46 +153,14 @@ namespace SubGuard.Service.Services
 
             foreach (var sub in subs)
             {
-                DateTime nextBilling;
-
-                if (sub.BillingPeriod == BillingPeriod.Yearly)
-                {
-                    // B-2: Yıllık abonelik: ödeme ayını BillingMonth'dan, yoksa CreatedDate'den al
-                    var billingMonth = sub.BillingMonth ?? sub.CreatedDate.Month;
-
-                    var thisYearDate = new DateTime(
-                        todayDate.Year, billingMonth,
-                        Math.Min(sub.BillingDay, DateTime.DaysInMonth(todayDate.Year, billingMonth)));
-
-                    if (thisYearDate >= todayDate)
-                    {
-                        nextBilling = thisYearDate;
-                    }
-                    else
-                    {
-                        int nextYear = todayDate.Year + 1;
-                        nextBilling = new DateTime(
-                            nextYear, billingMonth,
-                            Math.Min(sub.BillingDay, DateTime.DaysInMonth(nextYear, billingMonth)));
-                    }
-                }
-                else
-                {
-                    // Aylık abonelik: bir sonraki BillingDay tarihini hesapla
-                    int clampedThisMonth = Math.Min(sub.BillingDay, DateTime.DaysInMonth(todayDate.Year, todayDate.Month));
-
-                    if (clampedThisMonth >= todayDate.Day)
-                    {
-                        nextBilling = new DateTime(todayDate.Year, todayDate.Month, clampedThisMonth);
-                    }
-                    else
-                    {
-                        int nextMonth = todayDate.Month == 12 ? 1 : todayDate.Month + 1;
-                        int nextYear  = todayDate.Month == 12 ? todayDate.Year + 1 : todayDate.Year;
-                        int clampedNextMonth = Math.Min(sub.BillingDay, DateTime.DaysInMonth(nextYear, nextMonth));
-                        nextBilling = new DateTime(nextYear, nextMonth, clampedNextMonth);
-                    }
-                }
+                var nextBilling = SubscriptionBillingHelper.GetNextBillingDate(
+                    sub.BillingPeriod,
+                    sub.BillingDay,
+                    sub.BillingMonth,
+                    sub.CreatedDate,
+                    sub.FirstPaymentDate,
+                    sub.ContractStartDate,
+                    todayDate);
 
                 int daysUntil = (int)(nextBilling - todayDate).TotalDays;
 
@@ -205,6 +190,6 @@ namespace SubGuard.Service.Services
         // UpcomingPayments hesabı için gerekli alanları taşır
         private record SubscriptionPaymentData(
             int Id, string Name, decimal Price, string Currency, int BillingDay, string? ColorCode,
-            BillingPeriod BillingPeriod, int? BillingMonth, DateTime CreatedDate, DateTime? ContractStartDate, string? Notes);
+            BillingPeriod BillingPeriod, int? BillingMonth, DateTime CreatedDate, DateTime? FirstPaymentDate, DateTime? ContractStartDate, string? Notes);
     }
 }

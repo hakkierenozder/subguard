@@ -3,6 +3,8 @@ import { View, Text, Dimensions, StyleSheet, TouchableOpacity } from 'react-nati
 import { PieChart } from 'react-native-chart-kit';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import { useThemeColors, CATEGORY_COLORS } from '../constants/theme';
+import { isSubscriptionActiveNow } from '../utils/dateUtils';
+import { getSubscriptionMonthlyShareInTry } from '../utils/subscriptionMath';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -27,16 +29,11 @@ export default function ExpenseChart({ onCategoryPress, selectedCategory }: Prop
   //   • Bilinmeyen kur → 0 (grafikten hariç tut; 1 yazmak yanlış dönüşüm üretir)
   const categoryTotals: Record<string, number> = {};
   subscriptions
-    .filter(s => s.isActive !== false)
+    .filter(s => isSubscriptionActiveNow(s.isActive, s.firstPaymentDate, s.contractStartDate, new Date(), s.createdDate))
     .forEach(sub => {
       const cat = sub.category || 'Diğer';
-      const rate = sub.currency === 'TRY'
-        ? 1
-        : (exchangeRates[sub.currency] ?? 0);
-      if (rate === 0) return; // Bilinmeyen kur → bu aboneliği grafikten hariç tut
-      const amountInTry = sub.price * rate;
-      const partnerCount = (sub.sharedWith?.length || 0) + (sub.sharedGuests?.length || 0);
-      const myShare = amountInTry / (partnerCount + 1);
+      const myShare = getSubscriptionMonthlyShareInTry(sub, exchangeRates, { unknownRateAsZero: true });
+      if (myShare === 0) return; // Bilinmeyen kur → bu aboneliği grafikten hariç tut
       categoryTotals[cat] = (categoryTotals[cat] || 0) + myShare;
     });
 
