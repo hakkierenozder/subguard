@@ -16,6 +16,7 @@ import { useSettingsStore } from '../store/useSettingsStore';
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { convertToTRY } from '../utils/CurrencyService';
+import { getDaysLeftForSub } from '../utils/dateUtils';
 import { useThemeColors } from '../constants/theme';
 import { useCatalogStore } from '../store/useCatalogStore';
 import agent from '../api/agent';
@@ -188,21 +189,36 @@ export default function MySubscriptionsScreen() {
     setRefreshing(false);
   }, []);
 
-  const getNextPaymentDateText = (billingDay: number) => {
+  const getNextPaymentDateText = (billingDay: number, contractStartDate?: string | null): string => {
+    const todayMidnight = new Date();
+    todayMidnight.setHours(0, 0, 0, 0);
+
+    // İlk ödeme tarihi gelecekteyse → o tarihe kalan gün / tarih formatı
+    if (contractStartDate) {
+      const start = new Date(contractStartDate);
+      start.setHours(0, 0, 0, 0);
+      if (start > todayMidnight) {
+        const diffDays = Math.round((start.getTime() - todayMidnight.getTime()) / 86400000);
+        if (diffDays === 1) return 'Yarın başlıyor';
+        if (diffDays <= 30) return `${diffDays} günde başlıyor`;
+        return start.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+      }
+    }
+
+    // Normal hesaplama — billingDay üzerinden
     const today = new Date();
     const currentDay = today.getDate();
-    
-    if (billingDay === currentDay) return "Bugün";
-    if (billingDay === currentDay + 1) return "Yarın";
-    
+
+    if (billingDay === currentDay) return 'Bugün';
+    if (billingDay === currentDay + 1) return 'Yarın';
+
     let targetDate = new Date(today.getFullYear(), today.getMonth(), billingDay);
     if (currentDay > billingDay) {
-        targetDate = new Date(today.getFullYear(), today.getMonth() + 1, billingDay);
+      targetDate = new Date(today.getFullYear(), today.getMonth() + 1, billingDay);
     }
-    
+
     const diffTime = Math.abs(targetDate.getTime() - today.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-    
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return `${diffDays} gün kaldı`;
   };
 
@@ -255,10 +271,9 @@ export default function MySubscriptionsScreen() {
     return filtered.sort((a, b) => {
       switch (sortBy) {
         case 'date':
-           const today = new Date().getDate();
-           const valA = a.billingDay < today ? a.billingDay + 30 : a.billingDay;
-           const valB = b.billingDay < today ? b.billingDay + 30 : b.billingDay;
-           return valA - valB;
+           // getDaysLeftForSub: billingPeriod, yıllık ayı ve gelecek başlangıç tarihini dikkate alır
+           return getDaysLeftForSub(a.billingDay, a.billingPeriod, a.billingMonth, a.createdDate, a.contractStartDate)
+                - getDaysLeftForSub(b.billingDay, b.billingPeriod, b.billingMonth, b.createdDate, b.contractStartDate);
         case 'price_desc':
           return convertToTRY(b.price, b.currency) - convertToTRY(a.price, a.currency);
         case 'price_asc':
@@ -720,7 +735,7 @@ export default function MySubscriptionsScreen() {
 
     const sub = item as UserSubscription & { _type: 'item' };
     const brandColor = sub.colorCode || colors.primary;
-    const nextPaymentText = getNextPaymentDateText(sub.billingDay);
+    const nextPaymentText = getNextPaymentDateText(sub.billingDay, sub.contractStartDate);
     const isPassive = sub.isActive === false;
 
     const currentRate = exchangeRates[sub.currency] || 1;

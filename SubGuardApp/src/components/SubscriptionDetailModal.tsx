@@ -210,6 +210,20 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
     const myShare = totalCost / (partnersCount + 1);
 
     const getBillingData = () => {
+        const todayMidnight = new Date();
+        todayMidnight.setHours(0, 0, 0, 0);
+
+        // İlk ödeme tarihi gelecekteyse → o tarihi doğrudan döndür (yıl dahil doğru tarih)
+        if (subscription.contractStartDate) {
+            const start = new Date(subscription.contractStartDate);
+            start.setHours(0, 0, 0, 0);
+            if (start > todayMidnight) {
+                const daysLeft = Math.round((start.getTime() - todayMidnight.getTime()) / 86400000);
+                return { nextDate: start, daysLeft };
+            }
+        }
+
+        // Abonelik başlamış → billingDay üzerinden normal hesaplama
         const today = new Date();
         const billingDay = subscription.billingDay;
         const safeDay = (billingDay > 0 && billingDay <= 31) ? billingDay : 1;
@@ -218,12 +232,12 @@ export default function SubscriptionDetailModal({ visible, subscription: initial
         const thisMonth = today.getMonth();
         const thisYear = today.getFullYear();
         let nextDate = new Date(thisYear, thisMonth, clampToMonth(thisYear, thisMonth, safeDay));
-        if (nextDate <= today) {
+        if (nextDate <= todayMidnight) {
             const nextMonth = thisMonth === 11 ? 0 : thisMonth + 1;
             const nextYear  = thisMonth === 11 ? thisYear + 1 : thisYear;
             nextDate = new Date(nextYear, nextMonth, clampToMonth(nextYear, nextMonth, safeDay));
         }
-        const diffTime = Math.abs(nextDate.getTime() - today.getTime());
+        const diffTime = Math.abs(nextDate.getTime() - todayMidnight.getTime());
         const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return { nextDate, daysLeft };
     };

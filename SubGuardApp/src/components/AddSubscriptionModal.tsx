@@ -273,7 +273,12 @@ export default function AddSubscriptionModal({ visible, onClose, onSaved, select
       sharedWith: showShareInput ? memberEmails : [],
       sharedGuests: showShareInput ? guestNames : [],
       hasContract,
-      contractStartDate: hasContract ? startDate.toISOString() : undefined,
+      // contractStartDate iki amaca hizmet eder:
+      // 1) hasContract=true → kullanıcının girdiği sözleşme başlangıç tarihi
+      // 2) hasContract=false → billingDate (seçilen ilk ödeme tarihi, YIL dahil)
+      //    Bu sayede "3 Nisan 2027" gibi gelecek tarihler backend'de korunur
+      //    ve tüm hesaplamalar (getDaysLeftForSub vb.) doğru çalışır.
+      contractStartDate: hasContract ? startDate.toISOString() : billingDate.toISOString(),
       contractEndDate: hasContract ? endDate.toISOString() : undefined,
       notes: notes.trim() || undefined,
     };

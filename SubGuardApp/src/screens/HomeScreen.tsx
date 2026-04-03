@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl, StatusBar, TouchableOpacity, Animated, Easing, Platform, Image, Modal } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, StatusBar, TouchableOpacity, Animated, Easing, Platform, Image, Modal, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -67,6 +67,7 @@ export default function HomeScreen() {
     const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
 
     const [refreshing, setRefreshing] = useState(false);
+    const [retrying, setRetrying] = useState(false);
     const [surveySub, setSurveySub] = useState<UserSubscription | null>(null);
     const [inactiveStats, setInactiveStats] = useState({ paused: 0, cancelled: 0 });
     const [error, setError] = useState(false); // [29] hata durumu
@@ -176,11 +177,14 @@ export default function HomeScreen() {
 
     const sortedPayments = [...subscriptions]
         .filter(sub => sub.isActive !== false)
-        .sort((a, b) => getDaysLeftForSub(a.billingDay, a.billingPeriod, a.billingMonth, a.createdDate) - getDaysLeftForSub(b.billingDay, b.billingPeriod, b.billingMonth, b.createdDate));
+        .sort((a, b) =>
+            getDaysLeftForSub(a.billingDay, a.billingPeriod, a.billingMonth, a.createdDate, a.contractStartDate)
+            - getDaysLeftForSub(b.billingDay, b.billingPeriod, b.billingMonth, b.createdDate, b.contractStartDate)
+        );
 
-    const thisWeekPayments  = sortedPayments.filter(s => getDaysLeftForSub(s.billingDay, s.billingPeriod, s.billingMonth, s.createdDate) <= 7);
+    const thisWeekPayments  = sortedPayments.filter(s => getDaysLeftForSub(s.billingDay, s.billingPeriod, s.billingMonth, s.createdDate, s.contractStartDate) <= 7);
     const thisMonthPayments = sortedPayments.filter(s => {
-        const d = getDaysLeftForSub(s.billingDay, s.billingPeriod, s.billingMonth, s.createdDate);
+        const d = getDaysLeftForSub(s.billingDay, s.billingPeriod, s.billingMonth, s.createdDate, s.contractStartDate);
         return d > 7 && d <= 30;
     });
 
@@ -226,18 +230,24 @@ export default function HomeScreen() {
             {/* [29] Hata durumu banner */}
             {error && (
                 <TouchableOpacity
-                    onPress={loadData}
+                    onPress={async () => { setRetrying(true); await loadData(); setRetrying(false); }}
                     style={{ backgroundColor: colors.error + '22', padding: 10, marginHorizontal: 16, marginTop: 8, borderRadius: 10, flexDirection: 'row', alignItems: 'center', gap: 8 }}
                     activeOpacity={0.8}
+                    disabled={retrying}
                 >
-                    <Ionicons name="alert-circle-outline" size={18} color={colors.error} />
-                    <Text style={{ color: colors.error, fontSize: 13, flex: 1 }}>Veriler yüklenemedi. Tekrar denemek için dokun.</Text>
+                    {retrying
+                        ? <ActivityIndicator size="small" color={colors.error} />
+                        : <Ionicons name="alert-circle-outline" size={18} color={colors.error} />
+                    }
+                    <Text style={{ color: colors.error, fontSize: 13, flex: 1 }}>
+                        {retrying ? 'Yeniden yükleniyor...' : 'Veriler yüklenemedi. Tekrar denemek için dokun.'}
+                    </Text>
                 </TouchableOpacity>
             )}
 
             <ScrollView
                 contentContainerStyle={styles.scrollContent}
-                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />}
                 showsVerticalScrollIndicator={false}
             >
                 {/* 1. HEADER */}
@@ -272,9 +282,17 @@ export default function HomeScreen() {
                             )}
                         </TouchableOpacity>
                         {/* Avatar */}
-                        <View style={[styles.avatar, { backgroundColor: colors.inputBg }]}>
-                            <Text style={[styles.avatarText, { color: colors.primary }]}>{userName?.charAt(0).toUpperCase()}</Text>
-                        </View>
+                        <TouchableOpacity
+                            style={[styles.avatar, { backgroundColor: colors.inputBg }]}
+                            onPress={() => (navigation as any).navigate('Settings')}
+                            activeOpacity={0.7}
+                        >
+                            <Text style={[styles.avatarText, { color: colors.accent }]}>
+                                {userName
+                                    ? userName.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase()
+                                    : 'K'}
+                            </Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
 
@@ -304,10 +322,14 @@ export default function HomeScreen() {
                                     </View>
                                 )}
                                 {thisWeekPayments.length > 0 && (
-                                    <View style={[styles.dashCountBadge, { backgroundColor: 'rgba(249,115,22,0.35)' }]}>
+                                    <TouchableOpacity
+                                        style={[styles.dashCountBadge, { backgroundColor: 'rgba(249,115,22,0.35)' }]}
+                                        onPress={() => navigation.navigate('Calendar')}
+                                        activeOpacity={0.75}
+                                    >
                                         <Ionicons name="alarm-outline" size={11} color="rgba(255,255,255,0.95)" />
                                         <Text style={styles.dashCountText}>{thisWeekPayments.length} bu hafta</Text>
-                                    </View>
+                                    </TouchableOpacity>
                                 )}
                                 {inactiveStats.paused > 0 && (
                                     <View style={[styles.dashCountBadge, { backgroundColor: 'rgba(251,191,36,0.35)' }]}>
@@ -331,8 +353,8 @@ export default function HomeScreen() {
                             {monthlyBudget > 0 && (
                                 <Text style={styles.budgetRemain}>
                                     {isOverBudget
-                                        ? `+${(totalExpense - monthlyBudget).toFixed(0)} ₺ aşım`
-                                        : `${(monthlyBudget - totalExpense).toFixed(0)} ₺ kaldı`}
+                                        ? `+₺${(totalExpense - monthlyBudget).toFixed(0)} aşım`
+                                        : `₺${(monthlyBudget - totalExpense).toFixed(0)} kaldı`}
                                 </Text>
                             )}
                         </View>
@@ -407,8 +429,8 @@ export default function HomeScreen() {
                                         ₺{thisWeekTotal.toFixed(2)}
                                     </Text>
                                 </View>
-                                {thisWeekPayments.map((item, idx) => {
-                                    const daysLeft = getDaysLeftForSub(item.billingDay, item.billingPeriod, item.billingMonth, item.createdDate);
+                                {thisWeekPayments.slice(0, 4).map((item, idx) => {
+                                    const daysLeft = getDaysLeftForSub(item.billingDay, item.billingPeriod, item.billingMonth, item.createdDate, item.contractStartDate);
                                     const urgencyColor = daysLeft <= 2 ? colors.error : colors.orange;
                                     const urgencyBg   = daysLeft <= 2 ? (colors.error + '20') : (colors.orange + '20');
                                     const urgencyLabel = daysLeft === 0 ? 'Bugün!' : daysLeft === 1 ? 'Yarın!' : `${daysLeft} gün`;
@@ -456,9 +478,12 @@ export default function HomeScreen() {
                                                     )}
                                                 </View>
                                                 {!!item.notes && (
-                                                    <Text style={[styles.upRowCycle, { color: colors.textSec, fontSize: 10, marginTop: 2 }]} numberOfLines={1}>
-                                                        📝 {item.notes}
-                                                    </Text>
+                                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                                                        <Ionicons name="document-text-outline" size={10} color={colors.textSec} />
+                                                        <Text style={[styles.upRowCycle, { color: colors.textSec, fontSize: 10 }]} numberOfLines={1}>
+                                                            {item.notes}
+                                                        </Text>
+                                                    </View>
                                                 )}
                                             </View>
                                             <View style={{ alignItems: 'flex-end' }}>
@@ -482,6 +507,16 @@ export default function HomeScreen() {
                                         </Animated.View>
                                     );
                                 })}
+                                {thisWeekPayments.length > 4 && (
+                                    <TouchableOpacity
+                                        style={[styles.upMoreBtn, { borderColor: colors.border }]}
+                                        onPress={() => navigation.navigate('Calendar')}
+                                    >
+                                        <Text style={[styles.upMoreText, { color: colors.textSec }]}>
+                                            +{thisWeekPayments.length - 4} daha  →
+                                        </Text>
+                                    </TouchableOpacity>
+                                )}
                             </>
                         )}
 
@@ -497,7 +532,7 @@ export default function HomeScreen() {
                                     </Text>
                                 </View>
                                 {thisMonthPayments.slice(0, 4).map((item, idx) => {
-                                    const daysLeft = getDaysLeftForSub(item.billingDay, item.billingPeriod, item.billingMonth, item.createdDate);
+                                    const daysLeft = getDaysLeftForSub(item.billingDay, item.billingPeriod, item.billingMonth, item.createdDate, item.contractStartDate);
                                     const animIdx = thisWeekPayments.length + idx;
                                     const anim = getCardAnim(animIdx);
                                     const itemColor = item.colorCode || colors.primary;
@@ -542,9 +577,12 @@ export default function HomeScreen() {
                                                     )}
                                                 </View>
                                                 {!!item.notes && (
-                                                    <Text style={[styles.upRowCycle, { color: colors.textSec, fontSize: 10, marginTop: 2 }]} numberOfLines={1}>
-                                                        📝 {item.notes}
-                                                    </Text>
+                                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                                                        <Ionicons name="document-text-outline" size={10} color={colors.textSec} />
+                                                        <Text style={[styles.upRowCycle, { color: colors.textSec, fontSize: 10 }]} numberOfLines={1}>
+                                                            {item.notes}
+                                                        </Text>
+                                                    </View>
                                                 )}
                                             </View>
                                             <View style={{ alignItems: 'flex-end' }}>
@@ -619,7 +657,7 @@ export default function HomeScreen() {
                         activeOpacity={0.8}
                     >
                         <LinearGradient
-                            colors={[colors.accent, colors.primary]}
+                            colors={['#4F46E5', '#6D28D9']}
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 1 }}
                             style={styles.bottomSheetOptionIcon}
@@ -641,8 +679,8 @@ export default function HomeScreen() {
                         }}
                         activeOpacity={0.8}
                     >
-                        <View style={[styles.bottomSheetOptionIcon, { backgroundColor: colors.primary + '22' }]}>
-                            <Ionicons name="create-outline" size={22} color={colors.primary} />
+                        <View style={[styles.bottomSheetOptionIcon, { backgroundColor: colors.accent + '22' }]}>
+                            <Ionicons name="create-outline" size={22} color={colors.accent} />
                         </View>
                         <View style={{ flex: 1 }}>
                             <Text style={[styles.bottomSheetOptionTitle, { color: colors.textMain }]}>Kendin Oluştur</Text>

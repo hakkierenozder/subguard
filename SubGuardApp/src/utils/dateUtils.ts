@@ -58,8 +58,30 @@ export function getYearlyDaysLeft(billingDay: number, billingMonth?: number | nu
 /**
  * UserSubscription için doğru getDaysLeft — billingPeriod'u dikkate alır.
  * B-4: billingMonth parametresi yıllık abonelikler için ödeme ayı anchor'u.
+ *
+ * contractStartDate: İlk ödeme tarihinin tam ISO string'i (yıl dahil).
+ * Eğer gelecekte bir tarihse, o tarihe kaç gün kaldığını döndürür.
+ * Bu sayede "3 Nisan 2027'de başlayacak" abonelik bugün yaklaşan ödemelerde görünmez.
  */
-export function getDaysLeftForSub(billingDay: number, billingPeriod?: string, billingMonth?: number | null, createdDate?: string): number {
+export function getDaysLeftForSub(
+  billingDay: number,
+  billingPeriod?: string,
+  billingMonth?: number | null,
+  createdDate?: string,
+  contractStartDate?: string,
+): number {
+  // İlk ödeme tarihi gelecekteyse → o tarihe kalan gün sayısını döndür
+  if (contractStartDate) {
+    const start = new Date(contractStartDate);
+    const todayMidnight = new Date();
+    todayMidnight.setHours(0, 0, 0, 0);
+    start.setHours(0, 0, 0, 0);
+    if (start > todayMidnight) {
+      return Math.round((start.getTime() - todayMidnight.getTime()) / 86400000);
+    }
+  }
+
+  // Abonelik başlamışsa normal hesaplama
   if (billingPeriod === 'Yearly') {
     return getYearlyDaysLeft(billingDay, billingMonth, createdDate);
   }
