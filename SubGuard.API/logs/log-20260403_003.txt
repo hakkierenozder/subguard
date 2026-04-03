@@ -1,0 +1,864 @@
+2026-04-03 18:38:57.848 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-04-03 18:38:59.056 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-04-03 18:38:59.071 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-04-03 18:38:59.367 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonlandı (Host Terminated).
+System.IO.IOException: Failed to bind to address http://0.0.0.0:5046: address already in use.
+ ---> Microsoft.AspNetCore.Connections.AddressInUseException: Normal olarak her yuva adresi (iletişim kuralı/ağ adresi/bağlantı noktası) için yalnızca bir kullanıma izin veriliyor.
+ ---> System.Net.Sockets.SocketException (10048): Normal olarak her yuva adresi (iletişim kuralı/ağ adresi/bağlantı noktası) için yalnızca bir kullanıma izin veriliyor.
+   at System.Net.Sockets.Socket.UpdateStatusAfterSocketErrorAndThrowException(SocketError error, Boolean disconnectOnFailure, String callerName)
+   at System.Net.Sockets.Socket.DoBind(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Bind(EndPoint localEP)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportOptions.CreateDefaultBoundListenSocket(EndPoint endpoint)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportFactory.BindAsync(EndPoint endpoint, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure.TransportManager.BindAsync(EndPoint endPoint, ConnectionDelegate connectionDelegate, EndpointConfig endpointConfig, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.<>c__DisplayClass30_0`1.<<StartAsync>g__OnBind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.ListenOptions.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.AddressesStrategy.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindAsync(IEnumerable`1 listenOptions, AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.BindAsync(CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.StartAsync[TContext](IHttpApplication`1 application, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Run(IHost host)
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 462
+2026-04-03 18:39:14.320 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-04-03 18:39:15.504 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-04-03 18:39:15.519 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-04-03 18:39:15.798 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-04-03 18:39:15.799 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-04-03 18:39:15.800 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-04-03 18:39:15.800 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-04-03 18:39:15.801 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-04-03 18:39:15.801 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-04-03 18:39:15.818 +03:00 [INF] [User: ] Server desktop-25vqrpg:36012:024448ad successfully announced in 8,8249 ms
+2026-04-03 18:39:15.820 +03:00 [INF] [User: ] Server desktop-25vqrpg:36012:024448ad is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-04-03 18:39:15.824 +03:00 [INF] [User: ] Server desktop-25vqrpg:36012:024448ad all the dispatchers started
+2026-04-03 18:39:19.023 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-04-03 18:39:19.287 +03:00 [INF] [User: Test] Güncel kurlar çekiliyor...
+2026-04-03 18:39:19.318 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 304.5759 ms
+2026-04-03 18:39:19.914 +03:00 [INF] [User: Test] Kurlar güncellendi: {"USD":44.495,"EUR":51.2795,"GBP":58.772}
+2026-04-03 18:39:19.932 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 919.0522 ms
+2026-04-03 18:39:20.177 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 16.6567 ms
+2026-04-03 18:39:20.413 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 252.9382 ms
+2026-04-03 18:39:25.006 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 4.9549 ms
+2026-04-03 18:39:25.012 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 10.8034 ms
+2026-04-03 18:43:02.867 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 4.6144 ms
+2026-04-03 18:43:02.872 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 10.2322 ms
+2026-04-03 18:43:02.874 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.2661 ms
+2026-04-03 18:43:02.914 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 51.5172 ms
+2026-04-03 18:43:02.918 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 56.1862 ms
+2026-04-03 18:43:02.980 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2943 ms
+2026-04-03 18:43:03.111 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 12.2552 ms
+2026-04-03 18:43:03.117 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.8694 ms
+2026-04-03 18:43:04.966 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.5705 ms
+2026-04-03 18:43:04.968 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.7920 ms
+2026-04-03 18:43:06.545 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/137/price-history responded 200 in 20.5283 ms
+2026-04-03 18:43:06.551 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/137/usage responded 200 in 31.0125 ms
+2026-04-03 18:43:33.508 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/143/price-history responded 200 in 5.5424 ms
+2026-04-03 18:43:33.508 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/143/usage responded 200 in 6.2896 ms
+2026-04-03 18:43:39.006 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.5086 ms
+2026-04-03 18:43:39.010 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.6258 ms
+2026-04-03 18:43:39.255 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.2869 ms
+2026-04-03 18:43:39.259 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.0993 ms
+2026-04-03 18:43:58.002 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.5883 ms
+2026-04-03 18:43:58.003 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 4.3629 ms
+2026-04-03 18:43:58.005 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.1928 ms
+2026-04-03 18:43:58.005 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.0400 ms
+2026-04-03 18:43:58.006 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.2372 ms
+2026-04-03 18:43:58.193 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.2943 ms
+2026-04-03 18:43:58.198 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.9200 ms
+2026-04-03 18:43:58.219 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1685 ms
+2026-04-03 18:44:04.889 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.6175 ms
+2026-04-03 18:44:04.892 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.7107 ms
+2026-04-03 18:44:10.036 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/143/usage responded 200 in 6.0668 ms
+2026-04-03 18:44:10.036 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/143/price-history responded 200 in 6.1345 ms
+2026-04-03 18:44:15.846 +03:00 [INF] [User: ] 1 servers were removed due to timeout
+2026-04-03 18:44:17.454 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.8867 ms
+2026-04-03 18:44:17.458 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.9123 ms
+2026-04-03 18:44:17.492 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 40.6024 ms
+2026-04-03 18:44:20.169 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.4313 ms
+2026-04-03 18:44:20.173 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.5902 ms
+2026-04-03 18:44:20.174 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 7.9841 ms
+2026-04-03 18:44:22.327 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/137/price-history responded 200 in 5.9318 ms
+2026-04-03 18:44:22.328 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/137/usage responded 200 in 5.1011 ms
+2026-04-03 18:44:49.080 +03:00 [INF] [User: Test] Abonelik gÃ¼ncellendi. UserId: 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a, SubscriptionId: 137
+2026-04-03 18:44:49.082 +03:00 [INF] [User: ] HTTP PUT /api/usersubscriptions/137 responded 200 in 202.0322 ms
+2026-04-03 18:44:49.305 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.1243 ms
+2026-04-03 18:44:56.121 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/137/usage responded 200 in 5.4818 ms
+2026-04-03 18:44:56.121 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/137/price-history responded 200 in 6.1379 ms
+2026-04-03 18:45:08.033 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 5.8315 ms
+2026-04-03 18:45:08.034 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.9576 ms
+2026-04-03 18:45:08.305 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.7176 ms
+2026-04-03 18:45:08.307 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.8576 ms
+2026-04-03 18:45:13.346 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.1519 ms
+2026-04-03 18:45:13.347 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 7.8551 ms
+2026-04-03 18:45:18.040 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 61.0234 ms
+2026-04-03 18:45:58.887 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.6982 ms
+2026-04-03 18:45:58.889 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.3458 ms
+2026-04-03 18:46:00.694 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/137/price-history responded 200 in 5.2977 ms
+2026-04-03 18:46:00.694 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/137/usage responded 200 in 5.4512 ms
+2026-04-03 18:46:03.749 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2706 ms
+2026-04-03 18:46:04.128 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/137/usage responded 200 in 5.0216 ms
+2026-04-03 18:46:04.128 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/137/price-history responded 200 in 5.0251 ms
+2026-04-03 18:46:26.253 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.0977 ms
+2026-04-03 18:46:38.220 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.9989 ms
+2026-04-03 18:46:38.231 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.6992 ms
+2026-04-03 18:46:39.714 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 10.7422 ms
+2026-04-03 18:46:40.745 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 10.9797 ms
+2026-04-03 18:46:41.563 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 5.8858 ms
+2026-04-03 18:46:41.569 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.4287 ms
+2026-04-03 18:46:47.762 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.3202 ms
+2026-04-03 18:46:47.767 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 8.9797 ms
+2026-04-03 18:46:47.769 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.7818 ms
+2026-04-03 18:46:55.012 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.9380 ms
+2026-04-03 18:46:57.995 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.4249 ms
+2026-04-03 18:46:57.999 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.3601 ms
+2026-04-03 18:57:07.025 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ba***@gmail.com
+2026-04-03 18:57:07.063 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ba***@gmail.com
+2026-04-03 18:57:07.066 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 109.6601 ms
+2026-04-03 18:57:07.302 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 4.9990 ms
+2026-04-03 18:57:07.303 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.1160 ms
+2026-04-03 18:57:07.305 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.9625 ms
+2026-04-03 18:57:07.306 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.4731 ms
+2026-04-03 18:57:07.375 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 8.4093 ms
+2026-04-03 18:57:07.617 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 4.1999 ms
+2026-04-03 18:57:07.621 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.1790 ms
+2026-04-03 18:57:08.241 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1022 ms
+2026-04-03 18:57:11.281 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.3596 ms
+2026-04-03 18:57:11.285 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.1431 ms
+2026-04-03 18:57:13.650 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/145/usage responded 200 in 5.3273 ms
+2026-04-03 18:57:13.652 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/145/price-history responded 200 in 4.6986 ms
+2026-04-03 18:57:29.473 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/140/price-history responded 200 in 6.8961 ms
+2026-04-03 18:57:29.474 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/140/usage responded 200 in 5.1327 ms
+2026-04-03 18:57:35.402 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.7728 ms
+2026-04-03 18:57:35.406 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/shared-with-me responded 200 in 8.3123 ms
+2026-04-03 18:57:35.408 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.5320 ms
+2026-04-03 18:57:43.708 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.4577 ms
+2026-04-03 18:57:43.710 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.1820 ms
+2026-04-03 18:57:43.712 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.7139 ms
+2026-04-03 18:57:43.726 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 23.7793 ms
+2026-04-03 18:57:46.140 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.3742 ms
+2026-04-03 18:57:46.140 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.0392 ms
+2026-04-03 18:57:47.074 +03:00 [INF] [User: ] HTTP PUT /api/notifications/preferences responded 200 in 29.5562 ms
+2026-04-03 18:57:48.089 +03:00 [INF] [User: ] HTTP PUT /api/notifications/preferences responded 200 in 8.5867 ms
+2026-04-03 18:57:59.410 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.1052 ms
+2026-04-03 18:57:59.413 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.5658 ms
+2026-04-03 19:19:40.898 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-04-03 19:19:42.266 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-04-03 19:19:42.283 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-04-03 19:19:42.623 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-04-03 19:19:42.624 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-04-03 19:19:42.625 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-04-03 19:19:42.626 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-04-03 19:19:42.626 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-04-03 19:19:42.627 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-04-03 19:19:42.647 +03:00 [INF] [User: ] Server desktop-25vqrpg:31936:934a5580 successfully announced in 9,9506 ms
+2026-04-03 19:19:42.650 +03:00 [INF] [User: ] Server desktop-25vqrpg:31936:934a5580 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-04-03 19:19:42.654 +03:00 [INF] [User: ] Server desktop-25vqrpg:31936:934a5580 all the dispatchers started
+2026-04-03 19:19:42.684 +03:00 [INF] [User: ] Removed 1 outdated record(s) from 'aggregatedcounter' table.
+2026-04-03 19:19:43.708 +03:00 [INF] [User: ] Removed 8 outdated record(s) from 'job' table.
+2026-04-03 19:20:32.908 +03:00 [WRN] [User: ] Stopping the server due to DomainUnload or ProcessExit event...
+2026-04-03 19:20:32.919 +03:00 [INF] [User: ] Server desktop-25vqrpg:31936:934a5580 caught stopping signal...
+2026-04-03 19:20:32.920 +03:00 [INF] [User: ] Server desktop-25vqrpg:31936:934a5580 caught stopped signal...
+2026-04-03 19:20:32.921 +03:00 [WRN] [User: ] Server desktop-25vqrpg:31936:934a5580 caught shutdown signal...
+2026-04-03 19:20:32.925 +03:00 [WRN] [User: ] Server desktop-25vqrpg:31936:934a5580 stopped non-gracefully due to ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler. Outstanding work on those dispatchers could be aborted, and there can be delays in background processing. This server instance will be incorrectly shown as active for a while. To avoid non-graceful shutdowns, investigate what prevents from stopping gracefully and add CancellationToken support for those methods.
+2026-04-03 19:20:32.960 +03:00 [INF] [User: ] Server desktop-25vqrpg:31936:934a5580 successfully reported itself as stopped in 32,1274 ms
+2026-04-03 19:20:32.961 +03:00 [INF] [User: ] Server desktop-25vqrpg:31936:934a5580 has been stopped in total 41,2773 ms
+2026-04-03 19:20:41.316 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-04-03 19:20:42.692 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-04-03 19:20:42.707 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-04-03 19:20:43.001 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-04-03 19:20:43.002 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-04-03 19:20:43.002 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-04-03 19:20:43.003 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-04-03 19:20:43.003 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-04-03 19:20:43.004 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-04-03 19:20:43.020 +03:00 [INF] [User: ] Server desktop-25vqrpg:28884:71871793 successfully announced in 8,4267 ms
+2026-04-03 19:20:43.023 +03:00 [INF] [User: ] Server desktop-25vqrpg:28884:71871793 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-04-03 19:20:43.027 +03:00 [INF] [User: ] Server desktop-25vqrpg:28884:71871793 all the dispatchers started
+2026-04-03 19:21:11.511 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-04-03 19:21:11.764 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ba***@gmail.com
+2026-04-03 19:21:11.844 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 2.6343 ms
+2026-04-03 19:21:11.924 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ba***@gmail.com
+2026-04-03 19:21:11.944 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 443.0061 ms
+2026-04-03 19:21:12.263 +03:00 [INF] [User: Baran Doğan] Güncel kurlar çekiliyor...
+2026-04-03 19:21:12.321 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 152.4701 ms
+2026-04-03 19:21:12.426 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 249.7563 ms
+2026-04-03 19:21:12.453 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 281.1311 ms
+2026-04-03 19:21:13.009 +03:00 [INF] [User: Baran Doğan] Kurlar güncellendi: {"USD":44.495,"EUR":51.2795,"GBP":58.772}
+2026-04-03 19:21:13.016 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 838.5499 ms
+2026-04-03 19:21:13.028 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 861.1851 ms
+2026-04-03 19:21:13.301 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 11.2208 ms
+2026-04-03 19:21:13.400 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 110.8860 ms
+2026-04-03 19:21:14.681 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 8.1559 ms
+2026-04-03 19:21:14.681 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 11.5535 ms
+2026-04-03 19:21:20.590 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ha***@gmail.com
+2026-04-03 19:21:20.598 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ha***@gmail.com
+2026-04-03 19:21:20.599 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 58.1230 ms
+2026-04-03 19:21:20.875 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.8664 ms
+2026-04-03 19:21:20.881 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.7659 ms
+2026-04-03 19:21:20.885 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 12.0158 ms
+2026-04-03 19:21:20.888 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.3299 ms
+2026-04-03 19:21:20.902 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 7.7041 ms
+2026-04-03 19:21:21.115 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.9232 ms
+2026-04-03 19:21:21.123 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.0407 ms
+2026-04-03 19:21:22.660 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.6145 ms
+2026-04-03 19:21:22.663 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.7237 ms
+2026-04-03 19:21:23.952 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 78.7909 ms
+2026-04-03 19:22:52.200 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 5.4764 ms
+2026-04-03 19:22:52.204 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 9.0379 ms
+2026-04-03 19:22:52.207 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.0806 ms
+2026-04-03 19:22:52.208 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.9874 ms
+2026-04-03 19:22:52.209 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.4711 ms
+2026-04-03 19:22:52.476 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.7146 ms
+2026-04-03 19:22:52.481 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 9.4724 ms
+2026-04-03 19:22:56.775 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.0457 ms
+2026-04-03 19:22:56.778 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.9388 ms
+2026-04-03 19:22:58.782 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 4.4959 ms
+2026-04-03 19:22:58.783 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.6847 ms
+2026-04-03 19:22:58.785 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 6.5681 ms
+2026-04-03 19:22:58.786 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.6612 ms
+2026-04-03 19:22:58.786 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.5945 ms
+2026-04-03 19:22:58.990 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2605 ms
+2026-04-03 19:22:59.000 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.9374 ms
+2026-04-03 19:22:59.143 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.3486 ms
+2026-04-03 19:22:59.956 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.8695 ms
+2026-04-03 19:22:59.959 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.6953 ms
+2026-04-03 19:23:00.885 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 15.1235 ms
+2026-04-03 19:23:04.576 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 34.3945 ms
+2026-04-03 19:23:23.207 +03:00 [WRN] [User: Test] [AUDIT] Admin 26ceb9dd-6123-4b86-b1c8-3b9dd48d547a kullanıcıya Admin rolü atadı. TargetEmail: ba***@gmail.com
+2026-04-03 19:23:23.209 +03:00 [INF] [User: ] HTTP POST /api/admin/assign-role responded 200 in 68.2491 ms
+2026-04-03 19:23:23.371 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 8.6287 ms
+2026-04-03 19:23:26.030 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 11.2606 ms
+2026-04-03 19:23:31.339 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 11.8855 ms
+2026-04-03 19:23:32.783 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.1523 ms
+2026-04-03 19:23:32.788 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.6064 ms
+2026-04-03 19:23:34.391 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 11.0551 ms
+2026-04-03 19:23:38.786 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 10.4506 ms
+2026-04-03 19:23:39.213 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.3579 ms
+2026-04-03 19:23:39.872 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 7.7979 ms
+2026-04-03 19:23:40.284 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 7.0780 ms
+2026-04-03 19:23:40.519 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.1615 ms
+2026-04-03 19:23:40.521 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.8663 ms
+2026-04-03 19:23:40.522 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 6.1263 ms
+2026-04-03 19:23:40.523 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.7050 ms
+2026-04-03 19:23:40.525 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.1981 ms
+2026-04-03 19:23:40.699 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 429 in 0.8525 ms
+2026-04-03 19:23:40.731 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 429 in 0.1036 ms
+2026-04-03 19:23:45.336 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.0899 ms
+2026-04-03 19:23:48.455 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 429 in 0.0371 ms
+2026-04-03 19:23:48.459 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.8777 ms
+2026-04-03 19:23:50.393 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0664 ms
+2026-04-03 19:23:51.700 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0632 ms
+2026-04-03 19:23:52.629 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.5485 ms
+2026-04-03 19:23:52.978 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 7.5979 ms
+2026-04-03 19:23:53.504 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 10.6160 ms
+2026-04-03 19:23:54.082 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 4.7654 ms
+2026-04-03 19:23:54.875 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.2892 ms
+2026-04-03 19:23:55.537 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.4778 ms
+2026-04-03 19:23:55.540 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.5004 ms
+2026-04-03 19:23:55.551 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 2.6855 ms
+2026-04-03 19:23:56.859 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 2.8724 ms
+2026-04-03 19:23:58.023 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 2.7656 ms
+2026-04-03 19:23:58.982 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.1495 ms
+2026-04-03 19:24:00.441 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.0215 ms
+2026-04-03 19:24:02.001 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 11.2664 ms
+2026-04-03 19:24:02.086 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.1348 ms
+2026-04-03 19:24:02.986 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 2.8313 ms
+2026-04-03 19:24:03.366 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 6.8661 ms
+2026-04-03 19:24:03.423 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 2.8417 ms
+2026-04-03 19:24:03.796 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 10.5323 ms
+2026-04-03 19:24:03.968 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 2.8354 ms
+2026-04-03 19:24:04.416 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 6.6720 ms
+2026-04-03 19:24:05.031 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 3.0608 ms
+2026-04-03 19:24:06.598 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.0465 ms
+2026-04-03 19:24:06.602 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.7122 ms
+2026-04-03 19:24:14.672 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 7.4394 ms
+2026-04-03 19:24:17.346 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 11.7906 ms
+2026-04-03 19:24:18.729 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.4847 ms
+2026-04-03 19:24:18.739 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.9229 ms
+2026-04-03 19:24:19.475 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.5065 ms
+2026-04-03 19:24:19.476 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.9855 ms
+2026-04-03 19:24:19.478 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 5.2885 ms
+2026-04-03 19:24:19.543 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.8315 ms
+2026-04-03 19:24:19.545 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.4435 ms
+2026-04-03 19:24:19.754 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.8828 ms
+2026-04-03 19:24:19.765 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.7598 ms
+2026-04-03 19:24:20.658 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 429 in 0.0730 ms
+2026-04-03 19:24:20.670 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.8822 ms
+2026-04-03 19:24:21.375 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0688 ms
+2026-04-03 19:24:22.117 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0694 ms
+2026-04-03 19:24:22.759 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0675 ms
+2026-04-03 19:24:23.479 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0669 ms
+2026-04-03 19:24:24.128 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0892 ms
+2026-04-03 19:24:24.759 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0645 ms
+2026-04-03 19:24:25.425 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0757 ms
+2026-04-03 19:24:26.565 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 429 in 0.0740 ms
+2026-04-03 19:24:26.573 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.4342 ms
+2026-04-03 19:24:30.063 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0737 ms
+2026-04-03 19:24:30.937 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0666 ms
+2026-04-03 19:24:31.804 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0772 ms
+2026-04-03 19:24:32.262 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0898 ms
+2026-04-03 19:24:33.946 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0641 ms
+2026-04-03 19:24:34.579 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0615 ms
+2026-04-03 19:24:35.710 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 429 in 0.0649 ms
+2026-04-03 19:24:35.710 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 429 in 0.0192 ms
+2026-04-03 19:24:41.371 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0602 ms
+2026-04-03 19:24:46.060 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 429 in 0.0703 ms
+2026-04-03 19:24:46.773 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 429 in 0.0760 ms
+2026-04-03 19:24:47.397 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 429 in 0.0702 ms
+2026-04-03 19:24:48.922 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0615 ms
+2026-04-03 19:24:50.139 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0603 ms
+2026-04-03 19:24:50.775 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0588 ms
+2026-04-03 19:24:55.806 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 10.7566 ms
+2026-04-03 19:24:57.995 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 10.3792 ms
+2026-04-03 19:24:59.321 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 6.9594 ms
+2026-04-03 19:25:00.149 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 10.7870 ms
+2026-04-03 19:25:01.312 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 11.0078 ms
+2026-04-03 19:25:01.325 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 2.8643 ms
+2026-04-03 19:25:02.496 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.7735 ms
+2026-04-03 19:25:03.182 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.1088 ms
+2026-04-03 19:25:03.510 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 2.8549 ms
+2026-04-03 19:25:03.763 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 2.8088 ms
+2026-04-03 19:25:04.211 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.1064 ms
+2026-04-03 19:25:04.574 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.0279 ms
+2026-04-03 19:25:04.918 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 2.9344 ms
+2026-04-03 19:25:05.744 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.3595 ms
+2026-04-03 19:25:05.746 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.5371 ms
+2026-04-03 19:25:05.758 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 10.0696 ms
+2026-04-03 19:25:06.105 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 2.9949 ms
+2026-04-03 19:25:06.721 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.1786 ms
+2026-04-03 19:25:06.725 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.0937 ms
+2026-04-03 19:25:07.336 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 10.3099 ms
+2026-04-03 19:25:07.516 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 2.7303 ms
+2026-04-03 19:25:08.253 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 2.7651 ms
+2026-04-03 19:25:08.396 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 6.8627 ms
+2026-04-03 19:25:08.875 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 2.9368 ms
+2026-04-03 19:25:09.345 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.1494 ms
+2026-04-03 19:25:09.422 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.0787 ms
+2026-04-03 19:25:09.888 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 403 in 2.9339 ms
+2026-04-03 19:25:11.672 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.2252 ms
+2026-04-03 19:25:13.427 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 2.9599 ms
+2026-04-03 19:25:14.604 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.0502 ms
+2026-04-03 19:25:15.951 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.3146 ms
+2026-04-03 19:25:15.954 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.6903 ms
+2026-04-03 19:25:19.511 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.2695 ms
+2026-04-03 19:25:20.002 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0644 ms
+2026-04-03 19:25:21.179 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.8695 ms
+2026-04-03 19:25:21.183 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 429 in 0.0584 ms
+2026-04-03 19:25:21.734 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 429 in 0.0561 ms
+2026-04-03 19:25:21.736 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.9625 ms
+2026-04-03 19:25:22.519 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0708 ms
+2026-04-03 19:25:23.414 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0712 ms
+2026-04-03 19:25:30.036 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0626 ms
+2026-04-03 19:25:31.010 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0674 ms
+2026-04-03 19:25:31.570 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0683 ms
+2026-04-03 19:25:31.996 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0639 ms
+2026-04-03 19:25:32.435 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0642 ms
+2026-04-03 19:25:32.878 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0624 ms
+2026-04-03 19:25:35.139 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0580 ms
+2026-04-03 19:25:36.970 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0585 ms
+2026-04-03 19:25:38.429 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0644 ms
+2026-04-03 19:25:40.159 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 429 in 0.0565 ms
+2026-04-03 19:25:40.160 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 429 in 0.0172 ms
+2026-04-03 19:25:40.177 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 429 in 0.0437 ms
+2026-04-03 19:25:41.326 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 429 in 0.0573 ms
+2026-04-03 19:25:42.885 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 429 in 0.0702 ms
+2026-04-03 19:25:43.045 +03:00 [INF] [User: ] 1 servers were removed due to timeout
+2026-04-03 19:25:44.400 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0730 ms
+2026-04-03 19:25:45.251 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 429 in 0.0623 ms
+2026-04-03 19:25:45.252 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 429 in 0.0240 ms
+2026-04-03 19:25:45.316 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 429 in 0.0753 ms
+2026-04-03 19:25:45.743 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 429 in 0.0523 ms
+2026-04-03 19:25:46.114 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 429 in 0.0556 ms
+2026-04-03 19:25:47.562 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0772 ms
+2026-04-03 19:25:47.997 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 429 in 0.0623 ms
+2026-04-03 19:25:48.002 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 429 in 0.0298 ms
+2026-04-03 19:25:48.372 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0707 ms
+2026-04-03 19:25:49.521 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 429 in 0.0666 ms
+2026-04-03 19:25:49.521 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 429 in 0.0213 ms
+2026-04-03 19:25:56.471 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.4943 ms
+2026-04-03 19:25:57.324 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 14.4117 ms
+2026-04-03 19:25:58.204 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.3701 ms
+2026-04-03 19:25:58.613 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 12.8985 ms
+2026-04-03 19:25:59.265 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.1429 ms
+2026-04-03 19:25:59.267 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.9618 ms
+2026-04-03 19:26:01.632 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 11.9172 ms
+2026-04-03 19:26:03.701 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 12.2109 ms
+2026-04-03 19:26:05.149 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.1577 ms
+2026-04-03 19:26:05.977 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.4476 ms
+2026-04-03 19:26:05.981 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.6749 ms
+2026-04-03 19:26:06.399 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 403 in 3.3220 ms
+2026-04-03 19:26:07.435 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 12.0597 ms
+2026-04-03 19:26:08.789 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 7.5173 ms
+2026-04-03 19:26:09.504 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.1590 ms
+2026-04-03 19:26:10.907 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 8.9146 ms
+2026-04-03 19:26:11.353 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 12.4376 ms
+2026-04-03 19:26:14.886 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 7.9552 ms
+2026-04-03 19:26:17.935 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.5289 ms
+2026-04-03 19:26:17.937 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.8080 ms
+2026-04-03 19:26:17.942 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 4.5840 ms
+2026-04-03 19:26:18.006 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.9249 ms
+2026-04-03 19:26:18.008 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.9535 ms
+2026-04-03 19:26:18.240 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.0289 ms
+2026-04-03 19:26:18.243 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.6718 ms
+2026-04-03 19:26:24.501 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.3946 ms
+2026-04-03 19:26:24.504 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.1993 ms
+2026-04-03 19:26:27.300 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.3241 ms
+2026-04-03 19:26:27.302 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.3888 ms
+2026-04-03 19:26:28.456 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 10.7038 ms
+2026-04-03 19:26:29.578 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 200 in 7.6319 ms
+2026-04-03 19:26:30.621 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 11.5449 ms
+2026-04-03 19:26:30.655 +03:00 [INF] [User: ] HTTP POST /api/auth/revoke-refresh-token responded 204 in 23.0556 ms
+2026-04-03 19:26:34.616 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ba***@gmail.com
+2026-04-03 19:26:34.621 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ba***@gmail.com
+2026-04-03 19:26:34.622 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 52.1470 ms
+2026-04-03 19:26:34.827 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 5.3820 ms
+2026-04-03 19:26:34.827 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.0969 ms
+2026-04-03 19:26:34.829 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.6606 ms
+2026-04-03 19:26:34.832 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 429 in 0.0315 ms
+2026-04-03 19:26:34.833 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.7353 ms
+2026-04-03 19:26:34.985 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 429 in 0.0721 ms
+2026-04-03 19:26:35.007 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 429 in 0.1069 ms
+2026-04-03 19:26:35.390 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.0888 ms
+2026-04-03 19:26:36.187 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 429 in 0.0634 ms
+2026-04-03 19:26:36.918 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 429 in 0.0628 ms
+2026-04-03 19:26:37.456 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 429 in 0.0601 ms
+2026-04-03 19:26:39.231 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0626 ms
+2026-04-03 19:26:39.825 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 429 in 0.0285 ms
+2026-04-03 19:26:39.831 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.5256 ms
+2026-04-03 19:26:40.412 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 429 in 0.0772 ms
+2026-04-03 19:26:40.425 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.0477 ms
+2026-04-03 19:26:40.704 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0675 ms
+2026-04-03 19:26:41.604 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0946 ms
+2026-04-03 19:26:42.348 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0543 ms
+2026-04-03 19:26:43.068 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 429 in 0.0617 ms
+2026-04-03 19:26:43.118 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0719 ms
+2026-04-03 19:26:44.229 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 429 in 0.0756 ms
+2026-04-03 19:26:44.878 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0557 ms
+2026-04-03 19:26:45.236 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0660 ms
+2026-04-03 19:26:45.672 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 429 in 0.0551 ms
+2026-04-03 19:26:45.672 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 429 in 0.0553 ms
+2026-04-03 19:26:46.240 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0983 ms
+2026-04-03 19:26:46.701 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0531 ms
+2026-04-03 19:26:48.313 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 429 in 0.0586 ms
+2026-04-03 19:26:48.313 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 429 in 0.0536 ms
+2026-04-03 19:26:54.501 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 11.2197 ms
+2026-04-03 19:26:57.094 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.0727 ms
+2026-04-03 19:26:57.097 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.7721 ms
+2026-04-03 19:26:57.224 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 10.5325 ms
+2026-04-03 19:26:58.605 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.1007 ms
+2026-04-03 19:26:58.606 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.0897 ms
+2026-04-03 19:27:33.269 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1018 ms
+2026-04-03 20:02:04.463 +03:00 [INF] [User: ] Server desktop-25vqrpg:28884:71871793 caught stopping signal...
+2026-04-03 20:02:04.492 +03:00 [INF] [User: ] Server desktop-25vqrpg:28884:71871793 All dispatchers stopped
+2026-04-03 20:02:04.496 +03:00 [INF] [User: ] Server desktop-25vqrpg:28884:71871793 successfully reported itself as stopped in 2,0373 ms
+2026-04-03 20:02:04.497 +03:00 [INF] [User: ] Server desktop-25vqrpg:28884:71871793 has been stopped in total 33,4003 ms
+2026-04-03 20:02:15.084 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-04-03 20:02:16.640 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-04-03 20:02:16.655 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-04-03 20:02:17.118 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-04-03 20:02:17.118 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-04-03 20:02:17.119 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-04-03 20:02:17.120 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-04-03 20:02:17.120 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-04-03 20:02:17.121 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-04-03 20:02:17.138 +03:00 [INF] [User: ] Server desktop-25vqrpg:228:a97a1a96 successfully announced in 8,8198 ms
+2026-04-03 20:02:17.140 +03:00 [INF] [User: ] Server desktop-25vqrpg:228:a97a1a96 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-04-03 20:02:17.145 +03:00 [INF] [User: ] Server desktop-25vqrpg:228:a97a1a96 all the dispatchers started
+2026-04-03 20:02:17.163 +03:00 [INF] [User: ] Removed 1 outdated record(s) from 'aggregatedcounter' table.
+2026-04-03 20:02:18.187 +03:00 [INF] [User: ] Removed 8 outdated record(s) from 'job' table.
+2026-04-03 20:02:21.300 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-04-03 20:02:21.591 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ba***@gmail.com
+2026-04-03 20:02:21.693 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 2.9348 ms
+2026-04-03 20:02:21.775 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ba***@gmail.com
+2026-04-03 20:02:21.800 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 511.9056 ms
+2026-04-03 20:02:34.811 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ba***@gmail.com
+2026-04-03 20:02:34.820 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ba***@gmail.com
+2026-04-03 20:02:34.822 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 101.4327 ms
+2026-04-03 20:02:35.101 +03:00 [INF] [User: Baran Doğan] Güncel kurlar çekiliyor...
+2026-04-03 20:02:35.171 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 116.6078 ms
+2026-04-03 20:02:35.221 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1598 ms
+2026-04-03 20:02:35.264 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 209.1803 ms
+2026-04-03 20:02:35.302 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 248.3380 ms
+2026-04-03 20:02:35.770 +03:00 [INF] [User: Baran Doğan] Kurlar güncellendi: {"USD":44.495,"EUR":51.2795,"GBP":58.772}
+2026-04-03 20:02:35.776 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 721.6722 ms
+2026-04-03 20:02:35.787 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 737.4737 ms
+2026-04-03 20:02:43.648 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 10.9475 ms
+2026-04-03 20:02:43.649 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 12.2307 ms
+2026-04-03 20:02:43.652 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 15.3991 ms
+2026-04-03 20:02:43.652 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 12.4659 ms
+2026-04-03 20:02:43.653 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 16.3034 ms
+2026-04-03 20:02:43.828 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.3519 ms
+2026-04-03 20:02:43.924 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 103.3082 ms
+2026-04-03 20:02:45.277 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.8376 ms
+2026-04-03 20:02:45.280 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.0928 ms
+2026-04-03 20:02:45.281 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.5560 ms
+2026-04-03 20:02:45.284 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 11.3585 ms
+2026-04-03 20:02:55.025 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ha***@gmail.com
+2026-04-03 20:02:55.030 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ha***@gmail.com
+2026-04-03 20:02:55.031 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 54.8919 ms
+2026-04-03 20:02:55.306 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.4384 ms
+2026-04-03 20:02:55.311 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 5.0147 ms
+2026-04-03 20:02:55.312 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.6223 ms
+2026-04-03 20:02:55.321 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.9361 ms
+2026-04-03 20:02:55.323 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.5541 ms
+2026-04-03 20:02:55.560 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.4418 ms
+2026-04-03 20:02:55.565 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 9.1241 ms
+2026-04-03 20:02:56.392 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.9161 ms
+2026-04-03 20:02:56.396 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.4962 ms
+2026-04-03 20:02:56.399 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.0407 ms
+2026-04-03 20:02:56.401 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.8939 ms
+2026-04-03 20:03:09.857 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 71.8334 ms
+2026-04-03 20:03:10.754 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.2860 ms
+2026-04-03 20:03:10.756 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.3278 ms
+2026-04-03 20:03:10.757 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.4380 ms
+2026-04-03 20:03:10.784 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 32.0230 ms
+2026-04-03 20:03:12.649 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.1750 ms
+2026-04-03 20:03:12.653 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.7551 ms
+2026-04-03 20:03:12.655 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.7182 ms
+2026-04-03 20:03:12.663 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.8165 ms
+2026-04-03 20:03:13.768 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 14.3133 ms
+2026-04-03 20:03:15.000 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 429 in 1.0103 ms
+2026-04-03 20:03:15.904 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 429 in 0.1260 ms
+2026-04-03 20:03:16.551 +03:00 [INF] [User: ] HTTP GET /api/admin/users responded 429 in 0.0830 ms
+2026-04-03 20:03:18.598 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 429 in 0.0787 ms
+2026-04-03 20:03:18.599 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 429 in 0.0271 ms
+2026-04-03 20:03:18.601 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 429 in 0.0254 ms
+2026-04-03 20:03:18.606 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.7635 ms
+2026-04-03 20:03:21.221 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0834 ms
+2026-04-03 20:03:22.254 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 429 in 0.1252 ms
+2026-04-03 20:03:22.754 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0840 ms
+2026-04-03 20:03:23.423 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 429 in 0.0755 ms
+2026-04-03 20:03:24.418 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 429 in 0.1021 ms
+2026-04-03 20:03:24.420 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 429 in 0.0327 ms
+2026-04-03 20:03:24.422 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 429 in 0.0456 ms
+2026-04-03 20:03:24.425 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.5203 ms
+2026-04-03 20:03:35.473 +03:00 [INF] [User: ] HTTP PUT /api/notifications/preferences responded 200 in 42.0033 ms
+2026-04-03 20:03:37.936 +03:00 [INF] [User: ] HTTP PUT /api/notifications/preferences responded 200 in 8.4693 ms
+2026-04-03 20:03:38.299 +03:00 [INF] [User: ] HTTP PUT /api/notifications/preferences responded 200 in 7.1625 ms
+2026-04-03 20:03:38.370 +03:00 [INF] [User: ] HTTP PUT /api/notifications/preferences responded 200 in 7.1286 ms
+2026-04-03 20:03:38.887 +03:00 [INF] [User: ] HTTP PUT /api/notifications/preferences responded 200 in 7.2543 ms
+2026-04-03 20:03:39.253 +03:00 [INF] [User: ] HTTP PUT /api/notifications/preferences responded 200 in 7.0443 ms
+2026-04-03 20:03:39.668 +03:00 [INF] [User: ] HTTP PUT /api/notifications/preferences responded 200 in 6.5251 ms
+2026-04-03 20:03:39.971 +03:00 [INF] [User: ] HTTP PUT /api/notifications/preferences responded 200 in 7.0334 ms
+2026-04-03 20:03:40.296 +03:00 [INF] [User: ] HTTP PUT /api/notifications/preferences responded 200 in 6.9545 ms
+2026-04-03 20:03:40.516 +03:00 [INF] [User: ] HTTP PUT /api/notifications/preferences responded 200 in 7.1540 ms
+2026-04-03 20:03:45.775 +03:00 [INF] [User: ] HTTP PUT /api/notifications/preferences responded 200 in 7.4414 ms
+2026-04-03 20:08:11.653 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.2790 ms
+2026-04-03 20:08:13.561 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.0860 ms
+2026-04-03 20:08:22.186 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 4.4183 ms
+2026-04-03 20:08:22.193 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.5739 ms
+2026-04-03 20:08:22.193 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.5106 ms
+2026-04-03 20:08:22.255 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.2855 ms
+2026-04-03 20:08:22.258 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.8976 ms
+2026-04-03 20:08:22.476 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.5056 ms
+2026-04-03 20:08:22.482 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.9054 ms
+2026-04-03 20:08:23.367 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.3430 ms
+2026-04-03 20:08:23.370 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.7976 ms
+2026-04-03 20:08:23.370 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.6845 ms
+2026-04-03 20:08:23.371 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.6350 ms
+2026-04-03 20:08:23.998 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.3818 ms
+2026-04-03 20:08:24.003 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.6056 ms
+2026-04-03 20:08:24.003 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.1139 ms
+2026-04-03 20:08:24.003 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.9919 ms
+2026-04-03 20:08:24.004 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 5.9050 ms
+2026-04-03 20:08:24.214 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.0449 ms
+2026-04-03 20:08:24.246 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.2599 ms
+2026-04-03 20:08:24.350 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.0902 ms
+2026-04-03 20:08:24.953 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.1569 ms
+2026-04-03 20:08:24.955 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.7184 ms
+2026-04-03 20:08:24.956 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.3675 ms
+2026-04-03 20:08:24.959 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.4541 ms
+2026-04-03 20:09:34.842 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1511 ms
+2026-04-03 20:11:41.849 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1252 ms
+2026-04-03 20:11:56.219 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.2342 ms
+2026-04-03 20:11:56.221 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 6.9081 ms
+2026-04-03 20:11:56.226 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.7487 ms
+2026-04-03 20:11:56.288 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 4.0643 ms
+2026-04-03 20:11:56.290 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.7330 ms
+2026-04-03 20:11:56.490 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.9649 ms
+2026-04-03 20:11:56.496 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.8930 ms
+2026-04-03 20:11:57.105 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.1057 ms
+2026-04-03 20:11:57.109 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.3782 ms
+2026-04-03 20:11:57.110 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.0592 ms
+2026-04-03 20:11:57.111 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.2353 ms
+2026-04-03 20:11:57.328 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.9843 ms
+2026-04-03 20:11:57.334 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 5.3023 ms
+2026-04-03 20:11:57.334 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.3097 ms
+2026-04-03 20:11:57.334 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.1356 ms
+2026-04-03 20:11:57.334 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.7597 ms
+2026-04-03 20:11:57.545 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.9425 ms
+2026-04-03 20:11:57.549 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.4069 ms
+2026-04-03 20:11:57.659 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.0890 ms
+2026-04-03 20:11:58.612 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.4131 ms
+2026-04-03 20:11:58.614 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.3661 ms
+2026-04-03 20:11:58.614 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.3828 ms
+2026-04-03 20:11:58.615 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.6546 ms
+2026-04-03 20:21:08.003 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1702 ms
+2026-04-03 20:30:01.917 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1248 ms
+2026-04-03 20:30:13.059 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ba***@gmail.com
+2026-04-03 20:30:13.068 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ba***@gmail.com
+2026-04-03 20:30:13.069 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 80.1583 ms
+2026-04-03 20:30:13.305 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 10.7335 ms
+2026-04-03 20:30:13.305 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.4424 ms
+2026-04-03 20:30:13.308 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.0362 ms
+2026-04-03 20:30:13.309 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.7574 ms
+2026-04-03 20:30:13.310 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 7.9562 ms
+2026-04-03 20:30:13.545 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.1128 ms
+2026-04-03 20:30:13.548 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 10.1946 ms
+2026-04-03 20:30:14.041 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1451 ms
+2026-04-03 20:30:14.818 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.3057 ms
+2026-04-03 20:30:14.819 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.1828 ms
+2026-04-03 20:30:14.820 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.3710 ms
+2026-04-03 20:30:14.896 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 9.2360 ms
+2026-04-03 20:30:39.337 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.4860 ms
+2026-04-03 20:30:39.341 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.8477 ms
+2026-04-03 20:30:39.341 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.4190 ms
+2026-04-03 20:30:39.404 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.0570 ms
+2026-04-03 20:30:39.408 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.2033 ms
+2026-04-03 20:30:39.524 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.8521 ms
+2026-04-03 20:30:39.531 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.1014 ms
+2026-04-03 20:30:40.605 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.4612 ms
+2026-04-03 20:30:40.605 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 4.3214 ms
+2026-04-03 20:30:40.610 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.3735 ms
+2026-04-03 20:30:40.610 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.2089 ms
+2026-04-03 20:30:51.897 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ha***@gmail.com
+2026-04-03 20:30:51.903 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ha***@gmail.com
+2026-04-03 20:30:51.904 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 57.2446 ms
+2026-04-03 20:30:52.188 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 4.5583 ms
+2026-04-03 20:30:52.193 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 4.7664 ms
+2026-04-03 20:30:52.193 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 6.3565 ms
+2026-04-03 20:30:52.194 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.8556 ms
+2026-04-03 20:30:52.196 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.5509 ms
+2026-04-03 20:30:52.412 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.6503 ms
+2026-04-03 20:30:52.420 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.5096 ms
+2026-04-03 20:30:54.467 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 4.1871 ms
+2026-04-03 20:30:54.470 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.6847 ms
+2026-04-03 20:30:54.471 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.5562 ms
+2026-04-03 20:30:54.474 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.3856 ms
+2026-04-03 20:31:03.289 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 5.6938 ms
+2026-04-03 20:31:03.293 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.1040 ms
+2026-04-03 20:31:03.293 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.5661 ms
+2026-04-03 20:31:03.295 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 7.3624 ms
+2026-04-03 20:31:04.416 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 429 in 0.0684 ms
+2026-04-03 20:31:04.416 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 429 in 0.0228 ms
+2026-04-03 20:31:04.417 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 429 in 0.0334 ms
+2026-04-03 20:31:04.421 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.3215 ms
+2026-04-03 20:31:12.314 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 429 in 0.0709 ms
+2026-04-03 20:31:12.314 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 429 in 0.0709 ms
+2026-04-03 20:31:19.863 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.4966 ms
+2026-04-03 20:31:19.865 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.8234 ms
+2026-04-03 20:31:20.619 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.7118 ms
+2026-04-03 20:31:20.619 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.0239 ms
+2026-04-03 20:31:20.620 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.8405 ms
+2026-04-03 20:31:20.627 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 5.7028 ms
+2026-04-03 20:31:22.353 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.5597 ms
+2026-04-03 20:31:22.356 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.6214 ms
+2026-04-03 20:31:23.093 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.6032 ms
+2026-04-03 20:31:23.096 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 4.5082 ms
+2026-04-03 20:31:23.102 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.6686 ms
+2026-04-03 20:31:23.104 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.5353 ms
+2026-04-03 20:31:23.668 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.0252 ms
+2026-04-03 20:31:23.670 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.3313 ms
+2026-04-03 20:31:23.671 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.2072 ms
+2026-04-03 20:31:23.675 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.0297 ms
+2026-04-03 20:31:37.967 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 4.0704 ms
+2026-04-03 20:31:37.968 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.7307 ms
+2026-04-03 20:31:37.970 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.1449 ms
+2026-04-03 20:31:37.970 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 6.7536 ms
+2026-04-03 20:31:37.970 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.8550 ms
+2026-04-03 20:31:38.220 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.8098 ms
+2026-04-03 20:31:38.223 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.2866 ms
+2026-04-03 20:31:39.148 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.4173 ms
+2026-04-03 20:31:39.149 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.3186 ms
+2026-04-03 20:31:39.151 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.2904 ms
+2026-04-03 20:31:39.152 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 4.9231 ms
+2026-04-03 20:31:44.120 +03:00 [INF] [User: ] HTTP PUT /api/budget/settings responded 200 in 30.6512 ms
+2026-04-03 20:31:48.308 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.9725 ms
+2026-04-03 20:31:48.308 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 10.3228 ms
+2026-04-03 20:31:48.569 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.4694 ms
+2026-04-03 20:31:48.573 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.9935 ms
+2026-04-03 20:31:49.936 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.7990 ms
+2026-04-03 20:31:49.936 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.7544 ms
+2026-04-03 20:31:49.941 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.1247 ms
+2026-04-03 20:31:49.942 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.6957 ms
+2026-04-03 20:31:53.738 +03:00 [INF] [User: ] HTTP PUT /api/budget/settings responded 200 in 8.8006 ms
+2026-04-03 20:31:55.025 +03:00 [INF] [User: ] HTTP PUT /api/budget/settings responded 429 in 0.0875 ms
+2026-04-03 20:31:55.312 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.9098 ms
+2026-04-03 20:31:56.892 +03:00 [INF] [User: ] HTTP PUT /api/budget/settings responded 429 in 0.0581 ms
+2026-04-03 20:31:57.073 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.0394 ms
+2026-04-03 20:43:39.727 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 4.6551 ms
+2026-04-03 20:43:39.731 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 8.1202 ms
+2026-04-03 20:43:39.732 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.4668 ms
+2026-04-03 20:43:39.793 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 4.3858 ms
+2026-04-03 20:43:39.796 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.8668 ms
+2026-04-03 20:43:40.067 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.9730 ms
+2026-04-03 20:43:40.070 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.6159 ms
+2026-04-03 20:43:43.693 +03:00 [INF] [User: ] HTTP PATCH /api/usersubscriptions/145/survey responded 200 in 147.3349 ms
+2026-04-03 20:43:51.459 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.7777 ms
+2026-04-03 20:43:51.459 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.2621 ms
+2026-04-03 20:43:51.462 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.8841 ms
+2026-04-03 20:43:51.462 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.1791 ms
+2026-04-03 20:43:51.465 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 6.0124 ms
+2026-04-03 20:43:51.640 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.6577 ms
+2026-04-03 20:43:51.642 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 10.1698 ms
+2026-04-03 20:43:52.135 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.2912 ms
+2026-04-03 20:43:52.135 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.0401 ms
+2026-04-03 20:43:52.137 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.9116 ms
+2026-04-03 20:43:52.138 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.7858 ms
+2026-04-03 20:43:53.700 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.6876 ms
+2026-04-03 20:43:53.709 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.0903 ms
+2026-04-03 20:43:53.709 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.1691 ms
+2026-04-03 20:43:53.712 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 6.1612 ms
+2026-04-03 20:43:53.713 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.6688 ms
+2026-04-03 20:43:53.837 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1525 ms
+2026-04-03 20:43:53.912 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.3914 ms
+2026-04-03 20:43:53.917 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.9783 ms
+2026-04-03 20:43:54.390 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.2036 ms
+2026-04-03 20:43:54.391 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.5142 ms
+2026-04-03 20:43:54.393 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.1450 ms
+2026-04-03 20:43:54.399 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.0706 ms
+2026-04-03 20:44:12.032 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.4901 ms
+2026-04-03 20:44:12.033 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.1601 ms
+2026-04-03 20:44:12.035 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.2811 ms
+2026-04-03 20:44:12.038 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 4.0999 ms
+2026-04-03 20:44:12.946 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.1098 ms
+2026-04-03 20:44:12.947 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 1.9981 ms
+2026-04-03 20:44:12.947 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 429 in 0.0325 ms
+2026-04-03 20:44:12.948 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.5739 ms
+2026-04-03 20:44:45.982 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.4485 ms
+2026-04-03 20:44:45.986 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 6.9412 ms
+2026-04-03 20:44:46.708 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.9997 ms
+2026-04-03 20:44:46.712 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 6.1954 ms
+2026-04-03 20:44:46.713 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.9789 ms
+2026-04-03 20:44:46.714 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.5717 ms
+2026-04-03 20:44:48.244 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.7922 ms
+2026-04-03 20:44:48.244 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.7898 ms
+2026-04-03 20:44:48.247 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.9636 ms
+2026-04-03 20:44:48.248 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 8.1476 ms
+2026-04-03 20:44:54.634 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.2825 ms
+2026-04-03 20:44:54.637 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 8.1395 ms
+2026-04-03 20:44:57.440 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.3920 ms
+2026-04-03 20:44:57.441 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 4.9138 ms
+2026-04-03 20:44:57.442 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.3595 ms
+2026-04-03 20:44:57.443 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.9999 ms
+2026-04-03 20:44:58.664 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.6817 ms
+2026-04-03 20:44:58.668 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 7.3897 ms
+2026-04-03 20:44:58.668 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.8201 ms
+2026-04-03 20:44:58.668 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.7138 ms
+2026-04-03 20:45:03.415 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1251 ms
+2026-04-03 20:45:03.981 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.0244 ms
+2026-04-03 20:45:03.986 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.6964 ms
+2026-04-03 20:45:03.986 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.5110 ms
+2026-04-03 20:45:03.986 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.0712 ms
+2026-04-03 20:45:07.240 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 15.7877 ms
+2026-04-03 20:45:09.773 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.9104 ms
+2026-04-03 20:45:09.773 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.3376 ms
+2026-04-03 20:45:09.775 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.6071 ms
+2026-04-03 20:45:09.776 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.5674 ms
+2026-04-03 20:45:14.811 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1037 ms
+2026-04-03 21:02:19.245 +03:00 [INF] [User: ] Removed 1 outdated record(s) from 'aggregatedcounter' table.
+2026-04-03 21:02:20.261 +03:00 [INF] [User: ] Removed 8 outdated record(s) from 'job' table.
+2026-04-03 21:59:06.902 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ha***@gmail.com
+2026-04-03 21:59:06.908 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ha***@gmail.com
+2026-04-03 21:59:06.909 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 55.8707 ms
+2026-04-03 21:59:07.187 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 9.0154 ms
+2026-04-03 21:59:07.190 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.8906 ms
+2026-04-03 21:59:07.192 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 5.9282 ms
+2026-04-03 21:59:07.192 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.5853 ms
+2026-04-03 21:59:07.194 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 2.2270 ms
+2026-04-03 21:59:07.444 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.1485 ms
+2026-04-03 21:59:07.446 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.5934 ms
+2026-04-03 21:59:13.010 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.2628 ms
+2026-04-03 21:59:13.012 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.2904 ms
+2026-04-03 21:59:13.013 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.7622 ms
+2026-04-03 21:59:13.014 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.0035 ms
+2026-04-03 21:59:20.824 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.0832 ms
+2026-04-03 21:59:28.484 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.0915 ms
+2026-04-03 21:59:37.864 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.0918 ms
+2026-04-03 22:00:05.581 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1015 ms
+2026-04-03 22:02:21.305 +03:00 [INF] [User: ] Removed 1 outdated record(s) from 'aggregatedcounter' table.
+2026-04-03 22:02:22.320 +03:00 [INF] [User: ] Removed 8 outdated record(s) from 'job' table.
+2026-04-03 23:02:23.362 +03:00 [INF] [User: ] Removed 1 outdated record(s) from 'aggregatedcounter' table.
+2026-04-03 23:02:24.379 +03:00 [INF] [User: ] Removed 8 outdated record(s) from 'job' table.
+2026-04-03 23:09:20.068 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ha***@gmail.com
+2026-04-03 23:09:20.075 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ha***@gmail.com
+2026-04-03 23:09:20.076 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 61.4664 ms
+2026-04-03 23:09:20.348 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 6.8495 ms
+2026-04-03 23:09:20.355 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 3.3208 ms
+2026-04-03 23:09:20.357 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.4452 ms
+2026-04-03 23:09:20.357 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 6.6367 ms
+2026-04-03 23:09:20.357 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.5014 ms
+2026-04-03 23:09:20.588 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.3726 ms
+2026-04-03 23:09:20.592 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 7.0913 ms
+2026-04-03 23:09:22.568 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.2590 ms
+2026-04-03 23:09:22.570 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.6913 ms
+2026-04-03 23:09:22.576 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 9.8573 ms
+2026-04-03 23:09:22.586 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.1323 ms
+2026-04-03 23:09:37.534 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.0522 ms
+2026-04-03 23:09:37.536 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.2892 ms
+2026-04-03 23:09:37.536 +03:00 [INF] [User: ] HTTP GET /api/budget/categories responded 200 in 4.8948 ms
+2026-04-03 23:09:37.536 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.6133 ms
+2026-04-03 23:09:38.172 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.8072 ms
+2026-04-03 23:09:38.175 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.2866 ms
+2026-04-03 23:09:39.166 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 3.1383 ms
+2026-04-03 23:09:39.167 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.2061 ms
+2026-04-03 23:09:39.171 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.5643 ms
+2026-04-03 23:09:39.180 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 15.9079 ms
+2026-04-03 23:09:59.256 +03:00 [INF] [User: ] HTTP GET /api/admin/stats responded 200 in 10.7723 ms
+2026-04-03 23:10:00.873 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 2.4123 ms
+2026-04-03 23:10:00.874 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 5.8137 ms
+2026-04-03 23:10:00.874 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 5.6821 ms
+2026-04-03 23:10:00.876 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 2.3618 ms
+2026-04-03 23:10:16.873 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1125 ms
+2026-04-03 23:10:46.506 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.2289 ms
+2026-04-03 23:10:46.511 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 4.6883 ms
+2026-04-03 23:10:49.991 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/137/price-history responded 200 in 16.6140 ms
+2026-04-03 23:10:49.994 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions/137/usage responded 200 in 19.5871 ms
+2026-04-03 23:12:50.840 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1068 ms
+2026-04-03 23:12:51.487 +03:00 [INF] [User: ] HTTP GET /api/catalogs/trending responded 200 in 21.2775 ms
+2026-04-03 23:30:23.103 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1199 ms
+2026-04-03 23:30:23.799 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 401 in 16.1496 ms
+2026-04-03 23:30:23.799 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 401 in 3.1754 ms
+2026-04-03 23:30:23.800 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 401 in 1.0987 ms
+2026-04-03 23:30:23.801 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 401 in 0.2198 ms
+2026-04-03 23:30:24.199 +03:00 [INF] [User: Anonymous] Token atomik olarak yenilendi. Email: ha***@gmail.com
+2026-04-03 23:30:24.200 +03:00 [INF] [User: ] HTTP POST /api/auth/create-token-by-refresh-token responded 200 in 198.7333 ms
+2026-04-03 23:30:24.387 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 13.6957 ms
+2026-04-03 23:30:24.388 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 9.5189 ms
+2026-04-03 23:30:24.390 +03:00 [INF] [User: ] HTTP GET /api/notifications/preferences responded 200 in 7.7676 ms
+2026-04-03 23:30:24.395 +03:00 [INF] [User: ] HTTP GET /api/usersubscriptions responded 200 in 14.5533 ms
+2026-04-03 23:30:34.839 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.0908 ms
+2026-04-03 23:30:35.204 +03:00 [INF] [User: ] HTTP GET /api/catalogs/trending responded 200 in 11.3552 ms
+2026-04-03 23:30:43.905 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1044 ms
+2026-04-03 23:30:52.139 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.5918 ms
+2026-04-03 23:30:58.453 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1003 ms
+2026-04-03 23:31:04.631 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.0958 ms
+2026-04-03 23:31:08.557 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1262 ms
+2026-04-03 23:31:19.846 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 0.1085 ms

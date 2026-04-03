@@ -71,6 +71,7 @@ export interface UserSubscription {
   cancelledDate?: string | null;
   cancelledAt?: string | null;
   pausedDate?: string | null;
+  accessUntilDate?: string | null;
   status?: 'Active' | 'Paused' | 'Cancelled';
 }
 
@@ -137,6 +138,7 @@ export interface RawSubscriptionApiItem {
   pausedDate?: string | null;
   cancelledDate?: string | null;
   cancelledAt?: string | null;
+  accessUntilDate?: string | null;
   // B-13: Üyeli paylaşım e-postaları ve userId'leri
   sharedUserEmails?: string[];
   sharedUserIds?: string[];

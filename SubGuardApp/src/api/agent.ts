@@ -250,8 +250,8 @@ const Notifications = {
 // ─── Admin ────────────────────────────────────────────────────────────────────
 const Admin = {
   getStats:      ()                              => requests.get('/admin/stats'),
-  getUsers:      (search = '', page = 1, pageSize = 20) =>
-    requests.get(`/admin/users?search=${encodeURIComponent(search)}&page=${page}&pageSize=${pageSize}`),
+  getUsers:      (search = '', page = 1, pageSize = 20, adminsOnly = false) =>
+    requests.get(`/admin/users?search=${encodeURIComponent(search)}&page=${page}&pageSize=${pageSize}&adminsOnly=${adminsOnly}`),
   getUser:       (id: string)                    => requests.get(`/admin/users/${id}`),
   deactivate:    (id: string)                    => requests.patch(`/admin/users/${id}/deactivate`, {}),
   activate:      (id: string)                    => requests.patch(`/admin/users/${id}/activate`, {}),

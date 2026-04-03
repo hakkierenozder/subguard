@@ -31,6 +31,7 @@ namespace SubGuard.Core.DTOs
         public SubscriptionStatus Status { get; set; }
         public DateTime? PausedDate { get; set; }
         public DateTime? CancelledDate { get; set; }
+        public DateTime? AccessUntilDate { get; set; }
 
         /// <summary>Üyeli paylaşımlarda e-posta adresleri.</summary>
         public List<string> SharedUserEmails { get; set; } = new();

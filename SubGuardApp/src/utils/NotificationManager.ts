@@ -80,6 +80,20 @@ export async function cancelAllNotifications() {
 const toLocalClockDate = (date: Date, hour: number) =>
   new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, 0, 0, 0);
 
+const findSubGuardCalendar = async (): Promise<Calendar.Calendar | null> => {
+  try {
+    const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+    return (
+      calendars.find(
+        (calendar) => calendar.source.name === 'SubGuard' || calendar.title === 'SubGuard',
+      ) ?? null
+    );
+  } catch (error) {
+    console.log('Takvim listeleme hatasi:', error);
+    return null;
+  }
+};
+
 export async function syncLocalNotifications(subscriptions: UserSubscription[]) {
   await cancelAllNotifications();
 
@@ -135,10 +149,7 @@ export const requestCalendarPermissions = async (): Promise<boolean> => {
 
 const ensureSubGuardCalendar = async (): Promise<string | null> => {
   try {
-    const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
-    const subGuardCal = calendars.find(
-      (calendar) => calendar.source.name === 'SubGuard' || calendar.title === 'SubGuard',
-    );
+    const subGuardCal = await findSubGuardCalendar();
 
     if (subGuardCal) {
       return subGuardCal.id;
@@ -164,6 +175,30 @@ const ensureSubGuardCalendar = async (): Promise<string | null> => {
   } catch (error) {
     console.log('Takvim olusturma hatasi:', error);
     return null;
+  }
+};
+
+export const clearSubGuardCalendarEvents = async (): Promise<boolean> => {
+  try {
+    const hasPermission = await requestCalendarPermissions();
+    if (!hasPermission) return false;
+
+    const calendar = await findSubGuardCalendar();
+    if (!calendar) return true;
+
+    const now = new Date();
+    const cleanupStart = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+    const cleanupEnd = new Date(now.getFullYear() + 2, now.getMonth(), now.getDate());
+    const existingEvents = await Calendar.getEventsAsync([calendar.id], cleanupStart, cleanupEnd);
+
+    for (const event of existingEvents) {
+      await Calendar.deleteEventAsync(event.id);
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Takvim temizleme hatasi:', error);
+    return false;
   }
 };
 
@@ -193,16 +228,16 @@ const buildRecurrenceRule = (sub: UserSubscription, nextBillingDate: Date) => {
   };
 };
 
-export const syncSubscriptionsToCalendar = async (subscriptions: UserSubscription[]) => {
+export const syncSubscriptionsToCalendar = async (subscriptions: UserSubscription[]): Promise<boolean> => {
   try {
     const hasPermission = await requestCalendarPermissions();
     if (!hasPermission) {
       Alert.alert('Izin Gerekli', 'Takvim izni verilmedi. Ayarlardan izin verebilirsiniz.');
-      return;
+      return false;
     }
 
     const calendarId = await ensureSubGuardCalendar();
-    if (!calendarId) return;
+    if (!calendarId) return false;
 
     const now = new Date();
     const cleanupStart = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
@@ -243,8 +278,10 @@ export const syncSubscriptionsToCalendar = async (subscriptions: UserSubscriptio
     }
 
     Alert.alert('Basarili', 'Abonelikler cihaz takviminize islendi.');
+    return true;
   } catch (error) {
     console.error('Takvim senkronizasyon hatasi:', error);
     Alert.alert('Hata', 'Takvim senkronizasyonu sirasinda bir hata olustu.');
+    return false;
   }
 };

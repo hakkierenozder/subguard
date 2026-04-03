@@ -86,6 +86,13 @@ namespace SubGuard.Service.Services
 
             // Atomik rotasyon: eski token'ı sil + yeni token'ı ekle = tek commit
             // Böylece iki commit arasındaki hata ihtimalinde kullanıcı tokensız kalmaz
+            if (await _userManager.IsLockedOutAsync(user))
+            {
+                _refreshTokenRepo.Remove(existToken);
+                await _unitOfWork.CommitAsync();
+                return CustomResponseDto<TokenDto>.Fail(423, "Hesabiniz askiya alinmis. Lutfen bir yonetici ile iletisime gecin.");
+            }
+
             _refreshTokenRepo.Remove(existToken);
             var newRefreshToken = BuildRefreshTokenEntity(user.Id);
             await _refreshTokenRepo.AddAsync(newRefreshToken);

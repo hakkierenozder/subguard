@@ -21,7 +21,12 @@ import { useThemeColors } from '../constants/theme';
 import { useCatalogStore } from '../store/useCatalogStore';
 import agent from '../api/agent';
 import Toast from 'react-native-toast-message';
-import { getSubscriptionMonthlyShareInTry, getSubscriptionPortfolioMetrics } from '../utils/subscriptionMath';
+import {
+  getBillingPeriodCycleUnitLabel,
+  getSubscriptionCycleShare,
+  getSubscriptionMonthlyShareInTry,
+  getSubscriptionPortfolioMetrics,
+} from '../utils/subscriptionMath';
 
 // Dosya düzeyinde logo bileşeni — render içinde tanımlanırsa state sıfırlanır
 function SubscriptionLogo({ logoUrl, brandColor, name }: { logoUrl?: string; brandColor: string; name: string }) {
@@ -45,6 +50,8 @@ function SubscriptionLogo({ logoUrl, brandColor, name }: { logoUrl?: string; bra
 
 // Tip tanımları
 type SortType = 'date' | 'price_desc' | 'price_asc' | 'name' | 'created';
+type StatusFilter = 'all' | 'active' | 'started' | 'pending' | 'shared' | 'paused' | 'cancelled';
+type SubscriptionLifecycleState = 'started' | 'pending' | 'paused' | 'cancelled';
 
 type GroupHeader = {
   _type: 'header';
@@ -54,6 +61,33 @@ type GroupHeader = {
 };
 
 type ListRow = GroupHeader | (UserSubscription & { _type: 'item' });
+
+function hasSharedMembers(subscription: Pick<UserSubscription, 'sharedWith' | 'sharedGuests'>) {
+  return ((subscription.sharedWith?.length ?? 0) + (subscription.sharedGuests?.length ?? 0)) > 0;
+}
+
+function getSubscriptionLifecycleState(
+  subscription: UserSubscription,
+  referenceDate: Date = new Date(),
+): SubscriptionLifecycleState {
+  if (subscription.isActive === false) {
+    if (subscription.status === 'Cancelled' || subscription.cancelledDate || subscription.cancelledAt) {
+      return 'cancelled';
+    }
+
+    return 'paused';
+  }
+
+  return isSubscriptionActiveNow(
+    subscription.isActive,
+    subscription.firstPaymentDate,
+    subscription.contractStartDate,
+    referenceDate,
+    subscription.createdDate,
+  )
+    ? 'started'
+    : 'pending';
+}
 
 export default function MySubscriptionsScreen() {
   const colors = useThemeColors();
@@ -67,8 +101,8 @@ export default function MySubscriptionsScreen() {
     loading,
     loadingMore,
     hasMore,
-    fetchUserSubscriptions,
     loadMoreSubscriptions,
+    fetchAllUserSubscriptions,
     fetchExchangeRates,
     exchangeRates,
     removeSubscription,
@@ -76,9 +110,11 @@ export default function MySubscriptionsScreen() {
   } = useUserSubscriptionStore();
 
   React.useEffect(() => {
-    fetchUserSubscriptions();
-    fetchExchangeRates();
-    if (catalogItems.length === 0) fetchCatalog();
+    void Promise.allSettled([
+      fetchAllUserSubscriptions(),
+      fetchExchangeRates(),
+      catalogItems.length === 0 ? fetchCatalog() : Promise.resolve(),
+    ]);
   }, []);
 
   const portfolioMetrics = getSubscriptionPortfolioMetrics(subscriptions, exchangeRates);
@@ -132,7 +168,7 @@ export default function MySubscriptionsScreen() {
 
   // Filtre modal
   const [showFilterModal, setShowFilterModal] = useState(false);
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'paused'>('all');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [currencyFilter, setCurrencyFilter] = useState<'all' | 'TRY' | 'USD' | 'EUR'>('all');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
@@ -175,20 +211,65 @@ export default function MySubscriptionsScreen() {
     });
   }, []);
 
+  const archivedSubscriptions = useMemo(
+    () => subscriptions.filter((sub) => sub.isActive === false),
+    [subscriptions],
+  );
+
+  const currentScopeSubscriptions = useMemo(
+    () => subscriptions.filter((sub) => (archiveMode ? sub.isActive === false : sub.isActive !== false)),
+    [archiveMode, subscriptions],
+  );
+
+  const archivedCount = archivedSubscriptions.length;
+  const pausedCount = useMemo(
+    () => archivedSubscriptions.filter((sub) => getSubscriptionLifecycleState(sub) === 'paused').length,
+    [archivedSubscriptions],
+  );
+  const cancelledCount = useMemo(
+    () => archivedSubscriptions.filter((sub) => getSubscriptionLifecycleState(sub) === 'cancelled').length,
+    [archivedSubscriptions],
+  );
+  const ownedSharedCount = useMemo(
+    () => subscriptions.filter((sub) => sub.isActive !== false && hasSharedMembers(sub)).length,
+    [subscriptions],
+  );
+  const archivedMonthlyEquivalentTotal = useMemo(
+    () => archivedSubscriptions.reduce((sum, sub) => sum + getSubscriptionMonthlyShareInTry(sub, exchangeRates), 0),
+    [archivedSubscriptions, exchangeRates],
+  );
+
+  useEffect(() => {
+    const validFilters = archiveMode
+      ? new Set<StatusFilter>(['all', 'paused', 'cancelled'])
+      : new Set<StatusFilter>(['all', 'started', 'pending', 'shared']);
+
+    if (!validFilters.has(statusFilter)) {
+      setStatusFilter('all');
+    }
+  }, [archiveMode, statusFilter]);
+
+  useEffect(() => {
+    if (!selectedCategory) return;
+    if (!currentScopeSubscriptions.some((sub) => sub.category === selectedCategory)) {
+      setSelectedCategory(null);
+    }
+  }, [currentScopeSubscriptions, selectedCategory]);
+
   // Kategoriler
   const categories = useMemo(() => {
     const catMap: Record<string, number> = {};
-    subscriptions.filter(s => s.isActive !== false).forEach(s => {
+    currentScopeSubscriptions.forEach((s) => {
       if (s.category) catMap[s.category] = (catMap[s.category] || 0) + 1;
     });
     return catMap;
-  }, [subscriptions]);
+  }, [currentScopeSubscriptions]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await fetchUserSubscriptions();
+    await Promise.allSettled([fetchAllUserSubscriptions(), fetchExchangeRates()]);
     setRefreshing(false);
-  }, []);
+  }, [fetchAllUserSubscriptions, fetchExchangeRates]);
 
   const getNextPaymentDateText = (sub: UserSubscription): string => {
     const todayMidnight = new Date();
@@ -322,13 +403,166 @@ export default function MySubscriptionsScreen() {
 
     return rows;
   };
+
+  const getStatusMeta = useCallback((lifecycle: SubscriptionLifecycleState) => {
+    switch (lifecycle) {
+      case 'pending':
+        return { label: 'Bekliyor', bg: '#F59E0B20', text: '#F59E0B' };
+      case 'paused':
+        return { label: 'Donduruldu', bg: '#6B728020', text: '#6B7280' };
+      case 'cancelled':
+        return { label: 'İptal edildi', bg: colors.error + '18', text: colors.error };
+      default:
+        return { label: 'Aktif', bg: colors.success + '18', text: colors.success };
+    }
+  }, [colors.error, colors.success]);
+
+  const visibleSubscriptions = useMemo(() => {
+    const query = debouncedQuery.trim().toLowerCase();
+
+    let filtered = currentScopeSubscriptions.filter((sub) => {
+      if (!query) return true;
+
+      return (
+        sub.name.toLowerCase().includes(query)
+        || (sub.category ?? '').toLowerCase().includes(query)
+        || (hasSharedMembers(sub) && 'paylasimli'.includes(query))
+      );
+    });
+
+    if (selectedCategory) {
+      filtered = filtered.filter((sub) => sub.category === selectedCategory);
+    }
+
+    switch (statusFilter) {
+      case 'started':
+        filtered = filtered.filter((sub) => getSubscriptionLifecycleState(sub) === 'started');
+        break;
+      case 'pending':
+        filtered = filtered.filter((sub) => getSubscriptionLifecycleState(sub) === 'pending');
+        break;
+      case 'shared':
+        filtered = filtered.filter((sub) => hasSharedMembers(sub));
+        break;
+      case 'paused':
+        filtered = filtered.filter((sub) => getSubscriptionLifecycleState(sub) === 'paused');
+        break;
+      case 'cancelled':
+        filtered = filtered.filter((sub) => getSubscriptionLifecycleState(sub) === 'cancelled');
+        break;
+      default:
+        break;
+    }
+
+    if (currencyFilter !== 'all') {
+      filtered = filtered.filter((sub) => sub.currency === currencyFilter);
+    }
+
+    const min = parseFloat(minPrice);
+    const max = parseFloat(maxPrice);
+    if (!isNaN(min) || !isNaN(max)) {
+      filtered = filtered.filter((sub) => {
+        const monthlyEquivalentTRY = getSubscriptionMonthlyShareInTry(sub, exchangeRates);
+        if (!isNaN(min) && monthlyEquivalentTRY < min) return false;
+        if (!isNaN(max) && monthlyEquivalentTRY > max) return false;
+        return true;
+      });
+    }
+
+    return [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'date':
+          if (archiveMode) {
+            const archivedAtA = new Date(a.cancelledDate ?? a.pausedDate ?? a.createdDate ?? 0).getTime();
+            const archivedAtB = new Date(b.cancelledDate ?? b.pausedDate ?? b.createdDate ?? 0).getTime();
+            return archivedAtB - archivedAtA;
+          }
+
+          return getDaysLeftForSub(a.billingDay, a.billingPeriod, a.billingMonth, a.createdDate, a.firstPaymentDate, a.contractStartDate)
+            - getDaysLeftForSub(b.billingDay, b.billingPeriod, b.billingMonth, b.createdDate, b.firstPaymentDate, b.contractStartDate);
+        case 'price_desc':
+          return getSubscriptionMonthlyShareInTry(b, exchangeRates) - getSubscriptionMonthlyShareInTry(a, exchangeRates);
+        case 'price_asc':
+          return getSubscriptionMonthlyShareInTry(a, exchangeRates) - getSubscriptionMonthlyShareInTry(b, exchangeRates);
+        case 'name':
+          return a.name.localeCompare(b.name);
+        case 'created':
+          return new Date(b.createdDate ?? 0).getTime() - new Date(a.createdDate ?? 0).getTime();
+        default:
+          return 0;
+      }
+    });
+  }, [
+    archiveMode,
+    currentScopeSubscriptions,
+    currencyFilter,
+    debouncedQuery,
+    exchangeRates,
+    maxPrice,
+    minPrice,
+    selectedCategory,
+    sortBy,
+    statusFilter,
+  ]);
+
+  const displayRows = useMemo<ListRow[]>(() => {
+    if (!groupByCategory) {
+      return visibleSubscriptions.map((subscription) => ({ ...subscription, _type: 'item' as const }));
+    }
+
+    const groupMap: Record<string, UserSubscription[]> = {};
+    visibleSubscriptions.forEach((sub) => {
+      const category = sub.category || 'Diğer';
+      if (!groupMap[category]) groupMap[category] = [];
+      groupMap[category].push(sub);
+    });
+
+    const rows: ListRow[] = [];
+    Object.keys(groupMap).sort().forEach((category) => {
+      const items = groupMap[category];
+      const totalTRY = items.reduce((sum, sub) => {
+        if (archiveMode) {
+          return sum + getSubscriptionMonthlyShareInTry(sub, exchangeRates);
+        }
+
+        if (!isSubscriptionActiveNow(sub.isActive, sub.firstPaymentDate, sub.contractStartDate, new Date(), sub.createdDate)) {
+          return sum;
+        }
+
+        return sum + getSubscriptionMonthlyShareInTry(sub, exchangeRates);
+      }, 0);
+
+      rows.push({ _type: 'header', category, count: items.length, totalTRY });
+      items.forEach((entry) => rows.push({ ...entry, _type: 'item' as const }));
+    });
+
+    return rows;
+  }, [archiveMode, exchangeRates, groupByCategory, visibleSubscriptions]);
+
+  const lifecycleStatusOptions = useMemo(
+    () => (
+      archiveMode
+        ? [
+            { key: 'all' as const, label: 'Tümü' },
+            { key: 'paused' as const, label: 'Donduruldu' },
+            { key: 'cancelled' as const, label: 'İptal edildi' },
+          ]
+        : [
+            { key: 'all' as const, label: 'Tümü' },
+            { key: 'started' as const, label: 'Başlamış' },
+            { key: 'pending' as const, label: 'Bekleyen' },
+            { key: 'shared' as const, label: 'Paylaşımlı' },
+          ]
+    ),
+    [archiveMode],
+  );
   // ─────────────────────────────────────────────────────────────────────
 
   // ─── Toplu Seçim Handlers ─────────────────────────────────────────────
   const selectAll = useCallback(() => {
-    const allIds = getFilteredSubscriptions.map(s => s.id);
+    const allIds = visibleSubscriptions.map(s => s.id);
     setSelectedIds(new Set(allIds));
-  }, [getFilteredSubscriptions]);
+  }, [visibleSubscriptions]);
 
   const handleBulkDelete = () => {
     const count = selectedIds.size;
@@ -359,7 +593,7 @@ export default function MySubscriptionsScreen() {
     if (count === 0) return;
     hapticMedium();
     // Seçili aktif olanları duraklat, pasif olanları aktifleştir
-    const selected = getFilteredSubscriptions.filter(s => selectedIds.has(s.id));
+    const selected = visibleSubscriptions.filter(s => selectedIds.has(s.id));
     const activeOnes = selected.filter(s => s.isActive !== false);
     const passiveOnes = selected.filter(s => s.isActive === false);
     const label = activeOnes.length > 0
@@ -385,6 +619,80 @@ export default function MySubscriptionsScreen() {
   // ─────────────────────────────────────────────────────────────────────
 
   // ─── Swipe Aksiyonları ────────────────────────────────────────────────
+  const handleBulkStatusAction = () => {
+    const count = selectedIds.size;
+    if (count === 0) return;
+
+    hapticMedium();
+    const selected = visibleSubscriptions.filter((sub) => selectedIds.has(sub.id));
+    const activeOnes = selected.filter((sub) => {
+      const lifecycle = getSubscriptionLifecycleState(sub);
+      return lifecycle === 'started' || lifecycle === 'pending';
+    });
+    const archivedOnes = selected.filter((sub) => {
+      const lifecycle = getSubscriptionLifecycleState(sub);
+      return lifecycle === 'paused' || lifecycle === 'cancelled';
+    });
+
+    const label = activeOnes.length > 0
+      ? `${activeOnes.length} abonelik duraklatılacak${archivedOnes.length > 0 ? `, ${archivedOnes.length} abonelik yeniden açılacak` : ''}.`
+      : `${archivedOnes.length} abonelik yeniden açılacak.`;
+
+    Alert.alert('Toplu Durum Değiştir', label, [
+      { text: 'Vazgeç', style: 'cancel' },
+      {
+        text: 'Onayla',
+        onPress: async () => {
+          for (const sub of activeOnes) {
+            await updateSubscription(sub.id, {
+              isActive: false,
+              status: 'Paused',
+              pausedDate: new Date().toISOString(),
+              cancelledDate: null,
+              cancelledAt: null,
+            });
+          }
+
+          for (const sub of archivedOnes) {
+            await updateSubscription(sub.id, {
+              isActive: true,
+              status: 'Active',
+              pausedDate: null,
+              cancelledDate: null,
+              cancelledAt: null,
+            });
+          }
+
+          setSelectMode(false);
+          setSelectedIds(new Set());
+        },
+      },
+    ]);
+  };
+
+  const handleRowStatusToggle = (item: UserSubscription) => {
+    hapticMedium();
+    const lifecycle = getSubscriptionLifecycleState(item);
+    const nextPayload = (lifecycle === 'paused' || lifecycle === 'cancelled')
+      ? {
+          isActive: true,
+          status: 'Active' as const,
+          pausedDate: null,
+          cancelledDate: null,
+          cancelledAt: null,
+        }
+      : {
+          isActive: false,
+          status: 'Paused' as const,
+          pausedDate: new Date().toISOString(),
+          cancelledDate: null,
+          cancelledAt: null,
+        };
+
+    updateSubscription(item.id, nextPayload);
+    swipeRefs.current.get(item.id)?.close();
+  };
+
   const swipeRefs = useRef<Map<string, Swipeable | null>>(new Map());
   const prevOpenedId = useRef<string | null>(null);
 
@@ -417,7 +725,9 @@ export default function MySubscriptionsScreen() {
 
   const handleTogglePause = (item: UserSubscription) => {
     hapticMedium();
-    const isActive = item.isActive !== false;
+    const lifecycle = getSubscriptionLifecycleState(item);
+    const isArchived = lifecycle === 'paused' || lifecycle === 'cancelled';
+    const isActive = !isArchived;
     updateSubscription(item.id, { isActive: !isActive, cancelledDate: !isActive ? null : undefined });
     swipeRefs.current.get(item.id)?.close();
   };
@@ -443,17 +753,19 @@ export default function MySubscriptionsScreen() {
   const renderLeftActions = (item: UserSubscription) => (
     prog: Animated.AnimatedInterpolation<number>
   ) => {
-    const isActive = item.isActive !== false;
+    const lifecycle = getSubscriptionLifecycleState(item);
+    const isArchived = lifecycle === 'paused' || lifecycle === 'cancelled';
+    const isActive = !isArchived;
     const scale = prog.interpolate({ inputRange: [0, 1], outputRange: [0.75, 1], extrapolate: 'clamp' });
     return (
       <TouchableOpacity
-        style={[styles.swipeLeftAction, { backgroundColor: isActive ? '#F59E0B' : '#10B981' }]}
-        onPress={() => handleTogglePause(item)}
+        style={[styles.swipeLeftAction, { backgroundColor: isArchived ? '#10B981' : '#F59E0B' }]}
+        onPress={() => handleRowStatusToggle(item)}
         activeOpacity={0.85}
       >
         <Animated.View style={[styles.swipeActionContent, { transform: [{ scale }] }]}>
           <Ionicons
-            name={isActive ? 'pause-circle-outline' : 'play-circle-outline'}
+            name={isArchived ? 'play-circle-outline' : 'pause-circle-outline'}
             size={24}
             color="#FFF"
           />
@@ -488,6 +800,12 @@ export default function MySubscriptionsScreen() {
   const renderHeader = () => {
     const activeSubsCount = portfolioMetrics.startedCount;
     const categoryList = Object.keys(categories).sort();
+    const heroAmount = archiveMode ? archivedMonthlyEquivalentTotal : totalExpense;
+    const heroLabel = archiveMode ? 'ARŞİV AYLIK EŞDEĞERİ' : 'AKTİF AYLIK YÜK';
+    const heroSummary = archiveMode
+      ? `${archivedCount} arşiv kayıt${pausedCount > 0 ? ` · ${pausedCount} donduruldu` : ''}${cancelledCount > 0 ? ` · ${cancelledCount} iptal edildi` : ''}`
+      : `${activeSubsCount} başlamış abonelik${portfolioMetrics.pendingCount > 0 ? ` · ${portfolioMetrics.pendingCount} bekliyor` : ''}${ownedSharedCount > 0 ? ` · ${ownedSharedCount} paylaşımlı` : ''}`;
+    const categoryTotalCount = currentScopeSubscriptions.length;
 
     return (
       <View style={styles.headerContainer}>
@@ -504,14 +822,14 @@ export default function MySubscriptionsScreen() {
 
           <View style={styles.heroCardTop}>
               <View style={{ flex: 1 }}>
-                  <Text style={styles.heroLabel}>AKTİF AYLIK YÜK</Text>
+                  <Text style={styles.heroLabel}>{heroLabel}</Text>
                   <View style={styles.heroAmountRow}>
                       <Text style={styles.heroCurrency}>₺</Text>
-                      <Text style={styles.heroAmount}>{totalExpense.toFixed(2)}</Text>
+                      <Text style={styles.heroAmount}>{heroAmount.toFixed(2)}</Text>
                   </View>
                   <Text style={[styles.heroLabel, { marginTop: 4, opacity: 0.8 }]}>
-                      {activeSubsCount} başlamış abonelik
-                      {portfolioMetrics.pendingCount > 0 ? ` · ${portfolioMetrics.pendingCount} bekliyor` : ''}
+                      {heroSummary}
+                      {''}
                       {categoryList.length > 0 ? ` · ${categoryList.length} kategori` : ''}
                   </Text>
               </View>
@@ -552,6 +870,26 @@ export default function MySubscriptionsScreen() {
                 <Ionicons name="chevron-forward" size={14} color="rgba(255,255,255,0.7)" />
               </TouchableOpacity>
           </View>
+          {(ownedSharedCount > 0 || archivedCount > 0) && (
+            <View style={styles.heroSummaryRow}>
+              {ownedSharedCount > 0 && !archiveMode && (
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('SharedSubscriptions')}
+                  style={styles.heroSummaryPill}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="people-outline" size={13} color="rgba(255,255,255,0.9)" />
+                  <Text style={styles.heroSummaryPillText}>Paylaşımlı {ownedSharedCount}</Text>
+                </TouchableOpacity>
+              )}
+              {archivedCount > 0 && (
+                <View style={styles.heroSummaryPill}>
+                  <Ionicons name="archive-outline" size={13} color="rgba(255,255,255,0.9)" />
+                  <Text style={styles.heroSummaryPillText}>Arşiv {archivedCount}</Text>
+                </View>
+              )}
+            </View>
+          )}
         </LinearGradient>
 
         {/* Arama */}
@@ -593,7 +931,7 @@ export default function MySubscriptionsScreen() {
               </Text>
               <View style={[styles.catChipCount, { backgroundColor: !selectedCategory ? 'rgba(255,255,255,0.25)' : colors.inputBg }]}>
                 <Text style={[styles.catChipCountText, { color: !selectedCategory ? '#FFF' : colors.textSec }]}>
-                  {activeSubsCount}
+                  {categoryTotalCount}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -676,10 +1014,10 @@ export default function MySubscriptionsScreen() {
             <Text style={[styles.filterToggleText, { color: archiveMode ? '#FFF' : colors.textSec }]}>
               Arşiv
             </Text>
-            {subscriptions.filter(s => s.isActive === false).length > 0 && (
+            {archivedCount > 0 && (
               <View style={[styles.filterBadge, { backgroundColor: archiveMode ? 'rgba(255,255,255,0.35)' : colors.inputBg }]}>
                 <Text style={[styles.filterBadgeText, { color: archiveMode ? '#FFF' : colors.textSec }]}>
-                  {subscriptions.filter(s => s.isActive === false).length}
+                  {archivedCount}
                 </Text>
               </View>
             )}
@@ -722,7 +1060,9 @@ export default function MySubscriptionsScreen() {
         </View>
       </View>
       <View style={styles.groupHeaderRight}>
-        <Text style={[styles.groupHeaderTotalLabel, { color: colors.textSec }]}>Aktif yük</Text>
+        <Text style={[styles.groupHeaderTotalLabel, { color: colors.textSec }]}>
+          {archiveMode ? 'Aylık eşdeğer' : 'Aktif yük'}
+        </Text>
         <Text style={[styles.groupHeaderTotal, { color: colors.textMain }]}>
           ₺{row.totalTRY.toFixed(2)}
         </Text>
@@ -738,7 +1078,15 @@ export default function MySubscriptionsScreen() {
     const sub = item as UserSubscription & { _type: 'item' };
     const brandColor = sub.colorCode || colors.primary;
     const nextPaymentText = getNextPaymentDateText(sub);
-    const isPassive = sub.isActive === false;
+    const lifecycle = getSubscriptionLifecycleState(sub);
+    const statusMeta = getStatusMeta(lifecycle);
+    const isPending = lifecycle === 'pending';
+    const isStarted = lifecycle === 'started';
+    const cycleUnit = getBillingPeriodCycleUnitLabel(sub.billingPeriod);
+    const cycleShare = getSubscriptionCycleShare(sub);
+    const monthlyShareTRY = getSubscriptionMonthlyShareInTry(sub, exchangeRates);
+    const showMonthlyHint = !hasSharedMembers(sub) && (sub.currency !== 'TRY' || sub.billingPeriod === 'Yearly');
+    const isPassive = lifecycle === 'paused' || lifecycle === 'cancelled';
 
     const currentRate = exchangeRates[sub.currency] || 1;
     const priceInTry = sub.price * currentRate;
@@ -800,14 +1148,19 @@ export default function MySubscriptionsScreen() {
                 </View>
               ) : null}
               <Ionicons
-                name="time-outline"
+                name={isPassive ? 'pause-circle-outline' : 'time-outline'}
                 size={11}
                 color={colors.textSec}
                 style={{ marginLeft: (sub.category && !groupByCategory) ? 6 : 0, marginRight: 3 }}
               />
               <Text style={[styles.nextDateText, { color: colors.textSec }]}>
-                {isPassive ? 'Donduruldu' : nextPaymentText}
+                {isPassive ? statusMeta.label : nextPaymentText}
               </Text>
+              {isPending && (
+                <View style={[styles.inlineStateChip, { backgroundColor: statusMeta.bg }]}>
+                  <Text style={[styles.inlineStateChipText, { color: statusMeta.text }]}>Bekliyor</Text>
+                </View>
+              )}
               {sub.hasContract && sub.contractEndDate && (() => {
                 const cDays = Math.ceil((new Date(sub.contractEndDate).getTime() - Date.now()) / 86400000);
                 if (cDays > 30) return null;
@@ -827,23 +1180,28 @@ export default function MySubscriptionsScreen() {
           <Text style={[styles.priceText, { color: colors.textMain }, isPassive && { color: colors.textSec }]}>
             {sub.price}
           </Text>
-          {isShared && !isPassive && (
+          {isShared && (
+            <Text style={[styles.currencyText, { color: colors.textSec, fontSize: 10, marginTop: 1 }]}>
+              {`Payın ${cycleShare.toFixed(2)} ${sub.currency}/${cycleUnit}`}
+            </Text>
+          )}
+          {false && isShared && !isPassive && (
             <Text style={[styles.currencyText, { color: colors.textSec, fontSize: 10, marginTop: 1 }]}>
               {(sub.price / ((sub.sharedWith?.length ?? 0) + (sub.sharedGuests?.length ?? 0) + 1)).toFixed(2)} kişi başı
             </Text>
           )}
           <View style={styles.currencyAndActionRow}>
-            <Text style={[styles.currencyText, { color: colors.textSec }]}>{sub.currency}</Text>
+            <Text style={[styles.currencyText, { color: colors.textSec }]}>{`${sub.currency} / ${cycleUnit}`}</Text>
 
-            {isForeignCurrency && !isPassive && (
+            {showMonthlyHint && !isPassive && (
               <View style={{ backgroundColor: colors.primary, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, marginLeft: 6, marginRight: 6 }}>
                 <Text style={{ color: '#fff', fontSize: 10, fontWeight: 'bold' }}>
-                  ≈ ₺{priceInTry.toFixed(0)}
+                  {`≈ ₺${monthlyShareTRY.toFixed(0)}/ay`}
                 </Text>
               </View>
             )}
 
-            {!isPassive && isShared && (
+            {false && !isPassive && isShared && (
               <TouchableOpacity
                 style={[styles.whatsappButton, { backgroundColor: colors.success + '22' }]}
                 onPress={() => handleShareOnWhatsApp(sub)}
@@ -852,9 +1210,9 @@ export default function MySubscriptionsScreen() {
                 <FontAwesome5 name="whatsapp" size={14} color="#25D366" />
               </TouchableOpacity>
             )}
-            {!isPassive && (
+            {isStarted && (
               <TouchableOpacity
-                style={[styles.whatsappButton, { backgroundColor: colors.success + '22', marginLeft: isShared ? 4 : 6 }]}
+                style={[styles.whatsappButton, { backgroundColor: colors.success + '22', marginLeft: 6 }]}
                 onPress={() => handleSendReminder(sub)}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
@@ -896,7 +1254,7 @@ export default function MySubscriptionsScreen() {
           <SubscriptionSkeletonList count={5} />
         ) : (
         <FlatList
-          data={getListData()}
+          data={displayRows}
           keyExtractor={(item) =>
             item._type === 'header' ? `header-${item.category}` : (item as UserSubscription).id
           }
@@ -986,16 +1344,28 @@ export default function MySubscriptionsScreen() {
 
             {/* Duraklat/Aktifleştir */}
             <TouchableOpacity
-              onPress={handleBulkPause}
+              onPress={handleBulkStatusAction}
               disabled={selectedIds.size === 0}
               style={{
                 flexDirection: 'row', alignItems: 'center', gap: 5,
                 paddingHorizontal: 14, paddingVertical: 9, borderRadius: 12,
-                backgroundColor: selectedIds.size > 0 ? '#F59E0B20' : colors.inputBg,
+                backgroundColor: selectedIds.size > 0 ? (archiveMode ? '#10B98120' : '#F59E0B20') : colors.inputBg,
               }}
             >
-              <Ionicons name="pause-circle-outline" size={16} color={selectedIds.size > 0 ? '#F59E0B' : colors.textSec} />
-              <Text style={{ fontSize: 13, fontWeight: '700', color: selectedIds.size > 0 ? '#F59E0B' : colors.textSec }}>Duraklat</Text>
+              <Ionicons
+                name={archiveMode ? 'play-circle-outline' : 'pause-circle-outline'}
+                size={16}
+                color={selectedIds.size > 0 ? (archiveMode ? '#10B981' : '#F59E0B') : colors.textSec}
+              />
+              <Text
+                style={{
+                  fontSize: 13,
+                  fontWeight: '700',
+                  color: selectedIds.size > 0 ? (archiveMode ? '#10B981' : '#F59E0B') : colors.textSec,
+                }}
+              >
+                {archiveMode ? 'Yeniden Aç' : 'Duraklat'}
+              </Text>
             </TouchableOpacity>
 
             {/* Sil */}
@@ -1160,14 +1530,18 @@ export default function MySubscriptionsScreen() {
 
                 {/* DURUM */}
                 <Text style={[styles.sheetSectionLabel, { color: colors.textSec, marginTop: 20 }]}>DURUM</Text>
-                <Text style={[styles.sheetSectionDesc, { color: colors.textSec }]}>Aktif, dondurulmuş veya tüm abonelikler</Text>
+                <Text style={[styles.sheetSectionDesc, { color: colors.textSec }]}>
+                  {archiveMode
+                    ? 'Arşivde dondurulmuş veya iptal edilmiş kayıtları filtrele'
+                    : 'Başlamış, bekleyen veya paylaşımlı abonelikleri filtrele'}
+                </Text>
                 <View style={styles.filterChipRow}>
-                  {([
+                  {lifecycleStatusOptions.map(opt => (/*
                     { key: 'all', label: 'Tümü' },
                     { key: 'active', label: '● Aktif' },
                     { key: 'paused', label: '⏸ Dondurulmuş' },
                   ] as { key: typeof statusFilter; label: string }[]).map(opt => (
-                    <TouchableOpacity key={opt.key} style={[styles.advFilterChip, {
+                    */<TouchableOpacity key={opt.key} style={[styles.advFilterChip, {
                       backgroundColor: statusFilter === opt.key ? colors.primary : colors.inputBg,
                       borderColor: statusFilter === opt.key ? colors.primary : colors.border,
                     }]} onPress={() => setStatusFilter(opt.key)}>
@@ -1338,12 +1712,17 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   heroCardBottom: {
+    display: 'none',
+  },
+  heroSummaryRow: {
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.12)',
     paddingTop: 14,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
+    flexWrap: 'wrap',
+    gap: 8,
   },
   heroSubText: {
     color: 'rgba(255,255,255,0.8)',
@@ -1351,6 +1730,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   sharedBtn: {
+    display: 'none',
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.12)',
@@ -1364,6 +1744,20 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginLeft: 5,
     marginRight: 3,
+  },
+  heroSummaryPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 999,
+  },
+  heroSummaryPillText: {
+    color: 'rgba(255,255,255,0.92)',
+    fontSize: 12,
+    fontWeight: '700',
+    marginLeft: 6,
   },
 
   searchContainer: {
@@ -1669,6 +2063,19 @@ const styles = StyleSheet.create({
   nextDateText: {
     fontSize: 12,
     fontWeight: '500',
+  },
+  inlineStateChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginLeft: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 999,
+  },
+  inlineStateChipText: {
+    fontSize: 10,
+    fontWeight: '700',
   },
   rowRight: {
     alignItems: 'flex-end',

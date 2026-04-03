@@ -5,6 +5,7 @@ namespace SubGuard.Core.DTOs
         public int TotalUsers { get; set; }
         public int ActiveSubscriptions { get; set; }
         public int TotalSubscriptions { get; set; }
+        public int CatalogsWithSubscriptionsCount { get; set; }
         public List<CatalogStatDto> TopCatalogs { get; set; } = new();
         public int TotalCatalogs { get; set; }
         public List<CatalogStatDto> AllCatalogStats { get; set; } = new();

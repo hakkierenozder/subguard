@@ -14,25 +14,53 @@ namespace SubGuard.Service.Services
         private readonly UserManager<AppUser> _userManager;
         private readonly AppDbContext _db;
         private readonly ILogger<AdminService> _logger;
+        private readonly IRevokedUserStore _revokedUserStore;
 
         public AdminService(
             UserManager<AppUser> userManager,
             AppDbContext db,
-            ILogger<AdminService> logger)
+            ILogger<AdminService> logger,
+            IRevokedUserStore revokedUserStore)
         {
             _userManager = userManager;
             _db = db;
             _logger = logger;
+            _revokedUserStore = revokedUserStore;
         }
 
         public async Task<CustomResponseDto<PagedResponseDto<AdminUserDto>>> GetUsersAsync(
-            string? search, int page, int pageSize)
+            string? search, int page, int pageSize, bool adminsOnly = false)
         {
             if (page < 1) page = 1;
             if (pageSize < 1 || pageSize > 100) pageSize = 20;
 
             // IQueryable üzerinde çalışıyoruz — DB'ye tek sorgu gidecek
             var query = _userManager.Users.AsQueryable();
+            var adminRoleId = await _db.Roles
+                .Where(r => r.Name == "Admin")
+                .Select(r => r.Id)
+                .FirstOrDefaultAsync();
+
+            if (adminsOnly)
+            {
+                if (adminRoleId == null)
+                {
+                    return CustomResponseDto<PagedResponseDto<AdminUserDto>>.Success(200,
+                        new PagedResponseDto<AdminUserDto>
+                        {
+                            Items = new List<AdminUserDto>(),
+                            TotalCount = 0,
+                            Page = page,
+                            PageSize = pageSize
+                        });
+                }
+
+                var adminUserIdsQuery = _db.UserRoles
+                    .Where(ur => ur.RoleId == adminRoleId)
+                    .Select(ur => ur.UserId);
+
+                query = query.Where(u => adminUserIdsQuery.Contains(u.Id));
+            }
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -59,11 +87,6 @@ namespace SubGuard.Service.Services
                 .ToDictionaryAsync(x => x.UserId, x => x.Count);
 
             // Rol kontrolü: tek toplu sorgu (AspNetUserRoles üzerinden)
-            var adminRoleId = await _db.Roles
-                .Where(r => r.Name == "Admin")
-                .Select(r => r.Id)
-                .FirstOrDefaultAsync();
-
             HashSet<string> adminUserIds = new();
             if (adminRoleId != null)
             {
@@ -120,15 +143,53 @@ namespace SubGuard.Service.Services
             });
         }
 
-        public async Task<CustomResponseDto<bool>> DeactivateUserAsync(string userId)
+        public async Task<CustomResponseDto<bool>> DeactivateUserAsync(string userId, string adminId)
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
                 return CustomResponseDto<bool>.Fail(404, "Kullanıcı bulunamadı.");
 
+            if (user.Id == adminId)
+                return CustomResponseDto<bool>.Fail(400, "Kendi hesabinizi askiya alamazsiniz.");
+
+            var isTargetAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+            if (isTargetAdmin)
+            {
+                var adminRoleId = await _db.Roles
+                    .Where(r => r.Name == "Admin")
+                    .Select(r => r.Id)
+                    .FirstOrDefaultAsync();
+
+                if (adminRoleId != null)
+                {
+                    var adminCount = await _db.UserRoles
+                        .Where(ur => ur.RoleId == adminRoleId)
+                        .Select(ur => ur.UserId)
+                        .Distinct()
+                        .CountAsync();
+
+                    if (adminCount <= 1)
+                        return CustomResponseDto<bool>.Fail(400, "Son admin kullanici askiya alinamaz.");
+                }
+            }
+
             user.LockoutEnabled = true;
             user.LockoutEnd = DateTimeOffset.MaxValue;
-            await _userManager.UpdateAsync(user);
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+                return CustomResponseDto<bool>.Fail(400, updateResult.Errors.Select(e => e.Description).ToList());
+
+            var refreshTokens = await _db.RefreshTokens
+                .Where(t => t.UserId == userId)
+                .ToListAsync();
+
+            if (refreshTokens.Count > 0)
+            {
+                _db.RefreshTokens.RemoveRange(refreshTokens);
+                await _db.SaveChangesAsync();
+            }
+
+            await _revokedUserStore.RevokeAsync(userId);
 
             _logger.LogInformation("Kullanıcı askıya alındı. UserId: {UserId}", userId);
             return CustomResponseDto<bool>.Success(200, true);
@@ -141,7 +202,11 @@ namespace SubGuard.Service.Services
                 return CustomResponseDto<bool>.Fail(404, "Kullanıcı bulunamadı.");
 
             user.LockoutEnd = null;
-            await _userManager.UpdateAsync(user);
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+                return CustomResponseDto<bool>.Fail(400, result.Errors.Select(e => e.Description).ToList());
+
+            await _userManager.ResetAccessFailedCountAsync(user);
 
             _logger.LogInformation("Kullanıcı askıdan çıkarıldı. UserId: {UserId}", userId);
             return CustomResponseDto<bool>.Success(200, true);
@@ -157,6 +222,12 @@ namespace SubGuard.Service.Services
 
             var activeSubs = await _db.UserSubscriptions
                 .Where(s => !s.IsDeleted && s.Status == SubscriptionStatus.Active)
+                .CountAsync();
+
+            var catalogsWithSubscriptionsCount = await _db.UserSubscriptions
+                .Where(s => !s.IsDeleted && s.CatalogId != null)
+                .Select(s => s.CatalogId!.Value)
+                .Distinct()
                 .CountAsync();
 
             // En popüler 5 katalog — GroupBy+Take+Join EF Core'da tek sorguda çevrilemiyor;
@@ -246,6 +317,7 @@ namespace SubGuard.Service.Services
                 TotalUsers           = totalUsers,
                 TotalSubscriptions   = totalSubs,
                 ActiveSubscriptions  = activeSubs,
+                CatalogsWithSubscriptionsCount = catalogsWithSubscriptionsCount,
                 TopCatalogs          = topCatalogs,
                 TotalCatalogs        = totalCatalogs,
                 AllCatalogStats      = allCatalogStats,

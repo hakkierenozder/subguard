@@ -58,9 +58,10 @@ namespace SubGuard.API.Controllers
         public async Task<IActionResult> GetUsers(
             [FromQuery] string? search,
             [FromQuery] int page = 1,
-            [FromQuery] int pageSize = 20)
+            [FromQuery] int pageSize = 20,
+            [FromQuery] bool adminsOnly = false)
         {
-            return CreateActionResult(await _adminService.GetUsersAsync(search, page, pageSize));
+            return CreateActionResult(await _adminService.GetUsersAsync(search, page, pageSize, adminsOnly));
         }
 
         /// <summary>Tek kullanıcı detayı.</summary>
@@ -82,7 +83,7 @@ namespace SubGuard.API.Controllers
         public async Task<IActionResult> Deactivate(string id)
         {
             _logger.LogWarning("[AUDIT] Admin {AdminId} kullanıcıyı askıya aldı. TargetUserId: {TargetId}", AdminId, id);
-            return CreateActionResult(await _adminService.DeactivateUserAsync(id));
+            return CreateActionResult(await _adminService.DeactivateUserAsync(id, AdminId));
         }
 
         /// <summary>Kullanıcının askıya alınmasını kaldırır.</summary>

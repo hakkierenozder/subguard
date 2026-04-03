@@ -53,6 +53,11 @@ namespace SubGuard.Core.Entities
         public SubscriptionStatus Status { get; set; } = SubscriptionStatus.Active;
         public DateTime? PausedDate { get; set; }
         public DateTime? CancelledDate { get; set; }
+        /// <summary>
+        /// İptal edilen aboneliğin mevcut ücretli erişiminin ne zamana kadar devam edeceği.
+        /// İptal anındaki fatura döngüsünün sonu olarak hesaplanır.
+        /// </summary>
+        public DateTime? AccessUntilDate { get; set; }
 
         // Navigation properties (ilişkisel tablolar)
         public ICollection<SubscriptionShare> Shares { get; set; } = new List<SubscriptionShare>();

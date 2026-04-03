@@ -1,361 +1,743 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView,
-  Switch, StatusBar, Linking, Share, Animated,
+  ActivityIndicator,
+  Alert,
+  Linking,
+  Modal,
+  ScrollView,
+  Share,
+  StatusBar,
+  StyleSheet,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
+
 import { useThemeColors } from '../constants/theme';
+import { useNotificationStore } from '../store/useNotificationStore';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
-import { useNotificationStore } from '../store/useNotificationStore';
-import { logout, removeToken, getRefreshToken } from '../utils/AuthManager';
-import { registerForPushNotificationsAsync, getExpoPushToken, cancelAllNotifications, syncSubscriptionsToCalendar } from '../utils/NotificationManager';
+import { logout, getRefreshToken } from '../utils/AuthManager';
+import {
+  cancelAllNotifications,
+  clearSubGuardCalendarEvents,
+  getExpoPushToken,
+  registerForPushNotificationsAsync,
+  syncSubscriptionsToCalendar,
+} from '../utils/NotificationManager';
 import agent from '../api/agent';
-import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import EditProfileModal from '../components/EditProfileModal';
 import ChangePasswordModal from '../components/ChangePasswordModal';
+import { UserProfileDto, UserSubscription } from '../types';
+import {
+  convertAmountBetweenCurrencies,
+  getSubscriptionMonthlyShareInCurrency,
+  getSubscriptionPortfolioMetrics,
+} from '../utils/subscriptionMath';
 
+const APP_VERSION = (require('../../app.json').expo.version as string) || '1.0.0';
+const REMINDER_DAY_PRESETS = [1, 3, 7] as const;
+const NOTIFY_HOUR_PRESETS = [9, 18, 20] as const;
+const UPCOMING_DAY_OPTIONS = [7, 14, 30] as const;
+const BUDGET_THRESHOLD_OPTIONS = [50, 70, 80, 90] as const;
+const SUMMARY_CURRENCIES = ['TRY', 'USD', 'EUR', 'GBP'] as const;
 
-// ─── Yardımcı Bileşenler ────────────────────────────────────────────────────
+type PickerType = 'currency' | 'upcomingDays' | 'threshold' | null;
 
-interface MenuItemProps {
+const getErrorMessage = (error: any, fallback: string) =>
+  error?.response?.data?.errors?.[0]
+  || error?.response?.data?.message
+  || error?.message
+  || fallback;
+
+const buildPresetOptions = (presets: readonly number[], current: number) =>
+  Array.from(new Set([current, ...presets])).sort((a, b) => a - b);
+
+const formatHourLabel = (hour: number) => `${String(hour).padStart(2, '0')}:00`;
+
+const formatCurrencyAmount = (amount: number, currency: string, minimumFractionDigits = 0) => {
+  try {
+    return new Intl.NumberFormat('tr-TR', {
+      style: 'currency',
+      currency,
+      minimumFractionDigits,
+      maximumFractionDigits: currency === 'TRY' ? minimumFractionDigits : Math.max(2, minimumFractionDigits),
+    }).format(amount);
+  } catch {
+    return `${amount.toFixed(Math.max(2, minimumFractionDigits))} ${currency}`;
+  }
+};
+
+interface SettingsRowProps {
   icon: string;
-  iconColor?: string;
-  iconBg?: string;
   title: string;
   subtitle?: string;
-  isDestructive?: boolean;
+  onPress?: () => void;
+  rightText?: string;
   hasSwitch?: boolean;
   value?: boolean;
-  onToggle?: (v: boolean) => void;
-  onPress?: () => void;
+  onToggle?: (value: boolean) => void;
   isLast?: boolean;
-  rightLabel?: string;
+  isDestructive?: boolean;
+  disabled?: boolean;
 }
 
-function MenuItem({
-  icon, iconColor, iconBg, title, subtitle,
-  isDestructive = false, hasSwitch = false,
-  value = false, onToggle = () => {}, onPress = () => {},
-  isLast = false, rightLabel,
-}: MenuItemProps) {
+function SettingsRow({
+  icon,
+  title,
+  subtitle,
+  onPress,
+  rightText,
+  hasSwitch = false,
+  value = false,
+  onToggle,
+  isLast = false,
+  isDestructive = false,
+  disabled = false,
+}: SettingsRowProps) {
   const colors = useThemeColors();
-  const isDarkMode = useSettingsStore((s) => s.isDarkMode);
-  const resolvedIconColor = isDestructive ? colors.error : (iconColor || colors.accent);
-  const resolvedIconBg   = isDestructive ? (isDarkMode ? '#2D1515' : '#FEF2F2') : (iconBg || colors.inputBg);
+  const isDarkMode = useSettingsStore((state) => state.isDarkMode);
+  const iconTint = isDestructive ? colors.error : colors.accent;
+  const iconBackground = isDestructive
+    ? (isDarkMode ? '#321818' : '#FEF2F2')
+    : colors.inputBg;
 
   return (
     <TouchableOpacity
+      activeOpacity={hasSwitch || disabled ? 1 : 0.82}
+      disabled={hasSwitch || disabled || !onPress}
+      onPress={onPress}
       style={[
-        styles.menuItem,
-        { backgroundColor: colors.cardBg },
+        styles.row,
         !isLast && { borderBottomWidth: 1, borderBottomColor: colors.border },
+        disabled && { opacity: 0.55 },
       ]}
-      onPress={hasSwitch ? undefined : onPress}
-      activeOpacity={hasSwitch ? 1 : 0.7}
     >
-      <View style={[styles.iconBox, { backgroundColor: resolvedIconBg }]}>
-        <Ionicons name={icon as any} size={19} color={resolvedIconColor} />
+      <View style={[styles.rowIcon, { backgroundColor: iconBackground }]}>
+        <Ionicons name={icon as any} size={18} color={iconTint} />
       </View>
-      <View style={{ flex: 1 }}>
-        <Text style={[styles.menuText, { color: isDestructive ? colors.error : colors.textMain }]}>
+
+      <View style={styles.rowBody}>
+        <Text style={[styles.rowTitle, { color: isDestructive ? colors.error : colors.textMain }]}>
           {title}
         </Text>
-        {subtitle ? <Text style={[styles.menuSub, { color: colors.textSec }]}>{subtitle}</Text> : null}
+        {subtitle ? (
+          <Text style={[styles.rowSubtitle, { color: colors.textSec }]}>
+            {subtitle}
+          </Text>
+        ) : null}
       </View>
-      {hasSwitch ? (
-        <Switch
-          value={value}
-          onValueChange={onToggle}
-          trackColor={{ false: colors.border, true: colors.accent }}
-          thumbColor={colors.white}
-        />
-      ) : rightLabel ? (
-        <Text style={[styles.rightLabel, { color: colors.textSec }]}>{rightLabel}</Text>
-      ) : (
-        <Ionicons name="chevron-forward" size={18} color={colors.inactive} />
-      )}
+
+      <View style={styles.rowTrailing}>
+        {rightText ? (
+          <Text style={[styles.rowRightText, { color: colors.textSec }]}>
+            {rightText}
+          </Text>
+        ) : null}
+
+        {hasSwitch ? (
+          <Switch
+            value={value}
+            onValueChange={onToggle}
+            trackColor={{ false: colors.border, true: colors.accent }}
+            thumbColor={colors.white}
+          />
+        ) : onPress ? (
+          <Ionicons name="chevron-forward" size={18} color={colors.inactive} />
+        ) : null}
+      </View>
     </TouchableOpacity>
   );
 }
 
-/** Chip seçici satırı */
-function ChipRow<T extends string | number>({
-  label, options, value, onSelect, formatLabel,
+function SheetToggleRow({
+  label,
+  value,
+  onToggle,
+  isLast = false,
 }: {
   label: string;
-  options: T[];
-  value: T;
-  onSelect: (v: T) => void;
-  formatLabel?: (v: T) => string;
+  value: boolean;
+  onToggle: (value: boolean) => void;
+  isLast?: boolean;
 }) {
   const colors = useThemeColors();
-  return (
-    <View style={styles.chipRowContainer}>
-      <Text style={[styles.chipRowLabel, { color: colors.textSec }]}>{label}</Text>
-      <View style={styles.chipRow}>
-        {options.map((opt) => {
-          const selected = opt === value;
-          return (
-            <TouchableOpacity
-              key={String(opt)}
-              style={[
-                styles.chip,
-                { borderColor: selected ? colors.accent : colors.border },
-                selected && { backgroundColor: colors.accent },
-              ]}
-              onPress={() => onSelect(opt)}
-              activeOpacity={0.7}
-            >
-              <Text style={[styles.chipText, { color: selected ? colors.white : colors.textSec }]}>
-                {formatLabel ? formatLabel(opt) : String(opt)}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-    </View>
-  );
-}
 
-/** Küçük inline toggle satırı */
-function InlineToggle({ label, value, onToggle }: { label: string; value: boolean; onToggle: (v: boolean) => void }) {
-  const colors = useThemeColors();
   return (
-    <View style={styles.inlineToggle}>
-      <Text style={[styles.chipRowLabel, { color: colors.textSec }]}>{label}</Text>
+    <View
+      style={[
+        styles.sheetToggleRow,
+        !isLast && { borderBottomWidth: 1, borderBottomColor: colors.border },
+      ]}
+    >
+      <Text style={[styles.sheetToggleLabel, { color: colors.textMain }]}>{label}</Text>
       <Switch
         value={value}
         onValueChange={onToggle}
         trackColor={{ false: colors.border, true: colors.accent }}
         thumbColor={colors.white}
-        style={{ transform: [{ scaleX: 0.85 }, { scaleY: 0.85 }] }}
       />
     </View>
   );
 }
 
-// ─── Ana Ekran ───────────────────────────────────────────────────────────────
+function SelectionPill({
+  label,
+  selected,
+  onPress,
+}: {
+  label: string;
+  selected: boolean;
+  onPress: () => void;
+}) {
+  const colors = useThemeColors();
+
+  return (
+    <TouchableOpacity
+      activeOpacity={0.82}
+      onPress={onPress}
+      style={[
+        styles.pill,
+        {
+          backgroundColor: selected ? colors.accent : colors.inputBg,
+          borderColor: selected ? colors.accent : colors.border,
+        },
+      ]}
+    >
+      <Text style={[styles.pillText, { color: selected ? colors.white : colors.textMain }]}>
+        {label}
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
+function SettingsSheet({
+  visible,
+  title,
+  subtitle,
+  onClose,
+  children,
+}: {
+  visible: boolean;
+  title: string;
+  subtitle?: string;
+  onClose: () => void;
+  children: React.ReactNode;
+}) {
+  const colors = useThemeColors();
+
+  return (
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent
+      onRequestClose={onClose}
+    >
+      <View style={styles.sheetBackdrop}>
+        <TouchableOpacity style={styles.sheetDismissArea} activeOpacity={1} onPress={onClose} />
+
+        <View style={[styles.sheetContainer, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+          <View style={[styles.sheetHandle, { backgroundColor: colors.border }]} />
+
+          <View style={styles.sheetHeader}>
+            <View style={styles.sheetHeaderText}>
+              <Text style={[styles.sheetTitle, { color: colors.textMain }]}>{title}</Text>
+              {subtitle ? (
+                <Text style={[styles.sheetSubtitle, { color: colors.textSec }]}>
+                  {subtitle}
+                </Text>
+              ) : null}
+            </View>
+
+            <TouchableOpacity
+              style={[styles.sheetCloseButton, { backgroundColor: colors.inputBg, borderColor: colors.border }]}
+              onPress={onClose}
+              activeOpacity={0.82}
+            >
+              <Ionicons name="close" size={18} color={colors.textSec} />
+            </TouchableOpacity>
+          </View>
+
+          {children}
+        </View>
+      </View>
+    </Modal>
+  );
+}
 
 export default function SettingsScreen() {
   const navigation = useNavigation<any>();
   const colors = useThemeColors();
-  const fadeAnim = useRef(new Animated.Value(1)).current;
 
-  const {
-    isDarkMode, notificationsEnabled, toggleNotifications, toggleDarkMode,
-    notifyDaysBefore, budgetAlertEnabled, sharedAlertEnabled, emailEnabled, notifyHour,
-    setNotifyDaysBefore, setBudgetAlertEnabled, setSharedAlertEnabled, setEmailEnabled, setNotifyHour,
-    defaultCurrency, autoConvert, setDefaultCurrency, setAutoConvert,
+  const isDarkMode = useSettingsStore((state) => state.isDarkMode);
+  const notificationsEnabled = useSettingsStore((state) => state.notificationsEnabled);
+  const toggleNotifications = useSettingsStore((state) => state.toggleNotifications);
+  const toggleDarkMode = useSettingsStore((state) => state.toggleDarkMode);
+  const notifyDaysBefore = useSettingsStore((state) => state.notifyDaysBefore);
+  const budgetAlertEnabled = useSettingsStore((state) => state.budgetAlertEnabled);
+  const sharedAlertEnabled = useSettingsStore((state) => state.sharedAlertEnabled);
+  const emailEnabled = useSettingsStore((state) => state.emailEnabled);
+  const notifyHour = useSettingsStore((state) => state.notifyHour);
+  const setNotifyDaysBefore = useSettingsStore((state) => state.setNotifyDaysBefore);
+  const setBudgetAlertEnabled = useSettingsStore((state) => state.setBudgetAlertEnabled);
+  const setSharedAlertEnabled = useSettingsStore((state) => state.setSharedAlertEnabled);
+  const setEmailEnabled = useSettingsStore((state) => state.setEmailEnabled);
+  const setNotifyHour = useSettingsStore((state) => state.setNotifyHour);
+  const calendarSyncEnabled = useSettingsStore((state) => state.calendarSyncEnabled);
+  const setCalendarSyncEnabled = useSettingsStore((state) => state.setCalendarSyncEnabled);
+  const dashboardUpcomingDays = useSettingsStore((state) => state.dashboardUpcomingDays);
+  const setDashboardUpcomingDays = useSettingsStore((state) => state.setDashboardUpcomingDays);
+  const isAdmin = useSettingsStore((state) => state.isAdmin);
+  const setIsAdmin = useSettingsStore((state) => state.setIsAdmin);
+  const budgetAlertThreshold = useSettingsStore((state) => state.budgetAlertThreshold);
+  const setBudgetAlertThreshold = useSettingsStore((state) => state.setBudgetAlertThreshold);
 
-    calendarSyncEnabled, setCalendarSyncEnabled,
-    dashboardUpcomingDays, setDashboardUpcomingDays,
-    isAdmin, setIsAdmin,
-    budgetAlertThreshold, setBudgetAlertThreshold,
-  } = useSettingsStore();
+  const subscriptions = useUserSubscriptionStore((state) => state.subscriptions);
+  const exchangeRates = useUserSubscriptionStore((state) => state.exchangeRates);
+  const fetchAllUserSubscriptions = useUserSubscriptionStore((state) => state.fetchAllUserSubscriptions);
+  const fetchExchangeRates = useUserSubscriptionStore((state) => state.fetchExchangeRates);
 
-  const { subscriptions, getTotalExpense } = useUserSubscriptionStore();
-
-  // calendarSyncEnabled artık useSettingsStore'dan geliyor (Fix 13)
-  const [userProfile, setUserProfile] = useState<{ fullName: string; email: string; monthlyBudget: number; monthlyBudgetCurrency: string } | null>(null);
-  const [showEditProfile, setShowEditProfile]       = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfileDto | null>(null);
+  const [showEditProfile, setShowEditProfile] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
-  const [showNotifPrefs, setShowNotifPrefs]         = useState(false);
+  const [showNotificationSheet, setShowNotificationSheet] = useState(false);
+  const [activePicker, setActivePicker] = useState<PickerType>(null);
+  const [profileError, setProfileError] = useState<string | null>(null);
+  const [notificationPrefsError, setNotificationPrefsError] = useState<string | null>(null);
 
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     try {
       const res = await agent.Auth.getProfile();
       if (res?.data) {
         setUserProfile(res.data);
         setIsAdmin(!!res.data.isAdmin);
-        // T-6: Backend değerleriyle store'u senkronize et
-        // (farklı cihazda değiştirilmiş ayarlar doğru yansısın)
-        if (typeof res.data.budgetAlertThreshold === 'number')
-          setBudgetAlertThreshold(res.data.budgetAlertThreshold);
-        if (typeof res.data.budgetAlertEnabled === 'boolean')
-          setBudgetAlertEnabled(res.data.budgetAlertEnabled);
-        if (typeof res.data.sharedAlertEnabled === 'boolean')
-          setSharedAlertEnabled(res.data.sharedAlertEnabled);
+        if (typeof res.data.budgetAlertThreshold === 'number') setBudgetAlertThreshold(res.data.budgetAlertThreshold);
+        if (typeof res.data.budgetAlertEnabled === 'boolean') setBudgetAlertEnabled(res.data.budgetAlertEnabled);
+        if (typeof res.data.sharedAlertEnabled === 'boolean') setSharedAlertEnabled(res.data.sharedAlertEnabled);
+        setProfileError(null);
       }
-    } catch {}
-  };
+    } catch (error) {
+      setProfileError(getErrorMessage(error, 'Profil bilgileri yuklenemedi.'));
+    }
+  }, [setBudgetAlertEnabled, setBudgetAlertThreshold, setIsAdmin, setSharedAlertEnabled]);
 
-  // #32 — Bildirim tercihleri sunucudan çekilerek yerel store ile senkronize edilir.
-  // Farklı cihazlarda veya yeniden kurulumda tercihler sunucudan geri yüklenir.
-  const loadNotifPrefs = async () => {
+  const loadNotifPrefs = useCallback(async () => {
     try {
       const res = await agent.Notifications.getPreferences();
       if (res?.data) {
         const prefs = res.data;
         if (typeof prefs.pushEnabled === 'boolean') toggleNotifications(prefs.pushEnabled);
-        if (typeof prefs.reminderDaysBefore === 'number' && [1, 3, 7].includes(prefs.reminderDaysBefore))
-          setNotifyDaysBefore(prefs.reminderDaysBefore as 1 | 3 | 7);
+        if (typeof prefs.emailEnabled === 'boolean') setEmailEnabled(prefs.emailEnabled);
+        if (typeof prefs.reminderDaysBefore === 'number' && prefs.reminderDaysBefore >= 1 && prefs.reminderDaysBefore <= 14) {
+          setNotifyDaysBefore(prefs.reminderDaysBefore);
+        }
         if (typeof prefs.notifyHour === 'number') setNotifyHour(prefs.notifyHour);
+        if (typeof prefs.budgetAlertEnabled === 'boolean') setBudgetAlertEnabled(prefs.budgetAlertEnabled);
+        if (typeof prefs.sharedAlertEnabled === 'boolean') setSharedAlertEnabled(prefs.sharedAlertEnabled);
+        setNotificationPrefsError(null);
       }
-    } catch {} // Sessizce başarısız ol — yerel ayar geçerli kalır
-  };
+    } catch (error) {
+      setNotificationPrefsError(getErrorMessage(error, 'Bildirim tercihleri yuklenemedi.'));
+    }
+  }, [
+    setBudgetAlertEnabled,
+    setEmailEnabled,
+    setNotifyDaysBefore,
+    setNotifyHour,
+    setSharedAlertEnabled,
+    toggleNotifications,
+  ]);
+
+  const refreshSettingsData = useCallback(async () => {
+    await Promise.allSettled([
+      loadProfile(),
+      loadNotifPrefs(),
+      fetchAllUserSubscriptions(),
+      fetchExchangeRates(),
+    ]);
+  }, [fetchAllUserSubscriptions, fetchExchangeRates, loadNotifPrefs, loadProfile]);
 
   useFocusEffect(useCallback(() => {
-    loadProfile();
-    loadNotifPrefs();
-  }, []));
+    void refreshSettingsData();
+  }, [refreshSettingsData]));
 
+  const portfolioMetrics = useMemo(
+    () => getSubscriptionPortfolioMetrics(subscriptions, exchangeRates),
+    [exchangeRates, subscriptions],
+  );
 
-  // Hesaplamalar
-  const activeCount  = subscriptions.filter(s => s.isActive !== false).length;
-  const totalExpense = getTotalExpense();
-  const budget       = userProfile?.monthlyBudget ?? 0;
+  const budgetCurrency = userProfile?.monthlyBudgetCurrency || 'TRY';
+  const budget = userProfile?.monthlyBudget ?? 0;
+  const activeCount = portfolioMetrics.startedCount;
+  const totalExpenseTRY = portfolioMetrics.monthlyEquivalentTotalTRY;
+  const totalExpense = useMemo(
+    () => convertAmountBetweenCurrencies(totalExpenseTRY, 'TRY', budgetCurrency, exchangeRates),
+    [budgetCurrency, exchangeRates, totalExpenseTRY],
+  );
+
+  const notificationsMasterEnabled = notificationsEnabled || emailEnabled;
+  const notificationsSubtitle = !notificationsMasterEnabled
+    ? 'Kapali'
+    : notificationsEnabled && emailEnabled
+      ? 'Push ve e-posta acik'
+      : notificationsEnabled
+        ? 'Yalnizca push acik'
+        : 'Yalnizca e-posta acik';
+
+  const reminderDayOptions = useMemo(
+    () => buildPresetOptions(REMINDER_DAY_PRESETS, notifyDaysBefore),
+    [notifyDaysBefore],
+  );
+
+  const notifyHourOptions = useMemo(
+    () => buildPresetOptions(NOTIFY_HOUR_PRESETS, notifyHour),
+    [notifyHour],
+  );
 
   const initials = userProfile?.fullName
-    ? userProfile.fullName.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
+    ? userProfile.fullName.split(' ').map((part) => part[0]).slice(0, 2).join('').toUpperCase()
     : 'U';
 
-  // ── Handlers ────────────────────────────────────────────────────────────────
-
-  const handleDarkModeToggle = () => {
-    Animated.sequence([
-      Animated.timing(fadeAnim, { toValue: 0, duration: 120, useNativeDriver: true }),
-      Animated.timing(fadeAnim, { toValue: 1, duration: 180, useNativeDriver: true }),
-    ]).start();
-    toggleDarkMode();
-  };
-
-  const handleCalendarToggle = async (value: boolean) => {
-    setCalendarSyncEnabled(value); // Zustand persist → AsyncStorage'a kaydedilir
-    if (value) {
-      await syncSubscriptionsToCalendar(subscriptions);
-    } else {
-      Alert.alert('Bilgi', 'Otomatik senkronizasyon durduruldu.');
-    }
-  };
-
-  // Bildirim tercihlerini backend'e senkronize et
-  const syncNotifPrefs = async (opts: {
+  const syncNotifPrefs = useCallback(async (opts: {
     pushEnabled?: boolean;
-    emailEnabled?: boolean; // F-9: push'tan bağımsız
-    budgetAlertEnabled?: boolean; // F-10
-    sharedAlertEnabled?: boolean; // F-10
+    emailEnabled?: boolean;
+    budgetAlertEnabled?: boolean;
+    sharedAlertEnabled?: boolean;
     reminderDaysBefore?: number;
     notifyHour?: number;
   }) => {
-    try {
-      await agent.Notifications.updatePreferences({
-        pushEnabled: opts.pushEnabled ?? notificationsEnabled,
-        emailEnabled: opts.emailEnabled ?? emailEnabled, // F-9: kendi state'ini kullan
-        budgetAlertEnabled: opts.budgetAlertEnabled ?? budgetAlertEnabled, // F-10
-        sharedAlertEnabled: opts.sharedAlertEnabled ?? sharedAlertEnabled, // F-10
-        reminderDaysBefore: opts.reminderDaysBefore ?? notifyDaysBefore,
-        notifyHour: opts.notifyHour ?? notifyHour,
-      });
-    } catch {} // Sessizce başarısız ol, yerel ayar zaten kaydedildi
+    await agent.Notifications.updatePreferences({
+      pushEnabled: opts.pushEnabled ?? notificationsEnabled,
+      emailEnabled: opts.emailEnabled ?? emailEnabled,
+      budgetAlertEnabled: opts.budgetAlertEnabled ?? budgetAlertEnabled,
+      sharedAlertEnabled: opts.sharedAlertEnabled ?? sharedAlertEnabled,
+      reminderDaysBefore: opts.reminderDaysBefore ?? notifyDaysBefore,
+      notifyHour: opts.notifyHour ?? notifyHour,
+    });
+  }, [
+    budgetAlertEnabled,
+    emailEnabled,
+    notificationsEnabled,
+    notifyDaysBefore,
+    notifyHour,
+    sharedAlertEnabled,
+  ]);
+
+  const registerPushChannel = useCallback(async () => {
+    const granted = await registerForPushNotificationsAsync();
+    toggleNotifications(granted);
+    if (!granted) return false;
+
+    const token = await getExpoPushToken();
+    if (token) {
+      try {
+        await agent.Notifications.registerPushToken(token);
+      } catch {}
+    }
+
+    return true;
+  }, [toggleNotifications]);
+
+  const handleCalendarToggle = async (value: boolean) => {
+    if (value) {
+      const synced = await syncSubscriptionsToCalendar(subscriptions);
+      setCalendarSyncEnabled(synced);
+      if (!synced) {
+        Alert.alert('Takvim acilamadi', 'Izin verilmedigi veya takvim olusturulamadigi icin senkron acilmadi.');
+      }
+      return;
+    }
+
+    const cleared = await clearSubGuardCalendarEvents();
+    setCalendarSyncEnabled(false);
+    Alert.alert(
+      'Bilgi',
+      cleared
+        ? 'Takvim senkronizasyonu durduruldu ve SubGuard etkinlikleri temizlendi.'
+        : 'Takvim senkronizasyonu durduruldu. Etkinlikler temizlenemedi; izinleri kontrol edin.',
+    );
   };
 
   const handleNotificationToggle = async (value: boolean) => {
     if (value) {
-      const ok = await registerForPushNotificationsAsync();
-      toggleNotifications(!!ok);
-      if (ok) {
-        const token = await getExpoPushToken();
-        if (token) {
-          try { await agent.Notifications.registerPushToken(token); } catch {}
-        }
-        await syncNotifPrefs({ pushEnabled: true });
-        Alert.alert('Bildirimler açıldı', 'Ödeme günlerinde hatırlatma alacaksınız.');
+      const pushEnabled = notificationsEnabled ? true : await registerPushChannel();
+      setEmailEnabled(true);
+      setShowNotificationSheet(true);
+
+      try {
+        await syncNotifPrefs({ pushEnabled, emailEnabled: true });
+        setNotificationPrefsError(null);
+      } catch (error) {
+        setNotificationPrefsError(getErrorMessage(error, 'Bildirim tercihleri kaydedilemedi.'));
+        await loadNotifPrefs();
       }
-    } else {
-      await cancelAllNotifications();
-      toggleNotifications(false);
-      setShowNotifPrefs(false);
-      await syncNotifPrefs({ pushEnabled: false });
+
+      Alert.alert(
+        pushEnabled ? 'Bildirimler acildi' : 'Kismi acildi',
+        pushEnabled
+          ? 'Push ve e-posta bildirimleri aktif.'
+          : 'Push izni verilmedi. E-posta bildirimleri aktif.',
+      );
+      return;
+    }
+
+    await cancelAllNotifications();
+    toggleNotifications(false);
+    setEmailEnabled(false);
+    setShowNotificationSheet(false);
+
+    try {
+      await syncNotifPrefs({ pushEnabled: false, emailEnabled: false });
+      setNotificationPrefsError(null);
+    } catch (error) {
+      setNotificationPrefsError(getErrorMessage(error, 'Bildirim tercihleri kaydedilemedi.'));
+      await loadNotifPrefs();
     }
   };
 
-  const handleNotifyDaysChange = (days: number) => {
-    setNotifyDaysBefore(days as 1 | 3 | 7);
-    syncNotifPrefs({ reminderDaysBefore: days });
+  const handlePushNotificationsToggle = async (value: boolean) => {
+    if (value) {
+      const pushEnabled = notificationsEnabled ? true : await registerPushChannel();
+
+      try {
+        await syncNotifPrefs({ pushEnabled });
+        setNotificationPrefsError(null);
+      } catch (error) {
+        setNotificationPrefsError(getErrorMessage(error, 'Push tercihi kaydedilemedi.'));
+        await loadNotifPrefs();
+      }
+
+      if (!pushEnabled) {
+        Alert.alert('Push acilamadi', 'Bildirim izni verilmedigi icin push kanali acilamadi.');
+      }
+      return;
+    }
+
+    await cancelAllNotifications();
+    toggleNotifications(false);
+
+    try {
+      await syncNotifPrefs({ pushEnabled: false });
+      setNotificationPrefsError(null);
+    } catch (error) {
+      setNotificationPrefsError(getErrorMessage(error, 'Push tercihi kaydedilemedi.'));
+      await loadNotifPrefs();
+    }
   };
 
+  const handleEmailNotificationsToggle = async (value: boolean) => {
+    setEmailEnabled(value);
+
+    try {
+      await syncNotifPrefs({ emailEnabled: value });
+      setNotificationPrefsError(null);
+    } catch (error) {
+      setNotificationPrefsError(getErrorMessage(error, 'E-posta tercihi kaydedilemedi.'));
+      await loadNotifPrefs();
+    }
+  };
+
+  const handleNotifyDaysChange = async (days: number) => {
+    setNotifyDaysBefore(days);
+
+    try {
+      await syncNotifPrefs({ reminderDaysBefore: days });
+      setNotificationPrefsError(null);
+    } catch (error) {
+      setNotificationPrefsError(getErrorMessage(error, 'Hatirlatma gunu kaydedilemedi.'));
+      await loadNotifPrefs();
+    }
+  };
+
+  const handleNotifyHourChange = async (hour: number) => {
+    setNotifyHour(hour);
+
+    try {
+      await syncNotifPrefs({ notifyHour: hour });
+      setNotificationPrefsError(null);
+    } catch (error) {
+      setNotificationPrefsError(getErrorMessage(error, 'Bildirim saati kaydedilemedi.'));
+      await loadNotifPrefs();
+    }
+  };
+
+  const handleBudgetCurrencyChange = async (currency: string) => {
+    if (currency === budgetCurrency) return;
+
+    try {
+      await agent.Budget.updateSettings({
+        monthlyBudget: budget,
+        monthlyBudgetCurrency: currency,
+      });
+      setUserProfile((current) => (current ? {
+        ...current,
+        monthlyBudgetCurrency: currency,
+        monthlyBudget: budget,
+      } : current));
+      setProfileError(null);
+    } catch (error) {
+      setProfileError(getErrorMessage(error, 'Butce para birimi guncellenemedi.'));
+      await loadProfile();
+    }
+  };
+
+  const handleBudgetThresholdChange = async (threshold: number) => {
+    const previous = budgetAlertThreshold;
+    setBudgetAlertThreshold(threshold);
+
+    try {
+      await agent.Auth.updateProfile({ budgetAlertThreshold: threshold });
+      setUserProfile((current) => (current ? { ...current, budgetAlertThreshold: threshold } : current));
+      setProfileError(null);
+    } catch (error) {
+      setBudgetAlertThreshold(previous);
+      setProfileError(getErrorMessage(error, 'Butce uyarisi guncellenemedi.'));
+      await loadProfile();
+    }
+  };
+
+  const handleBudgetAlertToggle = async (value: boolean) => {
+    const previous = budgetAlertEnabled;
+    setBudgetAlertEnabled(value);
+
+    try {
+      await syncNotifPrefs({ budgetAlertEnabled: value });
+      setNotificationPrefsError(null);
+    } catch (error) {
+      setBudgetAlertEnabled(previous);
+      setNotificationPrefsError(getErrorMessage(error, 'Butce bildirimi guncellenemedi.'));
+      await loadNotifPrefs();
+    }
+  };
+
+  const handleSharedAlertToggle = async (value: boolean) => {
+    const previous = sharedAlertEnabled;
+    setSharedAlertEnabled(value);
+
+    try {
+      await syncNotifPrefs({ sharedAlertEnabled: value });
+      setNotificationPrefsError(null);
+    } catch (error) {
+      setSharedAlertEnabled(previous);
+      setNotificationPrefsError(getErrorMessage(error, 'Paylasim bildirimi guncellenemedi.'));
+      await loadNotifPrefs();
+    }
+  };
 
   const handleExportData = async () => {
     try {
       const lines = [
-        '📦 SubGuard — Verilerim',
-        `Dışa aktarma tarihi: ${new Date().toLocaleDateString('tr-TR')}`,
+        'SubGuard - Verilerim',
+        `Disa aktarma tarihi: ${new Date().toLocaleDateString('tr-TR')}`,
         '',
-        `Kullanıcı: ${userProfile?.fullName || '—'}`,
-        `E-posta: ${userProfile?.email || '—'}`,
-        `Aylık bütçe hedefi: ${budget > 0 ? `${budget} ₺` : 'Tanımlanmamış'}`,
+        `Kullanici: ${userProfile?.fullName || '-'}`,
+        `E-posta: ${userProfile?.email || '-'}`,
+        `Ozet para birimi: ${budgetCurrency}`,
+        `Aylik aktif yuk: ${formatCurrencyAmount(totalExpense, budgetCurrency, budgetCurrency === 'TRY' ? 0 : 2)}/ay`,
+        `Aylik butce hedefi: ${budget > 0 ? formatCurrencyAmount(budget, budgetCurrency, budgetCurrency === 'TRY' ? 0 : 2) : 'Tanimlanmamis'}`,
         '',
         `--- Abonelikler (${subscriptions.length} adet) ---`,
-        ...subscriptions.map(s =>
-          `• ${s.name} | ${s.price} ${s.currency}/${s.billingPeriod === 'Yearly' ? 'yıl' : 'ay'} | ${s.category} | ${s.isActive !== false ? 'Aktif' : s.cancelledDate ? 'İptal' : 'Durdurulmuş'}`
-        ),
+        ...subscriptions.map((subscription: UserSubscription) => {
+          const normalizedMonthly = getSubscriptionMonthlyShareInCurrency(subscription, exchangeRates, budgetCurrency);
+          const cycleLabel = subscription.billingPeriod === 'Yearly' ? 'yil' : 'ay';
+          const statusLabel = subscription.isActive !== false
+            ? 'Aktif'
+            : subscription.cancelledDate
+              ? 'Iptal'
+              : 'Dondurulmus';
+
+          return [
+            `- ${subscription.name}`,
+            `${formatCurrencyAmount(subscription.price, subscription.currency, subscription.currency === 'TRY' ? 0 : 2)}/${cycleLabel}`,
+            `~ ${formatCurrencyAmount(normalizedMonthly, budgetCurrency, budgetCurrency === 'TRY' ? 0 : 2)}/ay`,
+            subscription.category,
+            statusLabel,
+          ].join(' | ');
+        }),
       ];
+
       await Share.share({ message: lines.join('\n'), title: 'SubGuard Verilerim' });
     } catch {
-      Alert.alert('Hata', 'Veriler paylaşılamadı.');
+      Alert.alert('Hata', 'Veriler paylasilamadi.');
+    }
+  };
+
+  const openExternalUrl = async (url: string, fallbackMessage: string) => {
+    try {
+      const canOpen = await Linking.canOpenURL(url);
+      if (!canOpen) {
+        Alert.alert('Acilamadi', fallbackMessage);
+        return;
+      }
+      await Linking.openURL(url);
+    } catch {
+      Alert.alert('Acilamadi', fallbackMessage);
     }
   };
 
   const handleDeleteAccount = () => {
     Alert.alert(
-      'Hesabı Sil',
-      'Bu işlem geri alınamaz. Tüm abonelik verileriniz, bildirimleriniz ve hesap bilgileriniz kalıcı olarak silinecek.',
+      'Hesabi Sil',
+      'Bu islem geri alinamaz. Tum abonelik verileriniz ve hesap bilgileriniz kalici olarak silinecek.',
       [
-        { text: 'Vazgeç', style: 'cancel' },
+        { text: 'Vazgec', style: 'cancel' },
         {
-          text: 'Hesabımı Sil',
+          text: 'Hesabimi Sil',
           style: 'destructive',
           onPress: () => {
             Alert.alert(
               'Emin misiniz?',
-              'Hesabınızı kalıcı olarak silmek istediğinizi onaylayın.',
+              'Hesabinizi kalici olarak silmek istediginizi onaylayin.',
               [
-                { text: 'Geri Dön', style: 'cancel' },
+                { text: 'Geri Don', style: 'cancel' },
                 {
                   text: 'Evet, Sil',
                   style: 'destructive',
                   onPress: async () => {
                     try {
                       await agent.Auth.deleteAccount();
-                      // Hesap silindikten sonra refresh token'ı da iptal et
                       try {
                         const refreshToken = await getRefreshToken();
                         if (refreshToken) await agent.Auth.revokeRefreshToken(refreshToken);
                       } catch {}
+                      await cancelAllNotifications();
+                      if (calendarSyncEnabled) {
+                        await clearSubGuardCalendarEvents();
+                      }
                       useSettingsStore.getState().clearUserSettings();
                       useUserSubscriptionStore.getState().reset();
                       useNotificationStore.getState().reset();
                       await logout();
                       navigation.getParent()?.reset({ index: 0, routes: [{ name: 'Login' }] });
-                    } catch {
-                      // Hata toast'ı agent.ts interceptor tarafından gösterilir
-                    }
+                    } catch {}
                   },
                 },
-              ]
+              ],
             );
           },
         },
-      ]
+      ],
     );
   };
 
   const handleLogout = () => {
-    Alert.alert('Çıkış Yap', 'Hesabınızdan çıkış yapmak istiyor musunuz?', [
-      { text: 'Vazgeç', style: 'cancel' },
+    Alert.alert('Cikis Yap', 'Hesabinizdan cikis yapmak istiyor musunuz?', [
+      { text: 'Vazgec', style: 'cancel' },
       {
-        text: 'Çıkış Yap',
+        text: 'Cikis Yap',
         style: 'destructive',
         onPress: async () => {
-          // Refresh token'ı sunucu tarafında geçersiz kıl
           try {
             const refreshToken = await getRefreshToken();
             if (refreshToken) await agent.Auth.revokeRefreshToken(refreshToken);
-          } catch {
-            // Revoke başarısız olsa bile local logout devam eder
+          } catch {}
+          await cancelAllNotifications();
+          if (calendarSyncEnabled) {
+            await clearSubGuardCalendarEvents();
           }
           useSettingsStore.getState().clearUserSettings();
           useUserSubscriptionStore.getState().reset();
@@ -367,400 +749,814 @@ export default function SettingsScreen() {
     ]);
   };
 
+  const openPicker = (picker: PickerType) => setActivePicker(picker);
+  const closePicker = () => setActivePicker(null);
+
+  const pickerTitle = activePicker === 'currency'
+    ? 'Ozet para birimi'
+    : activePicker === 'upcomingDays'
+      ? 'Yaklasan odemeler'
+      : activePicker === 'threshold'
+        ? 'Butce uyari esigi'
+        : '';
+
+  const pickerSubtitle = activePicker === 'currency'
+    ? 'Aylik hedef ve ozet sayilar bu para biriminde gosterilir.'
+    : activePicker === 'upcomingDays'
+      ? 'Ana sayfadaki yaklasan odemeler penceresini sec.'
+      : activePicker === 'threshold'
+        ? 'Butcenin hangi seviyesinde uyari verilecegini sec.'
+        : '';
+
+  const pickerOptions = activePicker === 'currency'
+    ? SUMMARY_CURRENCIES
+    : activePicker === 'upcomingDays'
+      ? UPCOMING_DAY_OPTIONS
+      : activePicker === 'threshold'
+        ? BUDGET_THRESHOLD_OPTIONS
+        : [];
+
+  const pickerValue = activePicker === 'currency'
+    ? budgetCurrency
+    : activePicker === 'upcomingDays'
+      ? dashboardUpcomingDays
+      : activePicker === 'threshold'
+        ? budgetAlertThreshold
+        : null;
+
+  const notificationRowSubtitle = `${notifyDaysBefore} gun once · ${formatHourLabel(notifyHour)}`;
+  const summaryBudgetText = budget > 0
+    ? formatCurrencyAmount(budget, budgetCurrency, budgetCurrency === 'TRY' ? 0 : 2)
+    : 'Tanimlanmamis';
+
+  const pickerOptionLabel = (option: string | number) => {
+    if (activePicker === 'currency') return option as string;
+    if (activePicker === 'upcomingDays') return `${option} gun`;
+    if (activePicker === 'threshold') return `%${option}`;
+    return String(option);
+  };
+
+  const pickerOptionDescription = (option: string | number) => {
+    if (activePicker === 'currency') {
+      return option === budgetCurrency ? 'Su an kullanilan para birimi' : 'Ozet ve butce gosterimlerinde kullan';
+    }
+    if (activePicker === 'upcomingDays') return `${option} gunluk odeme penceresi`;
+    if (activePicker === 'threshold') return `Butcenin %${option}'ine ulasinca uyar`;
+    return '';
+  };
+
+  const handlePickerSelect = (value: string | number) => {
+    if (activePicker === 'currency') {
+      closePicker();
+      void handleBudgetCurrencyChange(String(value));
+      return;
+    }
+
+    if (activePicker === 'upcomingDays') {
+      setDashboardUpcomingDays(value as 7 | 14 | 30);
+      closePicker();
+      return;
+    }
+
+    if (activePicker === 'threshold') {
+      closePicker();
+      void handleBudgetThresholdChange(Number(value));
+    }
+  };
+
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]} edges={['top']}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor="transparent"
-        translucent
-      />
-      <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.bg }]}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} />
 
-      {/* ── HEADER ─────────────────────────────────── */}
-      <LinearGradient
-        colors={['#4F46E5', '#6D28D9']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.header}
-      >
-        <View style={styles.headerDecor} />
-        <Text style={styles.headerTitle}>Ayarlar</Text>
-
-        <View style={[styles.profileCard, { backgroundColor: colors.cardBg }]}>
-          <LinearGradient colors={['#4F46E5', '#6D28D9']} style={styles.avatarGradient}>
-            <Text style={styles.avatarText}>{initials}</Text>
-          </LinearGradient>
-          <View style={{ flex: 1 }}>
-            <Text style={[styles.userName, { color: colors.textMain }]} numberOfLines={1}>
-              {userProfile?.fullName || 'Yükleniyor...'}
-            </Text>
-            <Text style={[styles.userEmail, { color: colors.textSec }]} numberOfLines={1}>
-              {userProfile?.email || ''}
-            </Text>
-            <View style={styles.profileStats}>
-              <View style={[styles.profileStatChip, { backgroundColor: colors.inputBg }]}>
-                <Ionicons name="layers-outline" size={10} color={colors.accent} />
-                <Text style={[styles.profileStatText, { color: colors.accent }]}>{activeCount} abonelik</Text>
-              </View>
-              <View style={[styles.profileStatChip, { backgroundColor: colors.inputBg }]}>
-                <Ionicons name="wallet-outline" size={10} color={colors.accent} />
-                <Text style={[styles.profileStatText, { color: colors.accent }]}>₺{totalExpense.toFixed(0)}/ay</Text>
-              </View>
-            </View>
-          </View>
-          <TouchableOpacity
-            style={[styles.editBtn, { backgroundColor: colors.inputBg }]}
-            onPress={() => setShowEditProfile(true)}
-          >
-            <Ionicons name="create-outline" size={18} color={colors.textSec} />
-          </TouchableOpacity>
-        </View>
-
-      </LinearGradient>
-
-      {/* ── İÇERİK ─────────────────────────────────── */}
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-
-        {/* HESAP */}
-        <Text style={[styles.sectionLabel, { color: colors.textSec }]}>HESAP</Text>
-        <View style={[styles.section, { borderColor: colors.border }]}>
-          <MenuItem
-            icon="person-outline" iconColor="#6366F1" iconBg="#EEF2FF"
-            title="Profil ve Bütçe Düzenle" subtitle="İsim, e-posta, aylık hedef"
-            onPress={() => setShowEditProfile(true)}
-          />
-          <MenuItem
-            icon="lock-closed-outline" iconColor="#64748B" iconBg={isDarkMode ? '#1E293B' : '#F1F5F9'}
-            title="Şifre Değiştir" subtitle="Hesap güvenliğini güncelle"
-            onPress={() => setShowChangePassword(true)} isLast={!isAdmin}
-          />
-          {isAdmin && (
-            <MenuItem
-              icon="shield-checkmark-outline" iconColor="#10B981" iconBg={isDarkMode ? '#064E3B' : '#D1FAE5'}
-              title="Admin Paneli" subtitle="Kullanıcılar, kataloglar, istatistikler"
-              onPress={() => navigation.navigate('AdminPanel')} isLast
-            />
-          )}
+        <View style={styles.header}>
+          <Text style={[styles.headerTitle, { color: colors.textMain }]}>Ayarlar</Text>
+          <Text style={[styles.headerSubtitle, { color: colors.textSec }]}>
+            Hesap, bildirim ve uygulama tercihlerini yonet.
+          </Text>
         </View>
 
-        {/* ── BİLDİRİM TERCİHLERİ ── */}
-        <Text style={[styles.sectionLabel, { color: colors.textSec }]}>BİLDİRİMLER</Text>
-        <View style={[styles.section, { borderColor: colors.border }]}>
-          <MenuItem
-            icon="notifications-outline" iconColor="#F97316" iconBg={isDarkMode ? '#431407' : '#FFEDD5'}
-            title="Bildirimler"
-            subtitle={notificationsEnabled ? 'Açık — ödeme günü hatırlatması' : 'Kapalı'}
-            hasSwitch value={notificationsEnabled} onToggle={handleNotificationToggle}
-          />
-
-          {/* Bildirim Tercihleri Detay */}
-          {notificationsEnabled && (
-            <>
-              <TouchableOpacity
-                style={[styles.menuItem, { backgroundColor: colors.cardBg, borderBottomWidth: 1, borderBottomColor: colors.border }]}
-                onPress={() => setShowNotifPrefs(p => !p)}
-                activeOpacity={0.7}
-              >
-                <View style={[styles.iconBox, { backgroundColor: colors.inputBg }]}>
-                  <Ionicons name="options-outline" size={19} color={colors.accent} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={[styles.menuText, { color: colors.textMain }]}>Bildirim Detayları</Text>
-                  <Text style={[styles.menuSub, { color: colors.textSec }]}>
-                    {notifyDaysBefore} gün önce · saat {notifyHour}:00
-                  </Text>
-                </View>
-                <Ionicons
-                  name={showNotifPrefs ? 'chevron-up' : 'chevron-down'}
-                  size={18} color={colors.inactive}
-                />
-              </TouchableOpacity>
-
-              {showNotifPrefs && (
-                <View style={[styles.prefsPanel, { backgroundColor: colors.inputBg, borderBottomColor: colors.border }]}>
-                  <ChipRow
-                    label="Kaç gün önce uyarılsın?"
-                    options={[1, 3, 7] as const}
-                    value={notifyDaysBefore}
-                    onSelect={handleNotifyDaysChange}
-                    formatLabel={v => `${v} gün`}
-                  />
-                  <ChipRow
-                    label="Uyarı saati"
-                    options={[8, 10, 12, 18, 20]}
-                    value={notifyHour}
-                    onSelect={(v) => { setNotifyHour(v); syncNotifPrefs({ notifyHour: v }); }}
-                    formatLabel={v => `${v}:00`}
-                  />
-                  <InlineToggle
-                    label="Bütçe uyarısı"
-                    value={budgetAlertEnabled}
-                    onToggle={(v) => { setBudgetAlertEnabled(v); syncNotifPrefs({ budgetAlertEnabled: v }); }} // F-10
-                  />
-                  {/* U-10: Bütçe eşiği seçici — sadece bütçe uyarısı açıkken göster */}
-                  {budgetAlertEnabled && (
-                    <View style={[styles.chipRowContainer, { marginTop: 4 }]}>
-                      <Text style={[styles.chipRowLabel, { color: colors.textSec }]}>
-                        Uyarı eşiği: %{budgetAlertThreshold}
-                      </Text>
-                      <View style={styles.chipRow}>
-                        {[50, 70, 80, 90].map(pct => {
-                          const selected = budgetAlertThreshold === pct;
-                          return (
-                            <TouchableOpacity
-                              key={pct}
-                              style={[
-                                styles.chip,
-                                { borderColor: selected ? colors.accent : colors.border },
-                                selected && { backgroundColor: colors.accent },
-                              ]}
-                              onPress={() => {
-                                setBudgetAlertThreshold(pct);
-                                agent.Auth.updateProfile({ budgetAlertThreshold: pct }).catch(() => {});
-                              }}
-                            >
-                              <Text style={[styles.chipText, { color: selected ? colors.white : colors.textSec }]}>
-                                %{pct}
-                              </Text>
-                            </TouchableOpacity>
-                          );
-                        })}
-                      </View>
-                    </View>
-                  )}
-                  <InlineToggle
-                    label="Paylaşım bildirimleri"
-                    value={sharedAlertEnabled}
-                    onToggle={(v) => { setSharedAlertEnabled(v); syncNotifPrefs({ sharedAlertEnabled: v }); }} // F-10
-                  />
-                </View>
+        <View style={[styles.summaryCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+          <View style={styles.summaryTop}>
+            <View style={[styles.avatar, { backgroundColor: colors.inputBg }]}>
+              {userProfile ? (
+                <Text style={[styles.avatarText, { color: colors.accent }]}>{initials}</Text>
+              ) : (
+                <ActivityIndicator size="small" color={colors.accent} />
               )}
-            </>
-          )}
-
-          <MenuItem
-            icon="calendar-outline" iconColor="#8B5CF6" iconBg={isDarkMode ? '#2E1065' : '#EDE9FE'}
-            title="Takvim Entegrasyonu" subtitle="Abonelikleri telefon takvimine ekle"
-            hasSwitch value={calendarSyncEnabled} onToggle={handleCalendarToggle}
-          />
-          <MenuItem
-            icon={isDarkMode ? 'moon' : 'moon-outline'} iconColor="#6366F1" iconBg={isDarkMode ? '#1E1B4B' : '#EEF2FF'}
-            title="Karanlık Mod" subtitle={isDarkMode ? 'Açık' : 'Kapalı'}
-            hasSwitch value={isDarkMode} onToggle={handleDarkModeToggle} isLast
-          />
-        </View>
-
-        {/* ── 20. PARA BİRİMİ ── */}
-        <Text style={[styles.sectionLabel, { color: colors.textSec }]}>PARA BİRİMİ</Text>
-        <View style={[styles.section, { borderColor: colors.border }]}>
-          <View style={[styles.menuItem, { backgroundColor: colors.cardBg, borderBottomWidth: 1, borderBottomColor: colors.border }]}>
-            <View style={[styles.iconBox, { backgroundColor: isDarkMode ? '#1E293B' : '#FEF3C7' }]}>
-              <Ionicons name="cash-outline" size={19} color="#F59E0B" />
             </View>
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.menuText, { color: colors.textMain }]}>Varsayılan Para Birimi</Text>
-              <View style={[styles.chipRow, { marginTop: 10 }]}>
-                {/* #49: GBP eklendi — exchangeRates'te zaten mevcut, backend GBP abonelik destekliyor */}
-                {(['TRY', 'USD', 'EUR', 'GBP'] as const).map(cur => {
-                  const selected = defaultCurrency === cur;
-                  return (
-                    <TouchableOpacity
-                      key={cur}
-                      style={[
-                        styles.chip,
-                        { borderColor: selected ? colors.accent : colors.border },
-                        selected && { backgroundColor: colors.accent },
-                      ]}
-                      onPress={async () => {
-                        setDefaultCurrency(cur);
-                        try { await agent.Auth.updateProfile({ monthlyBudgetCurrency: cur }); } catch {}
-                      }}
-                    >
-                      <Text style={[styles.chipText, { color: selected ? colors.white : colors.textSec }]}>{cur}</Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
+
+            <View style={styles.summaryIdentity}>
+              <Text style={[styles.summaryName, { color: colors.textMain }]}>
+                {userProfile?.fullName || 'Profil yukleniyor'}
+              </Text>
+              <Text style={[styles.summaryEmail, { color: colors.textSec }]}>
+                {userProfile?.email || 'Hesap bilgileri aliniyor...'}
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              activeOpacity={0.82}
+              disabled={!userProfile}
+              onPress={() => setShowEditProfile(true)}
+              style={[
+                styles.secondaryButton,
+                {
+                  backgroundColor: colors.inputBg,
+                  borderColor: colors.border,
+                  opacity: userProfile ? 1 : 0.6,
+                },
+              ]}
+            >
+              <Ionicons name="pencil-outline" size={14} color={colors.accent} />
+              <Text style={[styles.secondaryButtonText, { color: colors.accent }]}>Duzenle</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={[styles.summaryDivider, { backgroundColor: colors.border }]} />
+
+          <View style={styles.summaryStats}>
+            <View style={styles.summaryStatColumn}>
+              <Text style={[styles.summaryStatLabel, { color: colors.textSec }]}>Aktif abonelik</Text>
+              <Text style={[styles.summaryStatValue, { color: colors.textMain }]}>{activeCount}</Text>
+            </View>
+
+            <View style={[styles.summaryStatDivider, { backgroundColor: colors.border }]} />
+
+            <View style={styles.summaryStatColumn}>
+              <Text style={[styles.summaryStatLabel, { color: colors.textSec }]}>Aylik aktif yuk</Text>
+              <Text style={[styles.summaryStatValue, { color: colors.textMain }]}>
+                {formatCurrencyAmount(totalExpense, budgetCurrency, budgetCurrency === 'TRY' ? 0 : 2)}
+              </Text>
             </View>
           </View>
-          <MenuItem
-            icon="swap-horizontal-outline" iconColor="#10B981" iconBg={isDarkMode ? '#064E3B' : '#D1FAE5'}
-            title="Otomatik Dönüştürme"
-            subtitle={autoConvert ? `Tüm fiyatlar ${defaultCurrency} olarak gösterilir` : 'Orijinal para birimi gösterilir'}
-            hasSwitch value={autoConvert} onToggle={setAutoConvert} isLast
-          />
-        </View>
 
-        {/* ── 35. GÖRÜNÜM — Dashboard Aralığı ── */}
-        <Text style={[styles.sectionLabel, { color: colors.textSec }]}>GÖRÜNÜM</Text>
-        <View style={[styles.section, { borderColor: colors.border }]}>
-          <View style={[styles.menuItem, { backgroundColor: colors.cardBg }]}>
-            <View style={[styles.iconBox, { backgroundColor: isDarkMode ? '#1E293B' : '#E0F2FE' }]}>
-              <Ionicons name="time-outline" size={19} color="#0EA5E9" />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.menuText, { color: colors.textMain }]}>Yaklaşan Ödemeler Aralığı</Text>
-              <Text style={[styles.menuSub, { color: colors.textSec }]}>Ana ekranda kaç günlük ödemeler gösterilsin</Text>
-              <View style={[styles.chipRow, { marginTop: 10 }]}>
-                {([7, 14, 30] as const).map(day => {
-                  const selected = dashboardUpcomingDays === day;
-                  return (
-                    <TouchableOpacity
-                      key={day}
-                      style={[
-                        styles.chip,
-                        { borderColor: selected ? colors.accent : colors.border },
-                        selected && { backgroundColor: colors.accent },
-                      ]}
-                      onPress={() => setDashboardUpcomingDays(day)}
-                    >
-                      <Text style={[styles.chipText, { color: selected ? colors.white : colors.textSec }]}>
-                        {day} gün
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </View>
+          <View style={[styles.summaryFooterRow, { borderTopColor: colors.border }]}>
+            <Text style={[styles.summaryFooterLabel, { color: colors.textSec }]}>Aylik hedef</Text>
+            <Text style={[styles.summaryFooterValue, { color: colors.textMain }]}>{summaryBudgetText}</Text>
           </View>
         </View>
 
+        {profileError ? (
+          <View style={[styles.errorCard, { backgroundColor: colors.cardBg, borderColor: colors.error }]}>
+            <View style={[styles.errorIcon, { backgroundColor: isDarkMode ? '#321818' : '#FEF2F2' }]}>
+              <Ionicons name="warning-outline" size={18} color={colors.error} />
+            </View>
+            <View style={styles.errorBody}>
+              <Text style={[styles.errorTitle, { color: colors.textMain }]}>Profil senkron degil</Text>
+              <Text style={[styles.errorText, { color: colors.textSec }]}>{profileError}</Text>
+            </View>
+            <TouchableOpacity onPress={() => void refreshSettingsData()} activeOpacity={0.82}>
+              <Text style={[styles.errorAction, { color: colors.accent }]}>Yenile</Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
 
-        {/* ── 21. VERİ & GİZLİLİK ── */}
-        <Text style={[styles.sectionLabel, { color: colors.textSec }]}>VERİ & GİZLİLİK</Text>
-        <View style={[styles.section, { borderColor: colors.border }]}>
-          <MenuItem
-            icon="download-outline" iconColor="#10B981" iconBg={isDarkMode ? '#064E3B' : '#D1FAE5'}
-            title="Verilerimi Dışa Aktar"
-            subtitle="Aboneliklerinizin özeti paylaşılır"
-            onPress={handleExportData}
-          />
-          <MenuItem
-            icon="document-text-outline" iconColor="#0EA5E9" iconBg={isDarkMode ? '#0C4A6E' : '#E0F2FE'}
-            title="Gizlilik Politikası"
-            onPress={() => Linking.openURL('https://subguard.app/privacy')}
-          />
-          <MenuItem
-            icon="help-circle-outline" iconColor="#0EA5E9" iconBg={isDarkMode ? '#0C4A6E' : '#E0F2FE'}
-            title="Yardım & Destek" subtitle="support@subguard.app"
-            onPress={() => Linking.openURL('mailto:support@subguard.app')}
-          />
-          <MenuItem
-            icon="trash-outline"
-            title="Hesabı Sil (GDPR)"
-            subtitle="Tüm veriler kalıcı olarak silinir"
-            isDestructive onPress={handleDeleteAccount}
-          />
-          <MenuItem
-            icon="log-out-outline" title="Çıkış Yap"
-            isDestructive onPress={handleLogout} isLast
-          />
+        {notificationPrefsError ? (
+          <View style={[styles.errorCard, { backgroundColor: colors.cardBg, borderColor: colors.warning }]}>
+            <View style={[styles.errorIcon, { backgroundColor: isDarkMode ? '#332A15' : '#FEF3C7' }]}>
+              <Ionicons name="notifications-off-outline" size={18} color={colors.warning} />
+            </View>
+            <View style={styles.errorBody}>
+              <Text style={[styles.errorTitle, { color: colors.textMain }]}>Bildirim tercihleri senkron degil</Text>
+              <Text style={[styles.errorText, { color: colors.textSec }]}>{notificationPrefsError}</Text>
+            </View>
+            <TouchableOpacity onPress={() => void loadNotifPrefs()} activeOpacity={0.82}>
+              <Text style={[styles.errorAction, { color: colors.accent }]}>Yenile</Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Hesap</Text>
+          <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+            <SettingsRow
+              icon="person-outline"
+              title="Profil ve butce duzenle"
+              subtitle="Isim ve aylik hedef bilgilerini guncelle"
+              onPress={() => setShowEditProfile(true)}
+            />
+            <SettingsRow
+              icon="lock-closed-outline"
+              title="Sifre degistir"
+              subtitle="Hesabinin giris sifresini yenile"
+              onPress={() => setShowChangePassword(true)}
+              isLast={!isAdmin}
+            />
+            {isAdmin ? (
+              <SettingsRow
+                icon="shield-checkmark-outline"
+                title="Admin paneli"
+                subtitle="Kullanicilar ve kataloglar icin operasyon alani"
+                onPress={() => navigation.navigate('AdminPanel')}
+                isLast
+              />
+            ) : null}
+          </View>
         </View>
 
-        {/* VERSİYON */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Bildirimler</Text>
+          <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+            <SettingsRow
+              icon="notifications-outline"
+              title="Bildirimler"
+              subtitle={notificationsSubtitle}
+              hasSwitch
+              value={notificationsMasterEnabled}
+              onToggle={(value) => void handleNotificationToggle(value)}
+            />
+            <SettingsRow
+              icon="options-outline"
+              title="Bildirim tercihleri"
+              subtitle="Kanal ve hatirlatma zamanini duzenle"
+              rightText={notificationRowSubtitle}
+              onPress={() => setShowNotificationSheet(true)}
+            />
+            <SettingsRow
+              icon="calendar-outline"
+              title="Takvim entegrasyonu"
+              subtitle={calendarSyncEnabled ? 'SubGuard odemeleri cihaz takvimine yaziliyor' : 'Abonelikleri cihaz takvimiyle esitle'}
+              hasSwitch
+              value={calendarSyncEnabled}
+              onToggle={(value) => void handleCalendarToggle(value)}
+              isLast
+            />
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Uygulama</Text>
+          <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+            <SettingsRow
+              icon="cash-outline"
+              title="Ozet para birimi"
+              subtitle="Aylik hedef ve aktif yuk gosteriminde kullanilir"
+              rightText={budgetCurrency}
+              onPress={() => openPicker('currency')}
+            />
+            <SettingsRow
+              icon="time-outline"
+              title="Yaklasan odemeler"
+              subtitle="Ana sayfadaki pencereyi belirle"
+              rightText={`${dashboardUpcomingDays} gun`}
+              onPress={() => openPicker('upcomingDays')}
+            />
+            <SettingsRow
+              icon="warning-outline"
+              title="Butce uyari esigi"
+              subtitle="Butcenin hangi seviyesinde uyari verilecegini sec"
+              rightText={`%${budgetAlertThreshold}`}
+              onPress={() => openPicker('threshold')}
+            />
+            <SettingsRow
+              icon="moon-outline"
+              title="Koyu mod"
+              subtitle="Tum uygulama temasini koyu gorunume gecir"
+              hasSwitch
+              value={isDarkMode}
+              onToggle={toggleDarkMode}
+              isLast
+            />
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Veri ve Destek</Text>
+          <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+            <SettingsRow
+              icon="download-outline"
+              title="Verilerimi disa aktar"
+              subtitle="Abonelik ozetini paylasilabilir metin olarak olustur"
+              onPress={() => void handleExportData()}
+            />
+            <SettingsRow
+              icon="document-text-outline"
+              title="Gizlilik politikasi"
+              subtitle="SubGuard veri kullanimi ve saklama detaylari"
+              onPress={() => void openExternalUrl('https://subguard.app/privacy', 'Gizlilik politikasi sayfasi acilamadi.')}
+            />
+            <SettingsRow
+              icon="mail-outline"
+              title="Destek"
+              subtitle="Sorunlari ve geri bildirimleri e-posta ile ilet"
+              onPress={() => void openExternalUrl('mailto:destek@subguard.app', 'Destek e-postasi acilamadi.')}
+              isLast
+            />
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Oturum</Text>
+          <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+            <SettingsRow
+              icon="log-out-outline"
+              title="Cikis yap"
+              subtitle="Bu cihazdaki oturumu kapat"
+              onPress={handleLogout}
+              isDestructive
+            />
+            <SettingsRow
+              icon="trash-outline"
+              title="Hesabi sil"
+              subtitle="Hesabini ve tum verilerini kalici olarak kaldir"
+              onPress={handleDeleteAccount}
+              isDestructive
+              isLast
+            />
+          </View>
+        </View>
+
         <View style={[styles.versionCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
-          <Text style={[styles.appName, { color: colors.textMain }]}>SubGuard</Text>
-          <Text style={[styles.versionText, { color: colors.textSec }]}>Versiyon 1.0.3</Text>
+          <View>
+            <Text style={[styles.versionLabel, { color: colors.textSec }]}>Uygulama surumu</Text>
+            <Text style={[styles.versionValue, { color: colors.textMain }]}>{APP_VERSION}</Text>
+          </View>
+          <Ionicons name="information-circle-outline" size={20} color={colors.accent} />
         </View>
-
-        <View style={{ height: 50 }} />
       </ScrollView>
 
-      {/* MODALLAR */}
+      <SettingsSheet
+        visible={showNotificationSheet}
+        title="Bildirim tercihleri"
+        subtitle="Kanal ve hatirlatma zamanini yonet."
+        onClose={() => setShowNotificationSheet(false)}
+      >
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.sheetContent}>
+          {!notificationsMasterEnabled ? (
+            <View style={[styles.sheetNotice, { backgroundColor: colors.inputBg, borderColor: colors.border }]}>
+              <Ionicons name="information-circle-outline" size={16} color={colors.accent} />
+              <Text style={[styles.sheetNoticeText, { color: colors.textSec }]}>
+                Genel bildirimler kapali. Buradaki tercihler kaydedilir ama gonderim yapilmaz.
+              </Text>
+            </View>
+          ) : null}
+
+          <View style={styles.sheetSection}>
+            <Text style={[styles.sheetSectionTitle, { color: colors.textMain }]}>Kanallar</Text>
+            <View style={[styles.sheetGroup, { borderColor: colors.border }]}>
+              <SheetToggleRow
+                label="Push kanali"
+                value={notificationsEnabled}
+                onToggle={(value) => void handlePushNotificationsToggle(value)}
+              />
+              <SheetToggleRow
+                label="E-posta kanali"
+                value={emailEnabled}
+                onToggle={(value) => void handleEmailNotificationsToggle(value)}
+              />
+              <SheetToggleRow
+                label="Butce uyarilari"
+                value={budgetAlertEnabled}
+                onToggle={(value) => void handleBudgetAlertToggle(value)}
+              />
+              <SheetToggleRow
+                label="Paylasim uyarilari"
+                value={sharedAlertEnabled}
+                onToggle={(value) => void handleSharedAlertToggle(value)}
+                isLast
+              />
+            </View>
+          </View>
+
+          <View style={styles.sheetSection}>
+            <Text style={[styles.sheetSectionTitle, { color: colors.textMain }]}>Hatirlatma gunu</Text>
+            <View style={styles.pillWrap}>
+              {reminderDayOptions.map((option) => (
+                <SelectionPill
+                  key={option}
+                  label={`${option} gun`}
+                  selected={option === notifyDaysBefore}
+                  onPress={() => void handleNotifyDaysChange(option)}
+                />
+              ))}
+            </View>
+          </View>
+
+          <View style={styles.sheetSection}>
+            <Text style={[styles.sheetSectionTitle, { color: colors.textMain }]}>Bildirim saati</Text>
+            <View style={styles.pillWrap}>
+              {notifyHourOptions.map((option) => (
+                <SelectionPill
+                  key={option}
+                  label={formatHourLabel(option)}
+                  selected={option === notifyHour}
+                  onPress={() => void handleNotifyHourChange(option)}
+                />
+              ))}
+            </View>
+          </View>
+        </ScrollView>
+      </SettingsSheet>
+
+      <SettingsSheet
+        visible={activePicker !== null}
+        title={pickerTitle}
+        subtitle={pickerSubtitle}
+        onClose={closePicker}
+      >
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.sheetContent}>
+          <View style={styles.optionList}>
+            {pickerOptions.map((option) => {
+              const selected = option === pickerValue;
+
+              return (
+                <TouchableOpacity
+                  key={String(option)}
+                  activeOpacity={0.82}
+                  onPress={() => handlePickerSelect(option)}
+                  style={[
+                    styles.optionRow,
+                    {
+                      backgroundColor: selected ? colors.inputBg : colors.cardBg,
+                      borderColor: selected ? colors.accent : colors.border,
+                    },
+                  ]}
+                >
+                  <View style={styles.optionRowBody}>
+                    <Text style={[styles.optionRowTitle, { color: colors.textMain }]}>
+                      {pickerOptionLabel(option)}
+                    </Text>
+                    <Text style={[styles.optionRowSubtitle, { color: colors.textSec }]}>
+                      {pickerOptionDescription(option)}
+                    </Text>
+                  </View>
+                  <Ionicons
+                    name={selected ? 'checkmark-circle' : 'ellipse-outline'}
+                    size={20}
+                    color={selected ? colors.accent : colors.inactive}
+                  />
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </ScrollView>
+      </SettingsSheet>
+
       <EditProfileModal
         visible={showEditProfile}
         onClose={() => setShowEditProfile(false)}
-        currentUser={userProfile}
-        onUpdateSuccess={loadProfile}
+        currentUser={userProfile ? {
+          fullName: userProfile.fullName,
+          monthlyBudget: userProfile.monthlyBudget,
+          monthlyBudgetCurrency: userProfile.monthlyBudgetCurrency,
+        } : null}
+        onUpdateSuccess={() => void refreshSettingsData()}
       />
+
       <ChangePasswordModal
         visible={showChangePassword}
         onClose={() => setShowChangePassword(false)}
       />
-      </Animated.View>
     </SafeAreaView>
   );
 }
 
-// ─── Styles ──────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-
-  header: {
-    paddingTop: 16,
-    paddingBottom: 28,
+  safeArea: {
+    flex: 1,
+  },
+  content: {
     paddingHorizontal: 20,
-    borderBottomLeftRadius: 32,
-    borderBottomRightRadius: 32,
+    paddingTop: 16,
+    paddingBottom: 120,
+    gap: 20,
+  },
+  header: {
+    paddingHorizontal: 2,
+    gap: 6,
+  },
+  headerTitle: {
+    fontSize: 30,
+    fontWeight: '800',
+    letterSpacing: -0.5,
+  },
+  headerSubtitle: {
+    fontSize: 13,
+    lineHeight: 20,
+  },
+  summaryCard: {
+    borderRadius: 24,
+    borderWidth: 1,
+    padding: 18,
+    gap: 16,
+  },
+  summaryTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  avatar: {
+    width: 52,
+    height: 52,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarText: {
+    fontSize: 18,
+    fontWeight: '800',
+  },
+  summaryIdentity: {
+    flex: 1,
+    gap: 2,
+  },
+  summaryName: {
+    fontSize: 18,
+    fontWeight: '800',
+  },
+  summaryEmail: {
+    fontSize: 12,
+  },
+  secondaryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  secondaryButtonText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  summaryDivider: {
+    height: 1,
+  },
+  summaryStats: {
+    flexDirection: 'row',
+    alignItems: 'stretch',
+  },
+  summaryStatColumn: {
+    flex: 1,
+    gap: 4,
+  },
+  summaryStatLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  summaryStatValue: {
+    fontSize: 18,
+    fontWeight: '800',
+  },
+  summaryStatDivider: {
+    width: 1,
+    marginHorizontal: 16,
+  },
+  summaryFooterRow: {
+    borderTopWidth: 1,
+    paddingTop: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  summaryFooterLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  summaryFooterValue: {
+    flexShrink: 1,
+    fontSize: 14,
+    fontWeight: '800',
+    textAlign: 'right',
+  },
+  errorCard: {
+    borderRadius: 18,
+    borderWidth: 1,
+    padding: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  errorIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  errorBody: {
+    flex: 1,
+    gap: 2,
+  },
+  errorTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  errorText: {
+    fontSize: 12,
+    lineHeight: 18,
+  },
+  errorAction: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  section: {
+    gap: 10,
+  },
+  sectionTitle: {
+    marginLeft: 2,
+    fontSize: 17,
+    fontWeight: '800',
+  },
+  card: {
+    borderRadius: 22,
+    borderWidth: 1,
     overflow: 'hidden',
   },
-  headerDecor: {
-    position: 'absolute',
-    width: 200, height: 200,
-    borderRadius: 100,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    top: -60, right: -40,
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 15,
   },
-  headerTitle: { fontSize: 26, fontWeight: '800', color: '#FFF', marginBottom: 16 },
-
-  profileCard: {
-    flexDirection: 'row', alignItems: 'center',
-    padding: 16, borderRadius: 20,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12, shadowRadius: 10, elevation: 6,
+  rowIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  avatarGradient: {
-    width: 52, height: 52, borderRadius: 16,
-    justifyContent: 'center', alignItems: 'center', marginRight: 14,
+  rowBody: {
+    flex: 1,
   },
-  avatarText: { fontSize: 18, fontWeight: '800', color: '#FFF' },
-  userName: { fontSize: 16, fontWeight: '800', marginBottom: 1 },
-  userEmail: { fontSize: 12, marginBottom: 6 },
-  profileStats: { flexDirection: 'row' },
-  profileStatChip: {
-    flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: 7, paddingVertical: 3,
-    borderRadius: 8, marginRight: 6,
+  rowTitle: {
+    fontSize: 15,
+    fontWeight: '700',
   },
-  profileStatText: { fontSize: 10, fontWeight: '700', marginLeft: 3 },
-  editBtn: { width: 36, height: 36, borderRadius: 11, justifyContent: 'center', alignItems: 'center' },
-
-  budgetBar: { marginTop: 14 },
-  budgetBarBg: { height: 5, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 3, overflow: 'hidden', marginBottom: 5 },
-  budgetBarFill: { height: '100%', borderRadius: 3 },
-  budgetBarText: { color: 'rgba(255,255,255,0.75)', fontSize: 11, fontWeight: '600' },
-
-  content: { padding: 20 },
-
-  sectionLabel: {
-    fontSize: 11, fontWeight: '700', letterSpacing: 1,
-    marginBottom: 10, marginLeft: 4, textTransform: 'uppercase',
+  rowSubtitle: {
+    marginTop: 4,
+    fontSize: 12,
+    lineHeight: 18,
   },
-  section: { borderRadius: 18, marginBottom: 24, overflow: 'hidden', borderWidth: 1 },
-
-  menuItem: { flexDirection: 'row', alignItems: 'center', padding: 14 },
-  iconBox: { width: 38, height: 38, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginRight: 13 },
-  menuText: { fontSize: 15, fontWeight: '600' },
-  menuSub: { fontSize: 12, fontWeight: '400', marginTop: 1 },
-  rightLabel: { fontSize: 13, fontWeight: '600' },
-
-  // Prefs Panel
-  prefsPanel: {
-    padding: 16,
-    borderBottomWidth: 1,
-    gap: 14,
+  rowTrailing: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    maxWidth: 142,
   },
-  chipRowContainer: { gap: 8 },
-  chipRowLabel: { fontSize: 12, fontWeight: '600' },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: {
-    paddingHorizontal: 14, paddingVertical: 7,
-    borderRadius: 10, borderWidth: 1.5,
+  rowRightText: {
+    fontSize: 12,
+    fontWeight: '700',
+    textAlign: 'right',
+    flexShrink: 1,
   },
-  chipText: { fontSize: 13, fontWeight: '600' },
-  inlineToggle: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-
-  versionCard: { alignItems: 'center', padding: 18, borderRadius: 18, borderWidth: 1 },
-  appName: { fontSize: 16, fontWeight: '800', marginBottom: 3 },
-  versionText: { fontSize: 12 },
+  versionCard: {
+    borderRadius: 18,
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  versionLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  versionValue: {
+    fontSize: 16,
+    fontWeight: '800',
+    marginTop: 4,
+  },
+  sheetBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(15,23,42,0.36)',
+    justifyContent: 'flex-end',
+  },
+  sheetDismissArea: {
+    flex: 1,
+  },
+  sheetContainer: {
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    borderWidth: 1,
+    borderBottomWidth: 0,
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 28,
+    maxHeight: '84%',
+  },
+  sheetHandle: {
+    width: 42,
+    height: 4,
+    borderRadius: 999,
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
+  sheetHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  sheetHeaderText: {
+    flex: 1,
+    gap: 4,
+  },
+  sheetTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+  },
+  sheetSubtitle: {
+    fontSize: 13,
+    lineHeight: 19,
+  },
+  sheetCloseButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sheetContent: {
+    paddingTop: 18,
+    paddingBottom: 4,
+    gap: 18,
+  },
+  sheetNotice: {
+    borderWidth: 1,
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+  },
+  sheetNoticeText: {
+    flex: 1,
+    fontSize: 12,
+    lineHeight: 18,
+  },
+  sheetSection: {
+    gap: 10,
+  },
+  sheetSectionTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  sheetGroup: {
+    borderWidth: 1,
+    borderRadius: 18,
+    overflow: 'hidden',
+  },
+  sheetToggleRow: {
+    minHeight: 58,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  sheetToggleLabel: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  pillWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  pill: {
+    minWidth: 74,
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  pillText: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  optionList: {
+    gap: 10,
+  },
+  optionRow: {
+    borderWidth: 1,
+    borderRadius: 18,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  optionRowBody: {
+    flex: 1,
+    gap: 4,
+  },
+  optionRowTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  optionRowSubtitle: {
+    fontSize: 12,
+    lineHeight: 18,
+  },
 });

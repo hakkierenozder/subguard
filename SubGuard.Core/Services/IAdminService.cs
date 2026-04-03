@@ -5,13 +5,13 @@ namespace SubGuard.Core.Services
     public interface IAdminService
     {
         /// <summary>Tüm kullanıcıları sayfalı listeler; opsiyonel arama: e-posta veya ad üzerinden.</summary>
-        Task<CustomResponseDto<PagedResponseDto<AdminUserDto>>> GetUsersAsync(string? search, int page, int pageSize);
+        Task<CustomResponseDto<PagedResponseDto<AdminUserDto>>> GetUsersAsync(string? search, int page, int pageSize, bool adminsOnly = false);
 
         /// <summary>Tek kullanıcı detayı.</summary>
         Task<CustomResponseDto<AdminUserDto>> GetUserDetailAsync(string userId);
 
         /// <summary>Kullanıcının girişini engeller (LockoutEnd = MaxValue).</summary>
-        Task<CustomResponseDto<bool>> DeactivateUserAsync(string userId);
+        Task<CustomResponseDto<bool>> DeactivateUserAsync(string userId, string adminId);
 
         /// <summary>Kullanıcının kilidini kaldırır.</summary>
         Task<CustomResponseDto<bool>> ActivateUserAsync(string userId);

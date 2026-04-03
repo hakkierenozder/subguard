@@ -12,7 +12,7 @@ const CURRENCIES = ['TRY', 'USD', 'EUR', 'GBP'];
 interface Props {
   visible: boolean;
   onClose: () => void;
-  currentUser: { fullName: string; monthlyBudget: number; monthlyBudgetCurrency: string } | null;
+  currentUser: { fullName: string; monthlyBudget: number; monthlyBudgetCurrency: string | null | undefined } | null;
   onUpdateSuccess: () => void;
 }
 
@@ -40,27 +40,40 @@ export default function EditProfileModal({ visible, onClose, currentUser, onUpda
   const onSubmit = async (data: any) => {
     try {
       const calls: Promise<any>[] = [];
+      const trimmedName = data.fullName?.trim() ?? '';
+      const normalizedCurrency = data.monthlyBudgetCurrency || currentUser?.monthlyBudgetCurrency || 'TRY';
+      const rawBudgetValue = typeof data.monthlyBudget === 'string' ? data.monthlyBudget.trim() : '';
 
-      // Ad Soyad güncellemesi
-      if (data.fullName?.trim()) {
-        calls.push(agent.Auth.updateProfile({ fullName: data.fullName.trim() }));
+      if (trimmedName) {
+        calls.push(agent.Auth.updateProfile({ fullName: trimmedName }));
       }
 
-      // Bütçe güncellemesi
-      const budget = parseFloat(data.monthlyBudget);
-      if (!isNaN(budget) && budget >= 0) {
+      if (rawBudgetValue === '') {
         calls.push(agent.Budget.updateSettings({
-          monthlyBudget: budget,
-          monthlyBudgetCurrency: data.monthlyBudgetCurrency || 'TRY',
+          monthlyBudget: 0,
+          monthlyBudgetCurrency: normalizedCurrency,
         }));
+      } else {
+        const budget = parseFloat(rawBudgetValue);
+        if (!Number.isNaN(budget) && budget >= 0) {
+          calls.push(agent.Budget.updateSettings({
+            monthlyBudget: budget,
+            monthlyBudgetCurrency: normalizedCurrency,
+          }));
+        }
+      }
+
+      if (calls.length === 0) {
+        onClose();
+        return;
       }
 
       await Promise.all(calls);
-      Alert.alert('Başarılı', 'Profil bilgileri güncellendi.');
+      Alert.alert('Basarili', 'Profil bilgileri guncellendi.');
       onUpdateSuccess();
       onClose();
     } catch {
-      // Hata agent interceptor tarafından gösterilir
+      // Hata agent interceptor tarafindan gosterilir
     }
   };
 
@@ -71,10 +84,9 @@ export default function EditProfileModal({ visible, onClose, currentUser, onUpda
         style={styles.overlay}
       >
         <View style={[styles.container, { backgroundColor: colors.cardBg }]}>
-          <Text style={[styles.title, { color: colors.accent }]}>Profili Düzenle</Text>
+          <Text style={[styles.title, { color: colors.accent }]}>Profili Duzenle</Text>
 
           <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-            {/* Ad Soyad */}
             <Text style={[styles.label, { color: colors.textSec }]}>Ad Soyad</Text>
             <Controller
               control={control}
@@ -97,16 +109,15 @@ export default function EditProfileModal({ visible, onClose, currentUser, onUpda
               <Text style={[styles.errorText, { color: colors.error }]}>{errors.fullName.message}</Text>
             )}
 
-            {/* Aylık Bütçe */}
-            <Text style={[styles.label, { color: colors.textSec }]}>Aylık Hedef Bütçe</Text>
+            <Text style={[styles.label, { color: colors.textSec }]}>Aylik Hedef Butce</Text>
             <Controller
               control={control}
               name="monthlyBudget"
               rules={{
                 validate: (v) => {
-                  if (!v) return true; // Boş bırakılabilir
+                  if (!v) return true;
                   const n = parseFloat(v);
-                  if (isNaN(n) || n < 0) return 'Geçerli bir tutar girin.';
+                  if (Number.isNaN(n) || n < 0) return 'Gecerli bir tutar girin.';
                   return true;
                 },
               }}
@@ -118,7 +129,7 @@ export default function EditProfileModal({ visible, onClose, currentUser, onUpda
                   ]}
                   value={value}
                   onChangeText={onChange}
-                  placeholder="0.00"
+                  placeholder="Bos birakirsan butce sifirlanir"
                   placeholderTextColor={colors.textSec}
                   keyboardType="numeric"
                 />
@@ -128,8 +139,7 @@ export default function EditProfileModal({ visible, onClose, currentUser, onUpda
               <Text style={[styles.errorText, { color: colors.error }]}>{errors.monthlyBudget.message}</Text>
             )}
 
-            {/* Para Birimi Seçici */}
-            <Text style={[styles.label, { color: colors.textSec }]}>Para Birimi</Text>
+            <Text style={[styles.label, { color: colors.textSec }]}>Butce Para Birimi</Text>
             <Controller
               control={control}
               name="monthlyBudgetCurrency"
@@ -159,7 +169,7 @@ export default function EditProfileModal({ visible, onClose, currentUser, onUpda
 
           <View style={styles.actions}>
             <TouchableOpacity style={styles.cancelBtn} onPress={onClose}>
-              <Text style={[styles.cancelText, { color: colors.textSec }]}>İptal</Text>
+              <Text style={[styles.cancelText, { color: colors.textSec }]}>Iptal</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.saveBtn, { backgroundColor: colors.accent }]}

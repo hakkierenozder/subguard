@@ -67,6 +67,7 @@ const formatItems = (rawItems: RawSubscriptionApiItem[]): UserSubscription[] =>
     firstPaymentDate: item.firstPaymentDate ?? item.contractStartDate ?? item.createdDate ?? undefined,
     contractStartDate: item.contractStartDate ?? undefined,
     contractEndDate: item.contractEndDate ?? undefined,
+    accessUntilDate: item.accessUntilDate ?? undefined,
     // B-13: Backend'den gelen sharedUserEmails + sharedUserIds listelerini sharedWith nesne dizisine dÃ¶nÃ¼ÅŸtÃ¼r.
     // sharedUserIds eksikse (eski API yanÄ±tÄ±) userId boÅŸ string olarak kalÄ±r.
     sharedWith: (item.sharedUserEmails ?? []).map((email: string, i: number) => ({
@@ -471,7 +472,7 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
     }));
 
     // B-18: catch scope iÃ§in try dÄ±ÅŸÄ±na alÄ±ndÄ±
-    const STATUS_FIELDS: (keyof UserSubscription)[] = ['isActive', 'cancelledAt', 'cancelledDate', 'status', 'pausedDate'];
+    const STATUS_FIELDS: (keyof UserSubscription)[] = ['isActive', 'cancelledAt', 'cancelledDate', 'status', 'pausedDate', 'accessUntilDate'];
     const changedKeys = Object.keys(updatedData) as (keyof UserSubscription)[];
     const isStatusOnlyChange = changedKeys.length > 0 && changedKeys.every(k => STATUS_FIELDS.includes(k));
     const shouldRefreshShareData = updatedData.sharedWith !== undefined || updatedData.sharedGuests !== undefined;
@@ -486,6 +487,7 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
     try {
       if (isStatusOnlyChange) {
         await agent.UserSubscriptions.changeStatus(id, apiStatus!);
+        await get().fetchAllUserSubscriptions();
       } else {
         // UpdateUserSubscriptionDto'daki field'larla birebir eÅŸleÅŸen payload.
         // id, userId, isActive, cancelledDate, usageHistoryJson DTO'da olmadÄ±ÄŸÄ± iÃ§in gÃ¶nderilmiyor.
@@ -594,13 +596,7 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
               onPress: async () => {
                 try {
                   await agent.UserSubscriptions.changeStatus(id, 'Cancelled', true);
-                  set((state) => ({
-                    subscriptions: state.subscriptions.map((s) =>
-                      s.id === id
-                        ? { ...s, isActive: false, status: 'Cancelled', cancelledDate: new Date().toISOString() }
-                        : s
-                    ),
-                  }));
+                  await get().fetchAllUserSubscriptions();
                 } catch {
                   Alert.alert('Hata', 'Ä°ptal iÅŸlemi gerÃ§ekleÅŸtirilemedi. LÃ¼tfen tekrar deneyin.');
                 }

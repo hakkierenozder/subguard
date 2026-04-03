@@ -243,12 +243,18 @@ namespace SubGuard.Service.Services
             {
                 case SubscriptionStatus.Paused:
                     entity.PausedDate = DateTime.UtcNow;
+                    entity.CancelledDate = null;
+                    entity.AccessUntilDate = null;
                     break;
                 case SubscriptionStatus.Cancelled:
                     entity.CancelledDate = DateTime.UtcNow;
+                    entity.PausedDate = null;
+                    entity.AccessUntilDate = SubscriptionBillingHelper.GetAccessUntilDateOnCancel(entity, entity.CancelledDate.Value);
                     break;
                 case SubscriptionStatus.Active:
                     entity.PausedDate = null;
+                    entity.CancelledDate = null;
+                    entity.AccessUntilDate = null;
                     break;
             }
 
@@ -691,9 +697,15 @@ namespace SubGuard.Service.Services
                 FirstPaymentDate = source.FirstPaymentDate ?? source.ContractStartDate ?? DateTime.UtcNow.Date,
                 Category = source.Category,
                 ColorCode = source.ColorCode,
-                HasContract = false,
+                HasContract = source.HasContract,
+                ContractStartDate = source.HasContract ? source.ContractStartDate : null,
+                ContractEndDate = source.HasContract ? source.ContractEndDate : null,
+                Notes = source.Notes,
                 IsActive = true,
-                Status = SubscriptionStatus.Active
+                Status = SubscriptionStatus.Active,
+                PausedDate = null,
+                CancelledDate = null,
+                AccessUntilDate = null
             };
 
             try

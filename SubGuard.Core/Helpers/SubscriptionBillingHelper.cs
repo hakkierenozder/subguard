@@ -104,6 +104,45 @@ namespace SubGuard.Core.Helpers
             return count;
         }
 
+        public static DateTime? GetAccessUntilDateOnCancel(UserSubscription subscription, DateTime cancellationDate) =>
+            GetAccessUntilDateOnCancel(
+                subscription.BillingPeriod,
+                subscription.BillingDay,
+                subscription.BillingMonth,
+                subscription.CreatedDate,
+                subscription.FirstPaymentDate,
+                subscription.ContractStartDate,
+                cancellationDate);
+
+        public static DateTime? GetAccessUntilDateOnCancel(
+            BillingPeriod billingPeriod,
+            int billingDay,
+            int? billingMonth,
+            DateTime createdDate,
+            DateTime? firstPaymentDate,
+            DateTime? contractStartDate,
+            DateTime cancellationDate)
+        {
+            var cancellationDay = cancellationDate.Date;
+
+            if (!HasStarted(createdDate, firstPaymentDate, contractStartDate, cancellationDay))
+                return null;
+
+            var accessUntil = GetNextBillingDate(
+                billingPeriod,
+                billingDay,
+                billingMonth,
+                createdDate,
+                firstPaymentDate,
+                contractStartDate,
+                cancellationDay);
+
+            if (accessUntil <= cancellationDay)
+                accessUntil = Advance(accessUntil, billingPeriod, billingDay, billingMonth);
+
+            return accessUntil.Date;
+        }
+
         private static DateTime GetNextMonthlyBillingDate(DateTime reference, DateTime firstPayment, int billingDay)
         {
             var monthCursor = new DateTime(reference.Year, reference.Month, 1);

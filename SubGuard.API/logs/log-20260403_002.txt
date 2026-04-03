@@ -1,0 +1,422 @@
+2026-04-03 18:34:56.147 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-04-03 18:34:57.389 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-04-03 18:34:57.408 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-04-03 18:34:57.727 +03:00 [FTL] [User: ] Uygulama beklenmedik bir hatayla sonlandı (Host Terminated).
+System.IO.IOException: Failed to bind to address http://0.0.0.0:5046: address already in use.
+ ---> Microsoft.AspNetCore.Connections.AddressInUseException: Normal olarak her yuva adresi (iletişim kuralı/ağ adresi/bağlantı noktası) için yalnızca bir kullanıma izin veriliyor.
+ ---> System.Net.Sockets.SocketException (10048): Normal olarak her yuva adresi (iletişim kuralı/ağ adresi/bağlantı noktası) için yalnızca bir kullanıma izin veriliyor.
+   at System.Net.Sockets.Socket.UpdateStatusAfterSocketErrorAndThrowException(SocketError error, Boolean disconnectOnFailure, String callerName)
+   at System.Net.Sockets.Socket.DoBind(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Bind(EndPoint localEP)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportOptions.CreateDefaultBoundListenSocket(EndPoint endpoint)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportFactory.BindAsync(EndPoint endpoint, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure.TransportManager.BindAsync(EndPoint endPoint, ConnectionDelegate connectionDelegate, EndpointConfig endpointConfig, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.<>c__DisplayClass30_0`1.<<StartAsync>g__OnBind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.ListenOptions.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.AddressesStrategy.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindAsync(IEnumerable`1 listenOptions, AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.BindAsync(CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.StartAsync[TContext](IHttpApplication`1 application, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Run(IHost host)
+   at Program.<Main>$(String[] args) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 453
+2026-04-03 18:35:02.642 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-04-03 18:35:03.810 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-04-03 18:35:03.829 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-04-03 18:35:04.118 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-04-03 18:35:04.118 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-04-03 18:35:04.119 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-04-03 18:35:04.119 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-04-03 18:35:04.120 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-04-03 18:35:04.120 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-04-03 18:35:04.138 +03:00 [INF] [User: ] Server desktop-25vqrpg:17660:5dee418d successfully announced in 8,7846 ms
+2026-04-03 18:35:04.140 +03:00 [INF] [User: ] Server desktop-25vqrpg:17660:5dee418d is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-04-03 18:35:04.144 +03:00 [INF] [User: ] Server desktop-25vqrpg:17660:5dee418d all the dispatchers started
+2026-04-03 18:35:44.859 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-04-03 18:35:45.123 +03:00 [INF] [User: Anonymous] Kullanıcı giriş yaptı. Email: ha***@gmail.com
+2026-04-03 18:35:45.284 +03:00 [INF] [User: Anonymous] Token üretildi. Email: ha***@gmail.com
+2026-04-03 18:35:45.305 +03:00 [INF] [User: ] HTTP POST /api/auth/login responded 200 in 454.9213 ms
+2026-04-03 18:35:45.676 +03:00 [INF] [User: Test] Güncel kurlar çekiliyor...
+2026-04-03 18:35:45.743 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 122.4284 ms
+2026-04-03 18:35:45.840 +03:00 [INF] [User: ] HTTP GET /api/notifications responded 200 in 221.5956 ms
+2026-04-03 18:35:45.865 +03:00 [INF] [User: ] HTTP GET /api/catalogs responded 200 in 246.5751 ms
+2026-04-03 18:35:46.422 +03:00 [INF] [User: Test] Kurlar güncellendi: {"USD":44.495,"EUR":51.2795,"GBP":58.772}
+2026-04-03 18:35:46.428 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 802.7558 ms
+2026-04-03 18:35:46.438 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 823.0884 ms
+2026-04-03 18:35:46.807 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 8.4534 ms
+2026-04-03 18:35:46.843 +03:00 [ERR] [User: Test] Failed executing DbCommand (33ms) [Parameters=[@__userId_0='?', @__p_2='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT t."Id", t."AccessUntilDate", t."BillingDay", t."BillingMonth", t."BillingPeriod", t."CancelledDate", t."CatalogId", t."Category", t."ColorCode", t."ContractEndDate", t."ContractStartDate", t."CreatedBy", t."CreatedDate", t."Currency", t."FirstPaymentDate", t."HasContract", t."IsActive", t."IsDeleted", t."Name", t."Notes", t."PausedDate", t."Price", t."RowVersion", t."Status", t."UpdatedBy", t."UpdatedDate", t."UserId", t0."Id", t0."Category", t0."ColorCode", t0."CreatedBy", t0."CreatedDate", t0."IsDeleted", t0."LogoUrl", t0."Name", t0."RequiresContract", t0."UpdatedBy", t0."UpdatedDate", t1."Id", t1."CreatedBy", t1."CreatedDate", t1."DisplayName", t1."IsDeleted", t1."SharedAt", t1."SharedUserEmail", t1."SharedUserId", t1."SubscriptionId", t1."UpdatedBy", t1."UpdatedDate"
+FROM (
+    SELECT u."Id", u."AccessUntilDate", u."BillingDay", u."BillingMonth", u."BillingPeriod", u."CancelledDate", u."CatalogId", u."Category", u."ColorCode", u."ContractEndDate", u."ContractStartDate", u."CreatedBy", u."CreatedDate", u."Currency", u."FirstPaymentDate", u."HasContract", u."IsActive", u."IsDeleted", u."Name", u."Notes", u."PausedDate", u."Price", u."RowVersion", u."Status", u."UpdatedBy", u."UpdatedDate", u."UserId"
+    FROM "UserSubscriptions" AS u
+    WHERE NOT (u."IsDeleted") AND u."UserId" = @__userId_0
+    ORDER BY u."CreatedDate" DESC
+    LIMIT @__p_2 OFFSET @__p_1
+) AS t
+LEFT JOIN (
+    SELECT c."Id", c."Category", c."ColorCode", c."CreatedBy", c."CreatedDate", c."IsDeleted", c."LogoUrl", c."Name", c."RequiresContract", c."UpdatedBy", c."UpdatedDate"
+    FROM "Catalogs" AS c
+    WHERE NOT (c."IsDeleted")
+) AS t0 ON t."CatalogId" = t0."Id"
+LEFT JOIN (
+    SELECT s."Id", s."CreatedBy", s."CreatedDate", s."DisplayName", s."IsDeleted", s."SharedAt", s."SharedUserEmail", s."SharedUserId", s."SubscriptionId", s."UpdatedBy", s."UpdatedDate"
+    FROM "SubscriptionShares" AS s
+    WHERE NOT (s."IsDeleted")
+) AS t1 ON t."Id" = t1."SubscriptionId"
+ORDER BY t."CreatedDate" DESC, t."Id", t0."Id"
+2026-04-03 18:35:46.856 +03:00 [ERR] [User: Test] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column u.AccessUntilDate does not exist
+
+POSITION: 818
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.AccessUntilDate does not exist
+    Position: 818
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+Npgsql.PostgresException (0x80004005): 42703: column u.AccessUntilDate does not exist
+
+POSITION: 818
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.AccessUntilDate does not exist
+    Position: 818
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-04-03 18:35:46.863 +03:00 [ERR] [User: ] Bir hata oluştu: 42703: column u.AccessUntilDate does not exist
+
+POSITION: 818
+Npgsql.PostgresException (0x80004005): 42703: column u.AccessUntilDate does not exist
+
+POSITION: 818
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.UserSubscriptionService.GetUserSubscriptionsAsync(String userId, Int32 page, Int32 pageSize, String q) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 149
+   at SubGuard.API.Controllers.UserSubscriptionsController.GetMySubscriptions(PagedRequestDto paged, String q) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Controllers\UserSubscriptionsController.cs:line 31
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_19>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 427
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.AccessUntilDate does not exist
+    Position: 818
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-04-03 18:35:46.884 +03:00 [ERR] [User: ] HTTP GET /api/usersubscriptions responded 500 in 87.2580 ms
+2026-04-03 18:35:50.317 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 9.6140 ms
+2026-04-03 18:35:50.319 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 12.0382 ms
+2026-04-03 18:35:50.553 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.6222 ms
+2026-04-03 18:35:50.555 +03:00 [ERR] [User: Test] Failed executing DbCommand (4ms) [Parameters=[@__userId_0='?', @__p_2='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT t."Id", t."AccessUntilDate", t."BillingDay", t."BillingMonth", t."BillingPeriod", t."CancelledDate", t."CatalogId", t."Category", t."ColorCode", t."ContractEndDate", t."ContractStartDate", t."CreatedBy", t."CreatedDate", t."Currency", t."FirstPaymentDate", t."HasContract", t."IsActive", t."IsDeleted", t."Name", t."Notes", t."PausedDate", t."Price", t."RowVersion", t."Status", t."UpdatedBy", t."UpdatedDate", t."UserId", t0."Id", t0."Category", t0."ColorCode", t0."CreatedBy", t0."CreatedDate", t0."IsDeleted", t0."LogoUrl", t0."Name", t0."RequiresContract", t0."UpdatedBy", t0."UpdatedDate", t1."Id", t1."CreatedBy", t1."CreatedDate", t1."DisplayName", t1."IsDeleted", t1."SharedAt", t1."SharedUserEmail", t1."SharedUserId", t1."SubscriptionId", t1."UpdatedBy", t1."UpdatedDate"
+FROM (
+    SELECT u."Id", u."AccessUntilDate", u."BillingDay", u."BillingMonth", u."BillingPeriod", u."CancelledDate", u."CatalogId", u."Category", u."ColorCode", u."ContractEndDate", u."ContractStartDate", u."CreatedBy", u."CreatedDate", u."Currency", u."FirstPaymentDate", u."HasContract", u."IsActive", u."IsDeleted", u."Name", u."Notes", u."PausedDate", u."Price", u."RowVersion", u."Status", u."UpdatedBy", u."UpdatedDate", u."UserId"
+    FROM "UserSubscriptions" AS u
+    WHERE NOT (u."IsDeleted") AND u."UserId" = @__userId_0
+    ORDER BY u."CreatedDate" DESC
+    LIMIT @__p_2 OFFSET @__p_1
+) AS t
+LEFT JOIN (
+    SELECT c."Id", c."Category", c."ColorCode", c."CreatedBy", c."CreatedDate", c."IsDeleted", c."LogoUrl", c."Name", c."RequiresContract", c."UpdatedBy", c."UpdatedDate"
+    FROM "Catalogs" AS c
+    WHERE NOT (c."IsDeleted")
+) AS t0 ON t."CatalogId" = t0."Id"
+LEFT JOIN (
+    SELECT s."Id", s."CreatedBy", s."CreatedDate", s."DisplayName", s."IsDeleted", s."SharedAt", s."SharedUserEmail", s."SharedUserId", s."SubscriptionId", s."UpdatedBy", s."UpdatedDate"
+    FROM "SubscriptionShares" AS s
+    WHERE NOT (s."IsDeleted")
+) AS t1 ON t."Id" = t1."SubscriptionId"
+ORDER BY t."CreatedDate" DESC, t."Id", t0."Id"
+2026-04-03 18:35:50.558 +03:00 [ERR] [User: Test] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column u.AccessUntilDate does not exist
+
+POSITION: 818
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.AccessUntilDate does not exist
+    Position: 818
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+Npgsql.PostgresException (0x80004005): 42703: column u.AccessUntilDate does not exist
+
+POSITION: 818
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.AccessUntilDate does not exist
+    Position: 818
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-04-03 18:35:50.562 +03:00 [ERR] [User: ] Bir hata oluştu: 42703: column u.AccessUntilDate does not exist
+
+POSITION: 818
+Npgsql.PostgresException (0x80004005): 42703: column u.AccessUntilDate does not exist
+
+POSITION: 818
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.UserSubscriptionService.GetUserSubscriptionsAsync(String userId, Int32 page, Int32 pageSize, String q) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 149
+   at SubGuard.API.Controllers.UserSubscriptionsController.GetMySubscriptions(PagedRequestDto paged, String q) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Controllers\UserSubscriptionsController.cs:line 31
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_19>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 427
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.AccessUntilDate does not exist
+    Position: 818
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-04-03 18:35:50.570 +03:00 [ERR] [User: ] HTTP GET /api/usersubscriptions responded 500 in 21.7846 ms
+2026-04-03 18:35:53.655 +03:00 [INF] [User: ] HTTP GET /api/auth/profile responded 200 in 6.7963 ms
+2026-04-03 18:35:53.655 +03:00 [INF] [User: ] HTTP GET /api/dashboard responded 200 in 7.1290 ms
+2026-04-03 18:35:53.946 +03:00 [INF] [User: ] HTTP GET /api/currencies responded 200 in 3.8983 ms
+2026-04-03 18:35:53.949 +03:00 [ERR] [User: Test] Failed executing DbCommand (7ms) [Parameters=[@__userId_0='?', @__p_2='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT t."Id", t."AccessUntilDate", t."BillingDay", t."BillingMonth", t."BillingPeriod", t."CancelledDate", t."CatalogId", t."Category", t."ColorCode", t."ContractEndDate", t."ContractStartDate", t."CreatedBy", t."CreatedDate", t."Currency", t."FirstPaymentDate", t."HasContract", t."IsActive", t."IsDeleted", t."Name", t."Notes", t."PausedDate", t."Price", t."RowVersion", t."Status", t."UpdatedBy", t."UpdatedDate", t."UserId", t0."Id", t0."Category", t0."ColorCode", t0."CreatedBy", t0."CreatedDate", t0."IsDeleted", t0."LogoUrl", t0."Name", t0."RequiresContract", t0."UpdatedBy", t0."UpdatedDate", t1."Id", t1."CreatedBy", t1."CreatedDate", t1."DisplayName", t1."IsDeleted", t1."SharedAt", t1."SharedUserEmail", t1."SharedUserId", t1."SubscriptionId", t1."UpdatedBy", t1."UpdatedDate"
+FROM (
+    SELECT u."Id", u."AccessUntilDate", u."BillingDay", u."BillingMonth", u."BillingPeriod", u."CancelledDate", u."CatalogId", u."Category", u."ColorCode", u."ContractEndDate", u."ContractStartDate", u."CreatedBy", u."CreatedDate", u."Currency", u."FirstPaymentDate", u."HasContract", u."IsActive", u."IsDeleted", u."Name", u."Notes", u."PausedDate", u."Price", u."RowVersion", u."Status", u."UpdatedBy", u."UpdatedDate", u."UserId"
+    FROM "UserSubscriptions" AS u
+    WHERE NOT (u."IsDeleted") AND u."UserId" = @__userId_0
+    ORDER BY u."CreatedDate" DESC
+    LIMIT @__p_2 OFFSET @__p_1
+) AS t
+LEFT JOIN (
+    SELECT c."Id", c."Category", c."ColorCode", c."CreatedBy", c."CreatedDate", c."IsDeleted", c."LogoUrl", c."Name", c."RequiresContract", c."UpdatedBy", c."UpdatedDate"
+    FROM "Catalogs" AS c
+    WHERE NOT (c."IsDeleted")
+) AS t0 ON t."CatalogId" = t0."Id"
+LEFT JOIN (
+    SELECT s."Id", s."CreatedBy", s."CreatedDate", s."DisplayName", s."IsDeleted", s."SharedAt", s."SharedUserEmail", s."SharedUserId", s."SubscriptionId", s."UpdatedBy", s."UpdatedDate"
+    FROM "SubscriptionShares" AS s
+    WHERE NOT (s."IsDeleted")
+) AS t1 ON t."Id" = t1."SubscriptionId"
+ORDER BY t."CreatedDate" DESC, t."Id", t0."Id"
+2026-04-03 18:35:53.951 +03:00 [ERR] [User: Test] An exception occurred while iterating over the results of a query for context type 'AppDbContext'.
+Npgsql.PostgresException (0x80004005): 42703: column u.AccessUntilDate does not exist
+
+POSITION: 818
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.AccessUntilDate does not exist
+    Position: 818
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+Npgsql.PostgresException (0x80004005): 42703: column u.AccessUntilDate does not exist
+
+POSITION: 818
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.AccessUntilDate does not exist
+    Position: 818
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-04-03 18:35:53.956 +03:00 [ERR] [User: ] Bir hata oluştu: 42703: column u.AccessUntilDate does not exist
+
+POSITION: 818
+Npgsql.PostgresException (0x80004005): 42703: column u.AccessUntilDate does not exist
+
+POSITION: 818
+   at Npgsql.Internal.NpgsqlConnector.<ReadMessage>g__ReadMessageLong|222_0(NpgsqlConnector connector, Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at SubGuard.Service.Services.UserSubscriptionService.GetUserSubscriptionsAsync(String userId, Int32 page, Int32 pageSize, String q) in C:\Projects\SubGuard\SubGuard\SubGuard.Service\Services\UserSubscriptionService.cs:line 149
+   at SubGuard.API.Controllers.UserSubscriptionsController.GetMySubscriptions(PagedRequestDto paged, String q) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Controllers\UserSubscriptionsController.cs:line 31
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Program.<>c.<<<Main>$>b__0_19>d.MoveNext() in C:\Projects\SubGuard\SubGuard\SubGuard.API\Program.cs:line 427
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at SubGuard.API.Middlewares.GlobalExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Projects\SubGuard\SubGuard\SubGuard.API\Middlewares\GlobalExceptionMiddleware.cs:line 28
+  Exception data:
+    Severity: ERROR
+    SqlState: 42703
+    MessageText: column u.AccessUntilDate does not exist
+    Position: 818
+    File: parse_relation.c
+    Line: 3822
+    Routine: errorMissingColumn
+2026-04-03 18:35:53.964 +03:00 [ERR] [User: ] HTTP GET /api/usersubscriptions responded 500 in 25.1388 ms
+2026-04-03 18:37:39.499 +03:00 [INF] [User: ] Uygulama başlatılıyor...
+2026-04-03 18:37:40.616 +03:00 [INF] [User: ] Pending EF migration bulundu. Uygulanıyor: 20260403152426_AddAccessUntilDateToSubscriptions
+2026-04-03 18:37:40.978 +03:00 [INF] [User: ] Start installing Hangfire SQL objects...
+2026-04-03 18:37:40.992 +03:00 [INF] [User: ] Hangfire SQL objects installed.
+2026-04-03 18:37:41.289 +03:00 [INF] [User: ] Starting Hangfire Server using job storage: 'PostgreSQL Server: Host: localhost, DB: SubGuardDb, Schema: hangfire'
+2026-04-03 18:37:41.290 +03:00 [INF] [User: ] Using the following options for PostgreSQL job storage:
+2026-04-03 18:37:41.291 +03:00 [INF] [User: ]     Queue poll interval: 00:00:15.
+2026-04-03 18:37:41.291 +03:00 [INF] [User: ]     Invisibility timeout: 00:30:00.
+2026-04-03 18:37:41.292 +03:00 [INF] [User: ]     Use sliding invisibility timeout: False.
+2026-04-03 18:37:41.292 +03:00 [INF] [User: ] Using the following options for Hangfire Server:
+    Worker count: 20
+    Listening queues: 'default'
+    Shutdown timeout: 00:00:15
+    Schedule polling interval: 00:00:15
+2026-04-03 18:37:41.310 +03:00 [INF] [User: ] Server desktop-25vqrpg:7256:30955e95 successfully announced in 9,4885 ms
+2026-04-03 18:37:41.312 +03:00 [INF] [User: ] Server desktop-25vqrpg:7256:30955e95 is starting the registered dispatchers: ServerWatchdog, ServerJobCancellationWatcher, ExpirationManager, CountersAggregator, Worker, DelayedJobScheduler, RecurringJobScheduler...
+2026-04-03 18:37:41.316 +03:00 [INF] [User: ] Server desktop-25vqrpg:7256:30955e95 all the dispatchers started
+2026-04-03 18:39:02.442 +03:00 [WRN] [User: ] Failed to determine the https port for redirect.
+2026-04-03 18:39:02.464 +03:00 [INF] [User: ] HTTP HEAD /api/health responded 404 in 31.8713 ms
+2026-04-03 18:39:09.740 +03:00 [WRN] [User: ] Stopping the server due to DomainUnload or ProcessExit event...
+2026-04-03 18:39:09.745 +03:00 [INF] [User: ] Server desktop-25vqrpg:7256:30955e95 caught stopping signal...
+2026-04-03 18:39:09.746 +03:00 [INF] [User: ] Server desktop-25vqrpg:7256:30955e95 caught stopped signal...
+2026-04-03 18:39:09.751 +03:00 [WRN] [User: ] Server desktop-25vqrpg:7256:30955e95 caught shutdown signal...
+2026-04-03 18:39:09.751 +03:00 [INF] [User: ] Server desktop-25vqrpg:7256:30955e95 All dispatchers stopped
+2026-04-03 18:39:09.766 +03:00 [INF] [User: ] Server desktop-25vqrpg:7256:30955e95 successfully reported itself as stopped in 11,8407 ms
+2026-04-03 18:39:09.766 +03:00 [INF] [User: ] Server desktop-25vqrpg:7256:30955e95 has been stopped in total 20,2477 ms

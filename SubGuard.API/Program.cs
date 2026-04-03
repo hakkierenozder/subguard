@@ -181,6 +181,9 @@ try
                 var user = await userManager.FindByIdAsync(userId);
                 if (user == null)
                     ctx.Fail("Kullanıcı bulunamadı veya hesap silinmiş.");
+
+                if (user != null && await userManager.IsLockedOutAsync(user))
+                    ctx.Fail("Kullanıcı hesabı askıya alınmış.");
             }
         };
     });
@@ -321,9 +324,18 @@ try
                 "Örnek: \"AllowedCorsOrigins\": [\"https://app.subguard.com\"]");
     }
 
-    // Admin rolünü seed et
+    // Çalışan API her zaman kendi bağlı olduğu veritabanı şemasıyla hizalı olsun.
+    // Özellikle yerel geliştirmede migration unutulduğunda runtime/query drift oluşmasını engeller.
     using (var scope = app.Services.CreateScope())
     {
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var pendingMigrations = (await dbContext.Database.GetPendingMigrationsAsync()).ToList();
+        if (pendingMigrations.Count > 0)
+        {
+            Log.Information("Pending EF migration bulundu. Uygulanıyor: {Migrations}", string.Join(", ", pendingMigrations));
+            await dbContext.Database.MigrateAsync();
+        }
+
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         if (!await roleManager.RoleExistsAsync("Admin"))
             await roleManager.CreateAsync(new IdentityRole("Admin"));

@@ -10,7 +10,7 @@ interface SettingsState {
   onboardingCompleted: boolean;
 
   // 19 — Bildirim Tercihleri
-  notifyDaysBefore: 1 | 3 | 7;
+  notifyDaysBefore: number;
   budgetAlertEnabled: boolean;
   sharedAlertEnabled: boolean;
   emailEnabled: boolean; // F-9: push'tan bağımsız e-posta bildirimi
@@ -38,7 +38,7 @@ interface SettingsState {
   setOnboardingCompleted: () => void;
 
   // Actions — 19
-  setNotifyDaysBefore: (v: 1 | 3 | 7) => void;
+  setNotifyDaysBefore: (v: number) => void;
   setBudgetAlertEnabled: (v: boolean) => void;
   setSharedAlertEnabled: (v: boolean) => void;
   setEmailEnabled: (v: boolean) => void; // F-9
