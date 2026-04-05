@@ -269,7 +269,7 @@ const Admin = {
 // ─── Budget ───────────────────────────────────────────────────────────────────
 // PUT /budget/settings → BudgetController (ayrı endpoint, profile'dan bağımsız)
 const Budget = {
-  updateSettings: (body: { monthlyBudget: number; monthlyBudgetCurrency: string }) =>
+  updateSettings: (body: { monthlyBudget?: number; monthlyBudgetCurrency: string }) =>
     requests.put('/budget/settings', body),
 };
 

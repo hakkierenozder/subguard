@@ -1,15 +1,17 @@
 ﻿import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Linking, RefreshControl, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Linking, Platform, RefreshControl, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemeColors } from '../constants/theme';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import agent from '../api/agent';
 import { UserSubscription } from '../types';
 import { isSubscriptionActiveNow } from '../utils/dateUtils';
-import { getSubscriptionCycleShare, getSubscriptionMonthlyShareInTry } from '../utils/subscriptionMath';
+import { formatCurrencyAmount, normalizeCurrencyCode } from '../utils/CurrencyService';
+import { getSubscriptionCycleShare, getSubscriptionMonthlyShareInCurrency } from '../utils/subscriptionMath';
 
 type Tab = 'subs' | 'people' | 'benimle';
 type SharedStatus = 'active' | 'pending' | 'paused' | 'cancelled';
@@ -18,8 +20,8 @@ type SharedGuest = { id: number; displayName: string };
 type PersonAggregate = { key: string; displayName: string; email?: string; subs: UserSubscription[]; activeMonthlyTRY: number };
 
 const WHATSAPP_GREEN = '#25D366';
-const fmt = (amount: number, currency: string) => `${currency} ${amount.toFixed(2)}`;
-const fmtTry = (amount: number) => `₺${amount.toFixed(2)}`;
+const fmt = (amount: number, currency: string) => formatCurrencyAmount(amount, currency, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtBudget = (amount: number, currency: string) => formatCurrencyAmount(amount, currency, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const cycleUnit = (period?: UserSubscription['billingPeriod']) => period === 'Yearly' ? 'yıl' : 'ay';
 const periodLabel = (period?: UserSubscription['billingPeriod']) => period === 'Yearly' ? 'Yıllık' : 'Aylık';
 
@@ -35,26 +37,34 @@ const getStatusMeta = (status: SharedStatus, colors: ReturnType<typeof useThemeC
   return { label: 'İptal', text: colors.error, bg: `${colors.error}20` };
 };
 
-const buildReminder = (subs: UserSubscription[], rates: Record<string, number>, recipient?: string) => {
+const buildReminder = (
+  subs: UserSubscription[],
+  rates: Record<string, number>,
+  budgetCurrency: string,
+  recipient?: string,
+) => {
   const usable = subs.filter((sub) => ['active', 'pending'].includes(getShareStatus(sub)));
   const target = usable.length > 0 ? usable : subs;
-  const total = target.reduce((sum, sub) => sum + getSubscriptionMonthlyShareInTry(sub, rates), 0);
+  const total = target.reduce(
+    (sum, sub) => sum + getSubscriptionMonthlyShareInCurrency(sub, rates, budgetCurrency, { unknownRateAsZero: true }),
+    0,
+  );
   const lines = target.map((sub) => {
     const pending = getShareStatus(sub) === 'pending' ? ' (başlangıç bekliyor)' : '';
     return `- ${sub.name}: ${fmt(getSubscriptionCycleShare(sub), sub.currency)} / ${cycleUnit(sub.billingPeriod)}${pending}`;
   });
-  return [recipient ? `Merhaba ${recipient},` : 'Merhaba,', '', 'Seninle paylaşılan abonelik özeti:', ...lines, '', `Toplam aylık eşdeğer yük: ${fmtTry(total)}`, '', 'SubGuard ile gönderildi.'].join('\n');
+  return [recipient ? `Merhaba ${recipient},` : 'Merhaba,', '', 'Seninle paylaşılan abonelik özeti:', ...lines, '', `Toplam aylık eşdeğer yük: ${fmtBudget(total, budgetCurrency)}`, '', 'SubGuard ile gönderildi.'].join('\n');
 };
 
-const openWhatsApp = async (subs: UserSubscription[], rates: Record<string, number>, recipient?: string) => {
-  try { await Linking.openURL(`whatsapp://send?text=${encodeURIComponent(buildReminder(subs, rates, recipient))}`); }
+const openWhatsApp = async (subs: UserSubscription[], rates: Record<string, number>, budgetCurrency: string, recipient?: string) => {
+  try { await Linking.openURL(`whatsapp://send?text=${encodeURIComponent(buildReminder(subs, rates, budgetCurrency, recipient))}`); }
   catch { Alert.alert('Hata', 'WhatsApp yüklü değil.'); }
 };
 
-const openEmail = async (subs: UserSubscription[], rates: Record<string, number>, email: string, recipient?: string) => {
+const openEmail = async (subs: UserSubscription[], rates: Record<string, number>, budgetCurrency: string, email: string, recipient?: string) => {
   try {
     const subject = encodeURIComponent(`${subs.length === 1 ? subs[0].name : 'Paylaşımlı abonelikler'} paylaşım özeti`);
-    const body = encodeURIComponent(buildReminder(subs, rates, recipient));
+    const body = encodeURIComponent(buildReminder(subs, rates, budgetCurrency, recipient));
     await Linking.openURL(`mailto:${email}?subject=${subject}&body=${body}`);
   } catch {
     Alert.alert('Hata', 'E-posta uygulaması açılamadı.');
@@ -157,8 +167,11 @@ function ManagePartnersPanel({ sub, colors, onClose, onRefresh }: { sub: UserSub
 export default function SharedSubscriptionsScreen() {
   const navigation = useNavigation<any>();
   const colors = useThemeColors();
+  const insets = useSafeAreaInsets();
   const isDarkMode = useSettingsStore((state) => state.isDarkMode);
+  const monthlyBudgetCurrency = useSettingsStore((state) => state.monthlyBudgetCurrency);
   const { subscriptions, sharedWithMe, sharedWithMeHasMore, loadingSharedWithMe, exchangeRates, fetchSharedWithMe, loadMoreSharedWithMe, fetchAllUserSubscriptions, fetchExchangeRates } = useUserSubscriptionStore();
+  const budgetCurrency = normalizeCurrencyCode(monthlyBudgetCurrency);
   const [activeTab, setActiveTab] = useState<Tab>('subs');
   const [managingSub, setManagingSub] = useState<UserSubscription | null>(null);
   const [loading, setLoading] = useState(false);
@@ -183,12 +196,20 @@ export default function SharedSubscriptionsScreen() {
   const onRefresh = useCallback(async () => { setRefreshing(true); try { await loadData(false); } finally { setRefreshing(false); } }, [loadData]);
 
   const sharedSubs = useMemo(() => subscriptions.filter((sub) => ((sub.sharedWith?.length ?? 0) + (sub.sharedGuests?.length ?? 0)) > 0), [subscriptions]);
-  const activeSharedMonthlyTRY = useMemo(() => sharedSubs.reduce((sum, sub) => getShareStatus(sub) === 'active' ? sum + getSubscriptionMonthlyShareInTry(sub, exchangeRates) : sum, 0), [exchangeRates, sharedSubs]);
+  const activeSharedMonthlyTRY = useMemo(
+    () => sharedSubs.reduce(
+      (sum, sub) => getShareStatus(sub) === 'active'
+        ? sum + getSubscriptionMonthlyShareInCurrency(sub, exchangeRates, budgetCurrency, { unknownRateAsZero: true })
+        : sum,
+      0,
+    ),
+    [budgetCurrency, exchangeRates, sharedSubs],
+  );
 
   const people = useMemo(() => {
     const map = new Map<string, PersonAggregate>();
     sharedSubs.forEach((sub) => {
-      const monthly = getSubscriptionMonthlyShareInTry(sub, exchangeRates);
+      const monthly = getSubscriptionMonthlyShareInCurrency(sub, exchangeRates, budgetCurrency, { unknownRateAsZero: true });
       const isActive = getShareStatus(sub) === 'active';
       (sub.sharedWith ?? []).forEach((member) => {
         const key = `member:${member.email.toLowerCase()}`;
@@ -212,7 +233,7 @@ export default function SharedSubscriptionsScreen() {
       });
     });
     return [...map.values()].sort((a, b) => b.activeMonthlyTRY - a.activeMonthlyTRY || a.displayName.localeCompare(b.displayName, 'tr'));
-  }, [exchangeRates, sharedSubs]);
+  }, [budgetCurrency, exchangeRates, sharedSubs]);
 
   const refreshShares = useCallback(async () => {
     await Promise.allSettled([fetchAllUserSubscriptions(), fetchSharedWithMe()]);
@@ -248,11 +269,13 @@ export default function SharedSubscriptionsScreen() {
             </View>
           </View>
           <Text style={[styles.shareInfo, { color: colors.accent }]}>Kişi başı {fmt(getSubscriptionCycleShare(item), item.currency)} / {cycleUnit(item.billingPeriod)}</Text>
-          <Text style={[styles.subtle, { color: colors.textSec }]}>{`Aylık eşdeğer yük: ${fmtTry(getSubscriptionMonthlyShareInTry(item, exchangeRates))}`}</Text>
+          <Text style={[styles.subtle, { color: colors.textSec }]}>
+            {`Aylık eşdeğer yük: ${fmtBudget(getSubscriptionMonthlyShareInCurrency(item, exchangeRates, budgetCurrency, { unknownRateAsZero: true }), budgetCurrency)}`}
+          </Text>
           <View style={[styles.row, { marginTop: 10 }]}><Ionicons name="people-outline" size={14} color={colors.textSec} /><Text style={[styles.peopleText, { color: colors.textSec }]} numberOfLines={2}>{peopleText}</Text></View>
           <View style={styles.actions}>
             <TouchableOpacity style={[styles.smallBtn, { backgroundColor: colors.inputBg, borderColor: colors.border }]} onPress={() => setManagingSub(item)}><Ionicons name="people" size={14} color={colors.accent} /><Text style={[styles.smallBtnText, { color: colors.accent }]}>Yönet</Text></TouchableOpacity>
-            <TouchableOpacity style={[styles.smallBtn, { backgroundColor: `${WHATSAPP_GREEN}20`, borderColor: `${WHATSAPP_GREEN}45` }]} onPress={() => void openWhatsApp([item], exchangeRates)}><FontAwesome5 name="whatsapp" size={13} color={WHATSAPP_GREEN} /><Text style={[styles.smallBtnText, { color: WHATSAPP_GREEN }]}>Hatırlat</Text></TouchableOpacity>
+            <TouchableOpacity style={[styles.smallBtn, { backgroundColor: `${WHATSAPP_GREEN}20`, borderColor: `${WHATSAPP_GREEN}45` }]} onPress={() => void openWhatsApp([item], exchangeRates, budgetCurrency)}><FontAwesome5 name="whatsapp" size={13} color={WHATSAPP_GREEN} /><Text style={[styles.smallBtnText, { color: WHATSAPP_GREEN }]}>Hatırlat</Text></TouchableOpacity>
           </View>
         </View>
       </View>
@@ -268,7 +291,7 @@ export default function SharedSubscriptionsScreen() {
           <Text style={[styles.subtle, { color: colors.textSec }]}>{item.subs.length} abonelik</Text>
         </View>
         <View style={{ alignItems: 'flex-end' }}>
-          <Text style={[styles.personTotal, { color: colors.accent }]}>{fmtTry(item.activeMonthlyTRY)}</Text>
+          <Text style={[styles.personTotal, { color: colors.accent }]}>{fmtBudget(item.activeMonthlyTRY, budgetCurrency)}</Text>
           <Text style={[styles.personLabel, { color: colors.textSec }]}>aktif aylık yük</Text>
         </View>
       </View>
@@ -284,13 +307,13 @@ export default function SharedSubscriptionsScreen() {
                 <View style={[styles.miniChip, { backgroundColor: statusMeta.bg }]}><Text style={[styles.miniChipText, { color: statusMeta.text }]}>{statusMeta.label}</Text></View>
               </View>
             </View>
-            <Text style={[styles.miniTotal, { color: colors.textSec }]}>{`≈ ${fmtTry(getSubscriptionMonthlyShareInTry(sub, exchangeRates))}/ay`}</Text>
+            <Text style={[styles.miniTotal, { color: colors.textSec }]}>{`≈ ${fmtBudget(getSubscriptionMonthlyShareInCurrency(sub, exchangeRates, budgetCurrency, { unknownRateAsZero: true }), budgetCurrency)}/ay`}</Text>
           </View>
         );
       })}
       <View style={[styles.actions, { marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: colors.border }]}>
-        <TouchableOpacity style={[styles.smallBtn, { backgroundColor: `${WHATSAPP_GREEN}20`, borderColor: `${WHATSAPP_GREEN}45` }]} onPress={() => void openWhatsApp(item.subs, exchangeRates, item.displayName)}><FontAwesome5 name="whatsapp" size={13} color={WHATSAPP_GREEN} /><Text style={[styles.smallBtnText, { color: WHATSAPP_GREEN }]}>Hatırlat</Text></TouchableOpacity>
-        {item.email && <TouchableOpacity style={[styles.smallBtn, { backgroundColor: `${colors.accent}18`, borderColor: `${colors.accent}35` }]} onPress={() => void openEmail(item.subs, exchangeRates, item.email!, item.displayName)}><Ionicons name="mail-outline" size={14} color={colors.accent} /><Text style={[styles.smallBtnText, { color: colors.accent }]}>E-posta</Text></TouchableOpacity>}
+        <TouchableOpacity style={[styles.smallBtn, { backgroundColor: `${WHATSAPP_GREEN}20`, borderColor: `${WHATSAPP_GREEN}45` }]} onPress={() => void openWhatsApp(item.subs, exchangeRates, budgetCurrency, item.displayName)}><FontAwesome5 name="whatsapp" size={13} color={WHATSAPP_GREEN} /><Text style={[styles.smallBtnText, { color: WHATSAPP_GREEN }]}>Hatırlat</Text></TouchableOpacity>
+        {item.email && <TouchableOpacity style={[styles.smallBtn, { backgroundColor: `${colors.accent}18`, borderColor: `${colors.accent}35` }]} onPress={() => void openEmail(item.subs, exchangeRates, budgetCurrency, item.email!, item.displayName)}><Ionicons name="mail-outline" size={14} color={colors.accent} /><Text style={[styles.smallBtnText, { color: colors.accent }]}>E-posta</Text></TouchableOpacity>}
       </View>
     </View>
   );
@@ -311,7 +334,9 @@ export default function SharedSubscriptionsScreen() {
             </View>
           </View>
           <Text style={[styles.shareInfo, { color: colors.accent }]}>Kişi başı {fmt(getSubscriptionCycleShare(item), item.currency)} / {cycleUnit(item.billingPeriod)}</Text>
-          <Text style={[styles.subtle, { color: colors.textSec }]}>{`Aylık eşdeğer yük: ${fmtTry(getSubscriptionMonthlyShareInTry(item, exchangeRates))}`}</Text>
+          <Text style={[styles.subtle, { color: colors.textSec }]}>
+            {`Aylık eşdeğer yük: ${fmtBudget(getSubscriptionMonthlyShareInCurrency(item, exchangeRates, budgetCurrency, { unknownRateAsZero: true }), budgetCurrency)}`}
+          </Text>
           <View style={[styles.row, { marginTop: 10 }]}><Ionicons name="person-circle-outline" size={14} color={colors.textSec} /><Text style={[styles.peopleText, { color: colors.textSec }]} numberOfLines={1}>{item.ownerFullName ? `Paylaşan: ${item.ownerFullName}` : item.ownerEmail ? `Paylaşan: ${item.ownerEmail}` : 'Sahibi tarafından paylaşıldı'}</Text></View>
           {item.sharedAt && <View style={[styles.row, { marginTop: 4 }]}><Ionicons name="calendar-outline" size={13} color={colors.textSec} /><Text style={[styles.peopleText, { color: colors.textSec, fontSize: 11 }]}>{new Date(item.sharedAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}</Text></View>}
           <View style={styles.actions}>
@@ -325,7 +350,15 @@ export default function SharedSubscriptionsScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}> 
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
-      <LinearGradient colors={['#4F46E5', '#6D28D9']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
+      <LinearGradient
+        colors={['#4F46E5', '#6D28D9']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[
+          styles.header,
+          Platform.OS === 'android' && { paddingTop: insets.top + 16 },
+        ]}
+      >
         <View style={styles.rowBetween}>
           <View>
             <Text style={styles.headerTitle}>Paylaşımlı Abonelikler</Text>
@@ -338,7 +371,7 @@ export default function SharedSubscriptionsScreen() {
           <View style={styles.divider} />
           <View style={styles.stat}><Text style={styles.statNum}>{people.length}</Text><Text style={styles.statLabel}>Kişi</Text></View>
           <View style={styles.divider} />
-          <View style={styles.stat}><Text style={styles.statNum}>{fmtTry(activeSharedMonthlyTRY)}</Text><Text style={styles.statLabel}>Aktif Aylık Yük</Text></View>
+          <View style={styles.stat}><Text style={styles.statNum}>{fmtBudget(activeSharedMonthlyTRY, budgetCurrency)}</Text><Text style={styles.statLabel}>Aktif Aylık Yük</Text></View>
         </View>
       </LinearGradient>
 

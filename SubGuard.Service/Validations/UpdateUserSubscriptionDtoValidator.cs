@@ -1,5 +1,7 @@
 using FluentValidation;
+using SubGuard.Core.Constants;
 using SubGuard.Core.DTOs;
+using SubGuard.Core.Enums;
 
 namespace SubGuard.Service.Validations
 {
@@ -19,7 +21,9 @@ namespace SubGuard.Service.Validations
 
             RuleFor(x => x.Currency)
                 .NotEmpty().WithMessage("Para birimi seçilmelidir.")
-                .Length(3).WithMessage("Para birimi kodu 3 karakter olmalıdır (ör: USD, TRY, EUR).");
+                .Length(3).WithMessage("Para birimi kodu 3 karakter olmalıdır (ör: USD, TRY, EUR).")
+                .Must(AppConstants.Currency.IsSupported)
+                .WithMessage($"Desteklenen para birimleri: {string.Join(", ", AppConstants.Currency.SupportedCodes)}.");
 
             RuleFor(x => x.Category)
                 .NotEmpty().WithMessage("Kategori boş bırakılamaz.")
@@ -28,9 +32,27 @@ namespace SubGuard.Service.Validations
             RuleFor(x => x.FirstPaymentDate)
                 .NotNull().WithMessage("İlk ödeme tarihi zorunludur.");
 
+            RuleFor(x => x.BillingMonth)
+                .NotNull().WithMessage("Yıllık aboneliklerde ödeme ayı zorunludur.")
+                .InclusiveBetween(1, 12).WithMessage("Ödeme ayı 1 ile 12 arasında olmalıdır.")
+                .When(x => x.BillingPeriod == BillingPeriod.Yearly);
+
+            RuleFor(x => x.BillingMonth)
+                .Null().WithMessage("Aylık aboneliklerde ödeme ayı gönderilmemelidir.")
+                .When(x => x.BillingPeriod != BillingPeriod.Yearly);
+
             RuleFor(x => x.Notes)
                 .MaximumLength(500).WithMessage("Not alanı en fazla 500 karakter olabilir.")
                 .When(x => x.Notes != null);
+
+            RuleForEach(x => x.SharedUserEmails)
+                .EmailAddress().WithMessage("Paylaşılan kullanıcı e-postaları geçerli formatta olmalıdır.")
+                .When(x => x.SharedUserEmails != null);
+
+            RuleForEach(x => x.SharedGuestNames)
+                .MaximumLength(100).WithMessage("Misafir adı en fazla 100 karakter olabilir.")
+                .Must(name => !string.IsNullOrWhiteSpace(name)).WithMessage("Misafir adı boş olamaz.")
+                .When(x => x.SharedGuestNames != null);
 
             RuleFor(x => x.ContractStartDate)
                 .NotNull().WithMessage("Sözleşme başlangıç tarihi zorunludur.")

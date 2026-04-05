@@ -21,6 +21,8 @@ namespace SubGuard.Core.DTOs
         public decimal MonthlyBudget { get; set; }
         public string Currency { get; set; }
         public decimal TotalSpent { get; set; }
+        public int BudgetAlertThreshold { get; set; }
+        public bool IsNearLimit { get; set; }
         public decimal Remaining => MonthlyBudget - TotalSpent;
         public bool IsOverBudget => TotalSpent > MonthlyBudget;
         public decimal OverAmount => IsOverBudget ? TotalSpent - MonthlyBudget : 0;

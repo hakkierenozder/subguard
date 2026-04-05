@@ -114,6 +114,13 @@ export interface AddSubscriptionPayload {
   notes?: string;
 }
 
+export interface SubscriptionUpdatePayload extends Partial<Omit<UserSubscription,
+  'sharedWith' | 'sharedGuests'
+>> {
+  sharedUserEmails?: string[];
+  sharedGuestNames?: string[];
+}
+
 // Backend API'den gelen raw UserSubscription response shape
 export interface RawSubscriptionApiItem {
   id: number | string;
@@ -224,6 +231,8 @@ export interface BudgetSummaryDto {
   monthlyBudget: number;
   currency: string;
   totalSpent: number;
+  budgetAlertThreshold: number;
+  isNearLimit: boolean;
   remaining: number;
   isOverBudget: boolean;
   overAmount: number;

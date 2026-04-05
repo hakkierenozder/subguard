@@ -1,12 +1,36 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Modal, StyleSheet, TouchableOpacity, TextInput, ScrollView, Switch, Alert, Platform, KeyboardAvoidingView, Image, Animated, ActivityIndicator } from 'react-native';
-import { CatalogItem, UserSubscription, Plan, AddSubscriptionPayload } from '../types';
-import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
-import agent from '../api/agent';
-import { useThemeColors } from '../constants/theme';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  Animated,
+  Image,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import agent from '../api/agent';
+import { useThemeColors } from '../constants/theme';
+import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
+import {
+  AddSubscriptionPayload,
+  CatalogItem,
+  Plan,
+  SubscriptionUpdatePayload,
+  UserSubscription,
+} from '../types';
 import { serializeCalendarDate } from '../utils/dateUtils';
+import { useCatalogStore } from '../store/useCatalogStore';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SUPPORTED_CURRENCIES, type SupportedCurrency } from '../utils/CurrencyService';
 
 interface Props {
   visible: boolean;
@@ -16,64 +40,62 @@ interface Props {
   subscriptionToEdit?: UserSubscription | null;
 }
 
-const CATEGORIES = ['Streaming', 'Music', 'Gaming', 'Cloud', 'Food', 'Gym', 'Rent', 'Bills', 'Other'];
-type CurrencyType = 'TRY' | 'USD' | 'EUR';
+type CurrencyType = SupportedCurrency;
+type BillingPeriodType = 'Monthly' | 'Yearly';
+type StepKey = 1 | 2;
+type ShareTab = 'member' | 'guest';
+
+const CATEGORY_OPTIONS = [
+  { value: 'Streaming', label: 'Streaming' },
+  { value: 'Music', label: 'Müzik' },
+  { value: 'Gaming', label: 'Oyun' },
+  { value: 'Cloud', label: 'Cloud' },
+  { value: 'Food', label: 'Yemek' },
+  { value: 'Gym', label: 'Spor' },
+  { value: 'Rent', label: 'Kira' },
+  { value: 'Bills', label: 'Faturalar' },
+  { value: 'Other', label: 'Diğer' },
+] as const;
 
 const normalizeDate = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
-
 const addDays = (date: Date, days: number) => {
   const next = normalizeDate(date);
   next.setDate(next.getDate() + days);
   return next;
 };
-
+const parsePriceInput = (value: string) => {
+  const parsed = Number.parseFloat(value.replace(',', '.'));
+  return Number.isFinite(parsed) ? parsed : NaN;
+};
+const inferBillingPeriodFromPlan = (plan: Plan): BillingPeriodType => (plan.billingCycleDays >= 365 ? 'Yearly' : 'Monthly');
+const getPeriodUnit = (period: BillingPeriodType) => (period === 'Yearly' ? 'yıl' : 'ay');
 const getDefaultContractEndDate = (start: Date) => {
   const nextYear = normalizeDate(start);
   nextYear.setFullYear(nextYear.getFullYear() + 1);
   return nextYear > normalizeDate(start) ? nextYear : addDays(start, 1);
 };
-
 const ensureContractDates = (billingDate: Date, startDate: Date, endDate: Date) => {
   const minStartDate = normalizeDate(billingDate);
-  const safeStartDate = normalizeDate(startDate);
-  const alignedStartDate = safeStartDate < minStartDate ? minStartDate : safeStartDate;
-  const safeEndDate = normalizeDate(endDate);
-  const alignedEndDate = safeEndDate <= alignedStartDate
+  const alignedStartDate = normalizeDate(startDate) < minStartDate ? minStartDate : normalizeDate(startDate);
+  const alignedEndDate = normalizeDate(endDate) <= alignedStartDate
     ? getDefaultContractEndDate(alignedStartDate)
-    : safeEndDate;
-
-  return {
-    startDate: alignedStartDate,
-    endDate: alignedEndDate,
-  };
+    : normalizeDate(endDate);
+  return { startDate: alignedStartDate, endDate: alignedEndDate };
 };
-
 const getFallbackBillingDateForEdit = (subscription: UserSubscription) => {
-  if (subscription.firstPaymentDate) {
-    return normalizeDate(new Date(subscription.firstPaymentDate));
-  }
-
-  if (subscription.contractStartDate) {
-    return normalizeDate(new Date(subscription.contractStartDate));
-  }
+  if (subscription.firstPaymentDate) return normalizeDate(new Date(subscription.firstPaymentDate));
+  if (subscription.contractStartDate) return normalizeDate(new Date(subscription.contractStartDate));
 
   const now = normalizeDate(new Date());
-
   if (subscription.billingPeriod === 'Yearly' && subscription.billingMonth != null) {
     const targetMonth = subscription.billingMonth - 1;
     const daysInTargetMonth = new Date(now.getFullYear(), targetMonth + 1, 0).getDate();
     const safeDay = Math.min(subscription.billingDay, daysInTargetMonth);
     let targetDate = new Date(now.getFullYear(), targetMonth, safeDay);
-
     if (targetDate < now) {
-      const daysInNextYearTargetMonth = new Date(now.getFullYear() + 1, targetMonth + 1, 0).getDate();
-      targetDate = new Date(
-        now.getFullYear() + 1,
-        targetMonth,
-        Math.min(subscription.billingDay, daysInNextYearTargetMonth),
-      );
+      const nextYearDays = new Date(now.getFullYear() + 1, targetMonth + 1, 0).getDate();
+      targetDate = new Date(now.getFullYear() + 1, targetMonth, Math.min(subscription.billingDay, nextYearDays));
     }
-
     return normalizeDate(targetDate);
   }
 
@@ -83,40 +105,34 @@ const getFallbackBillingDateForEdit = (subscription: UserSubscription) => {
     targetMonth = 0;
     targetYear += 1;
   }
-
   const daysInMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
-  const safeDay = Math.min(subscription.billingDay, daysInMonth);
-
-  return normalizeDate(new Date(targetYear, targetMonth, safeDay));
+  return normalizeDate(new Date(targetYear, targetMonth, Math.min(subscription.billingDay, daysInMonth)));
 };
+const buildSignature = (payload: Record<string, unknown>) => JSON.stringify(payload);
 
-// ─── Adım göstergesi ─────────────────────────────────────────────────────────
-function StepIndicator({ step, colors }: { step: number; colors: ReturnType<typeof useThemeColors> }) {
-  const steps = ['Temel', 'Ödeme', 'Detaylar'];
+function StepIndicator({ step, colors }: { step: StepKey; colors: ReturnType<typeof useThemeColors> }) {
+  const items: { key: StepKey; label: string }[] = [
+    { key: 1, label: 'Plan' },
+    { key: 2, label: 'Detaylar' },
+  ];
+
   return (
-    <View style={siStyles.row}>
-      {steps.map((label, i) => {
-        const num = i + 1;
-        const isActive = step === num;
-        const isDone = step > num;
+    <View style={styles.stepRow}>
+      {items.map((item, index) => {
+        const active = step === item.key;
+        const done = step > item.key;
         return (
-          <React.Fragment key={num}>
-            <View style={siStyles.item}>
-              <View style={[
-                siStyles.circle,
-                { borderColor: isDone || isActive ? colors.primary : colors.border,
-                  backgroundColor: isDone ? colors.primary : isActive ? (colors.primary + '22') : colors.inputBg },
-              ]}>
-                {isDone
-                  ? <Ionicons name="checkmark" size={11} color="#FFF" />
-                  : <Text style={[siStyles.num, { color: isActive ? colors.primary : colors.textSec }]}>{num}</Text>
-                }
+          <React.Fragment key={item.key}>
+            <View style={styles.stepItem}>
+              <View style={[styles.stepCircle, {
+                backgroundColor: done ? colors.accent : active ? colors.accentLight : colors.inputBg,
+                borderColor: done || active ? colors.accent : colors.border,
+              }]}>
+                {done ? <Ionicons name="checkmark" size={12} color="#FFF" /> : <Text style={[styles.stepNumber, { color: active ? colors.accent : colors.textSec }]}>{item.key}</Text>}
               </View>
-              <Text style={[siStyles.label, { color: isActive ? colors.primary : colors.textSec }]}>{label}</Text>
+              <Text style={[styles.stepLabel, { color: active ? colors.textMain : colors.textSec }]}>{item.label}</Text>
             </View>
-            {i < 2 && (
-              <View style={[siStyles.line, { backgroundColor: step > num ? colors.primary : colors.border }]} />
-            )}
+            {index < items.length - 1 && <View style={[styles.stepLine, { backgroundColor: step > item.key ? colors.accent : colors.border }]} />}
           </React.Fragment>
         );
       })}
@@ -124,824 +140,828 @@ function StepIndicator({ step, colors }: { step: number; colors: ReturnType<type
   );
 }
 
-const siStyles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, marginBottom: 20 },
-  item: { alignItems: 'center', gap: 4 },
-  circle: { width: 28, height: 28, borderRadius: 14, borderWidth: 2, justifyContent: 'center', alignItems: 'center' },
-  num: { fontSize: 11, fontWeight: '800' },
-  label: { fontSize: 10, fontWeight: '700', letterSpacing: 0.3 },
-  line: { flex: 1, height: 2, marginHorizontal: 6, marginBottom: 14 },
-});
-
-// ─── Ana bileşen ──────────────────────────────────────────────────────────────
-export default function AddSubscriptionModal({ visible, onClose, onSaved, selectedCatalogItem, subscriptionToEdit }: Props) {
+export default function AddSubscriptionModal({
+  visible,
+  onClose,
+  onSaved,
+  selectedCatalogItem,
+  subscriptionToEdit,
+}: Props) {
   const colors = useThemeColors();
+  const insets = useSafeAreaInsets();
   const { addSubscription, updateSubscription } = useUserSubscriptionStore();
+  const catalogItems = useCatalogStore((state) => state.catalogItems);
+  const fetchCatalog = useCatalogStore((state) => state.fetchCatalog);
   const today = normalizeDate(new Date());
-
-  const [step, setStep] = useState(1);
   const stepAnim = useRef(new Animated.Value(1)).current;
+  const initialSignature = useRef('');
 
-  const animateStep = (newStep: number) => {
-    Animated.sequence([
-      Animated.timing(stepAnim, { toValue: 0, duration: 120, useNativeDriver: true }),
-      Animated.timing(stepAnim, { toValue: 1, duration: 180, useNativeDriver: true }),
-    ]).start();
-    setStep(newStep);
-  };
-
+  const [step, setStep] = useState<StepKey>(1);
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [category, setCategory] = useState('Other');
   const [currency, setCurrency] = useState<CurrencyType>('TRY');
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
-
   const [billingDate, setBillingDate] = useState(today);
   const [showBillingDatePicker, setShowBillingDatePicker] = useState(false);
-
   const [hasContract, setHasContract] = useState(false);
   const [startDate, setStartDate] = useState(today);
   const [endDate, setEndDate] = useState(getDefaultContractEndDate(today));
   const [showContractDatePicker, setShowContractDatePicker] = useState<'start' | 'end' | null>(null);
-
-  const [billingPeriod, setBillingPeriod] = useState<'Monthly' | 'Yearly'>('Monthly');
-
+  const [iosDatePickerTarget, setIosDatePickerTarget] = useState<'billing' | 'start' | 'end' | null>(null);
+  const [iosPickerDate, setIosPickerDate] = useState(today);
+  const [billingPeriod, setBillingPeriod] = useState<BillingPeriodType>('Monthly');
   const [notes, setNotes] = useState('');
-
   const [memberEmails, setMemberEmails] = useState<string[]>([]);
-  const [tempMemberEmail, setTempMemberEmail] = useState('');
   const [guestNames, setGuestNames] = useState<string[]>([]);
+  const [tempMemberEmail, setTempMemberEmail] = useState('');
   const [tempGuestName, setTempGuestName] = useState('');
+  const [shareTab, setShareTab] = useState<ShareTab>('member');
   const [showShareInput, setShowShareInput] = useState(false);
-  const [shareTab, setShareTab] = useState<'member' | 'guest'>('member');
   const [checkingEmail, setCheckingEmail] = useState(false);
   const [memberEmailError, setMemberEmailError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-
-  const isEditing = !!subscriptionToEdit;
-  const isCatalogItem = !!selectedCatalogItem;
-  const hasPlans = selectedCatalogItem?.plans && selectedCatalogItem.plans.length > 0;
   const [imgFailed, setImgFailed] = useState(false);
 
+  const isEditing = !!subscriptionToEdit;
+  const usesStepper = !isEditing;
+  const isCatalogPreset = !!selectedCatalogItem && !isEditing;
+  const resolvedCatalogItem = useMemo(
+    () => selectedCatalogItem ?? catalogItems.find((item) => item.id === subscriptionToEdit?.catalogId) ?? null,
+    [catalogItems, selectedCatalogItem, subscriptionToEdit?.catalogId],
+  );
+  const hasPlans = !!resolvedCatalogItem?.plans?.length;
+  const requiresContract = resolvedCatalogItem?.requiresContract ?? false;
+  const selectedPlan = useMemo(
+    () => resolvedCatalogItem?.plans?.find((plan) => plan.id === selectedPlanId) ?? null,
+    [resolvedCatalogItem, selectedPlanId],
+  );
+  const parsedPrice = parsePriceInput(price);
+  const totalShareCount = memberEmails.length + guestNames.length;
+  const shareAmount = Number.isFinite(parsedPrice) ? (parsedPrice / (totalShareCount + 1)).toFixed(2) : '0.00';
+
   useEffect(() => {
-    if (visible) {
-      setImgFailed(false);
-      stepAnim.setValue(1);
-      setStep(1);
-      if (subscriptionToEdit) {
-        setName(subscriptionToEdit.name);
-        setPrice(subscriptionToEdit.price.toString());
-        setCurrency((subscriptionToEdit.currency as CurrencyType) || 'TRY');
-        setCategory(subscriptionToEdit.category || 'Other');
-
-        const derivedDate = getFallbackBillingDateForEdit(subscriptionToEdit);
-        setBillingDate(derivedDate);
-
-        const nextHasContract = subscriptionToEdit.hasContract || false;
-        setHasContract(nextHasContract);
-
-        const nextStartDate = subscriptionToEdit.contractStartDate
-          ? normalizeDate(new Date(subscriptionToEdit.contractStartDate))
-          : derivedDate;
-        const nextEndDate = subscriptionToEdit.contractEndDate
-          ? normalizeDate(new Date(subscriptionToEdit.contractEndDate))
-          : getDefaultContractEndDate(nextStartDate);
-
-        if (nextHasContract) {
-          const alignedContractDates = ensureContractDates(derivedDate, nextStartDate, nextEndDate);
-          setStartDate(alignedContractDates.startDate);
-          setEndDate(alignedContractDates.endDate);
-        } else {
-          setStartDate(nextStartDate);
-          setEndDate(nextEndDate);
-        }
-
-        setNotes(subscriptionToEdit.notes || '');
-        // sharedWith artık { email, userId }[] — form için sadece email string'lerini al
-        const sharedEmails = (subscriptionToEdit.sharedWith ?? []).map((p) =>
-          typeof p === 'string' ? p : p.email
-        );
-        const guests = (subscriptionToEdit.sharedGuests ?? []).map((g) => g.displayName);
-        setMemberEmails(sharedEmails);
-        setGuestNames(guests);
-        setShowShareInput(sharedEmails.length > 0 || guests.length > 0);
-        setBillingPeriod(subscriptionToEdit.billingPeriod ?? 'Monthly');
-        setSelectedPlanId(null);
-      } else if (selectedCatalogItem) {
-        resetForm();
-        setName(selectedCatalogItem.name);
-        setCategory(selectedCatalogItem.category);
-        setBillingDate(normalizeDate(new Date()));
-      } else {
-        resetForm();
-        setBillingDate(normalizeDate(new Date()));
-      }
+    if (!visible) return;
+    if (!selectedCatalogItem && subscriptionToEdit?.catalogId && catalogItems.length === 0) {
+      fetchCatalog();
     }
-  }, [visible, selectedCatalogItem, subscriptionToEdit]);
+  }, [catalogItems.length, fetchCatalog, selectedCatalogItem, subscriptionToEdit?.catalogId, visible]);
 
-  const resetForm = () => {
-    const baseDate = normalizeDate(new Date());
-    setName('');
-    setPrice('');
-    setCategory('Other');
-    setCurrency('TRY');
-    setBillingDate(baseDate);
-    setHasContract(false);
-    setStartDate(baseDate);
-    setEndDate(getDefaultContractEndDate(baseDate));
-    setNotes('');
-    setMemberEmails([]);
-    setTempMemberEmail('');
-    setGuestNames([]);
-    setTempGuestName('');
-    setShowShareInput(false);
-    setShareTab('member');
-    setCheckingEmail(false);
-    setMemberEmailError(null);
-    setBillingPeriod('Monthly');
-    setSelectedPlanId(null);
+  const currentSignature = buildSignature({
+    name: name.trim(),
+    price: price.trim(),
+    category,
+    currency,
+    selectedPlanId,
+    billingDate: serializeCalendarDate(billingDate),
+    hasContract,
+    startDate: serializeCalendarDate(startDate),
+    endDate: serializeCalendarDate(endDate),
+    billingPeriod,
+    notes: notes.trim(),
+    memberEmails: [...memberEmails].sort(),
+    guestNames: [...guestNames].sort(),
+    showShareInput,
+  });
+
+  const animateStep = (nextStep: StepKey) => {
+    Animated.sequence([
+      Animated.timing(stepAnim, { toValue: 0, duration: 110, useNativeDriver: true }),
+      Animated.timing(stepAnim, { toValue: 1, duration: 180, useNativeDriver: true }),
+    ]).start();
+    setStep(nextStep);
   };
 
   useEffect(() => {
+    if (!visible) return;
+
+    setImgFailed(false);
+    stepAnim.setValue(1);
+    setStep(1);
+    setTempMemberEmail('');
+    setTempGuestName('');
+    setMemberEmailError(null);
+    setCheckingEmail(false);
+    setShareTab('member');
+    setIosDatePickerTarget(null);
+
+    if (subscriptionToEdit) {
+      const derivedBillingDate = getFallbackBillingDateForEdit(subscriptionToEdit);
+      const nextHasContract = subscriptionToEdit.hasContract;
+      const nextStartDate = subscriptionToEdit.contractStartDate
+        ? normalizeDate(new Date(subscriptionToEdit.contractStartDate))
+        : derivedBillingDate;
+      const nextEndDate = subscriptionToEdit.contractEndDate
+        ? normalizeDate(new Date(subscriptionToEdit.contractEndDate))
+        : getDefaultContractEndDate(nextStartDate);
+      const contractDates = nextHasContract
+        ? ensureContractDates(derivedBillingDate, nextStartDate, nextEndDate)
+        : { startDate: nextStartDate, endDate: nextEndDate };
+
+      setName(subscriptionToEdit.name);
+      setPrice(subscriptionToEdit.price.toString());
+      setCategory(subscriptionToEdit.category || 'Other');
+      setCurrency((subscriptionToEdit.currency as CurrencyType) || 'TRY');
+      setSelectedPlanId(null);
+      setBillingDate(derivedBillingDate);
+      setHasContract(nextHasContract);
+      setStartDate(contractDates.startDate);
+      setEndDate(contractDates.endDate);
+      setBillingPeriod(subscriptionToEdit.billingPeriod ?? 'Monthly');
+      setNotes(subscriptionToEdit.notes ?? '');
+      setMemberEmails((subscriptionToEdit.sharedWith ?? []).map((share) => share.email));
+      setGuestNames((subscriptionToEdit.sharedGuests ?? []).map((guest) => guest.displayName));
+      setShowShareInput((subscriptionToEdit.sharedWith ?? []).length > 0 || (subscriptionToEdit.sharedGuests ?? []).length > 0);
+      initialSignature.current = buildSignature({
+        name: subscriptionToEdit.name.trim(),
+        price: subscriptionToEdit.price.toString(),
+        category: subscriptionToEdit.category || 'Other',
+        currency: (subscriptionToEdit.currency as CurrencyType) || 'TRY',
+        selectedPlanId: null,
+        billingDate: serializeCalendarDate(derivedBillingDate),
+        hasContract: nextHasContract,
+        startDate: serializeCalendarDate(contractDates.startDate),
+        endDate: serializeCalendarDate(contractDates.endDate),
+        billingPeriod: subscriptionToEdit.billingPeriod ?? 'Monthly',
+        notes: (subscriptionToEdit.notes ?? '').trim(),
+        memberEmails: (subscriptionToEdit.sharedWith ?? []).map((share) => share.email).sort(),
+        guestNames: (subscriptionToEdit.sharedGuests ?? []).map((guest) => guest.displayName).sort(),
+        showShareInput: (subscriptionToEdit.sharedWith ?? []).length > 0 || (subscriptionToEdit.sharedGuests ?? []).length > 0,
+      });
+    } else {
+      const baseDate = normalizeDate(new Date());
+      setName(selectedCatalogItem?.name ?? '');
+      setPrice('');
+      setCategory(selectedCatalogItem?.category ?? 'Other');
+      setCurrency('TRY');
+      setSelectedPlanId(null);
+      setBillingDate(baseDate);
+      setHasContract(requiresContract);
+      setStartDate(baseDate);
+      setEndDate(getDefaultContractEndDate(baseDate));
+      setBillingPeriod('Monthly');
+      setNotes('');
+      setMemberEmails([]);
+      setGuestNames([]);
+      setShowShareInput(false);
+      initialSignature.current = buildSignature({
+        name: (selectedCatalogItem?.name ?? '').trim(),
+        price: '',
+        category: selectedCatalogItem?.category ?? 'Other',
+        currency: 'TRY',
+        selectedPlanId: null,
+        billingDate: serializeCalendarDate(baseDate),
+        hasContract: requiresContract,
+        startDate: serializeCalendarDate(baseDate),
+        endDate: serializeCalendarDate(getDefaultContractEndDate(baseDate)),
+        billingPeriod: 'Monthly',
+        notes: '',
+        memberEmails: [],
+        guestNames: [],
+        showShareInput: false,
+      });
+    }
+  }, [visible, selectedCatalogItem, subscriptionToEdit, stepAnim]);
+
+  useEffect(() => {
     if (!hasContract) return;
+    const aligned = ensureContractDates(billingDate, startDate, endDate);
+    if (aligned.startDate.getTime() !== startDate.getTime()) setStartDate(aligned.startDate);
+    if (aligned.endDate.getTime() !== endDate.getTime()) setEndDate(aligned.endDate);
+  }, [billingDate, hasContract, startDate, endDate]);
 
-    const alignedContractDates = ensureContractDates(billingDate, startDate, endDate);
-
-    if (alignedContractDates.startDate.getTime() !== normalizeDate(startDate).getTime()) {
-      setStartDate(alignedContractDates.startDate);
+  const handleRequestClose = () => {
+    if (saving) return;
+    if (currentSignature === initialSignature.current) {
+      onClose();
+      return;
     }
-    if (alignedContractDates.endDate.getTime() !== normalizeDate(endDate).getTime()) {
-      setEndDate(alignedContractDates.endDate);
-    }
-  }, [billingDate, endDate, hasContract, startDate]);
-
-  const handleContractToggle = (value: boolean) => {
-    setHasContract(value);
-
-    if (!value) return;
-
-    const alignedContractDates = ensureContractDates(billingDate, startDate, endDate);
-    setStartDate(alignedContractDates.startDate);
-    setEndDate(alignedContractDates.endDate);
+    Alert.alert('Formu kapat', 'Kaydedilmemiş değişiklikler silinecek. Yine de çıkmak istiyor musun?', [
+      { text: 'Formda Kal', style: 'cancel' },
+      { text: 'Çık', style: 'destructive', onPress: onClose },
+    ]);
   };
 
   const handleSelectPlan = (plan: Plan) => {
     setSelectedPlanId(plan.id);
     setPrice(plan.price.toString());
-    // @ts-ignore
-    setCurrency(plan.currency as CurrencyType);
+    setCurrency((plan.currency as CurrencyType) || 'TRY');
+    setBillingPeriod(inferBillingPeriodFromPlan(plan));
+  };
+
+  const openBillingDatePicker = () => {
+    if (Platform.OS === 'ios') {
+      setIosPickerDate(billingDate);
+      setIosDatePickerTarget('billing');
+      return;
+    }
+    setShowBillingDatePicker(true);
+  };
+
+  const openContractDatePicker = (target: 'start' | 'end') => {
+    if (Platform.OS === 'ios') {
+      setIosPickerDate(target === 'start' ? startDate : endDate);
+      setIosDatePickerTarget(target);
+      return;
+    }
+    setShowContractDatePicker(target);
+  };
+
+  const applyIOSDatePicker = () => {
+    if (!iosDatePickerTarget) return;
+    const normalizedDate = normalizeDate(iosPickerDate);
+    if (iosDatePickerTarget === 'billing') {
+      setBillingDate(normalizedDate);
+    } else if (iosDatePickerTarget === 'start') {
+      const aligned = ensureContractDates(billingDate, normalizedDate, endDate);
+      setStartDate(aligned.startDate);
+      setEndDate(aligned.endDate);
+    } else {
+      const aligned = ensureContractDates(billingDate, startDate, normalizedDate);
+      setStartDate(aligned.startDate);
+      setEndDate(aligned.endDate);
+    }
+    setIosDatePickerTarget(null);
+  };
+
+  const handlePrimaryValidation = () => {
+    if (!name.trim()) {
+      Alert.alert('Eksik Bilgi', 'Lütfen abonelik adını girin.');
+      return false;
+    }
+    if (!price.trim() || !Number.isFinite(parsedPrice) || parsedPrice <= 0) {
+      Alert.alert('Eksik Bilgi', 'Lütfen geçerli bir tutar girin.');
+      return false;
+    }
+    return true;
   };
 
   const handleAddMember = async () => {
-    const email = tempMemberEmail.trim();
+    const email = tempMemberEmail.trim().toLowerCase();
     if (!email) return;
-
-    // Basit format kontrolü
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setMemberEmailError('Geçerli bir e-posta adresi girin.');
       return;
     }
-
-    if (memberEmails.includes(email)) {
+    if (memberEmails.some((item) => item.toLowerCase() === email)) {
       setMemberEmailError('Bu e-posta zaten eklendi.');
       return;
     }
-
     setMemberEmailError(null);
     setCheckingEmail(true);
     try {
       await agent.UserSubscriptions.checkUser(email);
-      // 200 döndü → kullanıcı var
-      setMemberEmails([...memberEmails, email]);
+      setMemberEmails((current) => [...current, email]);
       setTempMemberEmail('');
-    } catch (err: any) {
-      const msg = err?.response?.data?.errors?.[0];
-      setMemberEmailError(msg ?? 'Bu e-posta adresiyle kayıtlı kullanıcı bulunamadı.');
+    } catch (error: any) {
+      setMemberEmailError(error?.response?.data?.errors?.[0] ?? 'Bu e-posta adresiyle kayıtlı kullanıcı bulunamadı.');
     } finally {
       setCheckingEmail(false);
     }
   };
 
   const handleAddGuest = () => {
-    const name = tempGuestName.trim();
-    if (name.length > 0 && !guestNames.includes(name)) {
-      setGuestNames([...guestNames, name]);
-      setTempGuestName('');
-    }
-  };
-
-  // Adım 1 → 2 geçişi için validation
-  const handleNext = () => {
-    if (step === 1) {
-      if (!name.trim()) {
-        Alert.alert('Eksik Bilgi', 'Lütfen abonelik adını girin.');
-        return;
-      }
-      if (!price || isNaN(parseFloat(price.replace(',', '.')))) {
-        Alert.alert('Eksik Bilgi', 'Lütfen geçerli bir fiyat girin.');
-        return;
-      }
-    }
-    animateStep(Math.min(step + 1, 3));
+    const guestName = tempGuestName.trim();
+    if (!guestName || guestNames.some((item) => item.toLowerCase() === guestName.toLowerCase())) return;
+    setGuestNames((current) => [...current, guestName]);
+    setTempGuestName('');
   };
 
   const handleSave = async () => {
     if (saving) return;
-    if (!name || !price) {
-      Alert.alert('Eksik Bilgi', 'Lütfen isim ve fiyat alanlarını doldurun.');
-      return;
-    }
+    if (!handlePrimaryValidation()) return;
+
     setSaving(true);
     const normalizedBillingDate = normalizeDate(billingDate);
     const normalizedContractDates = ensureContractDates(normalizedBillingDate, startDate, endDate);
-
-    if (hasContract) {
-      if (normalizedContractDates.startDate.getTime() !== normalizeDate(startDate).getTime()) {
-        setStartDate(normalizedContractDates.startDate);
-      }
-      if (normalizedContractDates.endDate.getTime() !== normalizeDate(endDate).getTime()) {
-        setEndDate(normalizedContractDates.endDate);
-      }
-    }
-
-    const day = normalizedBillingDate.getDate();
-    if (day < 1 || day > 31) {
-      Alert.alert('Geçersiz Gün', 'Fatura günü 1 ile 31 arasında olmalıdır.');
-      setSaving(false);
-      return;
-    }
-    const finalCatalogId = selectedCatalogItem?.id ?? subscriptionToEdit?.catalogId ?? undefined;
-    const colorToSave = selectedCatalogItem?.colorCode || subscriptionToEdit?.colorCode || colors.primary;
-
-    const subData: AddSubscriptionPayload = {
-      catalogId: finalCatalogId,
-      name,
-      price: parseFloat(price.replace(',', '.')),
+    const effectiveHasContract = requiresContract || hasContract;
+    const addPayload: AddSubscriptionPayload = {
+      catalogId: selectedCatalogItem?.id ?? subscriptionToEdit?.catalogId ?? undefined,
+      name: name.trim(),
+      price: parsedPrice,
       currency,
-      billingDay: day,
+      billingDay: normalizedBillingDate.getDate(),
       billingPeriod,
-      // B-1: Yıllık abonelikte billingDate.getMonth()+1 = fatura ayı, aylıkta null
       billingMonth: billingPeriod === 'Yearly' ? normalizedBillingDate.getMonth() + 1 : null,
+      firstPaymentDate: serializeCalendarDate(normalizedBillingDate),
       category,
-      colorCode: colorToSave,
+      colorCode: resolvedCatalogItem?.colorCode || subscriptionToEdit?.colorCode || colors.accent,
+      hasContract: effectiveHasContract,
+      contractStartDate: effectiveHasContract ? serializeCalendarDate(normalizedContractDates.startDate) : undefined,
+      contractEndDate: effectiveHasContract ? serializeCalendarDate(normalizedContractDates.endDate) : undefined,
       sharedWith: showShareInput ? memberEmails : [],
       sharedGuests: showShareInput ? guestNames : [],
-      hasContract,
-      firstPaymentDate: serializeCalendarDate(normalizedBillingDate),
-      contractStartDate: hasContract ? serializeCalendarDate(normalizedContractDates.startDate) : undefined,
-      contractEndDate: hasContract ? serializeCalendarDate(normalizedContractDates.endDate) : undefined,
       notes: notes.trim() || undefined,
     };
 
     try {
       if (isEditing && subscriptionToEdit) {
-        // Mevcut guest'leri ID'leriyle birlikte koru, yeni eklenenleri id:0 ile ekle
-        const existingGuestMap = new Map(
-          (subscriptionToEdit.sharedGuests ?? []).map((g) => [g.displayName, g.id])
-        );
-        const mergedGuests = (showShareInput ? guestNames : []).map((name) => ({
-          id: existingGuestMap.get(name) ?? 0,
-          displayName: name,
-        }));
-        await updateSubscription(subscriptionToEdit.id, {
-          ...subData,
-          sharedWith: showShareInput
-            ? memberEmails.map((email) => {
-                const existing = (subscriptionToEdit.sharedWith ?? []).find(
-                  (p) => (typeof p === 'string' ? p : p.email) === email
-                );
-                return { email, userId: (existing && typeof existing !== 'string') ? existing.userId : '' };
-              })
-            : [],
-          sharedGuests: mergedGuests,
-        } as any);
+        const updatePayload: SubscriptionUpdatePayload = {
+          name: addPayload.name,
+          price: addPayload.price,
+          currency: addPayload.currency,
+          billingDay: addPayload.billingDay,
+          billingMonth: addPayload.billingMonth ?? null,
+          billingPeriod: addPayload.billingPeriod,
+          firstPaymentDate: addPayload.firstPaymentDate,
+          category: addPayload.category,
+          colorCode: addPayload.colorCode,
+          hasContract: addPayload.hasContract ?? false,
+          contractStartDate: addPayload.contractStartDate,
+          contractEndDate: addPayload.contractEndDate,
+          notes: addPayload.notes ?? null,
+          sharedUserEmails: showShareInput ? memberEmails : [],
+          sharedGuestNames: showShareInput ? guestNames : [],
+        };
+        await updateSubscription(subscriptionToEdit.id, updatePayload);
+        onClose();
       } else {
-        await addSubscription(subData);
-        onSaved ? onSaved() : onClose();
-        return;
+        await addSubscription(addPayload);
+        if (onSaved) onSaved();
+        else onClose();
       }
-      onClose();
-    } catch (error) {
-      Alert.alert('Hata', 'Kaydedilirken bir sorun oluştu.');
+    } catch {
+      Alert.alert('Hata', 'Kaydedilirken bir sorun oluştu. Lütfen tekrar deneyin.');
     } finally {
       setSaving(false);
     }
   };
 
-  const totalShareCount = memberEmails.length + guestNames.length;
-  const shareAmount = price ? (parseFloat(price) / (totalShareCount + 1)).toFixed(2) : '0';
-
-  const renderLogoSection = () => {
-    if (selectedCatalogItem?.logoUrl && !imgFailed) {
+  const renderLogo = () => {
+    if (resolvedCatalogItem?.logoUrl && !imgFailed) {
       return (
-        <View style={[styles.logoContainer, { backgroundColor: colors.white, overflow: 'hidden' }]}>
-          <Image
-            source={{ uri: selectedCatalogItem.logoUrl }}
-            style={styles.logoImage}
-            resizeMode="contain"
-            onError={() => setImgFailed(true)}
-          />
+        <View style={[styles.logoShell, { backgroundColor: colors.white }]}>
+          <Image source={{ uri: resolvedCatalogItem.logoUrl }} style={styles.logoImage} resizeMode="contain" onError={() => setImgFailed(true)} />
         </View>
       );
     }
-    const displayColor = selectedCatalogItem?.colorCode || subscriptionToEdit?.colorCode || colors.primary;
-    const displayName = selectedCatalogItem?.name || name || '?';
+    const fallbackColor = resolvedCatalogItem?.colorCode || subscriptionToEdit?.colorCode || colors.accent;
+    const fallbackName = resolvedCatalogItem?.name || name || '?';
     return (
-      <View style={[styles.logoContainer, { backgroundColor: displayColor }]}>
-        <Text style={styles.logoText}>{displayName.charAt(0).toUpperCase()}</Text>
+      <View style={[styles.logoShell, { backgroundColor: fallbackColor }]}>
+        <Text style={styles.logoText}>{fallbackName.charAt(0).toUpperCase()}</Text>
       </View>
     );
   };
 
-  // ─── Adım 1: Temel Bilgiler ────────────────────────────────────────────────
-  const renderStep1 = () => (
-    <>
-      {!isCatalogItem && (
-        <View style={styles.inputGroup}>
-          <Text style={[styles.label, { color: colors.textSec }]}>Abonelik Adı</Text>
-          <TextInput
-            style={[styles.input, { backgroundColor: colors.inputBg, color: colors.textMain }]}
-            value={name}
-            onChangeText={setName}
-            placeholder="Örn: Ev Kirası"
-            placeholderTextColor={colors.textSec}
-          />
-        </View>
-      )}
-
-      <View style={styles.priceContainer}>
-        <Text style={[styles.label, { color: colors.textSec, alignSelf: 'center' }]}>Aylık Tutar</Text>
-        <View style={styles.priceRow}>
-          <TextInput
-            style={[styles.priceInput, { color: colors.textMain }]}
-            value={price}
-            onChangeText={setPrice}
-            keyboardType="numeric"
-            placeholder="0"
-            placeholderTextColor={colors.textSec + '50'}
-          />
-          <TouchableOpacity
-            style={[styles.currencySelector, { backgroundColor: colors.inputBg }]}
-            onPress={() => setCurrency(currency === 'TRY' ? 'USD' : currency === 'USD' ? 'EUR' : 'TRY')}
-          >
-            <Text style={[styles.currencyText, { color: colors.textMain }]}>{currency}</Text>
-            <Ionicons name="chevron-down" size={12} color={colors.textSec} style={{ marginLeft: 4 }} />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {(hasPlans && !isEditing) && (
-        <View style={styles.inputGroup}>
-          <Text style={[styles.label, { color: colors.textSec }]}>Paket Seç</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 4 }}>
-            {selectedCatalogItem!.plans!.map((plan) => {
-              const isSelected = selectedPlanId === plan.id;
-              return (
-                <TouchableOpacity
-                  key={plan.id}
-                  style={[
-                    styles.planChip,
-                    { backgroundColor: isSelected ? colors.accent : colors.inputBg, borderColor: isSelected ? colors.accent : colors.border },
-                  ]}
-                  onPress={() => handleSelectPlan(plan)}
-                >
-                  <Text style={[styles.planName, { color: isSelected ? '#FFF' : colors.textMain }]}>{plan.name}</Text>
-                  <Text style={[styles.planPrice, { color: isSelected ? 'rgba(255,255,255,0.85)' : colors.textSec }]}>{plan.price} {plan.currency}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-        </View>
-      )}
-
-      {!isCatalogItem && (
-        <View style={styles.inputGroup}>
-          <Text style={[styles.label, { color: colors.textSec }]}>Kategori</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {CATEGORIES.map(cat => {
-              const isActive = category === cat;
-              return (
-                <TouchableOpacity
-                  key={cat}
-                  style={[styles.catChip, { backgroundColor: isActive ? colors.accent : colors.inputBg }]}
-                  onPress={() => setCategory(cat)}
-                >
-                  <Text style={[styles.catText, { color: isActive ? colors.white : colors.textMain }]}>{cat}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-        </View>
-      )}
-    </>
-  );
-
-  // ─── Adım 2: Ödeme Planı ──────────────────────────────────────────────────
-  const renderStep2 = () => (
-    <>
-      <View style={styles.inputGroup}>
-        <Text style={[styles.label, { color: colors.textSec }]}>İlk Ödeme Tarihi</Text>
-        <TouchableOpacity
-          style={[styles.rowInputBtn, { backgroundColor: colors.inputBg, borderColor: colors.border }]}
-          onPress={() => setShowBillingDatePicker(true)}
-        >
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <MaterialCommunityIcons name="calendar-today" size={20} color={colors.accent} style={{ marginRight: 12 }} />
-            <Text style={{ fontSize: 15, fontWeight: '600', color: colors.textMain }}>
-              {billingDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}
-            </Text>
-          </View>
-          <Text style={{ fontSize: 12, color: colors.textSec }}>
-            {billingPeriod === 'Yearly'
-              ? `Her yıl ${billingDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })}`
-              : `Her ayın ${billingDate.getDate()}. günü`}
-          </Text>
-        </TouchableOpacity>
-
-        {/* U-9: Yıllık abonelik billingDay açıklaması */}
-        {billingPeriod === 'Yearly' && (
-          <View style={{
-            flexDirection: 'row', alignItems: 'flex-start', gap: 6,
-            marginTop: 8, padding: 10, borderRadius: 10,
-            backgroundColor: colors.accent + '15',
-          }}>
-            <Ionicons name="information-circle-outline" size={16} color={colors.accent} style={{ marginTop: 1 }} />
-            <Text style={{ fontSize: 12, color: colors.accent, flex: 1, lineHeight: 17 }}>
-              Yıllık aboneliklerde seçtiğiniz tarih her yıl tekrarlanır.
-              Ödeme ayı olarak bu tarihin ayı kullanılır.
-            </Text>
+  const renderPlanStep = () => (
+    <View style={styles.stack}>
+      <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+        {!isCatalogPreset && (
+          <View style={styles.group}>
+            <Text style={[styles.label, { color: colors.textSec }]}>Abonelik Adı</Text>
+            <TextInput
+              style={[styles.input, { backgroundColor: colors.inputBg, color: colors.textMain, borderColor: colors.border }]}
+              value={name}
+              onChangeText={setName}
+              placeholder="Örn: Ev interneti"
+              placeholderTextColor={colors.textSec}
+            />
           </View>
         )}
 
-        {showBillingDatePicker && (
-          <DateTimePicker
-            value={billingDate}
-            mode="date"
-            display="default"
-            onChange={(e, d) => {
-              setShowBillingDatePicker(false);
-              if (d) setBillingDate(normalizeDate(d));
-            }}
-          />
-        )}
-      </View>
-
-      <View style={styles.inputGroup}>
-        <Text style={[styles.label, { color: colors.textSec }]}>Fatura Dönemi</Text>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          {(['Monthly', 'Yearly'] as const).map((period) => (
-            <TouchableOpacity
-              key={period}
-              onPress={() => setBillingPeriod(period)}
-              style={[
-                styles.periodBtn,
-                {
-                  borderColor: billingPeriod === period ? colors.accent : colors.border,
-                  backgroundColor: billingPeriod === period ? colors.accent : colors.inputBg,
-                },
-              ]}
-            >
-              <Text style={{ color: billingPeriod === period ? '#fff' : colors.textSec, fontWeight: '600', fontSize: 13 }}>
-                {period === 'Monthly' ? 'Aylık' : 'Yıllık'}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-    </>
-  );
-
-  // ─── Adım 3: Ek Ayarlar ───────────────────────────────────────────────────
-  const renderStep3 = () => (
-    <View style={styles.extrasSection}>
-      {/* Ortak Kullanım */}
-      <View style={[styles.extraCard, { backgroundColor: colors.inputBg, borderColor: colors.border }]}>
-        <View style={styles.rowBetween}>
-          <View style={styles.row}>
-            <Ionicons name="people" size={20} color={colors.textMain} style={{ marginRight: 10 }} />
-            <Text style={[styles.cardTitle, { color: colors.textMain }]}>Ortak Kullanım</Text>
-          </View>
-          <Switch value={showShareInput} onValueChange={setShowShareInput} trackColor={{ false: colors.border, true: colors.accent }} />
-        </View>
-
-        {showShareInput && (
-          <View style={{ marginTop: 12 }}>
-            {/* Segmented tab */}
-            <View style={[styles.shareTabRow, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
-              <TouchableOpacity
-                style={[styles.shareTabBtn, shareTab === 'member' && { backgroundColor: colors.accent }]}
-                onPress={() => { setShareTab('member'); setMemberEmailError(null); }}
-              >
-                <Ionicons name="mail-outline" size={13} color={shareTab === 'member' ? '#fff' : colors.textSec} />
-                <Text style={[styles.shareTabText, { color: shareTab === 'member' ? '#fff' : colors.textSec }]}>Kayıtlı Kullanıcı</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.shareTabBtn, shareTab === 'guest' && { backgroundColor: colors.accent }]}
-                onPress={() => { setShareTab('guest'); setMemberEmailError(null); }}
-              >
-                <Ionicons name="person-outline" size={13} color={shareTab === 'guest' ? '#fff' : colors.textSec} />
-                <Text style={[styles.shareTabText, { color: shareTab === 'guest' ? '#fff' : colors.textSec }]}>Misafir</Text>
-              </TouchableOpacity>
+        {isCatalogPreset && (
+          <View style={[styles.infoBox, { backgroundColor: colors.inputBg, borderColor: colors.border }]}>
+            <View>
+              <Text style={[styles.infoTitle, { color: colors.textMain }]}>{selectedCatalogItem?.name}</Text>
+              <Text style={[styles.infoText, { color: colors.textSec }]}>{selectedCatalogItem?.category} · hazır servis</Text>
             </View>
+            <View style={[styles.badge, { backgroundColor: colors.accentLight }]}>
+              <Text style={[styles.badgeText, { color: colors.accent }]}>Hazır</Text>
+            </View>
+          </View>
+        )}
 
-            {/* Aktif tab input */}
-            {shareTab === 'member' ? (
-              <View>
-                <View style={styles.addPersonRow}>
-                  <TextInput
+        {hasPlans && !isEditing && (
+          <View style={styles.group}>
+            <View style={styles.rowBetween}>
+              <Text style={[styles.label, { color: colors.textSec }]}>Paket</Text>
+              {selectedPlanId && (
+                <TouchableOpacity onPress={() => setSelectedPlanId(null)}>
+                  <Text style={[styles.linkText, { color: colors.accent }]}>Özel fiyat gir</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.planList}>
+              {resolvedCatalogItem?.plans?.map((plan) => {
+                const active = plan.id === selectedPlanId;
+                const period = inferBillingPeriodFromPlan(plan);
+                return (
+                  <TouchableOpacity
+                    key={plan.id}
                     style={[
-                      styles.smallInput,
+                      styles.planCard,
                       {
-                        backgroundColor: colors.cardBg,
-                        color: colors.textMain,
-                        borderColor: memberEmailError ? colors.error : colors.border,
+                        backgroundColor: active ? colors.accentLight : colors.cardBg,
+                        borderColor: active ? colors.accent : colors.border,
                       },
                     ]}
-                    placeholder="ornek@email.com"
-                    placeholderTextColor={colors.textSec}
-                    value={tempMemberEmail}
-                    onChangeText={(t) => { setTempMemberEmail(t); setMemberEmailError(null); }}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    onSubmitEditing={handleAddMember}
-                    returnKeyType="done"
-                    editable={!checkingEmail}
-                  />
-                  <TouchableOpacity
-                    style={[styles.addBtn, { backgroundColor: checkingEmail ? colors.border : colors.accent }]}
-                    onPress={handleAddMember}
-                    disabled={checkingEmail}
+                    onPress={() => handleSelectPlan(plan)}
                   >
-                    {checkingEmail
-                      ? <ActivityIndicator size="small" color={colors.white} />
-                      : <Ionicons name="add" size={24} color={colors.white} />
-                    }
+                    <Text style={[styles.planName, { color: colors.textMain }]}>{plan.name}</Text>
+                    <Text style={[styles.planPrice, { color: colors.textMain }]}>{plan.price.toFixed(2)} {plan.currency}</Text>
+                    <Text style={[styles.planMeta, { color: colors.textSec }]}>{period === 'Yearly' ? 'Yıllık plan' : 'Aylık plan'}</Text>
                   </TouchableOpacity>
-                </View>
-                {memberEmailError && (
-                  <Text style={{ fontSize: 11, color: colors.error, marginTop: -6, marginBottom: 8, marginLeft: 2 }}>
-                    {memberEmailError}
-                  </Text>
-                )}
-              </View>
-            ) : (
-              <View style={styles.addPersonRow}>
-                <TextInput
-                  style={[styles.smallInput, { backgroundColor: colors.cardBg, color: colors.textMain, borderColor: colors.border }]}
-                  placeholder="Ad Soyad"
-                  placeholderTextColor={colors.textSec}
-                  value={tempGuestName}
-                  onChangeText={setTempGuestName}
-                  onSubmitEditing={handleAddGuest}
-                  returnKeyType="done"
-                />
-                <TouchableOpacity style={[styles.addBtn, { backgroundColor: colors.accent }]} onPress={handleAddGuest}>
-                  <Ionicons name="add" size={24} color={colors.white} />
+                );
+              })}
+            </ScrollView>
+          </View>
+        )}
+
+        <View style={styles.group}>
+          <Text style={[styles.label, { color: colors.textSec }]}>{billingPeriod === 'Yearly' ? 'Yıllık Tutar' : 'Aylık Tutar'}</Text>
+          <TextInput
+            style={[styles.priceInput, { backgroundColor: colors.inputBg, color: colors.textMain, borderColor: colors.border }]}
+            value={price}
+            onChangeText={(value) => {
+              setSelectedPlanId(null);
+              setPrice(value.replace(/[^0-9.,]/g, ''));
+            }}
+            keyboardType="decimal-pad"
+            placeholder="0"
+            placeholderTextColor={colors.textSec}
+            editable={!selectedPlanId}
+          />
+          {selectedPlan && <Text style={[styles.caption, { color: colors.textSec }]}>Seçili paket fiyatı, para birimi ve dönemi kilitler.</Text>}
+        </View>
+
+        <View style={styles.group}>
+          <Text style={[styles.label, { color: colors.textSec }]}>Para Birimi</Text>
+          <View style={styles.choiceRow}>
+            {SUPPORTED_CURRENCIES.map((item) => {
+              const active = item === currency;
+              return (
+                <TouchableOpacity
+                  key={item}
+                  style={[
+                    styles.choiceChip,
+                    {
+                      backgroundColor: active ? colors.accent : colors.inputBg,
+                      borderColor: active ? colors.accent : colors.border,
+                      opacity: selectedPlanId ? 0.55 : 1,
+                    },
+                  ]}
+                  onPress={() => !selectedPlanId && setCurrency(item)}
+                  disabled={!!selectedPlanId}
+                >
+                  <Text style={[styles.choiceText, { color: active ? '#FFF' : colors.textMain }]}>{item}</Text>
                 </TouchableOpacity>
-              </View>
-            )}
-
-            {/* Tüm eklenenler */}
-            {totalShareCount > 0 && (
-              <View style={styles.chipRow}>
-                {memberEmails.map((email, index) => (
-                  <TouchableOpacity
-                    key={`m-${index}`}
-                    style={[styles.personChip, { backgroundColor: colors.cardBg, borderColor: colors.primary + '44' }]}
-                    onPress={() => { const n = [...memberEmails]; n.splice(index, 1); setMemberEmails(n); }}
-                  >
-                    <Ionicons name="mail-outline" size={12} color={colors.primary} style={{ marginRight: 3 }} />
-                    <Text style={[styles.personName, { color: colors.textMain }]}>{email}</Text>
-                    <Ionicons name="close-circle" size={13} color={colors.error} style={{ marginLeft: 4 }} />
-                  </TouchableOpacity>
-                ))}
-                {guestNames.map((name, index) => (
-                  <TouchableOpacity
-                    key={`g-${index}`}
-                    style={[styles.personChip, { backgroundColor: colors.cardBg, borderColor: colors.border }]}
-                    onPress={() => { const n = [...guestNames]; n.splice(index, 1); setGuestNames(n); }}
-                  >
-                    <Ionicons name="person-outline" size={12} color={colors.textSec} style={{ marginRight: 3 }} />
-                    <Text style={[styles.personName, { color: colors.textMain }]}>{name}</Text>
-                    <Ionicons name="close-circle" size={13} color={colors.error} style={{ marginLeft: 4 }} />
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
-
-            {totalShareCount > 0 && (
-              <Text style={{ color: colors.success, fontWeight: '700', fontSize: 12, marginTop: 6, textAlign: 'right' }}>
-                Kişi başı: {shareAmount} {currency}
-              </Text>
-            )}
+              );
+            })}
           </View>
-        )}
-      </View>
-
-      {/* Notlar */}
-      <View style={[styles.extraCard, { backgroundColor: colors.inputBg, borderColor: colors.border, marginTop: 12 }]}>
-        <View style={styles.row}>
-          <Ionicons name="create-outline" size={20} color={colors.textMain} style={{ marginRight: 10 }} />
-          <Text style={[styles.cardTitle, { color: colors.textMain }]}>Notlar</Text>
-        </View>
-        <TextInput
-          style={[
-            styles.input,
-            {
-              backgroundColor: colors.cardBg,
-              color: colors.textMain,
-              marginTop: 12,
-              height: 90,
-              textAlignVertical: 'top',
-              paddingTop: 10,
-            },
-          ]}
-          value={notes}
-          onChangeText={setNotes}
-          placeholder="Bu abonelikle ilgili notlarını buraya ekle..."
-          placeholderTextColor={colors.textSec}
-          multiline
-          maxLength={500}
-        />
-        {notes.length > 0 && (
-          <Text style={{ fontSize: 11, color: colors.textSec, textAlign: 'right', marginTop: 4 }}>
-            {notes.length}/500
-          </Text>
-        )}
-      </View>
-
-      {/* Taahhüt */}
-      <View style={[styles.extraCard, { backgroundColor: colors.inputBg, borderColor: colors.border, marginTop: 12 }]}>
-        <View style={styles.rowBetween}>
-          <View style={styles.row}>
-            <Ionicons name="document-text" size={20} color={colors.textMain} style={{ marginRight: 10 }} />
-            <Text style={[styles.cardTitle, { color: colors.textMain }]}>Taahhütlü Abonelik</Text>
-          </View>
-          <Switch value={hasContract} onValueChange={handleContractToggle} trackColor={{ false: colors.border, true: colors.accent }} />
         </View>
 
-        {hasContract && (
-          <>
-            <View style={styles.contractDatesRow}>
-              <TouchableOpacity
-                style={[styles.dateBox, { backgroundColor: colors.cardBg, borderColor: colors.border }]}
-                onPress={() => setShowContractDatePicker('start')}
-              >
-                <Text style={{ fontSize: 10, color: colors.textSec }}>BAŞLANGIÇ</Text>
-                <Text style={{ fontWeight: '600', color: colors.textMain, marginTop: 2 }}>{startDate.toLocaleDateString('tr-TR')}</Text>
-              </TouchableOpacity>
+        <View style={styles.group}>
+          <Text style={[styles.label, { color: colors.textSec }]}>Fatura Dönemi</Text>
+          <View style={styles.choiceRow}>
+            {(['Monthly', 'Yearly'] as BillingPeriodType[]).map((item) => {
+              const active = item === billingPeriod;
+              return (
+                <TouchableOpacity
+                  key={item}
+                  style={[
+                    styles.choiceChip,
+                    {
+                      backgroundColor: active ? colors.accent : colors.inputBg,
+                      borderColor: active ? colors.accent : colors.border,
+                      opacity: selectedPlanId ? 0.55 : 1,
+                    },
+                  ]}
+                  onPress={() => !selectedPlanId && setBillingPeriod(item)}
+                  disabled={!!selectedPlanId}
+                >
+                  <Text style={[styles.choiceText, { color: active ? '#FFF' : colors.textMain }]}>{item === 'Yearly' ? 'Yıllık' : 'Aylık'}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
 
-              <TouchableOpacity
-                style={[styles.dateBox, { backgroundColor: colors.cardBg, borderColor: colors.border }]}
-                onPress={() => setShowContractDatePicker('end')}
-              >
-                <Text style={{ fontSize: 10, color: colors.textSec }}>BİTİŞ</Text>
-                <Text style={{ fontWeight: '600', color: colors.textMain, marginTop: 2 }}>{endDate.toLocaleDateString('tr-TR')}</Text>
-              </TouchableOpacity>
+        {!isCatalogPreset && (
+          <View style={styles.group}>
+            <Text style={[styles.label, { color: colors.textSec }]}>Kategori</Text>
+            <View style={styles.wrap}>
+              {CATEGORY_OPTIONS.map((item) => {
+                const active = item.value === category;
+                return (
+                  <TouchableOpacity
+                    key={item.value}
+                    style={[
+                      styles.choiceChip,
+                      {
+                        backgroundColor: active ? colors.accent : colors.inputBg,
+                        borderColor: active ? colors.accent : colors.border,
+                      },
+                    ]}
+                    onPress={() => setCategory(item.value)}
+                  >
+                    <Text style={[styles.choiceText, { color: active ? '#FFF' : colors.textMain }]}>{item.label}</Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
-
-            <Text style={{ fontSize: 12, color: colors.textSec, marginTop: 10, lineHeight: 18 }}>
-              Taahhüt başlangıcı, ilk ödeme tarihinden önce seçilemez.
-            </Text>
-          </>
+          </View>
         )}
       </View>
     </View>
   );
 
-  return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.overlay}
-      >
-        <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose} />
-
-        <View style={[styles.modalContainer, { backgroundColor: colors.cardBg }]}>
-
-          <View style={styles.headerRow}>
-            <View style={styles.headerSpacer} />
-            <View style={styles.headerCenter}>
-              {renderLogoSection()}
+  const renderDetailsStep = () => (
+    <View style={styles.stack}>
+      <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+        <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Ödeme Takvimi</Text>
+        <TouchableOpacity style={[styles.infoBox, { backgroundColor: colors.inputBg, borderColor: colors.border }]} onPress={openBillingDatePicker}>
+          <View style={styles.row}>
+            <MaterialCommunityIcons name="calendar-today" size={18} color={colors.accent} style={{ marginRight: 10 }} />
+            <View>
+              <Text style={[styles.infoTitle, { color: colors.textMain }]}>{billingDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}</Text>
+              <Text style={[styles.infoText, { color: colors.textSec }]}>
+                {billingPeriod === 'Yearly' ? `Her yıl ${billingDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })}` : `Her ayın ${billingDate.getDate()}. günü`}
+              </Text>
             </View>
-            <TouchableOpacity
-              onPress={onClose}
-              style={[styles.closeBtn, { backgroundColor: colors.inputBg }]}
-              activeOpacity={0.7}
-              hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
-            >
-              <Ionicons name="close" size={20} color={colors.textMain} />
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={colors.textSec} />
+        </TouchableOpacity>
+      </View>
+
+      <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+        <View style={styles.rowBetween}>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Taahhüt</Text>
+            <Text style={[styles.infoText, { color: colors.textSec }]}>{requiresContract ? 'Bu servis taahhütlü akışla geliyor.' : 'Varsa başlangıç ve bitiş tarihini ekle.'}</Text>
+          </View>
+          <Switch
+            value={requiresContract || hasContract}
+            onValueChange={(value) => {
+              if (requiresContract && !value) return;
+              setHasContract(value);
+            }}
+            disabled={requiresContract}
+            trackColor={{ false: colors.border, true: colors.accent }}
+          />
+        </View>
+        {(requiresContract || hasContract) && (
+          <View style={styles.rowGap}>
+            <TouchableOpacity style={[styles.dateCard, { backgroundColor: colors.inputBg, borderColor: colors.border }]} onPress={() => openContractDatePicker('start')}>
+              <Text style={[styles.dateLabel, { color: colors.textSec }]}>Başlangıç</Text>
+              <Text style={[styles.dateValue, { color: colors.textMain }]}>{startDate.toLocaleDateString('tr-TR')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.dateCard, { backgroundColor: colors.inputBg, borderColor: colors.border }]} onPress={() => openContractDatePicker('end')}>
+              <Text style={[styles.dateLabel, { color: colors.textSec }]}>Bitiş</Text>
+              <Text style={[styles.dateValue, { color: colors.textMain }]}>{endDate.toLocaleDateString('tr-TR')}</Text>
             </TouchableOpacity>
           </View>
+        )}
+      </View>
 
-          <View style={styles.titleContainer}>
-            <Text style={[styles.title, { color: colors.textMain }]}>
-              {isEditing ? 'Aboneliği Düzenle' : (name ? name : 'Yeni Abonelik')}
-            </Text>
-            <Text style={[styles.subtitle, { color: colors.textSec }]}>
-              {isCatalogItem ? 'Detayları kontrol et ve kaydet' : 'Abonelik bilgilerini gir'}
-            </Text>
+      <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+        <View style={styles.rowBetween}>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Ortak Kullanım</Text>
+            <Text style={[styles.infoText, { color: colors.textSec }]}>Kullanıcı veya misafir ekleyip payını takip et.</Text>
           </View>
+          <Switch value={showShareInput} onValueChange={setShowShareInput} trackColor={{ false: colors.border, true: colors.accent }} />
+        </View>
 
-          <StepIndicator step={step} colors={colors} />
+        {showShareInput && (
+          <>
+            <View style={[styles.segment, { backgroundColor: colors.inputBg, borderColor: colors.border }]}>
+              {(['member', 'guest'] as ShareTab[]).map((item) => {
+                const active = shareTab === item;
+                return (
+                  <TouchableOpacity key={item} style={[styles.segmentBtn, { backgroundColor: active ? colors.accent : 'transparent' }]} onPress={() => setShareTab(item)}>
+                    <Text style={[styles.segmentText, { color: active ? '#FFF' : colors.textSec }]}>{item === 'member' ? 'Kayıtlı' : 'Misafir'}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
 
-          <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+            {shareTab === 'member' ? (
+              <>
+                <View style={styles.inlineRow}>
+                  <TextInput
+                    style={[styles.inlineInput, { backgroundColor: colors.inputBg, color: colors.textMain, borderColor: memberEmailError ? colors.error : colors.border }]}
+                    value={tempMemberEmail}
+                    onChangeText={(value) => {
+                      setTempMemberEmail(value);
+                      setMemberEmailError(null);
+                    }}
+                    placeholder="ornek@email.com"
+                    placeholderTextColor={colors.textSec}
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                    editable={!checkingEmail}
+                    onSubmitEditing={handleAddMember}
+                  />
+                  <TouchableOpacity style={[styles.iconButton, { backgroundColor: checkingEmail ? colors.border : colors.accent }]} onPress={handleAddMember} disabled={checkingEmail}>
+                    {checkingEmail ? <ActivityIndicator size="small" color="#FFF" /> : <Ionicons name="add" size={20} color="#FFF" />}
+                  </TouchableOpacity>
+                </View>
+                {memberEmailError && <Text style={[styles.errorText, { color: colors.error }]}>{memberEmailError}</Text>}
+              </>
+            ) : (
+              <View style={styles.inlineRow}>
+                <TextInput
+                  style={[styles.inlineInput, { backgroundColor: colors.inputBg, color: colors.textMain, borderColor: colors.border }]}
+                  value={tempGuestName}
+                  onChangeText={setTempGuestName}
+                  placeholder="Misafir adı"
+                  placeholderTextColor={colors.textSec}
+                  onSubmitEditing={handleAddGuest}
+                />
+                <TouchableOpacity style={[styles.iconButton, { backgroundColor: colors.accent }]} onPress={handleAddGuest}>
+                  <Ionicons name="add" size={20} color="#FFF" />
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {(memberEmails.length > 0 || guestNames.length > 0) && (
+              <>
+                <View style={styles.wrap}>
+                  {memberEmails.map((email) => (
+                    <TouchableOpacity key={email} style={[styles.personChip, { backgroundColor: colors.inputBg, borderColor: colors.border }]} onPress={() => setMemberEmails((current) => current.filter((item) => item !== email))}>
+                      <Text style={[styles.personText, { color: colors.textMain }]} numberOfLines={1}>{email}</Text>
+                      <Ionicons name="close-circle" size={14} color={colors.error} />
+                    </TouchableOpacity>
+                  ))}
+                  {guestNames.map((guest) => (
+                    <TouchableOpacity key={guest} style={[styles.personChip, { backgroundColor: colors.inputBg, borderColor: colors.border }]} onPress={() => setGuestNames((current) => current.filter((item) => item !== guest))}>
+                      <Text style={[styles.personText, { color: colors.textMain }]} numberOfLines={1}>{guest}</Text>
+                      <Ionicons name="close-circle" size={14} color={colors.error} />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                <Text style={[styles.caption, { color: colors.success }]}>Kişi başı pay: {shareAmount} {currency} / {getPeriodUnit(billingPeriod)}</Text>
+              </>
+            )}
+          </>
+        )}
+      </View>
+
+      <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+        <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Notlar</Text>
+        <TextInput
+          style={[styles.notesInput, { backgroundColor: colors.inputBg, color: colors.textMain, borderColor: colors.border }]}
+          value={notes}
+          onChangeText={setNotes}
+          placeholder="Bu abonelikle ilgili kısa notlarını buraya ekle..."
+          placeholderTextColor={colors.textSec}
+          multiline
+          maxLength={500}
+          textAlignVertical="top"
+        />
+      </View>
+    </View>
+  );
+
+  return (
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={handleRequestClose}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.overlay}>
+        <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={handleRequestClose} />
+        <View style={[styles.modal, { backgroundColor: colors.bg, borderColor: colors.border }]}>
+          <View style={[styles.header, { paddingTop: Math.max(insets.top, 18) }]}>
+            <View style={styles.headerTop}>
+              {renderLogo()}
+              <TouchableOpacity style={[styles.closeButton, { backgroundColor: colors.cardBg, borderColor: colors.border }]} onPress={handleRequestClose}>
+                <Ionicons name="close" size={20} color={colors.textMain} />
+              </TouchableOpacity>
+            </View>
+            <Text style={[styles.title, { color: colors.textMain }]}>{isEditing ? 'Aboneliği Düzenle' : name || 'Yeni Abonelik'}</Text>
+            <Text style={[styles.subtitle, { color: colors.textSec }]}>
+              {isEditing
+                ? 'Fiyat, takvim ve paylaşım detaylarını tek ekranda güncelle.'
+                : isCatalogPreset
+                  ? 'Planı seç, takvimi kontrol et ve kaydet.'
+                  : 'Fiyat, takvim ve paylaşım detaylarını tamamla.'}
+            </Text>
+            {usesStepper && <StepIndicator step={step} colors={colors} />}
+          </View>
+          <ScrollView style={styles.body} contentContainerStyle={styles.bodyContent} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
             <Animated.View style={{ opacity: stepAnim }}>
-              {step === 1 && renderStep1()}
-              {step === 2 && renderStep2()}
-              {step === 3 && renderStep3()}
+              {usesStepper ? (
+                step === 1 ? renderPlanStep() : renderDetailsStep()
+              ) : (
+                <View style={styles.stack}>
+                  {renderPlanStep()}
+                  {renderDetailsStep()}
+                </View>
+              )}
             </Animated.View>
 
-            {showContractDatePicker && (
+            {Platform.OS !== 'ios' && showBillingDatePicker && (
               <DateTimePicker
-                value={showContractDatePicker === 'start' ? startDate : endDate}
+                value={billingDate}
                 mode="date"
                 display="default"
-                minimumDate={showContractDatePicker === 'start'
-                  ? normalizeDate(billingDate)
-                  : addDays(startDate, 1)}
-                onChange={(e, d) => {
-                  const mode = showContractDatePicker;
-                  setShowContractDatePicker(null);
-                  if (d) {
-                    const normalizedPickedDate = normalizeDate(d);
-                    if (mode === 'start') {
-                      const alignedContractDates = ensureContractDates(
-                        billingDate,
-                        normalizedPickedDate,
-                        endDate
-                      );
-                      setStartDate(alignedContractDates.startDate);
-                      setEndDate(alignedContractDates.endDate);
-                    } else {
-                      const alignedContractDates = ensureContractDates(
-                        billingDate,
-                        startDate,
-                        normalizedPickedDate
-                      );
-                      setStartDate(alignedContractDates.startDate);
-                      setEndDate(alignedContractDates.endDate);
-                    }
-                  }
+                onChange={(_, date) => {
+                  setShowBillingDatePicker(false);
+                  if (date) setBillingDate(normalizeDate(date));
                 }}
               />
             )}
 
-            <View style={{ height: 80 }} />
+            {Platform.OS !== 'ios' && showContractDatePicker && (
+              <DateTimePicker
+                value={showContractDatePicker === 'start' ? startDate : endDate}
+                mode="date"
+                display="default"
+                minimumDate={showContractDatePicker === 'start' ? normalizeDate(billingDate) : addDays(startDate, 1)}
+                onChange={(_, date) => {
+                  const mode = showContractDatePicker;
+                  setShowContractDatePicker(null);
+                  if (!date) return;
+                  const normalizedDate = normalizeDate(date);
+                  if (mode === 'start') {
+                    const aligned = ensureContractDates(billingDate, normalizedDate, endDate);
+                    setStartDate(aligned.startDate);
+                    setEndDate(aligned.endDate);
+                  } else {
+                    const aligned = ensureContractDates(billingDate, startDate, normalizedDate);
+                    setStartDate(aligned.startDate);
+                    setEndDate(aligned.endDate);
+                  }
+                }}
+              />
+            )}
           </ScrollView>
-
-          {/* Footer: navigasyon butonları */}
-          <View style={[styles.footer, { backgroundColor: colors.cardBg, borderTopColor: colors.border }]}>
-            {step === 1 ? (
-              <TouchableOpacity
-                style={[styles.nextButtonFull, { backgroundColor: colors.accent }]}
-                onPress={handleNext}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.nextButtonText}>İleri</Text>
+          <View style={[styles.footer, { backgroundColor: colors.bg, borderTopColor: colors.border, paddingBottom: Math.max(insets.bottom, Platform.OS === 'ios' ? 20 : 18) }]}>
+            {!usesStepper ? (
+              <View style={styles.footerRow}>
+                <TouchableOpacity style={[styles.secondaryButton, { backgroundColor: colors.cardBg, borderColor: colors.border }]} onPress={handleRequestClose}>
+                  <Ionicons name="close-outline" size={18} color={colors.textSec} />
+                  <Text style={[styles.secondaryText, { color: colors.textMain }]}>Vazgeç</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.primaryButton, { backgroundColor: colors.accent, flex: 1 }]} onPress={handleSave} disabled={saving}>
+                  {saving ? <ActivityIndicator size="small" color="#FFF" /> : (
+                    <>
+                      <Text style={styles.primaryText}>Kaydet</Text>
+                      <Ionicons name="checkmark" size={18} color="#FFF" />
+                    </>
+                  )}
+                </TouchableOpacity>
+              </View>
+            ) : step === 1 ? (
+              <TouchableOpacity style={[styles.primaryButton, { backgroundColor: colors.accent }]} onPress={() => {
+                if (handlePrimaryValidation()) animateStep(2);
+              }}>
+                <Text style={styles.primaryText}>Detaylara Geç</Text>
                 <Ionicons name="chevron-forward" size={18} color="#FFF" />
               </TouchableOpacity>
             ) : (
               <View style={styles.footerRow}>
-                <TouchableOpacity
-                  style={[styles.backButton, { borderColor: colors.border }]}
-                  onPress={() => animateStep(step - 1)}
-                  activeOpacity={0.7}
-                >
+                <TouchableOpacity style={[styles.secondaryButton, { backgroundColor: colors.cardBg, borderColor: colors.border }]} onPress={() => animateStep(1)}>
                   <Ionicons name="chevron-back" size={18} color={colors.textSec} />
-                  <Text style={[styles.backButtonText, { color: colors.textSec }]}>Geri</Text>
+                  <Text style={[styles.secondaryText, { color: colors.textMain }]}>Geri</Text>
                 </TouchableOpacity>
-
-                {step < 3 ? (
-                  <TouchableOpacity
-                    style={[styles.nextButton, { backgroundColor: colors.accent }]}
-                    onPress={handleNext}
-                    activeOpacity={0.8}
-                  >
-                    <Text style={styles.nextButtonText}>İleri</Text>
-                    <Ionicons name="chevron-forward" size={18} color="#FFF" />
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity
-                    style={[styles.saveButton, { backgroundColor: colors.accent, shadowColor: colors.accent }]}
-                    onPress={handleSave}
-                    activeOpacity={saving ? 1 : 0.8}
-                    disabled={saving}
-                  >
-                    {saving ? (
-                      <ActivityIndicator size="small" color="#FFF" />
-                    ) : (
-                      <Text style={styles.saveButtonText}>
-                        {isEditing ? 'Değişiklikleri Kaydet' : 'Aboneliği Başlat'}
-                      </Text>
-                    )}
-                  </TouchableOpacity>
-                )}
+                <TouchableOpacity style={[styles.primaryButton, { backgroundColor: colors.accent, flex: 1 }]} onPress={handleSave} disabled={saving}>
+                  {saving ? <ActivityIndicator size="small" color="#FFF" /> : (
+                    <>
+                      <Text style={styles.primaryText}>{isEditing ? 'Kaydet' : 'Aboneliği Kaydet'}</Text>
+                      <Ionicons name="checkmark" size={18} color="#FFF" />
+                    </>
+                  )}
+                </TouchableOpacity>
               </View>
             )}
           </View>
 
+          {Platform.OS === 'ios' && iosDatePickerTarget && (
+            <View style={styles.dateOverlay}>
+              <TouchableOpacity style={styles.dateBackdrop} activeOpacity={1} onPress={() => setIosDatePickerTarget(null)} />
+              <View style={[styles.dateSheet, { backgroundColor: colors.cardBg, borderColor: colors.border, paddingBottom: Math.max(insets.bottom, 18) }]}>
+                <View style={[styles.dateSheetHeader, { borderBottomColor: colors.border }]}>
+                  <TouchableOpacity onPress={() => setIosDatePickerTarget(null)}>
+                    <Text style={[styles.dateSheetAction, { color: colors.textSec }]}>Vazgeç</Text>
+                  </TouchableOpacity>
+                  <Text style={[styles.dateSheetTitle, { color: colors.textMain }]}>
+                    {iosDatePickerTarget === 'billing'
+                      ? 'İlk ödeme tarihi'
+                      : iosDatePickerTarget === 'start'
+                        ? 'Taahhüt başlangıcı'
+                        : 'Taahhüt bitişi'}
+                  </Text>
+                  <TouchableOpacity onPress={applyIOSDatePicker}>
+                    <Text style={[styles.dateSheetAction, { color: colors.accent }]}>Uygula</Text>
+                  </TouchableOpacity>
+                </View>
+                <DateTimePicker
+                  value={iosPickerDate}
+                  mode="date"
+                  display="spinner"
+                  locale="tr-TR"
+                  minimumDate={iosDatePickerTarget === 'billing'
+                    ? undefined
+                    : iosDatePickerTarget === 'start'
+                      ? normalizeDate(billingDate)
+                      : addDays(startDate, 1)}
+                  onChange={(_, date) => {
+                    if (date) setIosPickerDate(normalizeDate(date));
+                  }}
+                />
+              </View>
+            </View>
+          )}
         </View>
       </KeyboardAvoidingView>
     </Modal>
@@ -949,193 +969,86 @@ export default function AddSubscriptionModal({ visible, onClose, onSaved, select
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  backdrop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-  },
-  modalContainer: {
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    height: '92%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    elevation: 20,
-    paddingTop: 16,
-  },
-
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    marginBottom: 10,
-    zIndex: 100,
-  },
-  headerSpacer: { width: 40 },
-  headerCenter: { alignItems: 'center' },
-  closeBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 999,
-    elevation: 10,
-  },
-
-  logoContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
-  },
+  overlay: { flex: 1, justifyContent: 'flex-end' },
+  backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(15, 23, 42, 0.56)' },
+  modal: { flex: 1, borderWidth: 1, overflow: 'hidden' },
+  header: { paddingHorizontal: 20, paddingBottom: 8 },
+  headerTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  closeButton: { width: 42, height: 42, borderRadius: 21, borderWidth: 1, justifyContent: 'center', alignItems: 'center' },
+  logoShell: { width: 64, height: 64, borderRadius: 20, justifyContent: 'center', alignItems: 'center' },
   logoImage: { width: '70%', height: '70%' },
-  logoText: { fontSize: 28, fontWeight: '800', color: '#FFF' },
-
-  titleContainer: { alignItems: 'center', marginBottom: 16, paddingHorizontal: 20 },
-  title: { fontSize: 22, fontWeight: '800', textAlign: 'center' },
-  subtitle: { fontSize: 13, marginTop: 4, fontWeight: '500' },
-
-  content: { paddingHorizontal: 24 },
-
-  inputGroup: { marginBottom: 20 },
-  label: { fontSize: 12, fontWeight: '700', marginBottom: 8, letterSpacing: 0.5, textTransform: 'uppercase' },
-  input: {
-    height: 52,
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-
-  priceContainer: { alignItems: 'center', marginBottom: 24 },
-  priceRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
-  priceInput: {
-    fontSize: 36,
-    fontWeight: '800',
-    textAlign: 'center',
-    minWidth: 80,
-  },
-  currencySelector: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 12,
-    marginLeft: 10,
-    marginTop: 8,
-  },
-  currencyText: { fontWeight: '700', fontSize: 14 },
-
-  planChip: {
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 14,
-    marginRight: 8,
+  logoText: { color: '#FFF', fontSize: 30, fontWeight: '800' },
+  title: { marginTop: 14, fontSize: 24, fontWeight: '800', textAlign: 'center' },
+  subtitle: { marginTop: 6, fontSize: 13, fontWeight: '500', lineHeight: 18, textAlign: 'center' },
+  stepRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 18, marginBottom: 10 },
+  stepItem: { alignItems: 'center', gap: 6 },
+  stepCircle: { width: 32, height: 32, borderRadius: 16, borderWidth: 1.5, justifyContent: 'center', alignItems: 'center' },
+  stepNumber: { fontSize: 12, fontWeight: '800' },
+  stepLabel: { fontSize: 11, fontWeight: '700' },
+  stepLine: { flex: 1, height: 2, marginHorizontal: 10, marginBottom: 18 },
+  body: { flex: 1 },
+  bodyContent: { paddingHorizontal: 20, paddingBottom: 26 },
+  stack: { gap: 14 },
+  card: { borderRadius: 22, borderWidth: 1, padding: 16, gap: 14 },
+  group: { gap: 10 },
+  label: { fontSize: 12, fontWeight: '800', letterSpacing: 0.4, textTransform: 'uppercase' },
+  input: { height: 52, borderRadius: 16, borderWidth: 1, paddingHorizontal: 16, fontSize: 16, fontWeight: '600' },
+  priceInput: { height: 72, borderRadius: 20, borderWidth: 1, paddingHorizontal: 16, textAlign: 'center', fontSize: 36, fontWeight: '800' },
+  row: { flexDirection: 'row', alignItems: 'center' },
+  rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
+  rowGap: { flexDirection: 'row', gap: 10 },
+  infoBox: { minHeight: 68, borderRadius: 18, borderWidth: 1, paddingHorizontal: 14, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
+  infoTitle: { fontSize: 15, fontWeight: '800' },
+  infoText: { marginTop: 4, fontSize: 12, lineHeight: 17 },
+  badge: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999 },
+  badgeText: { fontSize: 11, fontWeight: '800' },
+  linkText: { fontSize: 12, fontWeight: '700' },
+  planList: { gap: 10 },
+  planCard: { width: 180, borderRadius: 18, borderWidth: 1, padding: 14, gap: 6 },
+  planName: { fontSize: 15, fontWeight: '800' },
+  planPrice: { fontSize: 18, fontWeight: '800' },
+  planMeta: { fontSize: 12, lineHeight: 17 },
+  choiceRow: { flexDirection: 'row', gap: 8 },
+  wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  choiceChip: { minWidth: 74, height: 42, borderRadius: 14, borderWidth: 1, paddingHorizontal: 14, justifyContent: 'center', alignItems: 'center' },
+  choiceText: { fontSize: 13, fontWeight: '700' },
+  caption: { fontSize: 12, lineHeight: 18 },
+  sectionTitle: { fontSize: 16, fontWeight: '800' },
+  dateCard: { flex: 1, minHeight: 72, borderRadius: 18, borderWidth: 1, padding: 14, justifyContent: 'center' },
+  dateLabel: { fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.35 },
+  dateValue: { marginTop: 6, fontSize: 15, fontWeight: '800' },
+  segment: { flexDirection: 'row', borderRadius: 16, borderWidth: 1, padding: 4, gap: 4 },
+  segmentBtn: { flex: 1, minHeight: 40, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
+  segmentText: { fontSize: 12, fontWeight: '700' },
+  inlineRow: { flexDirection: 'row', gap: 10 },
+  inlineInput: { flex: 1, height: 48, borderRadius: 14, borderWidth: 1, paddingHorizontal: 14, fontSize: 14, fontWeight: '600' },
+  iconButton: { width: 48, height: 48, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
+  errorText: { marginTop: -4, fontSize: 12, fontWeight: '600' },
+  personChip: { maxWidth: '100%', borderRadius: 999, borderWidth: 1, paddingHorizontal: 10, paddingVertical: 7, flexDirection: 'row', alignItems: 'center', gap: 6 },
+  personText: { maxWidth: 180, fontSize: 12, fontWeight: '600' },
+  notesInput: { minHeight: 120, borderRadius: 18, borderWidth: 1, paddingHorizontal: 14, paddingVertical: 14, fontSize: 14, lineHeight: 20 },
+  footer: { paddingHorizontal: 20, paddingTop: 14, paddingBottom: Platform.OS === 'ios' ? 34 : 18, borderTopWidth: 1 },
+  footerRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  primaryButton: { height: 54, borderRadius: 18, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 8 },
+  primaryText: { color: '#FFF', fontSize: 15, fontWeight: '800' },
+  secondaryButton: { height: 54, borderRadius: 18, borderWidth: 1, paddingHorizontal: 18, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 6 },
+  secondaryText: { fontSize: 15, fontWeight: '700' },
+  dateOverlay: { ...StyleSheet.absoluteFillObject, justifyContent: 'flex-end' },
+  dateBackdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(15, 23, 42, 0.34)' },
+  dateSheet: {
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     borderWidth: 1,
-    minWidth: 90,
+    overflow: 'hidden',
   },
-  planName: { fontWeight: '700', fontSize: 13, marginBottom: 2 },
-  planPrice: { fontSize: 11, fontWeight: '600' },
-
-  rowInputBtn: {
+  dateSheetHeader: {
+    minHeight: 54,
+    paddingHorizontal: 18,
+    borderBottomWidth: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 14,
-    borderRadius: 16,
-    borderWidth: 1,
   },
-
-  periodBtn: { flex: 1, paddingVertical: 11, borderRadius: 12, borderWidth: 1, alignItems: 'center' },
-
-  catChip: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, marginRight: 8 },
-  catText: { fontSize: 13, fontWeight: '600' },
-
-  extrasSection: { marginTop: 4 },
-  extraCard: {
-    borderRadius: 18,
-    padding: 16,
-    borderWidth: 1,
-  },
-  rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  row: { flexDirection: 'row', alignItems: 'center' },
-  cardTitle: { fontSize: 15, fontWeight: '600' },
-
-  shareTabRow: { flexDirection: 'row', borderRadius: 12, borderWidth: 1, overflow: 'hidden', marginBottom: 10 },
-  shareTabBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingVertical: 9 },
-  shareTabText: { fontSize: 12, fontWeight: '700' },
-
-  addPersonRow: { flexDirection: 'row', marginBottom: 10 },
-  smallInput: { flex: 1, height: 44, borderRadius: 12, paddingHorizontal: 12, borderWidth: 1, marginRight: 8 },
-  addBtn: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 4 },
-  personChip: { flexDirection: 'row', alignItems: 'center', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 20, marginRight: 6, marginBottom: 6, borderWidth: 1 },
-  personName: { fontSize: 12, fontWeight: '500' },
-
-  contractDatesRow: { flexDirection: 'row', marginTop: 12, gap: 10 },
-  dateBox: { flex: 1, padding: 12, borderRadius: 12, alignItems: 'center', borderWidth: 1 },
-
-  footer: {
-    padding: 20,
-    paddingBottom: Platform.OS === 'ios' ? 36 : 20,
-    borderTopWidth: 1,
-  },
-  footerRow: {
-    flexDirection: 'row',
-    gap: 12,
-    alignItems: 'center',
-  },
-  backButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 52,
-    paddingHorizontal: 16,
-    borderRadius: 16,
-    borderWidth: 1.5,
-    gap: 4,
-  },
-  backButtonText: { fontSize: 15, fontWeight: '600' },
-  nextButtonFull: {
-    height: 52,
-    borderRadius: 16,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 6,
-  },
-  nextButton: {
-    flex: 1,
-    height: 52,
-    borderRadius: 16,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 6,
-  },
-  nextButtonText: { color: '#FFF', fontSize: 16, fontWeight: '700' },
-  saveButton: {
-    flex: 1,
-    height: 52,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  saveButtonText: { color: '#FFF', fontSize: 16, fontWeight: '700' },
+  dateSheetTitle: { fontSize: 15, fontWeight: '800' },
+  dateSheetAction: { fontSize: 15, fontWeight: '700' },
 });

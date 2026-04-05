@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using SubGuard.Core.Constants;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.Entities;
 using SubGuard.Core.Enums;
@@ -34,8 +35,8 @@ namespace SubGuard.Service.Services
             if (user == null)
                 return CustomResponseDto<List<CategoryBudgetDto>>.Fail(404, "Kullanıcı bulunamadı.");
 
-            var currency = user.MonthlyBudgetCurrency ?? "TRY";
             var threshold = user.BudgetAlertThreshold > 0 ? user.BudgetAlertThreshold : 80;
+            var summaryCurrency = AppConstants.Currency.NormalizeOrDefault(user.MonthlyBudgetCurrency);
 
             // Kullanıcının kategori bütçelerini çek
             var budgets = await _db.CategoryBudgets
@@ -73,22 +74,35 @@ namespace SubGuard.Service.Services
                         BillingPriceHelper.ConvertToTargetCurrency(
                             BillingPriceHelper.ToMonthlyEquivalent(s.Price, s.BillingPeriod),
                             s.Currency,
-                            currency,
+                            summaryCurrency,
                             rates),
                         s.ShareCount)));
 
-            var result = budgets.Select(b =>
-            {
-                var spent = spendingByCategory.TryGetValue(b.Category, out var s) ? s : 0m;
-                return new CategoryBudgetDto
+            var result = budgets
+                .Select(b =>
                 {
-                    Category = b.Category,
-                    MonthlyLimit = b.MonthlyLimit,
-                    Spent = spent,
-                    Currency = currency,
-                    IsNearLimit = spent >= b.MonthlyLimit * threshold / 100m
-                };
-            }).ToList();
+                    var targetCurrency = AppConstants.Currency.NormalizeOrDefault(b.Currency ?? user.MonthlyBudgetCurrency);
+                    var spentInTargetCurrency = 0m;
+
+                    if (spendingByCategory.TryGetValue(b.Category, out var spentInBudgetCurrency))
+                    {
+                        spentInTargetCurrency = BillingPriceHelper.ConvertToTargetCurrency(
+                            spentInBudgetCurrency,
+                            summaryCurrency,
+                            targetCurrency,
+                            rates);
+                    }
+
+                    return new CategoryBudgetDto
+                    {
+                        Category = b.Category,
+                        MonthlyLimit = b.MonthlyLimit,
+                        Spent = spentInTargetCurrency,
+                        Currency = targetCurrency,
+                        IsNearLimit = spentInTargetCurrency >= b.MonthlyLimit * threshold / 100m
+                    };
+                })
+                .ToList();
 
             return CustomResponseDto<List<CategoryBudgetDto>>.Success(200, result);
         }
@@ -99,7 +113,7 @@ namespace SubGuard.Service.Services
             if (user == null)
                 return CustomResponseDto<CategoryBudgetDto>.Fail(404, "Kullanıcı bulunamadı.");
 
-            var currency = user.MonthlyBudgetCurrency ?? "TRY";
+            var currency = AppConstants.Currency.NormalizeOrDefault(user.MonthlyBudgetCurrency);
             var threshold = user.BudgetAlertThreshold > 0 ? user.BudgetAlertThreshold : 80;
 
             // Mevcut kayıt var mı?
@@ -109,6 +123,7 @@ namespace SubGuard.Service.Services
             if (existing != null)
             {
                 existing.MonthlyLimit = dto.MonthlyLimit;
+                existing.Currency = currency;
                 existing.IsDeleted = false;
             }
             else
@@ -117,7 +132,8 @@ namespace SubGuard.Service.Services
                 {
                     UserId = userId,
                     Category = dto.Category,
-                    MonthlyLimit = dto.MonthlyLimit
+                    MonthlyLimit = dto.MonthlyLimit,
+                    Currency = currency,
                 };
                 await _db.CategoryBudgets.AddAsync(existing);
             }
@@ -161,7 +177,7 @@ namespace SubGuard.Service.Services
                 Category = existing.Category,
                 MonthlyLimit = existing.MonthlyLimit,
                 Spent = spent,
-                Currency = currency,
+                Currency = existing.Currency,
                 IsNearLimit = spent >= existing.MonthlyLimit * threshold / 100m
             };
 

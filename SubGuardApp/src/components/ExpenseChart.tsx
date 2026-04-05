@@ -3,8 +3,10 @@ import { View, Text, Dimensions, StyleSheet, TouchableOpacity } from 'react-nati
 import { PieChart } from 'react-native-chart-kit';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import { useThemeColors, CATEGORY_COLORS } from '../constants/theme';
+import { useSettingsStore } from '../store/useSettingsStore';
 import { isSubscriptionActiveNow } from '../utils/dateUtils';
-import { getSubscriptionMonthlyShareInTry } from '../utils/subscriptionMath';
+import { formatCurrencyAmount, normalizeCurrencyCode } from '../utils/CurrencyService';
+import { getSubscriptionMonthlyShareInCurrency } from '../utils/subscriptionMath';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -20,7 +22,9 @@ interface Props {
 
 export default function ExpenseChart({ onCategoryPress, selectedCategory }: Props) {
   const colors = useThemeColors();
+  const monthlyBudgetCurrency = useSettingsStore((state) => state.monthlyBudgetCurrency);
   const { subscriptions, exchangeRates } = useUserSubscriptionStore();
+  const budgetCurrency = normalizeCurrencyCode(monthlyBudgetCurrency);
 
   // Kategori bazlı toplam hesapla (sadece aktif, kur dönüşümlü, paylaşım dahil)
   // Kur kuralı: backend BillingPriceHelper ile tutarlı olmalı.
@@ -32,7 +36,12 @@ export default function ExpenseChart({ onCategoryPress, selectedCategory }: Prop
     .filter(s => isSubscriptionActiveNow(s.isActive, s.firstPaymentDate, s.contractStartDate, new Date(), s.createdDate))
     .forEach(sub => {
       const cat = sub.category || 'Diğer';
-      const myShare = getSubscriptionMonthlyShareInTry(sub, exchangeRates, { unknownRateAsZero: true });
+      const myShare = getSubscriptionMonthlyShareInCurrency(
+        sub,
+        exchangeRates,
+        budgetCurrency,
+        { unknownRateAsZero: true },
+      );
       if (myShare === 0) return; // Bilinmeyen kur → bu aboneliği grafikten hariç tut
       categoryTotals[cat] = (categoryTotals[cat] || 0) + myShare;
     });
@@ -86,7 +95,7 @@ export default function ExpenseChart({ onCategoryPress, selectedCategory }: Prop
                 {item.name}
               </Text>
               <Text style={[styles.legendAmount, { color: item.color }]}>
-                {item.population.toFixed(0)} ₺
+                {formatCurrencyAmount(item.population, budgetCurrency, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
               </Text>
             </TouchableOpacity>
           );

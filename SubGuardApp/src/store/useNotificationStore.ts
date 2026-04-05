@@ -9,6 +9,7 @@ interface NotificationStore {
   loading: boolean;
   page: number;
   hasMore: boolean;
+  error: string | null;
 
   fetchNotifications: (reset?: boolean) => Promise<void>;
   markAsRead: (id: number) => Promise<void>;
@@ -23,6 +24,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
   loading: false,
   page: 1,
   hasMore: true,
+  error: null,
 
   fetchNotifications: async (reset = false) => {
     const { loading, page, hasMore } = get();
@@ -45,9 +47,11 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
         page: currentPage + 1,
         hasMore: merged.length < total,
         loading: false,
+        error: null,
       });
     } catch {
-      set({ loading: false });
+      set({ loading: false, error: 'Bildirimler yuklenemedi.' });
+      Toast.show({ type: 'error', text1: 'Hata', text2: 'Bildirimler yuklenemedi.', position: 'bottom' });
     }
   },
 
@@ -88,7 +92,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
     }
   },
 
-  reset: () => set({ notifications: [], unreadCount: 0, loading: false, page: 1, hasMore: true }),
+  reset: () => set({ notifications: [], unreadCount: 0, loading: false, page: 1, hasMore: true, error: null }),
 
   deleteNotification: async (id: number) => {
     const previous = get().notifications;

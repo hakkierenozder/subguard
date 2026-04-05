@@ -8,7 +8,7 @@ namespace SubGuard.Core.DTOs
         public string Category { get; set; }
         public decimal MonthlyLimit { get; set; }
         public decimal Spent { get; set; }
-        public string Currency { get; set; }      // kullanıcının global MonthlyBudgetCurrency'si
+        public string Currency { get; set; }      // bu kategori limitinin saklandığı para birimi
         public decimal Remaining => MonthlyLimit - Spent;
         public bool IsOverBudget => Spent > MonthlyLimit;
         public bool IsNearLimit { get; set; }     // Spent >= MonthlyLimit * threshold / 100

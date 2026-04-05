@@ -21,6 +21,8 @@ import { UserSubscription } from '../types';
 import SubscriptionDetailModal from '../components/SubscriptionDetailModal';
 import { RootStackParamList } from '../../App';
 import { getSubscriptionStartDate } from '../utils/dateUtils';
+import { formatCurrencyAmount, normalizeCurrencyCode } from '../utils/CurrencyService';
+import { getSubscriptionCycleShare, getSubscriptionCycleShareInCurrency, getSubscriptionMonthlyShareInCurrency } from '../utils/subscriptionMath';
 
 const DAYS_TR = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
 const MONTHS_TR = [
@@ -81,18 +83,30 @@ function isViewedMonthOnOrAfterStart(
 export default function CalendarScreen() {
   const colors = useThemeColors();
   const isDarkMode = useSettingsStore((s) => s.isDarkMode);
+  const monthlyBudgetCurrency = useSettingsStore((s) => s.monthlyBudgetCurrency);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { subscriptions, exchangeRates, fetchUserSubscriptions, loading } = useUserSubscriptionStore();
+  const { subscriptions, exchangeRates, fetchAllUserSubscriptions, fetchExchangeRates, loading } = useUserSubscriptionStore();
 
   const [hasAttemptedLoad, setHasAttemptedLoad] = useState(false);
   const [detailSub, setDetailSub] = useState<UserSubscription | null>(null);
+  const budgetCurrency = normalizeCurrencyCode(monthlyBudgetCurrency);
+  const formatBudgetAmount = useCallback(
+    (amount: number, minimumFractionDigits = 2) => formatCurrencyAmount(amount, budgetCurrency, {
+      minimumFractionDigits,
+      maximumFractionDigits: minimumFractionDigits,
+    }),
+    [budgetCurrency],
+  );
 
   const scrollRef = useRef<ScrollView>(null);
 
   const loadData = useCallback(async () => {
-    await fetchUserSubscriptions();
+    await Promise.all([
+      fetchAllUserSubscriptions(),
+      fetchExchangeRates(),
+    ]);
     setHasAttemptedLoad(true);
-  }, [fetchUserSubscriptions]);
+  }, [fetchAllUserSubscriptions, fetchExchangeRates]);
 
   useEffect(() => {
     if (subscriptions.length === 0) {
@@ -158,16 +172,16 @@ export default function CalendarScreen() {
     // Yalnızca görüntülenen ayda var olan abonelikleri hesaba kat
     return activeSubs
       .filter((sub) => isViewedMonthOnOrAfterStart(sub, currentYear, currentMonth))
-      .reduce((total, sub) => {
-        const rate = exchangeRates[sub.currency] ?? 1;
-        const priceInTry = sub.price * rate;
-        const partnerCount = (sub.sharedWith?.length ?? 0) + (sub.sharedGuests?.length ?? 0);
-        const monthlyPrice = sub.billingPeriod === 'Yearly'
-          ? priceInTry / 12
-          : priceInTry;
-        return total + monthlyPrice / (partnerCount + 1);
-      }, 0);
-  }, [activeSubs, exchangeRates, currentYear, currentMonth]);
+      .reduce(
+        (total, sub) => total + getSubscriptionMonthlyShareInCurrency(
+          sub,
+          exchangeRates,
+          budgetCurrency,
+          { unknownRateAsZero: true },
+        ),
+        0,
+      );
+  }, [activeSubs, budgetCurrency, currentYear, currentMonth, exchangeRates]);
 
   const goToPrevMonth = () => {
     if (currentMonth === 0) {
@@ -270,7 +284,7 @@ export default function CalendarScreen() {
               {MONTHS_TR[currentMonth]} {currentYear}
             </Text>
             <Text style={styles.headerSub}>
-              {MONTHS_TR[currentMonth]} Toplam: ₺{monthlyTotal.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {MONTHS_TR[currentMonth]} Toplam: {formatBudgetAmount(monthlyTotal)}
             </Text>
 
             {/* Farklı aydaysa "Bugün" butonu */}
@@ -421,11 +435,15 @@ export default function CalendarScreen() {
                 </View>
               ) : (
                 selectedSubs.map((sub) => {
-                  const rate = exchangeRates[sub.currency] ?? 1;
-                  const priceInTry = sub.price * rate;
                   const partnerCount = (sub.sharedWith?.length ?? 0) + (sub.sharedGuests?.length ?? 0);
-                  const myShare = priceInTry / (partnerCount + 1);
-                  const isForeign = sub.currency !== 'TRY';
+                  const cycleShare = getSubscriptionCycleShare(sub);
+                  const budgetShare = getSubscriptionCycleShareInCurrency(
+                    sub,
+                    exchangeRates,
+                    budgetCurrency,
+                    { unknownRateAsZero: true },
+                  );
+                  const showOriginalCurrency = sub.currency !== budgetCurrency;
 
                   return (
                     <TouchableOpacity
@@ -445,18 +463,21 @@ export default function CalendarScreen() {
                         </Text>
                       </View>
                       <View style={styles.subPriceCol}>
-                        {isForeign ? (
+                        {showOriginalCurrency ? (
                           <>
                             <Text style={[styles.subPrice, { color: colors.accent }]}>
-                              {sub.currency} {sub.price.toFixed(2)}
+                              {formatCurrencyAmount(cycleShare, sub.currency, {
+                                minimumFractionDigits: sub.currency === 'TRY' ? 0 : 2,
+                                maximumFractionDigits: sub.currency === 'TRY' ? 0 : 2,
+                              })}
                             </Text>
                             <Text style={[styles.subPriceTry, { color: colors.textSec }]}>
-                              ≈ ₺{myShare.toFixed(2)}
+                              {`≈ ${formatBudgetAmount(budgetShare)}`}
                             </Text>
                           </>
                         ) : (
                           <Text style={[styles.subPrice, { color: colors.accent }]}>
-                            ₺{myShare.toFixed(2)}
+                            {formatBudgetAmount(budgetShare)}
                           </Text>
                         )}
                         <Ionicons name="chevron-forward" size={14} color={colors.textSec} style={{ marginTop: 2 }} />
@@ -493,8 +514,12 @@ export default function CalendarScreen() {
               [...monthSubs]
                 .sort((a, b) => getDisplayDay(a) - getDisplayDay(b))
                 .map((sub) => {
-                  const rate = exchangeRates[sub.currency] ?? 1;
-                  const myShare = (sub.price * rate) / ((sub.sharedWith?.length ?? 0) + (sub.sharedGuests?.length ?? 0) + 1);
+                  const cycleShare = getSubscriptionCycleShareInCurrency(
+                    sub,
+                    exchangeRates,
+                    budgetCurrency,
+                    { unknownRateAsZero: true },
+                  );
                   const isPast = getSubIsPast(sub);
                   const displayDay = getDisplayDay(sub);
 
@@ -530,7 +555,7 @@ export default function CalendarScreen() {
                       </Text>
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                         <Text style={[styles.summaryPrice, { color: isPast ? colors.textSec : colors.accent }]}>
-                          ₺{myShare.toFixed(2)}
+                          {formatBudgetAmount(cycleShare)}
                         </Text>
                         <Ionicons name="chevron-forward" size={12} color={colors.textSec} />
                       </View>

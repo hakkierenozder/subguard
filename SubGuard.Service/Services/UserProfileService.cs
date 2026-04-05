@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SubGuard.Core.Constants;
 using SubGuard.Core.DTOs;
 using SubGuard.Core.DTOs.Auth;
 using SubGuard.Core.Entities;
+using SubGuard.Core.Helpers;
 using SubGuard.Core.Repositories;
 using SubGuard.Core.Services;
 using System.Text.Json;
@@ -19,19 +21,22 @@ namespace SubGuard.Service.Services
         private readonly AppDbContext _db;
         private readonly ILogger<UserProfileService> _logger;
         private readonly IRevokedUserStore _revokedUserStore;
+        private readonly ICurrencyService _currencyService;
 
         public UserProfileService(
             UserManager<AppUser> userManager,
             IGenericRepository<UserSubscription> subRepo,
             AppDbContext db,
             ILogger<UserProfileService> logger,
-            IRevokedUserStore revokedUserStore)
+            IRevokedUserStore revokedUserStore,
+            ICurrencyService currencyService)
         {
             _userManager = userManager;
             _subRepo = subRepo;
             _db = db;
             _logger = logger;
             _revokedUserStore = revokedUserStore;
+            _currencyService = currencyService;
         }
 
         public async Task<CustomResponseDto<UserProfileDto>> GetUserProfileAsync(string userId)
@@ -67,11 +72,10 @@ namespace SubGuard.Service.Services
             if (!string.IsNullOrEmpty(dto.FullName))
                 user.FullName = dto.FullName;
 
-            if (dto.MonthlyBudget.HasValue)
-                user.MonthlyBudget = dto.MonthlyBudget.Value;
-
-            if (dto.MonthlyBudgetCurrency != null)
-                user.MonthlyBudgetCurrency = dto.MonthlyBudgetCurrency;
+            if (dto.MonthlyBudget.HasValue || dto.MonthlyBudgetCurrency != null)
+            {
+                await ApplyBudgetSettingsAsync(user, dto.MonthlyBudget, dto.MonthlyBudgetCurrency);
+            }
 
             if (dto.BudgetAlertThreshold.HasValue && dto.BudgetAlertThreshold.Value >= 0 && dto.BudgetAlertThreshold.Value <= 100)
                 user.BudgetAlertThreshold = dto.BudgetAlertThreshold.Value;
@@ -80,16 +84,81 @@ namespace SubGuard.Service.Services
             return CustomResponseDto<bool>.Success(204);
         }
 
-        public async Task<CustomResponseDto<bool>> UpdateBudgetAsync(string userId, BudgetSettingsDto dto)
+        public async Task<CustomResponseDto<BudgetSettingsDto>> UpdateBudgetAsync(string userId, BudgetSettingsDto dto)
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
-                return CustomResponseDto<bool>.Fail(404, "Kullanıcı bulunamadı.");
+                return CustomResponseDto<BudgetSettingsDto>.Fail(404, "Kullanıcı bulunamadı.");
 
-            user.MonthlyBudget = dto.MonthlyBudget;
-            user.MonthlyBudgetCurrency = dto.MonthlyBudgetCurrency;
-            await _userManager.UpdateAsync(user);
-            return CustomResponseDto<bool>.Success(200, true);
+            await ApplyBudgetSettingsAsync(user, dto.MonthlyBudget, dto.MonthlyBudgetCurrency);
+
+            return CustomResponseDto<BudgetSettingsDto>.Success(200, new BudgetSettingsDto
+            {
+                MonthlyBudget = user.MonthlyBudget,
+                MonthlyBudgetCurrency = user.MonthlyBudgetCurrency ?? AppConstants.Currency.DefaultCode,
+            });
+        }
+
+        private async Task ApplyBudgetSettingsAsync(AppUser user, decimal? requestedBudget, string? requestedCurrency)
+        {
+            var targetCurrency = AppConstants.Currency.NormalizeOrDefault(requestedCurrency ?? user.MonthlyBudgetCurrency);
+            var currentCurrency = AppConstants.Currency.NormalizeOrDefault(user.MonthlyBudgetCurrency);
+            var currentBudget = user.MonthlyBudget;
+
+            decimal newBudget = requestedBudget ?? currentBudget;
+            var currencyChanged = currentCurrency != targetCurrency;
+            var explicitBudgetChange = requestedBudget.HasValue && requestedBudget.Value != currentBudget;
+
+            await using var tx = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                if (currencyChanged)
+                {
+                    var rates = await _currencyService.GetRatesAsync();
+
+                    if (!explicitBudgetChange && currentBudget > 0)
+                    {
+                        newBudget = BillingPriceHelper.ConvertToTargetCurrency(
+                            currentBudget,
+                            currentCurrency,
+                            targetCurrency,
+                            rates);
+                    }
+
+                    var categoryBudgets = await _db.CategoryBudgets
+                        .IgnoreQueryFilters()
+                        .Where(b => b.UserId == user.Id && !b.IsDeleted)
+                        .ToListAsync();
+
+                    foreach (var categoryBudget in categoryBudgets)
+                    {
+                        var sourceCurrency = AppConstants.Currency.NormalizeOrDefault(categoryBudget.Currency);
+                        categoryBudget.MonthlyLimit = BillingPriceHelper.ConvertToTargetCurrency(
+                            categoryBudget.MonthlyLimit,
+                            sourceCurrency,
+                            targetCurrency,
+                            rates);
+                        categoryBudget.Currency = targetCurrency;
+                    }
+                }
+
+                user.MonthlyBudget = newBudget;
+                user.MonthlyBudgetCurrency = targetCurrency;
+
+                var result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                {
+                    throw new InvalidOperationException(string.Join(", ", result.Errors.Select(e => e.Description)));
+                }
+
+                await _db.SaveChangesAsync();
+                await tx.CommitAsync();
+            }
+            catch
+            {
+                await tx.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task<CustomResponseDto<bool>> ChangePasswordAsync(string userId, ChangePasswordDto dto)

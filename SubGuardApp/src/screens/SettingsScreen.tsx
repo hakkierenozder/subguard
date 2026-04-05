@@ -34,6 +34,11 @@ import EditProfileModal from '../components/EditProfileModal';
 import ChangePasswordModal from '../components/ChangePasswordModal';
 import { UserProfileDto, UserSubscription } from '../types';
 import {
+  formatCurrencyAmount,
+  normalizeCurrencyCode,
+  SUPPORTED_CURRENCIES,
+} from '../utils/CurrencyService';
+import {
   convertAmountBetweenCurrencies,
   getSubscriptionMonthlyShareInCurrency,
   getSubscriptionPortfolioMetrics,
@@ -44,9 +49,11 @@ const REMINDER_DAY_PRESETS = [1, 3, 7] as const;
 const NOTIFY_HOUR_PRESETS = [9, 18, 20] as const;
 const UPCOMING_DAY_OPTIONS = [7, 14, 30] as const;
 const BUDGET_THRESHOLD_OPTIONS = [50, 70, 80, 90] as const;
-const SUMMARY_CURRENCIES = ['TRY', 'USD', 'EUR', 'GBP'] as const;
 
 type PickerType = 'currency' | 'upcomingDays' | 'threshold' | null;
+type PushRegistrationResult =
+  | { success: true }
+  | { success: false; message: string };
 
 const getErrorMessage = (error: any, fallback: string) =>
   error?.response?.data?.errors?.[0]
@@ -58,19 +65,6 @@ const buildPresetOptions = (presets: readonly number[], current: number) =>
   Array.from(new Set([current, ...presets])).sort((a, b) => a - b);
 
 const formatHourLabel = (hour: number) => `${String(hour).padStart(2, '0')}:00`;
-
-const formatCurrencyAmount = (amount: number, currency: string, minimumFractionDigits = 0) => {
-  try {
-    return new Intl.NumberFormat('tr-TR', {
-      style: 'currency',
-      currency,
-      minimumFractionDigits,
-      maximumFractionDigits: currency === 'TRY' ? minimumFractionDigits : Math.max(2, minimumFractionDigits),
-    }).format(amount);
-  } catch {
-    return `${amount.toFixed(Math.max(2, minimumFractionDigits))} ${currency}`;
-  }
-};
 
 interface SettingsRowProps {
   icon: string;
@@ -295,6 +289,10 @@ export default function SettingsScreen() {
   const setIsAdmin = useSettingsStore((state) => state.setIsAdmin);
   const budgetAlertThreshold = useSettingsStore((state) => state.budgetAlertThreshold);
   const setBudgetAlertThreshold = useSettingsStore((state) => state.setBudgetAlertThreshold);
+  const monthlyBudget = useSettingsStore((state) => state.monthlyBudget);
+  const setMonthlyBudget = useSettingsStore((state) => state.setMonthlyBudget);
+  const monthlyBudgetCurrency = useSettingsStore((state) => state.monthlyBudgetCurrency);
+  const setMonthlyBudgetCurrency = useSettingsStore((state) => state.setMonthlyBudgetCurrency);
 
   const subscriptions = useUserSubscriptionStore((state) => state.subscriptions);
   const exchangeRates = useUserSubscriptionStore((state) => state.exchangeRates);
@@ -315,6 +313,8 @@ export default function SettingsScreen() {
       if (res?.data) {
         setUserProfile(res.data);
         setIsAdmin(!!res.data.isAdmin);
+        setMonthlyBudget(res.data.monthlyBudget ?? 0);
+        setMonthlyBudgetCurrency(normalizeCurrencyCode(res.data.monthlyBudgetCurrency));
         if (typeof res.data.budgetAlertThreshold === 'number') setBudgetAlertThreshold(res.data.budgetAlertThreshold);
         if (typeof res.data.budgetAlertEnabled === 'boolean') setBudgetAlertEnabled(res.data.budgetAlertEnabled);
         if (typeof res.data.sharedAlertEnabled === 'boolean') setSharedAlertEnabled(res.data.sharedAlertEnabled);
@@ -323,7 +323,14 @@ export default function SettingsScreen() {
     } catch (error) {
       setProfileError(getErrorMessage(error, 'Profil bilgileri yuklenemedi.'));
     }
-  }, [setBudgetAlertEnabled, setBudgetAlertThreshold, setIsAdmin, setSharedAlertEnabled]);
+  }, [
+    setBudgetAlertEnabled,
+    setBudgetAlertThreshold,
+    setIsAdmin,
+    setMonthlyBudget,
+    setMonthlyBudgetCurrency,
+    setSharedAlertEnabled,
+  ]);
 
   const loadNotifPrefs = useCallback(async () => {
     try {
@@ -370,8 +377,8 @@ export default function SettingsScreen() {
     [exchangeRates, subscriptions],
   );
 
-  const budgetCurrency = userProfile?.monthlyBudgetCurrency || 'TRY';
-  const budget = userProfile?.monthlyBudget ?? 0;
+  const budgetCurrency = normalizeCurrencyCode(userProfile?.monthlyBudgetCurrency || monthlyBudgetCurrency);
+  const budget = userProfile?.monthlyBudget ?? monthlyBudget;
   const activeCount = portfolioMetrics.startedCount;
   const totalExpenseTRY = portfolioMetrics.monthlyEquivalentTotalTRY;
   const totalExpense = useMemo(
@@ -427,19 +434,36 @@ export default function SettingsScreen() {
     sharedAlertEnabled,
   ]);
 
-  const registerPushChannel = useCallback(async () => {
+  const registerPushChannel = useCallback(async (): Promise<PushRegistrationResult> => {
     const granted = await registerForPushNotificationsAsync();
-    toggleNotifications(granted);
-    if (!granted) return false;
-
-    const token = await getExpoPushToken();
-    if (token) {
-      try {
-        await agent.Notifications.registerPushToken(token);
-      } catch {}
+    if (!granted) {
+      toggleNotifications(false);
+      return {
+        success: false,
+        message: 'Push izni verilmedigi icin push kanali acilamadi.',
+      };
     }
 
-    return true;
+    const token = await getExpoPushToken();
+    if (!token) {
+      toggleNotifications(false);
+      return {
+        success: false,
+        message: 'Push token alinamadi. Cihaz ayarlarinizi ve development build kullandiginizi kontrol edin.',
+      };
+    }
+
+    try {
+      await agent.Notifications.registerPushToken(token);
+      toggleNotifications(true);
+      return { success: true };
+    } catch (error) {
+      toggleNotifications(false);
+      return {
+        success: false,
+        message: getErrorMessage(error, 'Push token sunucuya kaydedilemedi.'),
+      };
+    }
   }, [toggleNotifications]);
 
   const handleCalendarToggle = async (value: boolean) => {
@@ -464,13 +488,14 @@ export default function SettingsScreen() {
 
   const handleNotificationToggle = async (value: boolean) => {
     if (value) {
-      const pushEnabled = notificationsEnabled ? true : await registerPushChannel();
+      const pushResult = notificationsEnabled ? { success: true as const } : await registerPushChannel();
+      const pushEnabled = pushResult.success;
       setEmailEnabled(true);
       setShowNotificationSheet(true);
 
       try {
         await syncNotifPrefs({ pushEnabled, emailEnabled: true });
-        setNotificationPrefsError(null);
+        setNotificationPrefsError(pushEnabled ? null : pushResult.message);
       } catch (error) {
         setNotificationPrefsError(getErrorMessage(error, 'Bildirim tercihleri kaydedilemedi.'));
         await loadNotifPrefs();
@@ -480,7 +505,7 @@ export default function SettingsScreen() {
         pushEnabled ? 'Bildirimler acildi' : 'Kismi acildi',
         pushEnabled
           ? 'Push ve e-posta bildirimleri aktif.'
-          : 'Push izni verilmedi. E-posta bildirimleri aktif.',
+          : `${pushResult.message} E-posta bildirimleri aktif.`,
       );
       return;
     }
@@ -501,18 +526,19 @@ export default function SettingsScreen() {
 
   const handlePushNotificationsToggle = async (value: boolean) => {
     if (value) {
-      const pushEnabled = notificationsEnabled ? true : await registerPushChannel();
+      const pushResult = notificationsEnabled ? { success: true as const } : await registerPushChannel();
+      const pushEnabled = pushResult.success;
 
       try {
         await syncNotifPrefs({ pushEnabled });
-        setNotificationPrefsError(null);
+        setNotificationPrefsError(pushEnabled ? null : pushResult.message);
       } catch (error) {
         setNotificationPrefsError(getErrorMessage(error, 'Push tercihi kaydedilemedi.'));
         await loadNotifPrefs();
       }
 
       if (!pushEnabled) {
-        Alert.alert('Push acilamadi', 'Bildirim izni verilmedigi icin push kanali acilamadi.');
+        Alert.alert('Push acilamadi', pushResult.message);
       }
       return;
     }
@@ -569,14 +595,17 @@ export default function SettingsScreen() {
     if (currency === budgetCurrency) return;
 
     try {
-      await agent.Budget.updateSettings({
-        monthlyBudget: budget,
+      const response = await agent.Budget.updateSettings({
         monthlyBudgetCurrency: currency,
       });
+      const updatedBudget = response?.data?.monthlyBudget ?? budget;
+      const updatedCurrency = normalizeCurrencyCode(response?.data?.monthlyBudgetCurrency ?? currency);
+      setMonthlyBudget(updatedBudget);
+      setMonthlyBudgetCurrency(updatedCurrency);
       setUserProfile((current) => (current ? {
         ...current,
-        monthlyBudgetCurrency: currency,
-        monthlyBudget: budget,
+        monthlyBudgetCurrency: updatedCurrency,
+        monthlyBudget: updatedBudget,
       } : current));
       setProfileError(null);
     } catch (error) {
@@ -636,13 +665,13 @@ export default function SettingsScreen() {
         '',
         `Kullanici: ${userProfile?.fullName || '-'}`,
         `E-posta: ${userProfile?.email || '-'}`,
-        `Ozet para birimi: ${budgetCurrency}`,
-        `Aylik aktif yuk: ${formatCurrencyAmount(totalExpense, budgetCurrency, budgetCurrency === 'TRY' ? 0 : 2)}/ay`,
-        `Aylik butce hedefi: ${budget > 0 ? formatCurrencyAmount(budget, budgetCurrency, budgetCurrency === 'TRY' ? 0 : 2) : 'Tanimlanmamis'}`,
+        `Butce para birimi: ${budgetCurrency}`,
+        `Aylik aktif yuk: ${formatCurrencyAmount(totalExpense, budgetCurrency, { minimumFractionDigits: budgetCurrency === 'TRY' ? 0 : 2, maximumFractionDigits: budgetCurrency === 'TRY' ? 0 : 2 })}/ay`,
+        `Aylik butce hedefi: ${budget > 0 ? formatCurrencyAmount(budget, budgetCurrency, { minimumFractionDigits: budgetCurrency === 'TRY' ? 0 : 2, maximumFractionDigits: budgetCurrency === 'TRY' ? 0 : 2 }) : 'Tanimlanmamis'}`,
         '',
         `--- Abonelikler (${subscriptions.length} adet) ---`,
         ...subscriptions.map((subscription: UserSubscription) => {
-          const normalizedMonthly = getSubscriptionMonthlyShareInCurrency(subscription, exchangeRates, budgetCurrency);
+          const normalizedMonthly = getSubscriptionMonthlyShareInCurrency(subscription, exchangeRates, budgetCurrency, { unknownRateAsZero: true });
           const cycleLabel = subscription.billingPeriod === 'Yearly' ? 'yil' : 'ay';
           const statusLabel = subscription.isActive !== false
             ? 'Aktif'
@@ -652,8 +681,8 @@ export default function SettingsScreen() {
 
           return [
             `- ${subscription.name}`,
-            `${formatCurrencyAmount(subscription.price, subscription.currency, subscription.currency === 'TRY' ? 0 : 2)}/${cycleLabel}`,
-            `~ ${formatCurrencyAmount(normalizedMonthly, budgetCurrency, budgetCurrency === 'TRY' ? 0 : 2)}/ay`,
+            `${formatCurrencyAmount(subscription.price, subscription.currency, { minimumFractionDigits: subscription.currency === 'TRY' ? 0 : 2, maximumFractionDigits: subscription.currency === 'TRY' ? 0 : 2 })}/${cycleLabel}`,
+            `~ ${formatCurrencyAmount(normalizedMonthly, budgetCurrency, { minimumFractionDigits: budgetCurrency === 'TRY' ? 0 : 2, maximumFractionDigits: budgetCurrency === 'TRY' ? 0 : 2 })}/ay`,
             subscription.category,
             statusLabel,
           ].join(' | ');
@@ -769,7 +798,7 @@ export default function SettingsScreen() {
         : '';
 
   const pickerOptions = activePicker === 'currency'
-    ? SUMMARY_CURRENCIES
+    ? SUPPORTED_CURRENCIES
     : activePicker === 'upcomingDays'
       ? UPCOMING_DAY_OPTIONS
       : activePicker === 'threshold'
@@ -786,7 +815,7 @@ export default function SettingsScreen() {
 
   const notificationRowSubtitle = `${notifyDaysBefore} gun once · ${formatHourLabel(notifyHour)}`;
   const summaryBudgetText = budget > 0
-    ? formatCurrencyAmount(budget, budgetCurrency, budgetCurrency === 'TRY' ? 0 : 2)
+    ? formatCurrencyAmount(budget, budgetCurrency, { minimumFractionDigits: budgetCurrency === 'TRY' ? 0 : 2, maximumFractionDigits: budgetCurrency === 'TRY' ? 0 : 2 })
     : 'Tanimlanmamis';
 
   const pickerOptionLabel = (option: string | number) => {
@@ -886,7 +915,7 @@ export default function SettingsScreen() {
             <View style={styles.summaryStatColumn}>
               <Text style={[styles.summaryStatLabel, { color: colors.textSec }]}>Aylik aktif yuk</Text>
               <Text style={[styles.summaryStatValue, { color: colors.textMain }]}>
-                {formatCurrencyAmount(totalExpense, budgetCurrency, budgetCurrency === 'TRY' ? 0 : 2)}
+                {formatCurrencyAmount(totalExpense, budgetCurrency, { minimumFractionDigits: budgetCurrency === 'TRY' ? 0 : 2, maximumFractionDigits: budgetCurrency === 'TRY' ? 0 : 2 })}
               </Text>
             </View>
           </View>
@@ -990,8 +1019,8 @@ export default function SettingsScreen() {
           <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
             <SettingsRow
               icon="cash-outline"
-              title="Ozet para birimi"
-              subtitle="Aylik hedef ve aktif yuk gosteriminde kullanilir"
+              title="Butce para birimi"
+              subtitle="Aylik hedef ve butce ozetlerinde kullanilir"
               rightText={budgetCurrency}
               onPress={() => openPicker('currency')}
             />

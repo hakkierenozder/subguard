@@ -7,7 +7,6 @@ import {
   StatusBar,
   TouchableOpacity,
   Share,
-  Dimensions,
   Alert,
   ActivityIndicator,
 } from 'react-native';
@@ -22,7 +21,7 @@ import { CATEGORY_COLORS } from '../components/ExpenseChart';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import { useSettingsStore } from '../store/useSettingsStore';
 import agent from '../api/agent';
-import { getCurrencySymbol } from '../utils/CurrencyService';
+import { formatCurrencyAmount, getCurrencySymbol, normalizeCurrencyCode } from '../utils/CurrencyService';
 import {
   formatLocalDateForApi,
   getNextBillingDateForSub,
@@ -30,16 +29,36 @@ import {
   isSubscriptionBillableAtDate,
 } from '../utils/dateUtils';
 import {
-  getSubscriptionCycleShareInTry,
-  getSubscriptionMonthlyShareInTry,
+  convertAmountBetweenCurrencies,
+  getCurrencyRateToTry,
+  getSubscriptionCycleShareInCurrency,
+  getSubscriptionMonthlyShareInCurrency,
   getSubscriptionPortfolioMetrics,
 } from '../utils/subscriptionMath';
 import { SpendingReportDto } from '../types';
 
-const screenWidth = Dimensions.get('window').width;
 const FALLBACK_COLORS = ['#6C5CE7', '#A29BFE', '#FD79A8', '#FDCB6E', '#00B894', '#E17055', '#74B9FF'];
 
 type Period = 'this_month' | 'last_3_months' | 'this_year';
+type CsvCell = string | number;
+
+const escapeCsvCell = (value: CsvCell) => {
+  const text = String(value ?? '');
+  return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+};
+
+const createCsvContent = (rows: CsvCell[][]) => rows
+  .map((row) => row.map(escapeCsvCell).join(','))
+  .join('\n');
+
+const formatOriginalTotals = (entries: [string, number][]) =>
+  entries
+    .map(([currency, amount]) =>
+      formatCurrencyAmount(amount, currency, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }))
+    .join(' + ');
 
 const getPeriodRanges = (): Record<Period, { label: string; from: () => string; to: () => string }> => ({
   this_month: {
@@ -55,8 +74,8 @@ const getPeriodRanges = (): Record<Period, { label: string; from: () => string; 
     label: 'Son 3 Ay',
     from: () => {
       const date = new Date();
-      date.setMonth(date.getMonth() - 3);
       date.setDate(1);
+      date.setMonth(date.getMonth() - 2);
       return formatLocalDateForApi(date);
     },
     to: () => formatLocalDateForApi(new Date()),
@@ -71,6 +90,7 @@ const getPeriodRanges = (): Record<Period, { label: string; from: () => string; 
 export default function ReportsScreen({ embedded = false }: { embedded?: boolean }) {
   const colors = useThemeColors();
   const isDarkMode = useSettingsStore((state) => state.isDarkMode);
+  const monthlyBudgetCurrency = useSettingsStore((state) => state.monthlyBudgetCurrency);
   const {
     subscriptions,
     exchangeRates,
@@ -84,14 +104,28 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
   const [periodData, setPeriodData] = useState<SpendingReportDto | null>(null);
   const [periodLoading, setPeriodLoading] = useState(false);
   const [periodError, setPeriodError] = useState(false);
+  const [periodReloadKey, setPeriodReloadKey] = useState(0);
+  const [chartWidth, setChartWidth] = useState(0);
 
   const periodRanges = useMemo(() => getPeriodRanges(), []);
+  const budgetCurrency = normalizeCurrencyCode(monthlyBudgetCurrency);
 
-  const formatTryAmount = (amount: number, fractionDigits = 0) =>
-    `₺${amount.toLocaleString('tr-TR', {
+  const formatBudgetAmount = (amount: number, fractionDigits = 0) =>
+    formatCurrencyAmount(amount, budgetCurrency, {
       minimumFractionDigits: fractionDigits,
       maximumFractionDigits: fractionDigits,
-    })}`;
+    });
+  const toBudgetCurrency = (amount: number, currency: string) =>
+    convertAmountBetweenCurrencies(amount, currency, budgetCurrency, exchangeRates, {
+      unknownRateAsZero: true,
+    });
+  const canConvertToBudget = (currency: string) => {
+    const normalized = normalizeCurrencyCode(currency);
+    if (normalized === budgetCurrency) return true;
+
+    return getCurrencyRateToTry(normalized, exchangeRates, { unknownRateAsZero: true }) > 0
+      && getCurrencyRateToTry(budgetCurrency, exchangeRates, { unknownRateAsZero: true }) > 0;
+  };
 
   const loadAnalyticsData = async () => {
     setLoading(true);
@@ -129,14 +163,14 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
         setPeriodError(true);
       })
       .finally(() => setPeriodLoading(false));
-  }, [periodRanges, selectedPeriod]);
+  }, [periodRanges, periodReloadKey, selectedPeriod]);
 
   const portfolioMetrics = useMemo(
     () => getSubscriptionPortfolioMetrics(subscriptions, exchangeRates),
     [subscriptions, exchangeRates],
   );
 
-  const totalMonthlyExpense = portfolioMetrics.monthlyEquivalentTotalTRY;
+  const totalMonthlyExpense = toBudgetCurrency(portfolioMetrics.monthlyEquivalentTotalTRY, 'TRY');
   const activeSubsCount = portfolioMetrics.startedCount;
   const pendingSubsCount = portfolioMetrics.pendingCount;
 
@@ -146,21 +180,19 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
     const totals = Object.entries(periodData.totalByCurrency ?? {});
     if (totals.length === 0) return null;
 
-    const totalTRY = totals.reduce((sum, [currency, amount]) => {
-      const rate = currency === 'TRY' ? 1 : (exchangeRates[currency] ?? 1);
-      return sum + amount * rate;
-    }, 0);
+    const fullyConvertible = totals.every(([currency]) => canConvertToBudget(currency));
+    const totalBudget = totals.reduce(
+      (sum, [currency, amount]) => sum + toBudgetCurrency(amount, currency),
+      0,
+    );
 
     return {
-      totalTRY,
-      label: totals.length === 1
-        ? `${getCurrencySymbol(totals[0][0])}${totals[0][1].toLocaleString('tr-TR', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}`
-        : `≈ ${formatTryAmount(totalTRY, 2)}`,
+      totalBudget,
+      fullyConvertible,
+      budgetLabel: fullyConvertible ? formatBudgetAmount(totalBudget, 2) : null,
+      originalLabel: formatOriginalTotals(totals as [string, number][]),
     };
-  }, [exchangeRates, periodData]);
+  }, [budgetCurrency, exchangeRates, periodData]);
 
   const periodBreakdown = useMemo(() => {
     if (!periodData?.lines?.length) return [];
@@ -169,13 +201,11 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
 
     periodData.lines.forEach((line) => {
       const category = line.category || 'Diğer';
-      const rate = line.currency === 'TRY' ? 1 : (exchangeRates[line.currency] ?? 1);
-
       if (!categoryMap[category]) {
         categoryMap[category] = { total: 0, paymentCount: 0, subscriptionCount: 0 };
       }
 
-      categoryMap[category].total += line.totalAmount * rate;
+      categoryMap[category].total += toBudgetCurrency(line.totalAmount, line.currency);
       categoryMap[category].paymentCount += line.paymentCount;
       categoryMap[category].subscriptionCount += 1;
     });
@@ -183,7 +213,7 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
     return Object.entries(categoryMap)
       .map(([category, values]) => ({ category, ...values }))
       .sort((a, b) => b.total - a.total);
-  }, [exchangeRates, periodData]);
+  }, [budgetCurrency, exchangeRates, periodData]);
 
   const statistics = useMemo(() => {
     const categoryStats: Record<string, number> = {};
@@ -200,7 +230,12 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
         return;
       }
 
-      const monthlyShare = getSubscriptionMonthlyShareInTry(subscription, exchangeRates);
+      const monthlyShare = getSubscriptionMonthlyShareInCurrency(
+        subscription,
+        exchangeRates,
+        budgetCurrency,
+        { unknownRateAsZero: true },
+      );
       const categoryName = subscription.category || 'Diğer';
       categoryStats[categoryName] = (categoryStats[categoryName] ?? 0) + monthlyShare;
     });
@@ -220,7 +255,7 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
         color: CATEGORY_COLORS[name] || FALLBACK_COLORS[index % FALLBACK_COLORS.length],
       }))
       .sort((a, b) => b.total - a.total);
-  }, [exchangeRates, subscriptions, totalMonthlyExpense]);
+  }, [budgetCurrency, exchangeRates, subscriptions, totalMonthlyExpense]);
 
   const categorySubscriptions = useMemo(() => {
     if (!selectedCategory) return [];
@@ -236,8 +271,46 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
           subscription.createdDate,
         ))
       .sort((a, b) =>
-        getSubscriptionMonthlyShareInTry(b, exchangeRates) - getSubscriptionMonthlyShareInTry(a, exchangeRates));
-  }, [exchangeRates, selectedCategory, subscriptions]);
+        getSubscriptionMonthlyShareInCurrency(b, exchangeRates, budgetCurrency, { unknownRateAsZero: true })
+        - getSubscriptionMonthlyShareInCurrency(a, exchangeRates, budgetCurrency, { unknownRateAsZero: true }));
+  }, [budgetCurrency, exchangeRates, selectedCategory, subscriptions]);
+
+  const missingPortfolioCurrencies = useMemo(() => {
+    const missing = new Set<string>();
+
+    subscriptions.forEach((subscription) => {
+      if (!isSubscriptionActiveNow(
+        subscription.isActive,
+        subscription.firstPaymentDate,
+        subscription.contractStartDate,
+        new Date(),
+        subscription.createdDate,
+      )) {
+        return;
+      }
+
+      const normalized = normalizeCurrencyCode(subscription.currency);
+      if (!canConvertToBudget(normalized)) {
+        missing.add(normalized);
+      }
+    });
+
+    return Array.from(missing);
+  }, [budgetCurrency, exchangeRates, subscriptions]);
+
+  const missingPeriodCurrencies = useMemo(() => {
+    if (!periodData?.lines?.length) return [];
+
+    const missing = new Set<string>();
+    periodData.lines.forEach((line) => {
+      const normalized = normalizeCurrencyCode(line.currency);
+      if (!canConvertToBudget(normalized)) {
+        missing.add(normalized);
+      }
+    });
+
+    return Array.from(missing);
+  }, [budgetCurrency, exchangeRates, periodData]);
 
   const trendData = useMemo(() => {
     const labels: string[] = [];
@@ -259,13 +332,21 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
           cancelledDate: subscription.cancelledDate,
           pausedDate: subscription.pausedDate,
         }))
-        .reduce((sum, subscription) => sum + getSubscriptionMonthlyShareInTry(subscription, exchangeRates), 0);
+        .reduce(
+          (sum, subscription) => sum + getSubscriptionMonthlyShareInCurrency(
+            subscription,
+            exchangeRates,
+            budgetCurrency,
+            { unknownRateAsZero: true },
+          ),
+          0,
+        );
 
       data.push(parseFloat(monthTotal.toFixed(0)));
     }
 
     return { labels, data };
-  }, [exchangeRates, subscriptions]);
+  }, [budgetCurrency, exchangeRates, subscriptions]);
 
   const yearlyProjection = useMemo(() => {
     const today = new Date();
@@ -296,7 +377,12 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
             break;
           }
 
-          total += getSubscriptionCycleShareInTry(subscription, exchangeRates);
+          total += getSubscriptionCycleShareInCurrency(
+            subscription,
+            exchangeRates,
+            budgetCurrency,
+            { unknownRateAsZero: true },
+          );
 
           const nextReference = new Date(nextBilling);
           nextReference.setDate(nextReference.getDate() + 1);
@@ -314,7 +400,114 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
 
         return total;
       }, 0);
-  }, [exchangeRates, subscriptions]);
+  }, [budgetCurrency, exchangeRates, subscriptions]);
+
+  const exportCsv = async (rows: CsvCell[][], fileLabel: string, fileSuffix: string) => {
+    try {
+      const dateString = formatLocalDateForApi(new Date());
+      const csvContent = createCsvContent(rows);
+      const fileName = `subguard-${fileSuffix}-${dateString}.csv`;
+      const directory = Paths.document ?? Paths.cache;
+
+      if (!directory) {
+        await Share.share({ message: csvContent, title: fileLabel });
+        return;
+      }
+
+      const file = new File(directory, fileName);
+      file.write(csvContent);
+
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(file.uri, {
+          mimeType: 'text/csv',
+          dialogTitle: fileLabel,
+          UTI: 'public.comma-separated-values-text',
+        });
+      } else {
+        await Share.share({ message: csvContent, title: fileLabel });
+      }
+    } catch (error) {
+      console.error('CSV export hatasi:', error);
+      Alert.alert('Hata', `Rapor disa aktarilamadi: ${(error as Error)?.message ?? String(error)}`);
+    }
+  };
+
+  const buildPortfolioCsvRows = (): CsvCell[][] => [
+    ['SubGuard Portfoy Raporu', ''],
+    ['Rapor Tarihi', formatLocalDateForApi(new Date())],
+    ['Ozet Para Birimi', budgetCurrency],
+    ['Aktif Aylik Yuk', totalMonthlyExpense.toFixed(2)],
+    ['Yil Sonuna Kadar', yearlyProjection.toFixed(2)],
+    ['Baslamis', String(activeSubsCount)],
+    ['Bekleyen', String(pendingSubsCount)],
+    ...(missingPortfolioCurrencies.length > 0
+      ? [['Kur Uyarisi', `Su para birimleri secili ozete cevrilemedi: ${missingPortfolioCurrencies.join(', ')}`] as CsvCell[]]
+      : []),
+    ['', ''],
+    ['Kategori', `Aylik Yuk (${budgetCurrency})`, 'Oran (%)'],
+    ...statistics.map((item) => [
+      item.name,
+      item.total.toFixed(2),
+      item.percentage.toFixed(1),
+    ]),
+    ['', '', '', '', '', '', '', '', ''],
+    ['Abonelik Adi', 'Kategori', 'Orijinal Fiyat', 'Para Birimi', `Cycle Payi (${budgetCurrency})`, `Aylik Esdeger (${budgetCurrency})`, 'Donem', 'Durum', 'Kur Durumu'],
+    ...subscriptions.map((subscription) => {
+      const convertible = canConvertToBudget(subscription.currency);
+      return [
+        subscription.name,
+        subscription.category || 'Diğer',
+        subscription.price.toFixed(2),
+        subscription.currency,
+        convertible
+          ? getSubscriptionCycleShareInCurrency(subscription, exchangeRates, budgetCurrency, { unknownRateAsZero: true }).toFixed(2)
+          : 'N/A',
+        convertible
+          ? getSubscriptionMonthlyShareInCurrency(subscription, exchangeRates, budgetCurrency, { unknownRateAsZero: true }).toFixed(2)
+          : 'N/A',
+        subscription.billingPeriod === 'Yearly' ? 'Yıllık' : 'Aylık',
+        subscription.status || (subscription.isActive ? 'Aktif' : 'Pasif'),
+        convertible ? 'OK' : 'Kur Yok',
+      ];
+    }),
+  ];
+
+  const buildPeriodCsvRows = (): CsvCell[][] => {
+    const totals = Object.entries(periodData?.totalByCurrency ?? {}) as [string, number][];
+
+    return [
+      ['SubGuard Donem Raporu', ''],
+      ['Rapor Tarihi', formatLocalDateForApi(new Date())],
+      ['Secili Donem', selectedPeriod ? periodRanges[selectedPeriod].label : '-'],
+      ['Donem Baslangici', periodData?.from ?? '-'],
+      ['Donem Bitisi', periodData?.to ?? '-'],
+      ['Ozet Para Birimi', budgetCurrency],
+      ['Donem Toplami', periodSummary?.budgetLabel ?? 'N/A'],
+      ['Orijinal Toplamlar', totals.length > 0 ? formatOriginalTotals(totals) : '-'],
+      ...(missingPeriodCurrencies.length > 0
+        ? [['Kur Uyarisi', `Su para birimleri secili ozete cevrilemedi: ${missingPeriodCurrencies.join(', ')}`] as CsvCell[]]
+        : []),
+      ['', ''],
+      ['Kategori', `Toplam (${budgetCurrency})`, 'Tahsilat Adedi', 'Abonelik Satiri'],
+      ...periodBreakdown.map((item) => [
+        item.category,
+        item.total.toFixed(2),
+        String(item.paymentCount),
+        String(item.subscriptionCount),
+      ]),
+      ['', '', '', '', '', ''],
+      ['Abonelik Adi', 'Kategori', 'Orijinal Birim Fiyat', 'Para Birimi', 'Tahsilat Adedi', 'Orijinal Toplam', 'Donem'],
+      ...(periodData?.lines ?? []).map((line) => [
+        line.name,
+        line.category || 'Diğer',
+        line.unitPrice.toFixed(2),
+        line.currency,
+        String(line.paymentCount),
+        line.totalAmount.toFixed(2),
+        line.billingPeriod === 'Yearly' ? 'Yıllık' : 'Aylık',
+      ]),
+    ];
+  };
 
   const trendChartConfig = {
     backgroundColor: colors.cardBg,
@@ -338,78 +531,20 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
   };
 
   const handleExport = async () => {
-    try {
-      const dateString = formatLocalDateForApi(new Date());
-      const periodRows = selectedPeriod && periodData
-        ? [
-            ['', ''],
-            ['Secili Donem', periodRanges[selectedPeriod].label],
-            ['Donem Baslangici', periodData.from],
-            ['Donem Bitisi', periodData.to],
-            ['Donem Toplami', periodSummary?.label ?? '0'],
-            ['Kategori', 'Toplam (TRY)', 'Tahsilat Adedi', 'Abonelik Satiri'],
-            ...periodBreakdown.map((item) => [
-              `"${item.category.replace(/"/g, '""')}"`,
-              item.total.toFixed(2),
-              String(item.paymentCount),
-              String(item.subscriptionCount),
-            ]),
-          ]
-        : [];
-
-      const summaryRows = [
-        ['SubGuard Analiz Raporu', ''],
-        ['Rapor Tarihi', dateString],
-        ['Portfoy - Aktif Aylik Yuk (TRY)', totalMonthlyExpense.toFixed(2)],
-        ['Portfoy - Yil Sonuna Kadar (TRY)', yearlyProjection.toFixed(2)],
-        ['Portfoy - Baslamis', String(activeSubsCount)],
-        ['Portfoy - Bekleyen', String(pendingSubsCount)],
-        ['', ''],
-        ['Kategori', 'Aylik Yuk (TRY)', 'Oran (%)'],
-        ...statistics.map((item) => [
-          item.name,
-          item.total.toFixed(2),
-          item.percentage.toFixed(1),
-        ]),
-        ...periodRows,
-        ['', '', '', ''],
-        ['Abonelik Adi', 'Kategori', 'Cycle Payi (TRY)', 'Aylik Esdeger (TRY)', 'Para Birimi', 'Donem', 'Durum'],
-        ...subscriptions.map((subscription) => [
-          `"${subscription.name.replace(/"/g, '""')}"`,
-          `"${(subscription.category || 'Diğer').replace(/"/g, '""')}"`,
-          getSubscriptionCycleShareInTry(subscription, exchangeRates).toFixed(2),
-          getSubscriptionMonthlyShareInTry(subscription, exchangeRates).toFixed(2),
-          subscription.currency,
-          subscription.billingPeriod === 'Yearly' ? 'Yıllık' : 'Aylık',
-          subscription.status || (subscription.isActive ? 'Aktif' : 'Pasif'),
-        ]),
-      ];
-
-      const csvContent = summaryRows.map((row) => row.join(',')).join('\n');
-      const fileName = `subguard-analiz-${dateString}.csv`;
-      const directory = Paths.document ?? Paths.cache;
-
-      if (!directory) {
-        await Share.share({ message: csvContent, title: 'SubGuard Analiz Raporu' });
-        return;
-      }
-
-      const file = new File(directory, fileName);
-      file.write(csvContent);
-
-      if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(file.uri, {
-          mimeType: 'text/csv',
-          dialogTitle: 'SubGuard Analiz Raporu',
-          UTI: 'public.comma-separated-values-text',
-        });
-      } else {
-        await Share.share({ message: csvContent, title: 'SubGuard Analiz Raporu' });
-      }
-    } catch (error) {
-      console.error('CSV export hatasi:', error);
-      Alert.alert('Hata', `Rapor disa aktarilamadi: ${(error as Error)?.message ?? String(error)}`);
+    if (selectedPeriod && periodData) {
+      Alert.alert(
+        'CSV Dışa Aktar',
+        'Hangi raporu indirmek istiyorsun?',
+        [
+          { text: 'Portföy CSV', onPress: () => { void exportCsv(buildPortfolioCsvRows(), 'SubGuard Portföy Raporu', 'portfoy'); } },
+          { text: 'Dönem CSV', onPress: () => { void exportCsv(buildPeriodCsvRows(), 'SubGuard Dönem Raporu', 'donem'); } },
+          { text: 'Vazgeç', style: 'cancel' },
+        ],
+      );
+      return;
     }
+
+    await exportCsv(buildPortfolioCsvRows(), 'SubGuard Portföy Raporu', 'portfoy');
   };
 
   const renderCategoryBar = (item: (typeof statistics)[number], index: number) => {
@@ -432,7 +567,7 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
 
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <View style={{ alignItems: 'flex-end' }}>
-              <Text style={[styles.catPrice, { color: colors.textMain }]}>{formatTryAmount(item.total)}</Text>
+              <Text style={[styles.catPrice, { color: colors.textMain }]}>{formatBudgetAmount(item.total)}</Text>
               <Text style={[styles.catPercent, { color: colors.textSec }]}>%{item.percentage.toFixed(1)}</Text>
             </View>
             <Ionicons
@@ -456,13 +591,15 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
                   <Text style={[styles.subName, { color: colors.textMain }]}>{subscription.name}</Text>
                 </View>
                 <Text style={[styles.subPrice, { color: item.color }]}>
-                  {formatTryAmount(getSubscriptionMonthlyShareInTry(subscription, exchangeRates))}/ay
+                  {formatBudgetAmount(
+                    getSubscriptionMonthlyShareInCurrency(subscription, exchangeRates, budgetCurrency, { unknownRateAsZero: true }),
+                  )}/ay
                 </Text>
               </View>
             ))}
             <View style={styles.expandedFooter}>
               <Text style={[styles.expandedFooterText, { color: colors.textSec }]}>
-                {categorySubscriptions.length} abonelik · toplam {formatTryAmount(item.total)}/ay
+                {categorySubscriptions.length} abonelik · toplam {formatBudgetAmount(item.total)}/ay
               </Text>
             </View>
           </View>
@@ -477,111 +614,144 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
     <View style={[styles.mainContainer, { backgroundColor: colors.bg }]}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} />
       <SafeAreaView edges={embedded ? [] : ['top']} style={styles.safeArea}>
-        <View style={styles.header}>
-          <View>
-            <Text style={[styles.headerTitle, { color: colors.textMain }]}>Harcama Analizi</Text>
-            <Text style={[styles.headerSubtitle, { color: colors.textSec }]}>Dönem tahsilatı ve portföy yükü</Text>
+          <View style={styles.header}>
+            <View>
+              <Text style={[styles.headerTitle, { color: colors.textMain }]}>Raporlar</Text>
+              <Text style={[styles.headerSubtitle, { color: colors.textSec }]}>Dönem tahsilatı ve mevcut portföy görünümü</Text>
+            </View>
+            {hasData && (
+              <TouchableOpacity
+                style={[styles.exportBtn, { backgroundColor: colors.inputBg, borderColor: colors.border }]}
+                onPress={handleExport}
+              >
+                <Ionicons name="download-outline" size={18} color={colors.accent} />
+                <Text style={[styles.exportBtnText, { color: colors.accent }]}>Dışa Aktar</Text>
+              </TouchableOpacity>
+            )}
           </View>
-          {hasData && (
-            <TouchableOpacity
-              style={[styles.exportBtn, { backgroundColor: colors.inputBg, borderColor: colors.border }]}
-              onPress={handleExport}
-            >
-              <Ionicons name="download-outline" size={18} color={colors.accent} />
-              <Text style={[styles.exportBtnText, { color: colors.accent }]}>CSV İndir</Text>
-            </TouchableOpacity>
-          )}
-        </View>
 
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          <View style={styles.periodRow}>
-            {(Object.keys(periodRanges) as Period[]).map((key) => {
-              const isActive = selectedPeriod === key;
-
-              return (
-                <TouchableOpacity
-                  key={key}
-                  style={[
-                    styles.periodChip,
-                    {
-                      backgroundColor: isActive ? colors.accent : colors.inputBg,
-                      borderColor: isActive ? colors.accent : colors.border,
-                    },
-                  ]}
-                  onPress={() => setSelectedPeriod(isActive ? null : key)}
-                >
-                  <Text style={[styles.periodChipText, { color: isActive ? '#FFF' : colors.textSec }]}>
-                    {periodRanges[key].label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Dönem Raporu</Text>
+            <Text style={[styles.sectionHint, { color: colors.textSec }]}>Seçili aralıktaki tahsilatlar</Text>
           </View>
 
-          {selectedPeriod && (
-            <View style={[styles.periodResultCard, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
-              {periodLoading ? (
-                <ActivityIndicator size="small" color={colors.accent} />
-              ) : periodError ? (
-                <View style={{ alignItems: 'center', paddingVertical: 8 }}>
-                  <Text style={[styles.periodResultLabel, { color: colors.error, marginBottom: 8 }]}>Dönem verisi yüklenemedi.</Text>
-                  <TouchableOpacity
-                    onPress={() => {
-                      const currentPeriod = selectedPeriod;
-                      setSelectedPeriod(null);
-                      setTimeout(() => setSelectedPeriod(currentPeriod), 50);
-                    }}
-                    style={{ paddingHorizontal: 16, paddingVertical: 6, backgroundColor: colors.accent, borderRadius: 8 }}
-                  >
-                    <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700' }}>Tekrar Dene</Text>
-                  </TouchableOpacity>
-                </View>
-              ) : periodSummary ? (
-                <View style={styles.periodResultRow}>
-                  <Ionicons name="calendar-outline" size={18} color={colors.accent} />
-                  <Text style={[styles.periodResultLabel, { color: colors.textSec }]}>
-                    {periodRanges[selectedPeriod].label} Tahsilatı
-                  </Text>
-                  <Text style={[styles.periodResultValue, { color: colors.textMain }]}>
-                    {periodSummary.label}
-                  </Text>
-                </View>
-              ) : (
-                <Text style={[styles.periodResultLabel, { color: colors.textSec }]}>Bu dönem için veri bulunamadı.</Text>
-              )}
-            </View>
-          )}
-
-          {selectedPeriod && periodBreakdown.length > 0 && (
-            <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border, marginBottom: 20 }]}>
-              <Text style={[styles.sectionTitle, { color: colors.textMain, marginBottom: 12 }]}>
-                {periodRanges[selectedPeriod].label} - Tahsilat Kırılımı
-              </Text>
-              {periodBreakdown.map((item, index) => {
-                const maxValue = periodBreakdown[0]?.total || 1;
-                const barWidth = (item.total / maxValue) * 100;
-                const color = FALLBACK_COLORS[index % FALLBACK_COLORS.length];
+          <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
+            <View style={styles.periodRow}>
+              {(Object.keys(periodRanges) as Period[]).map((key) => {
+                const isActive = selectedPeriod === key;
 
                 return (
-                  <View key={item.category} style={{ marginBottom: index < periodBreakdown.length - 1 ? 14 : 0 }}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
-                      <Text style={{ fontSize: 13, fontWeight: '600', color: colors.textMain }}>{item.category}</Text>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                        <Text style={{ fontSize: 11, color: colors.textSec }}>{item.paymentCount} tahsilat</Text>
-                        <Text style={{ fontSize: 13, fontWeight: '700', color: colors.textMain }}>{formatTryAmount(item.total)}</Text>
-                      </View>
-                    </View>
-                    <View style={{ height: 6, borderRadius: 3, backgroundColor: colors.inputBg, overflow: 'hidden' }}>
-                      <View style={{ width: `${barWidth}%` as any, height: '100%', borderRadius: 3, backgroundColor: color }} />
-                    </View>
-                  </View>
+                  <TouchableOpacity
+                    key={key}
+                    style={[
+                      styles.periodChip,
+                      {
+                        backgroundColor: isActive ? colors.accent : colors.inputBg,
+                        borderColor: isActive ? colors.accent : colors.border,
+                      },
+                    ]}
+                    onPress={() => setSelectedPeriod(isActive ? null : key)}
+                  >
+                    <Text style={[styles.periodChipText, { color: isActive ? '#FFF' : colors.textSec }]}>
+                      {periodRanges[key].label}
+                    </Text>
+                  </TouchableOpacity>
                 );
               })}
             </View>
-          )}
+
+            {!selectedPeriod ? (
+              <View style={[styles.infoCard, { backgroundColor: colors.inputBg, borderColor: colors.border }]}>
+                <Ionicons name="information-circle-outline" size={18} color={colors.accent} />
+                <Text style={[styles.infoText, { color: colors.textSec }]}>
+                  Bir dönem seçtiğinde üst blok gerçek tahsilat raporunu gösterir. Aşağıdaki portföy bölümü ise bugün itibarıyla güncel görünümü sunar.
+                </Text>
+              </View>
+            ) : (
+              <>
+                <View style={[styles.periodResultCard, { backgroundColor: colors.inputBg, borderColor: colors.border }]}>
+                  {periodLoading ? (
+                    <ActivityIndicator size="small" color={colors.accent} />
+                  ) : periodError ? (
+                    <View style={{ alignItems: 'center', paddingVertical: 8 }}>
+                      <Text style={[styles.periodResultLabel, { color: colors.error, marginBottom: 8 }]}>Dönem verisi yüklenemedi.</Text>
+                      <TouchableOpacity
+                        onPress={() => setPeriodReloadKey((value) => value + 1)}
+                        style={{ paddingHorizontal: 16, paddingVertical: 6, backgroundColor: colors.accent, borderRadius: 8 }}
+                      >
+                        <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700' }}>Tekrar Dene</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ) : periodSummary ? (
+                    <View style={styles.periodSummaryContent}>
+                      <View style={styles.periodSummaryTop}>
+                        <View style={styles.periodSummaryTitleRow}>
+                          <Ionicons name="calendar-outline" size={18} color={colors.accent} />
+                          <Text style={[styles.periodResultLabel, { color: colors.textSec }]}>
+                            {periodRanges[selectedPeriod].label} toplamı
+                          </Text>
+                        </View>
+                        <Text style={[styles.periodResultValue, { color: colors.textMain }]}>
+                          {periodSummary.budgetLabel ?? periodSummary.originalLabel}
+                        </Text>
+                      </View>
+                      <Text style={[styles.periodMetaText, { color: colors.textSec }]}>
+                        Orijinal tutarlar: {periodSummary.originalLabel}
+                      </Text>
+                      {!periodSummary.budgetLabel && (
+                        <Text style={[styles.periodMetaText, { color: colors.warning }]}>
+                          Seçili özet para birimine dönüşüm için gerekli kur verisi eksik.
+                        </Text>
+                      )}
+                    </View>
+                  ) : (
+                    <Text style={[styles.periodResultLabel, { color: colors.textSec }]}>Bu dönem için veri bulunamadı.</Text>
+                  )}
+                </View>
+
+                {missingPeriodCurrencies.length > 0 && (
+                  <View style={[styles.warningCard, { backgroundColor: colors.warning + '12', borderColor: colors.warning + '35' }]}>
+                    <Ionicons name="warning-outline" size={18} color={colors.warning} />
+                    <Text style={[styles.warningText, { color: colors.textSec }]}>
+                      {missingPeriodCurrencies.join(', ')} için kur verisi eksik. Dönem kırılımı sadece çevrilebilen tutarları içeriyor olabilir.
+                    </Text>
+                  </View>
+                )}
+
+                {periodBreakdown.length > 0 && (
+                  <View style={styles.periodBreakdownContainer}>
+                    <Text style={[styles.cardInnerTitle, { color: colors.textMain }]}>
+                      {periodRanges[selectedPeriod].label} kırılımı
+                    </Text>
+                    {periodBreakdown.map((item, index) => {
+                      const maxValue = periodBreakdown[0]?.total || 1;
+                      const barWidth = (item.total / maxValue) * 100;
+                      const color = FALLBACK_COLORS[index % FALLBACK_COLORS.length];
+
+                      return (
+                        <View key={item.category} style={{ marginBottom: index < periodBreakdown.length - 1 ? 14 : 0 }}>
+                          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                            <Text style={{ fontSize: 13, fontWeight: '600', color: colors.textMain }}>{item.category}</Text>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                              <Text style={{ fontSize: 11, color: colors.textSec }}>{item.paymentCount} tahsilat</Text>
+                              <Text style={{ fontSize: 13, fontWeight: '700', color: colors.textMain }}>{formatBudgetAmount(item.total)}</Text>
+                            </View>
+                          </View>
+                          <View style={{ height: 6, borderRadius: 3, backgroundColor: colors.inputBg, overflow: 'hidden' }}>
+                            <View style={{ width: `${barWidth}%` as any, height: '100%', borderRadius: 3, backgroundColor: color }} />
+                          </View>
+                        </View>
+                      );
+                    })}
+                  </View>
+                )}
+              </>
+            )}
+          </View>
 
           <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Portföy Özeti</Text>
+            <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Mevcut Portföy</Text>
             <Text style={[styles.sectionHint, { color: colors.textSec }]}>Bugün itibarıyla</Text>
           </View>
 
@@ -595,7 +765,7 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
               <View>
                 <Text style={styles.heroLabel}>Aktif Aylık Yük</Text>
                 <View style={styles.heroAmountRow}>
-                  <Text style={styles.heroCurrency}>₺</Text>
+                  <Text style={styles.heroCurrency}>{getCurrencySymbol(budgetCurrency)}</Text>
                   <Text style={styles.heroAmount}>{totalMonthlyExpense.toFixed(0)}</Text>
                 </View>
               </View>
@@ -617,7 +787,7 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
               <View style={styles.verticalLine} />
               <View style={styles.statItem}>
                 <Text style={styles.statLabel}>Yıl Sonuna Kadar</Text>
-                <Text style={styles.statValue}>{formatTryAmount(yearlyProjection)}</Text>
+                <Text style={styles.statValue}>{formatBudgetAmount(yearlyProjection)}</Text>
               </View>
             </View>
           </LinearGradient>
@@ -635,8 +805,17 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
             </View>
           ) : (
             <>
+              {missingPortfolioCurrencies.length > 0 && (
+                <View style={[styles.warningCard, { backgroundColor: colors.warning + '12', borderColor: colors.warning + '35' }]}>
+                  <Ionicons name="warning-outline" size={18} color={colors.warning} />
+                  <Text style={[styles.warningText, { color: colors.textSec }]}>
+                    {missingPortfolioCurrencies.join(', ')} için kur verisi eksik. Portföy toplamları ve kategori dağılımı eksik hesaplanıyor olabilir.
+                  </Text>
+                </View>
+              )}
+
               <View style={styles.sectionHeader}>
-                <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Kategori Dağılımı</Text>
+                <Text style={[styles.sectionTitle, { color: colors.textMain }]}>Portföy Kategori Dağılımı</Text>
                 <Text style={[styles.sectionHint, { color: colors.textSec }]}>Kategoriye dokunun</Text>
               </View>
 
@@ -645,36 +824,34 @@ export default function ReportsScreen({ embedded = false }: { embedded?: boolean
               </View>
 
               <View style={styles.sectionHeader}>
-                <Text style={[styles.sectionTitle, { color: colors.textMain }]}>6 Aylık Trend</Text>
+                <Text style={[styles.sectionTitle, { color: colors.textMain }]}>6 Aylık Aktif Yük Trendi</Text>
                 <Text style={[styles.sectionHint, { color: colors.textSec }]}>Ay sonu snapshot</Text>
               </View>
 
               <View style={[styles.card, { backgroundColor: colors.cardBg, borderColor: colors.border, paddingHorizontal: 0, paddingTop: 16, paddingBottom: 8 }]}>
-                <BarChart
-                  data={{ labels: trendData.labels, datasets: [{ data: trendData.data }] }}
-                  width={screenWidth - 40}
-                  height={200}
-                  chartConfig={trendChartConfig}
-                  style={{ borderRadius: 16 }}
-                  yAxisLabel="₺"
-                  yAxisSuffix=""
-                  showValuesOnTopOfBars
-                  fromZero
-                  withInnerLines
-                />
+                <View
+                  style={styles.chartWrap}
+                  onLayout={(event) => setChartWidth(event.nativeEvent.layout.width)}
+                >
+                  {chartWidth > 0 && (
+                    <BarChart
+                      data={{ labels: trendData.labels, datasets: [{ data: trendData.data }] }}
+                      width={Math.max(chartWidth - 24, 220)}
+                      height={200}
+                      chartConfig={trendChartConfig}
+                      style={{ borderRadius: 16 }}
+                      yAxisLabel={getCurrencySymbol(budgetCurrency)}
+                      yAxisSuffix=""
+                      showValuesOnTopOfBars
+                      fromZero
+                      withInnerLines
+                    />
+                  )}
+                </View>
                 <Text style={[styles.trendNote, { color: colors.textSec }]}>
                   * Ay sonu itibarıyla aktif olan yük gösterilir; ilk ödeme, duraklatma ve iptal tarihleri dikkate alınır.
                 </Text>
               </View>
-
-              <TouchableOpacity
-                style={[styles.exportFullBtn, { backgroundColor: colors.accent }]}
-                onPress={handleExport}
-                activeOpacity={0.85}
-              >
-                <Ionicons name="download-outline" size={20} color="#FFF" />
-                <Text style={styles.exportFullBtnText}>CSV Olarak Dışa Aktar</Text>
-              </TouchableOpacity>
             </>
           )}
         </ScrollView>
@@ -689,9 +866,7 @@ const styles = StyleSheet.create({
   scrollContent: { padding: 20, paddingBottom: 100 },
 
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    gap: 12,
     paddingHorizontal: 20,
     paddingTop: 10,
     paddingBottom: 15,
@@ -702,11 +877,13 @@ const styles = StyleSheet.create({
   exportBtn: {
     flexDirection: 'row',
     alignItems: 'center',
+    alignSelf: 'flex-start',
     gap: 4,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 12,
     borderWidth: 1,
+    maxWidth: '100%',
   },
   exportBtnText: { fontSize: 13, fontWeight: '600' },
 
@@ -745,13 +922,12 @@ const styles = StyleSheet.create({
   },
 
   sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    gap: 4,
     marginBottom: 14,
   },
   sectionTitle: { fontSize: 18, fontWeight: '700' },
   sectionHint: { fontSize: 12, fontWeight: '500' },
+  cardInnerTitle: { fontSize: 16, fontWeight: '700', marginBottom: 12 },
 
   catContainer: { marginBottom: 20 },
   catHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
@@ -786,18 +962,9 @@ const styles = StyleSheet.create({
   expandedFooterText: { fontSize: 12, fontWeight: '500' },
 
   trendNote: { fontSize: 11, textAlign: 'center', marginTop: 8, marginBottom: 4, opacity: 0.7 },
-
-  exportFullBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 16,
-    borderRadius: 16,
-    marginTop: 8,
-    marginBottom: 20,
+  chartWrap: {
+    paddingHorizontal: 12,
   },
-  exportFullBtnText: { color: '#FFF', fontSize: 16, fontWeight: '700' },
 
   emptyState: { alignItems: 'center', marginTop: 40, padding: 20 },
   emptyText: { marginTop: 16, fontSize: 16, fontWeight: '600' },
@@ -816,10 +983,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 14,
     borderWidth: 1,
-    marginBottom: 16,
     minHeight: 48,
     justifyContent: 'center',
-    alignItems: 'center',
+    marginBottom: 14,
   },
   periodResultRow: {
     flexDirection: 'row',
@@ -829,4 +995,26 @@ const styles = StyleSheet.create({
   },
   periodResultLabel: { fontSize: 13, fontWeight: '600', flex: 1 },
   periodResultValue: { fontSize: 16, fontWeight: '800' },
+  periodSummaryContent: { gap: 8 },
+  periodSummaryTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 },
+  periodSummaryTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 },
+  periodMetaText: { fontSize: 12, lineHeight: 18, fontWeight: '500' },
+  periodBreakdownContainer: { marginTop: 4 },
+  infoCard: {
+    flexDirection: 'row',
+    gap: 10,
+    padding: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+  },
+  infoText: { flex: 1, fontSize: 13, lineHeight: 19, fontWeight: '500' },
+  warningCard: {
+    flexDirection: 'row',
+    gap: 10,
+    padding: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+    marginBottom: 16,
+  },
+  warningText: { flex: 1, fontSize: 12, lineHeight: 18, fontWeight: '500' },
 });

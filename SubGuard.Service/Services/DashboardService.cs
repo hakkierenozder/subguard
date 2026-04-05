@@ -45,7 +45,8 @@ namespace SubGuard.Service.Services
                     x.Id, x.Name, x.Price, x.Currency, x.BillingDay,
                     x.ColorCode, x.BillingPeriod, x.Category,
                     // B-2: BillingMonth eklendi — yıllık ödeme ayı doğru anchor'lanıyor
-                    x.BillingMonth, x.CreatedDate, x.FirstPaymentDate, x.ContractStartDate, x.Notes
+                    x.BillingMonth, x.CreatedDate, x.FirstPaymentDate, x.ContractStartDate, x.Notes,
+                    ShareCount = x.Shares.Count(share => !share.IsDeleted)
                 })
                 .ToListAsync();
 
@@ -70,7 +71,9 @@ namespace SubGuard.Service.Services
                 .Select(g => new CurrencyTotalDto
                 {
                     Currency = g.Key,
-                    Total = g.Sum(x => BillingPriceHelper.ToMonthlyEquivalent(x.Price, x.BillingPeriod))
+                    Total = g.Sum(x => BillingPriceHelper.ApplyUserShare(
+                        BillingPriceHelper.ToMonthlyEquivalent(x.Price, x.BillingPeriod),
+                        x.ShareCount))
                 })
                 .OrderByDescending(x => x.Total)
                 .ToList();
@@ -81,7 +84,9 @@ namespace SubGuard.Service.Services
                 {
                     Category = g.Key.Category,
                     Currency = g.Key.Currency,
-                    Total = g.Sum(x => BillingPriceHelper.ToMonthlyEquivalent(x.Price, x.BillingPeriod)),
+                    Total = g.Sum(x => BillingPriceHelper.ApplyUserShare(
+                        BillingPriceHelper.ToMonthlyEquivalent(x.Price, x.BillingPeriod),
+                        x.ShareCount)),
                     Count = g.Count()
                 })
                 .OrderByDescending(x => x.Total)
@@ -97,7 +102,7 @@ namespace SubGuard.Service.Services
             var upcomingPayments = CalcUpcomingPayments(paymentProjections, today, upcomingDays);
 
             var budgetCalcItems = startedSubs
-                .Select(x => new BudgetCalcItem(x.Price, x.Currency, x.BillingPeriod))
+                .Select(x => new BudgetCalcItem(x.Price, x.Currency, x.BillingPeriod, x.ShareCount))
                 .ToList();
 
             var budgetSummary = await CalcBudgetSummaryAsync(userId, budgetCalcItems);
@@ -108,8 +113,12 @@ namespace SubGuard.Service.Services
                 PendingSubscriptionCount = pendingSubs.Count,
                 PausedCount    = pausedCount,
                 CancelledCount = cancelledCount,
-                StartedMonthlyEquivalentTotal = startedSubs.Sum(x => BillingPriceHelper.ToMonthlyEquivalent(x.Price, x.BillingPeriod)),
-                PendingMonthlyEquivalentTotal = pendingSubs.Sum(x => BillingPriceHelper.ToMonthlyEquivalent(x.Price, x.BillingPeriod)),
+                StartedMonthlyEquivalentTotal = startedSubs.Sum(x => BillingPriceHelper.ApplyUserShare(
+                    BillingPriceHelper.ToMonthlyEquivalent(x.Price, x.BillingPeriod),
+                    x.ShareCount)),
+                PendingMonthlyEquivalentTotal = pendingSubs.Sum(x => BillingPriceHelper.ApplyUserShare(
+                    BillingPriceHelper.ToMonthlyEquivalent(x.Price, x.BillingPeriod),
+                    x.ShareCount)),
                 TotalByCurrency = totalByCurrency,
                 SpendingByCategory = spendingByCategory,
                 UpcomingPayments = upcomingPayments,
@@ -134,14 +143,22 @@ namespace SubGuard.Service.Services
             // allSubData zaten GetDashboardAsync içinde çekildi — ikinci DB sorgusu yok
             var totalSpent = preloadedSubs.Sum(x =>
                 BillingPriceHelper.ConvertToTargetCurrency(
-                    BillingPriceHelper.ToMonthlyEquivalent(x.Price, x.BillingPeriod),
+                    BillingPriceHelper.ApplyUserShare(
+                        BillingPriceHelper.ToMonthlyEquivalent(x.Price, x.BillingPeriod),
+                        x.ShareCount),
                     x.Currency, user.MonthlyBudgetCurrency, rates));
+
+            var roundedTotalSpent = Math.Round(totalSpent, 2);
+            var threshold = user.BudgetAlertThreshold > 0 ? user.BudgetAlertThreshold : 80;
+            var thresholdAmount = user.MonthlyBudget * threshold / 100m;
 
             return new BudgetSummaryDto
             {
                 MonthlyBudget = user.MonthlyBudget,
                 Currency = user.MonthlyBudgetCurrency,
-                TotalSpent = Math.Round(totalSpent, 2)
+                TotalSpent = roundedTotalSpent,
+                BudgetAlertThreshold = threshold,
+                IsNearLimit = roundedTotalSpent >= thresholdAmount && roundedTotalSpent <= user.MonthlyBudget
             };
         }
 
@@ -185,7 +202,7 @@ namespace SubGuard.Service.Services
         }
 
         // Bütçe hesabı için minimal projeksiyon — GetDashboardAsync'den geçirilir, ikinci DB sorgusu önlenir
-        private record BudgetCalcItem(decimal Price, string Currency, BillingPeriod BillingPeriod);
+        private record BudgetCalcItem(decimal Price, string Currency, BillingPeriod BillingPeriod, int ShareCount);
 
         // UpcomingPayments hesabı için gerekli alanları taşır
         private record SubscriptionPaymentData(

@@ -25,10 +25,9 @@ namespace SubGuard.Data.Configurations
             builder.HasIndex(x => x.UserId)
                    .HasDatabaseName("IX_UserSubscriptions_UserId");
 
-            // Unique constraint: Aynı kullanıcı aynı isimde iki abonelik ekleyemez
+            // Aynı isimde birden fazla abonelik kaydı desteklenir; yine de arama ve sıralama için indeks tutulur.
             builder.HasIndex(x => new { x.UserId, x.Name })
-                   .IsUnique()
-                   .HasDatabaseName("UQ_UserSubscriptions_UserId_Name");
+                   .HasDatabaseName("IX_UserSubscriptions_UserId_Name");
 
             builder.ToTable("UserSubscriptions");
         }

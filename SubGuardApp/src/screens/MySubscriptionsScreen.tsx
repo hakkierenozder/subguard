@@ -15,7 +15,7 @@ import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { convertToTRY } from '../utils/CurrencyService';
+import { formatCurrencyAmount, getCurrencySymbol, normalizeCurrencyCode, SUPPORTED_CURRENCIES } from '../utils/CurrencyService';
 import { getDaysLeftForSub, getNextBillingDateForSub, isSubscriptionActiveNow } from '../utils/dateUtils';
 import { useThemeColors } from '../constants/theme';
 import { useCatalogStore } from '../store/useCatalogStore';
@@ -24,8 +24,10 @@ import Toast from 'react-native-toast-message';
 import {
   getBillingPeriodCycleUnitLabel,
   getSubscriptionCycleShare,
+  getSubscriptionMonthlyShareInCurrency,
   getSubscriptionMonthlyShareInTry,
   getSubscriptionPortfolioMetrics,
+  convertAmountBetweenCurrencies,
 } from '../utils/subscriptionMath';
 
 // Dosya düzeyinde logo bileşeni — render içinde tanımlanırsa state sıfırlanır
@@ -57,7 +59,7 @@ type GroupHeader = {
   _type: 'header';
   category: string;
   count: number;
-  totalTRY: number;
+  totalAmount: number;
 };
 
 type ListRow = GroupHeader | (UserSubscription & { _type: 'item' });
@@ -92,6 +94,7 @@ function getSubscriptionLifecycleState(
 export default function MySubscriptionsScreen() {
   const colors = useThemeColors();
   const isDarkMode = useSettingsStore((state) => state.isDarkMode);
+  const monthlyBudgetCurrency = useSettingsStore((state) => state.monthlyBudgetCurrency);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<MainTabParamList, 'MySubscriptions'>>();
   const { catalogItems, fetchCatalog } = useCatalogStore();
@@ -117,8 +120,22 @@ export default function MySubscriptionsScreen() {
     ]);
   }, []);
 
+  const budgetCurrency = normalizeCurrencyCode(monthlyBudgetCurrency);
+  const toBudgetCurrency = useCallback((amount: number, fromCurrency: string = 'TRY') => (
+    convertAmountBetweenCurrencies(amount, fromCurrency, budgetCurrency, exchangeRates, {
+      unknownRateAsZero: true,
+    })
+  ), [budgetCurrency, exchangeRates]);
+  const formatBudgetAmount = useCallback(
+    (
+      amount: number,
+      options?: { minimumFractionDigits?: number; maximumFractionDigits?: number },
+    ) => formatCurrencyAmount(amount, budgetCurrency, options),
+    [budgetCurrency],
+  );
+
   const portfolioMetrics = getSubscriptionPortfolioMetrics(subscriptions, exchangeRates);
-  const totalExpense = portfolioMetrics.monthlyEquivalentTotalTRY;
+  const totalExpense = toBudgetCurrency(portfolioMetrics.monthlyEquivalentTotalTRY);
 
   // State Yönetimi
   const [editingSub, setEditingSub] = useState<UserSubscription | null>(null);
@@ -169,7 +186,7 @@ export default function MySubscriptionsScreen() {
   // Filtre modal
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
-  const [currencyFilter, setCurrencyFilter] = useState<'all' | 'TRY' | 'USD' | 'EUR'>('all');
+  const [currencyFilter, setCurrencyFilter] = useState<'all' | 'TRY' | 'USD' | 'EUR' | 'GBP'>('all');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
 
@@ -235,8 +252,16 @@ export default function MySubscriptionsScreen() {
     [subscriptions],
   );
   const archivedMonthlyEquivalentTotal = useMemo(
-    () => archivedSubscriptions.reduce((sum, sub) => sum + getSubscriptionMonthlyShareInTry(sub, exchangeRates), 0),
-    [archivedSubscriptions, exchangeRates],
+    () => archivedSubscriptions.reduce(
+      (sum, sub) => sum + getSubscriptionMonthlyShareInCurrency(
+        sub,
+        exchangeRates,
+        budgetCurrency,
+        { unknownRateAsZero: true },
+      ),
+      0,
+    ),
+    [archivedSubscriptions, budgetCurrency, exchangeRates],
   );
 
   useEffect(() => {
@@ -344,8 +369,19 @@ export default function MySubscriptionsScreen() {
     // Fiyat aralığı
     const min = parseFloat(minPrice);
     const max = parseFloat(maxPrice);
-    if (!isNaN(min)) filtered = filtered.filter(sub => sub.price >= min);
-    if (!isNaN(max)) filtered = filtered.filter(sub => sub.price <= max);
+    if (!isNaN(min) || !isNaN(max)) {
+      filtered = filtered.filter((sub) => {
+        const normalizedPrice = getSubscriptionMonthlyShareInCurrency(
+          sub,
+          exchangeRates,
+          budgetCurrency,
+          { unknownRateAsZero: true },
+        );
+        if (!isNaN(min) && normalizedPrice < min) return false;
+        if (!isNaN(max) && normalizedPrice > max) return false;
+        return true;
+      });
+    }
 
     return filtered.sort((a, b) => {
       switch (sortBy) {
@@ -354,9 +390,11 @@ export default function MySubscriptionsScreen() {
            return getDaysLeftForSub(a.billingDay, a.billingPeriod, a.billingMonth, a.createdDate, a.firstPaymentDate, a.contractStartDate)
                 - getDaysLeftForSub(b.billingDay, b.billingPeriod, b.billingMonth, b.createdDate, b.firstPaymentDate, b.contractStartDate);
         case 'price_desc':
-          return convertToTRY(b.price, b.currency) - convertToTRY(a.price, a.currency);
+          return getSubscriptionMonthlyShareInCurrency(b, exchangeRates, budgetCurrency, { unknownRateAsZero: true })
+            - getSubscriptionMonthlyShareInCurrency(a, exchangeRates, budgetCurrency, { unknownRateAsZero: true });
         case 'price_asc':
-          return convertToTRY(a.price, a.currency) - convertToTRY(b.price, b.currency);
+          return getSubscriptionMonthlyShareInCurrency(a, exchangeRates, budgetCurrency, { unknownRateAsZero: true })
+            - getSubscriptionMonthlyShareInCurrency(b, exchangeRates, budgetCurrency, { unknownRateAsZero: true });
         case 'name':
           return a.name.localeCompare(b.name);
         case 'created':
@@ -365,7 +403,7 @@ export default function MySubscriptionsScreen() {
           return 0;
       }
     });
-  }, [subscriptions, debouncedQuery, archiveMode, selectedCategory, statusFilter, currencyFilter, minPrice, maxPrice, sortBy]);
+  }, [archiveMode, budgetCurrency, currencyFilter, debouncedQuery, exchangeRates, maxPrice, minPrice, selectedCategory, sortBy, statusFilter, subscriptions]);
 
   // ─── Grup Görünümü ────────────────────────────────────────────────────
   const getListData = (): ListRow[] => {
@@ -388,14 +426,19 @@ export default function MySubscriptionsScreen() {
 
     for (const cat of sortedCategories) {
       const items = groupMap[cat];
-      const totalTRY = items.reduce((sum, sub) => {
+      const totalAmount = items.reduce((sum, sub) => {
         if (!isSubscriptionActiveNow(sub.isActive, sub.firstPaymentDate, sub.contractStartDate, new Date(), sub.createdDate)) {
           return sum;
         }
-        return sum + getSubscriptionMonthlyShareInTry(sub, exchangeRates);
+        return sum + getSubscriptionMonthlyShareInCurrency(
+          sub,
+          exchangeRates,
+          budgetCurrency,
+          { unknownRateAsZero: true },
+        );
       }, 0);
 
-      rows.push({ _type: 'header', category: cat, count: items.length, totalTRY });
+      rows.push({ _type: 'header', category: cat, count: items.length, totalAmount });
       for (const item of items) {
         rows.push({ ...item, _type: 'item' as const });
       }
@@ -462,9 +505,14 @@ export default function MySubscriptionsScreen() {
     const max = parseFloat(maxPrice);
     if (!isNaN(min) || !isNaN(max)) {
       filtered = filtered.filter((sub) => {
-        const monthlyEquivalentTRY = getSubscriptionMonthlyShareInTry(sub, exchangeRates);
-        if (!isNaN(min) && monthlyEquivalentTRY < min) return false;
-        if (!isNaN(max) && monthlyEquivalentTRY > max) return false;
+        const monthlyEquivalent = getSubscriptionMonthlyShareInCurrency(
+          sub,
+          exchangeRates,
+          budgetCurrency,
+          { unknownRateAsZero: true },
+        );
+        if (!isNaN(min) && monthlyEquivalent < min) return false;
+        if (!isNaN(max) && monthlyEquivalent > max) return false;
         return true;
       });
     }
@@ -481,9 +529,11 @@ export default function MySubscriptionsScreen() {
           return getDaysLeftForSub(a.billingDay, a.billingPeriod, a.billingMonth, a.createdDate, a.firstPaymentDate, a.contractStartDate)
             - getDaysLeftForSub(b.billingDay, b.billingPeriod, b.billingMonth, b.createdDate, b.firstPaymentDate, b.contractStartDate);
         case 'price_desc':
-          return getSubscriptionMonthlyShareInTry(b, exchangeRates) - getSubscriptionMonthlyShareInTry(a, exchangeRates);
+          return getSubscriptionMonthlyShareInCurrency(b, exchangeRates, budgetCurrency, { unknownRateAsZero: true })
+            - getSubscriptionMonthlyShareInCurrency(a, exchangeRates, budgetCurrency, { unknownRateAsZero: true });
         case 'price_asc':
-          return getSubscriptionMonthlyShareInTry(a, exchangeRates) - getSubscriptionMonthlyShareInTry(b, exchangeRates);
+          return getSubscriptionMonthlyShareInCurrency(a, exchangeRates, budgetCurrency, { unknownRateAsZero: true })
+            - getSubscriptionMonthlyShareInCurrency(b, exchangeRates, budgetCurrency, { unknownRateAsZero: true });
         case 'name':
           return a.name.localeCompare(b.name);
         case 'created':
@@ -497,6 +547,7 @@ export default function MySubscriptionsScreen() {
     currentScopeSubscriptions,
     currencyFilter,
     debouncedQuery,
+    budgetCurrency,
     exchangeRates,
     maxPrice,
     minPrice,
@@ -520,24 +571,34 @@ export default function MySubscriptionsScreen() {
     const rows: ListRow[] = [];
     Object.keys(groupMap).sort().forEach((category) => {
       const items = groupMap[category];
-      const totalTRY = items.reduce((sum, sub) => {
+      const totalAmount = items.reduce((sum, sub) => {
         if (archiveMode) {
-          return sum + getSubscriptionMonthlyShareInTry(sub, exchangeRates);
+          return sum + getSubscriptionMonthlyShareInCurrency(
+            sub,
+            exchangeRates,
+            budgetCurrency,
+            { unknownRateAsZero: true },
+          );
         }
 
         if (!isSubscriptionActiveNow(sub.isActive, sub.firstPaymentDate, sub.contractStartDate, new Date(), sub.createdDate)) {
           return sum;
         }
 
-        return sum + getSubscriptionMonthlyShareInTry(sub, exchangeRates);
+        return sum + getSubscriptionMonthlyShareInCurrency(
+          sub,
+          exchangeRates,
+          budgetCurrency,
+          { unknownRateAsZero: true },
+        );
       }, 0);
 
-      rows.push({ _type: 'header', category, count: items.length, totalTRY });
+      rows.push({ _type: 'header', category, count: items.length, totalAmount });
       items.forEach((entry) => rows.push({ ...entry, _type: 'item' as const }));
     });
 
     return rows;
-  }, [archiveMode, exchangeRates, groupByCategory, visibleSubscriptions]);
+  }, [archiveMode, budgetCurrency, exchangeRates, groupByCategory, visibleSubscriptions]);
 
   const lifecycleStatusOptions = useMemo(
     () => (
@@ -824,7 +885,7 @@ export default function MySubscriptionsScreen() {
               <View style={{ flex: 1 }}>
                   <Text style={styles.heroLabel}>{heroLabel}</Text>
                   <View style={styles.heroAmountRow}>
-                      <Text style={styles.heroCurrency}>₺</Text>
+                      <Text style={styles.heroCurrency}>{getCurrencySymbol(budgetCurrency)}</Text>
                       <Text style={styles.heroAmount}>{heroAmount.toFixed(2)}</Text>
                   </View>
                   <Text style={[styles.heroLabel, { marginTop: 4, opacity: 0.8 }]}>
@@ -1064,7 +1125,7 @@ export default function MySubscriptionsScreen() {
           {archiveMode ? 'Aylık eşdeğer' : 'Aktif yük'}
         </Text>
         <Text style={[styles.groupHeaderTotal, { color: colors.textMain }]}>
-          ₺{row.totalTRY.toFixed(2)}
+          {formatBudgetAmount(row.totalAmount, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </Text>
       </View>
     </View>
@@ -1084,13 +1145,8 @@ export default function MySubscriptionsScreen() {
     const isStarted = lifecycle === 'started';
     const cycleUnit = getBillingPeriodCycleUnitLabel(sub.billingPeriod);
     const cycleShare = getSubscriptionCycleShare(sub);
-    const monthlyShareTRY = getSubscriptionMonthlyShareInTry(sub, exchangeRates);
-    const showMonthlyHint = !hasSharedMembers(sub) && (sub.currency !== 'TRY' || sub.billingPeriod === 'Yearly');
     const isPassive = lifecycle === 'paused' || lifecycle === 'cancelled';
 
-    const currentRate = exchangeRates[sub.currency] || 1;
-    const priceInTry = sub.price * currentRate;
-    const isForeignCurrency = sub.currency !== 'TRY';
 
     // PAYLAŞIM KONTROLÜ
     const isShared = ((sub.sharedWith?.length || 0) + (sub.sharedGuests?.length || 0)) > 0;
@@ -1147,42 +1203,36 @@ export default function MySubscriptionsScreen() {
                   </Text>
                 </View>
               ) : null}
-              <Ionicons
-                name={isPassive ? 'pause-circle-outline' : 'time-outline'}
-                size={11}
-                color={colors.textSec}
-                style={{ marginLeft: (sub.category && !groupByCategory) ? 6 : 0, marginRight: 3 }}
-              />
-              <Text style={[styles.nextDateText, { color: colors.textSec }]}>
+              <Text
+                style={[
+                  styles.nextDateText,
+                  {
+                    color: isPending || isPassive ? statusMeta.text : colors.textSec,
+                    marginLeft: (sub.category && !groupByCategory) ? 8 : 0,
+                    fontWeight: isPending || isPassive ? '700' : '500',
+                  },
+                ]}
+                numberOfLines={1}
+              >
                 {isPassive ? statusMeta.label : nextPaymentText}
               </Text>
-              {isPending && (
-                <View style={[styles.inlineStateChip, { backgroundColor: statusMeta.bg }]}>
-                  <Text style={[styles.inlineStateChipText, { color: statusMeta.text }]}>Bekliyor</Text>
-                </View>
-              )}
-              {sub.hasContract && sub.contractEndDate && (() => {
-                const cDays = Math.ceil((new Date(sub.contractEndDate).getTime() - Date.now()) / 86400000);
-                if (cDays > 30) return null;
-                return (
-                  <View style={{ marginLeft: 6, paddingHorizontal: 5, paddingVertical: 1, borderRadius: 5, backgroundColor: cDays <= 0 ? (colors.error + '20') : '#F9731620' }}>
-                    <Text style={{ fontSize: 10, fontWeight: '700', color: cDays <= 0 ? colors.error : '#F97316' }}>
-                      {cDays <= 0 ? 'Kontrat bitti' : `Kontrat ${cDays}g`}
-                    </Text>
-                  </View>
-                );
-              })()}
             </View>
           </View>
         </View>
 
         <View style={styles.rowRight}>
           <Text style={[styles.priceText, { color: colors.textMain }, isPassive && { color: colors.textSec }]}>
-            {sub.price}
+            {formatCurrencyAmount(sub.price, sub.currency, {
+              minimumFractionDigits: sub.currency === 'TRY' ? 0 : 2,
+              maximumFractionDigits: sub.currency === 'TRY' ? 0 : 2,
+            })}
           </Text>
           {isShared && (
-            <Text style={[styles.currencyText, { color: colors.textSec, fontSize: 10, marginTop: 1 }]}>
-              {`Payın ${cycleShare.toFixed(2)} ${sub.currency}/${cycleUnit}`}
+            <Text style={[styles.currencyText, { color: colors.textSec, fontSize: 10, marginTop: 1 }]} numberOfLines={1}>
+              {`Payın ${formatCurrencyAmount(cycleShare, sub.currency, {
+                minimumFractionDigits: sub.currency === 'TRY' ? 0 : 2,
+                maximumFractionDigits: sub.currency === 'TRY' ? 0 : 2,
+              })}/${cycleUnit}`}
             </Text>
           )}
           {false && isShared && !isPassive && (
@@ -1191,16 +1241,7 @@ export default function MySubscriptionsScreen() {
             </Text>
           )}
           <View style={styles.currencyAndActionRow}>
-            <Text style={[styles.currencyText, { color: colors.textSec }]}>{`${sub.currency} / ${cycleUnit}`}</Text>
-
-            {showMonthlyHint && !isPassive && (
-              <View style={{ backgroundColor: colors.primary, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, marginLeft: 6, marginRight: 6 }}>
-                <Text style={{ color: '#fff', fontSize: 10, fontWeight: 'bold' }}>
-                  {`≈ ₺${monthlyShareTRY.toFixed(0)}/ay`}
-                </Text>
-              </View>
-            )}
-
+            <Text style={[styles.currencyText, { color: colors.textSec }]} numberOfLines={1}>{`${sub.currency} / ${cycleUnit}`}</Text>
             {false && !isPassive && isShared && (
               <TouchableOpacity
                 style={[styles.whatsappButton, { backgroundColor: colors.success + '22' }]}
@@ -1554,7 +1595,7 @@ export default function MySubscriptionsScreen() {
                 <Text style={[styles.sheetSectionLabel, { color: colors.textSec, marginTop: 20 }]}>PARA BİRİMİ</Text>
                 <Text style={[styles.sheetSectionDesc, { color: colors.textSec }]}>Belirli bir para birimiyle filtrelemek için seç</Text>
                 <View style={styles.filterChipRow}>
-                  {(['all', 'TRY', 'USD', 'EUR'] as const).map(c => (
+                  {(['all', ...SUPPORTED_CURRENCIES] as const).map(c => (
                     <TouchableOpacity key={c} style={[styles.advFilterChip, {
                       backgroundColor: currencyFilter === c ? colors.primary : colors.inputBg,
                       borderColor: currencyFilter === c ? colors.primary : colors.border,
@@ -1566,7 +1607,9 @@ export default function MySubscriptionsScreen() {
 
                 {/* FİYAT ARALIĞI */}
                 <Text style={[styles.sheetSectionLabel, { color: colors.textSec, marginTop: 20 }]}>FİYAT ARALIĞI</Text>
-                <Text style={[styles.sheetSectionDesc, { color: colors.textSec }]}>Aylık tutarı bu aralıkta olan abonelikleri göster</Text>
+                <Text style={[styles.sheetSectionDesc, { color: colors.textSec }]}>
+                  {`Aylık eşdeğeri ${budgetCurrency} cinsinden bu aralıkta olan abonelikleri göster`}
+                </Text>
                 <View style={styles.priceRangeRow}>
                   <TextInput
                     style={[styles.priceInput, { color: colors.textMain, borderColor: colors.border, backgroundColor: colors.inputBg }]}
@@ -1579,7 +1622,7 @@ export default function MySubscriptionsScreen() {
                     placeholder="Max" placeholderTextColor={colors.textSec}
                     keyboardType="numeric" value={maxPrice} onChangeText={setMaxPrice}
                   />
-                  <Text style={[styles.priceRangeUnit, { color: colors.textSec }]}>₺</Text>
+                  <Text style={[styles.priceRangeUnit, { color: colors.textSec }]}>{budgetCurrency}</Text>
                 </View>
 
               </ScrollView>

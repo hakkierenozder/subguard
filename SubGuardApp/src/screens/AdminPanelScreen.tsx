@@ -20,6 +20,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useThemeColors } from '../constants/theme';
 import { useSettingsStore } from '../store/useSettingsStore';
 import agent from '../api/agent';
+import { SUPPORTED_CURRENCIES, type SupportedCurrency } from '../utils/CurrencyService';
 
 interface AdminUser {
   id: string;
@@ -642,7 +643,7 @@ function CatalogsTab() {
   const [editingPlanId, setEditingPlanId] = useState<number | null>(null);
   const [planName, setPlanName] = useState('');
   const [planPrice, setPlanPrice] = useState('');
-  const [planCurrency, setPlanCurrency] = useState<'TRY' | 'USD' | 'EUR'>('TRY');
+  const [planCurrency, setPlanCurrency] = useState<SupportedCurrency>('TRY');
   const [planBillingDays, setPlanBillingDays] = useState<30 | 365>(30);
   const [savingPlan, setSavingPlan] = useState(false);
 
@@ -759,7 +760,7 @@ function CatalogsTab() {
     setEditingPlanId(plan?.id ?? null);
     setPlanName(plan?.name ?? '');
     setPlanPrice(plan ? String(plan.price) : '');
-    setPlanCurrency((plan?.currency as 'TRY' | 'USD' | 'EUR') ?? 'TRY');
+    setPlanCurrency((plan?.currency as SupportedCurrency) ?? 'TRY');
     setPlanBillingDays(plan?.billingCycleDays === 365 ? 365 : 30);
   };
 
@@ -879,7 +880,7 @@ function CatalogsTab() {
                   keyboardType="decimal-pad"
                 />
                 <View style={styles.pillRow}>
-                  {(['TRY', 'USD', 'EUR'] as const).map((currency) => (
+                  {SUPPORTED_CURRENCIES.map((currency) => (
                     <TouchableOpacity
                       key={currency}
                       style={[styles.pill, { borderColor: colors.accent, backgroundColor: planCurrency === currency ? colors.accent : 'transparent' }]}

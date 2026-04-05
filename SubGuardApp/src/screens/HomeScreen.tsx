@@ -1,14 +1,15 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, RefreshControl, StatusBar, TouchableOpacity, Animated, Easing, Platform, Image, Modal, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useNotificationStore } from '../store/useNotificationStore';
-import { CatalogItem, UserSubscription } from '../types';
+import { CatalogItem, DashboardDto, UpcomingPaymentDto, UserSubscription } from '../types';
 import { RootStackParamList } from '../../App';
 import AddSubscriptionModal from '../components/AddSubscriptionModal';
+import SubscriptionDetailModal from '../components/SubscriptionDetailModal';
 import UsageSurveyModal from '../components/UsageSurveyModal';
 import EmptyState from '../components/EmptyState';
 import { HomeSkeletonLoader } from '../components/SkeletonLoader'; // #42
@@ -17,9 +18,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemeColors, THEME } from '../constants/theme';
 import { useCatalogStore } from '../store/useCatalogStore';
-import { getDaysLeftForSub, isSubscriptionActiveNow } from '../utils/dateUtils';
-import { CurrencyService } from '../utils/CurrencyService';
-import { getSubscriptionPortfolioMetrics } from '../utils/subscriptionMath';
+import { isSubscriptionActiveNow } from '../utils/dateUtils';
+import { formatCurrencyAmount, normalizeCurrencyCode } from '../utils/CurrencyService';
+import { convertAmountBetweenCurrencies, getSubscriptionPortfolioMetrics } from '../utils/subscriptionMath';
 
 function UpcomingPaymentLogo({ logoUrl, colorCode, name }: { logoUrl?: string; colorCode: string; name: string }) {
   const [imgFailed, setImgFailed] = useState(false);
@@ -44,6 +45,7 @@ export default function HomeScreen() {
     const colors = useThemeColors();
     const isDarkMode = useSettingsStore((state) => state.isDarkMode);
     const dashboardUpcomingDays = useSettingsStore((state) => state.dashboardUpcomingDays); // #35
+    const isFocused = useIsFocused();
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const unreadCount = useNotificationStore((s) => s.unreadCount);
     const { catalogItems, fetchCatalog } = useCatalogStore();
@@ -65,6 +67,8 @@ export default function HomeScreen() {
     // MODAL YÖNETİMİ (Tek merkezden)
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedCatalogItem, setSelectedCatalogItem] = useState<CatalogItem | null>(null);
+    const [detailSub, setDetailSub] = useState<UserSubscription | null>(null);
+    const [editingSub, setEditingSub] = useState<UserSubscription | null>(null);
     const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
 
     const [refreshing, setRefreshing] = useState(false);
@@ -72,8 +76,24 @@ export default function HomeScreen() {
     const [surveySub, setSurveySub] = useState<UserSubscription | null>(null);
     const [inactiveStats, setInactiveStats] = useState({ paused: 0, cancelled: 0 });
     const [error, setError] = useState(false); // [29] hata durumu
+    const [dashboardData, setDashboardData] = useState<DashboardDto | null>(null);
     const surveyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null); // [30] timeout ref
-    const { monthlyBudget, setMonthlyBudget } = useSettingsStore();
+    const isFocusedRef = useRef(isFocused);
+    const budgetAlertThreshold = useSettingsStore((state) => state.budgetAlertThreshold);
+    const monthlyBudget = useSettingsStore((state) => state.monthlyBudget);
+    const setMonthlyBudget = useSettingsStore((state) => state.setMonthlyBudget);
+    const monthlyBudgetCurrency = useSettingsStore((state) => state.monthlyBudgetCurrency);
+    const setMonthlyBudgetCurrency = useSettingsStore((state) => state.setMonthlyBudgetCurrency);
+
+    useEffect(() => {
+        isFocusedRef.current = isFocused;
+        if (!isFocused) {
+            if (surveyTimerRef.current) clearTimeout(surveyTimerRef.current);
+            setSurveySub(null);
+            setDetailSub(null);
+            setBottomSheetVisible(false);
+        }
+    }, [isFocused]);
 
     useEffect(() => {
         loadData();
@@ -101,10 +121,13 @@ export default function HomeScreen() {
             // Paused / Cancelled sayıları → dashboard'dan
             if (dashRes.status === 'fulfilled' && dashRes.value?.data) {
                 const d = dashRes.value.data;
+                setDashboardData(d);
                 setInactiveStats({
                     paused:    d.pausedCount    ?? 0,
                     cancelled: d.cancelledCount ?? 0,
                 });
+            } else {
+                setDashboardData(null);
             }
 
             // Bütçe → dashboard tek kaynak (profil fallback)
@@ -113,8 +136,12 @@ export default function HomeScreen() {
                 : null;
             if (budgetSummary?.monthlyBudget) {
                 setMonthlyBudget(Number(budgetSummary.monthlyBudget));
+                setMonthlyBudgetCurrency(normalizeCurrencyCode(budgetSummary.currency));
             } else if (profileRes.status === 'fulfilled' && profileRes.value?.data?.monthlyBudget) {
                 setMonthlyBudget(profileRes.value.data.monthlyBudget);
+                setMonthlyBudgetCurrency(normalizeCurrencyCode(profileRes.value.data.monthlyBudgetCurrency));
+            } else if (profileRes.status === 'fulfilled' && profileRes.value?.data) {
+                setMonthlyBudgetCurrency(normalizeCurrencyCode(profileRes.value.data.monthlyBudgetCurrency));
             }
         } catch (e) {
             setError(true); // [29] hata durumunu işaretle
@@ -134,10 +161,15 @@ export default function HomeScreen() {
     };
 
     const checkSurvey = () => {
+        if (!isFocusedRef.current) return;
         const pending = getPendingSurvey();
         if (pending) {
             if (surveyTimerRef.current) clearTimeout(surveyTimerRef.current); // [30]
-            surveyTimerRef.current = setTimeout(() => setSurveySub(pending), 1500); // [30]
+            surveyTimerRef.current = setTimeout(() => {
+                if (isFocusedRef.current) {
+                    setSurveySub(pending);
+                }
+            }, 1500); // [30]
         }
     };
 
@@ -147,20 +179,59 @@ export default function HomeScreen() {
         setModalVisible(true);
     };
 
+    const handleEditFromDetail = (sub: UserSubscription) => {
+        setDetailSub(null);
+        setSelectedCatalogItem(null);
+        setEditingSub(sub);
+    };
+
     // Hesaplamalar
     const portfolioMetrics = getSubscriptionPortfolioMetrics(subscriptions, exchangeRates);
-    const totalExpense = portfolioMetrics.monthlyEquivalentTotalTRY;
+    const budgetSummary = dashboardData?.budgetSummary ?? null;
+    const budgetCurrency = normalizeCurrencyCode(budgetSummary?.currency ?? monthlyBudgetCurrency);
+    const fromTry = (amount: number) => convertAmountBetweenCurrencies(
+        amount,
+        'TRY',
+        budgetCurrency,
+        exchangeRates,
+        { unknownRateAsZero: true },
+    );
+    const toBudgetCurrency = (amount: number, currency: string) => convertAmountBetweenCurrencies(
+        amount,
+        currency,
+        budgetCurrency,
+        exchangeRates,
+        { unknownRateAsZero: true },
+    );
+    const formatBudgetAmount = (amount: number, fractionDigits = budgetCurrency === 'TRY' ? 0 : 2) =>
+        formatCurrencyAmount(amount, budgetCurrency, {
+            minimumFractionDigits: fractionDigits,
+            maximumFractionDigits: fractionDigits,
+        });
+    const totalExpense = budgetSummary?.totalSpent ?? fromTry(portfolioMetrics.monthlyEquivalentTotalTRY);
     const activeCount = portfolioMetrics.startedCount;
-    const budgetPercentage = monthlyBudget > 0 ? (totalExpense / monthlyBudget) * 100 : 0;
-    const isOverBudget = totalExpense > monthlyBudget;
-
-    // Bütçe yüzdesine göre renk (yeşil → sarı → turuncu → kırmızı)
-    const getBudgetBarColor = () => {
-        if (budgetPercentage >= 100) return colors.error;
-        if (budgetPercentage >= 80)  return colors.orange;
-        if (budgetPercentage >= 60)  return colors.warning;
-        return colors.success;
-    };
+    const effectiveMonthlyBudget = budgetSummary?.monthlyBudget ?? monthlyBudget;
+    const effectiveBudgetThreshold = budgetSummary?.budgetAlertThreshold ?? budgetAlertThreshold;
+    const budgetPercentage = effectiveMonthlyBudget > 0 ? (totalExpense / effectiveMonthlyBudget) * 100 : 0;
+    const isOverBudget = budgetSummary?.isOverBudget ?? (effectiveMonthlyBudget > 0 && totalExpense > effectiveMonthlyBudget);
+    const isNearBudgetLimit = budgetSummary?.isNearLimit
+        ?? (!isOverBudget && effectiveMonthlyBudget > 0 && budgetPercentage >= effectiveBudgetThreshold);
+    const budgetBarColor = isOverBudget
+        ? colors.error
+        : isNearBudgetLimit
+            ? colors.orange
+            : colors.success;
+    const budgetCardGradient: [string, string] = isOverBudget
+        ? [colors.error + 'CC', colors.error]
+        : isNearBudgetLimit
+            ? [colors.orange, colors.warning]
+            : ['#4F46E5', '#6D28D9'];
+    const budgetCardShadowColor = isOverBudget ? colors.error : isNearBudgetLimit ? colors.orange : '#4F46E5';
+    const budgetProgressText = isOverBudget
+        ? '⚠ Bütçe aşıldı!'
+        : isNearBudgetLimit
+            ? `⚠ %${effectiveBudgetThreshold} eşiğine ulaşıldı`
+            : `%${budgetPercentage.toFixed(0)} kullanıldı`;
 
     // Animasyonlu progress bar
     const progressAnim = useRef(new Animated.Value(0)).current;
@@ -180,23 +251,183 @@ export default function HomeScreen() {
         outputRange: ['0%', '100%'],
     });
 
-    const sortedPayments = [...subscriptions]
-        .filter(sub => sub.isActive !== false)
-        .sort((a, b) =>
-            getDaysLeftForSub(a.billingDay, a.billingPeriod, a.billingMonth, a.createdDate, a.firstPaymentDate, a.contractStartDate)
-            - getDaysLeftForSub(b.billingDay, b.billingPeriod, b.billingMonth, b.createdDate, b.firstPaymentDate, b.contractStartDate)
-        );
+    const subscriptionsById = useMemo(
+        () => new Map(subscriptions.map((subscription) => [Number(subscription.id), subscription])),
+        [subscriptions],
+    );
 
-    const thisWeekPayments  = sortedPayments.filter(s => getDaysLeftForSub(s.billingDay, s.billingPeriod, s.billingMonth, s.createdDate, s.firstPaymentDate, s.contractStartDate) <= 7);
-    const thisMonthPayments = sortedPayments.filter(s => {
-        const d = getDaysLeftForSub(s.billingDay, s.billingPeriod, s.billingMonth, s.createdDate, s.firstPaymentDate, s.contractStartDate);
-        return d > 7 && d <= 30;
-    });
+    const fallbackUpcomingPayments = useMemo<UpcomingPaymentDto[]>(() =>
+        subscriptions
+            .filter((subscription) => {
+                if (subscription.isActive === false) return false;
+                if (!isSubscriptionActiveNow(
+                    subscription.isActive,
+                    subscription.firstPaymentDate,
+                    subscription.contractStartDate,
+                    new Date(),
+                    subscription.createdDate,
+                )) {
+                    return false;
+                }
 
-    const toTRY = (s: typeof sortedPayments[0]) => s.price * (exchangeRates[s.currency] ?? 1);
-    const thisWeekTotal     = thisWeekPayments.reduce((sum, s) => sum + toTRY(s), 0);
-    const thisMonthTotal    = thisMonthPayments.reduce((sum, s) => sum + toTRY(s), 0);
-    const thisMonthAllTotal = thisWeekTotal + thisMonthTotal;
+                const billingAnchor = subscription.firstPaymentDate
+                    ? new Date(subscription.firstPaymentDate)
+                    : subscription.contractStartDate
+                        ? new Date(subscription.contractStartDate)
+                        : subscription.createdDate
+                            ? new Date(subscription.createdDate)
+                            : new Date();
+
+                const nextBillingDate = new Date(billingAnchor);
+                const todayDate = new Date();
+                todayDate.setHours(0, 0, 0, 0);
+
+                if (subscription.billingPeriod === 'Yearly') {
+                    while (nextBillingDate < todayDate) {
+                        nextBillingDate.setFullYear(nextBillingDate.getFullYear() + 1);
+                    }
+                } else {
+                    while (nextBillingDate < todayDate) {
+                        nextBillingDate.setMonth(nextBillingDate.getMonth() + 1);
+                    }
+                }
+
+                const daysUntilPayment = Math.ceil((nextBillingDate.getTime() - todayDate.getTime()) / 86400000);
+                return daysUntilPayment <= dashboardUpcomingDays;
+            })
+            .map((subscription) => {
+                const billingAnchor = subscription.firstPaymentDate
+                    ? new Date(subscription.firstPaymentDate)
+                    : subscription.contractStartDate
+                        ? new Date(subscription.contractStartDate)
+                        : subscription.createdDate
+                            ? new Date(subscription.createdDate)
+                            : new Date();
+                const nextBillingDate = new Date(billingAnchor);
+                const todayDate = new Date();
+                todayDate.setHours(0, 0, 0, 0);
+
+                if (subscription.billingPeriod === 'Yearly') {
+                    while (nextBillingDate < todayDate) {
+                        nextBillingDate.setFullYear(nextBillingDate.getFullYear() + 1);
+                    }
+                } else {
+                    while (nextBillingDate < todayDate) {
+                        nextBillingDate.setMonth(nextBillingDate.getMonth() + 1);
+                    }
+                }
+
+                const daysUntilPayment = Math.ceil((nextBillingDate.getTime() - todayDate.getTime()) / 86400000);
+
+                return {
+                    id: Number(subscription.id),
+                    name: subscription.name,
+                    price: subscription.price,
+                    currency: subscription.currency,
+                    billingDay: subscription.billingDay,
+                    daysUntilPayment,
+                    colorCode: subscription.colorCode,
+                    billingPeriod: subscription.billingPeriod,
+                    notes: subscription.notes,
+                } satisfies UpcomingPaymentDto;
+            })
+            .sort((a, b) => a.daysUntilPayment - b.daysUntilPayment),
+    [dashboardUpcomingDays, subscriptions]);
+
+    const effectiveUpcomingPayments = useMemo(
+        () => dashboardData?.upcomingPayments ?? fallbackUpcomingPayments,
+        [dashboardData?.upcomingPayments, fallbackUpcomingPayments],
+    );
+
+    const upcomingPaymentCards = useMemo(() =>
+        effectiveUpcomingPayments.map((payment) => {
+            const matchedSubscription = subscriptionsById.get(payment.id) ?? null;
+            const partnerCount = matchedSubscription
+                ? (matchedSubscription.sharedWith?.length ?? 0) + (matchedSubscription.sharedGuests?.length ?? 0)
+                : 0;
+            const myShare = partnerCount > 0 ? payment.price / (partnerCount + 1) : null;
+            const contractDaysLeft = matchedSubscription?.hasContract && matchedSubscription.contractEndDate
+                ? Math.ceil((new Date(matchedSubscription.contractEndDate).getTime() - Date.now()) / 86400000)
+                : null;
+
+            return {
+                payment,
+                subscription: matchedSubscription,
+                daysLeft: payment.daysUntilPayment,
+                budgetAmount: toBudgetCurrency(payment.price, payment.currency),
+                logoUrl: matchedSubscription?.catalogId
+                    ? catalogItems.find((catalogItem) => catalogItem.id === matchedSubscription.catalogId)?.logoUrl
+                    : undefined,
+                myShare,
+                contractDaysLeft,
+                itemColor: payment.colorCode || matchedSubscription?.colorCode || colors.primary,
+            };
+        }),
+    [catalogItems, colors.primary, effectiveUpcomingPayments, subscriptionsById, toBudgetCurrency]);
+
+    const upcomingPaymentsTotal = useMemo(
+        () => upcomingPaymentCards.reduce((sum, item) => sum + item.budgetAmount, 0),
+        [upcomingPaymentCards],
+    );
+
+    const visibleUpcomingPaymentCards = useMemo(
+        () => upcomingPaymentCards.slice(0, 8),
+        [upcomingPaymentCards],
+    );
+
+    const upcomingWindowLabel = `Önümüzdeki ${dashboardUpcomingDays} gün`;
+    const primaryUpcomingThreshold = Math.min(dashboardUpcomingDays, 7);
+    const primaryUpcomingGroupTitle = dashboardUpcomingDays === 7 ? upcomingWindowLabel : 'İlk 7 Gün';
+    const secondaryUpcomingGroupTitle = `Kalan ${dashboardUpcomingDays - primaryUpcomingThreshold} Gün`;
+
+    const sortedPayments = useMemo(() =>
+        upcomingPaymentCards.map((item) => {
+            const payment = item.payment;
+            const fallbackSubscription: UserSubscription = {
+                id: payment.id.toString(),
+                name: payment.name,
+                price: payment.price,
+                currency: payment.currency,
+                category: '',
+                billingDay: payment.billingDay,
+                billingPeriod: payment.billingPeriod,
+                notes: payment.notes ?? undefined,
+                colorCode: payment.colorCode,
+                hasContract: false,
+                isActive: true,
+                sharedWith: [],
+                sharedGuests: [],
+            };
+
+            return {
+                ...(item.subscription ?? fallbackSubscription),
+                _daysLeft: item.daysLeft,
+                _budgetAmount: item.budgetAmount,
+            };
+        }),
+    [upcomingPaymentCards]);
+
+    const thisWeekPayments = useMemo(
+        () => sortedPayments.filter((item) => item._daysLeft <= primaryUpcomingThreshold),
+        [primaryUpcomingThreshold, sortedPayments],
+    );
+
+    const thisMonthPayments = useMemo(
+        () => sortedPayments.filter((item) => item._daysLeft > primaryUpcomingThreshold && item._daysLeft <= dashboardUpcomingDays),
+        [dashboardUpcomingDays, primaryUpcomingThreshold, sortedPayments],
+    );
+
+    const thisWeekTotal = useMemo(
+        () => thisWeekPayments.reduce((sum, item) => sum + item._budgetAmount, 0),
+        [thisWeekPayments],
+    );
+
+    const thisMonthTotal = useMemo(
+        () => thisMonthPayments.reduce((sum, item) => sum + item._budgetAmount, 0),
+        [thisMonthPayments],
+    );
+
+    const thisMonthAllTotal = upcomingPaymentsTotal;
 
     const categoryCount = new Set(
         subscriptions
@@ -217,7 +448,7 @@ export default function HomeScreen() {
     useEffect(() => {
         // Tüm mevcut animasyonları sıfırla
         cardAnimsRef.current.forEach(a => a.setValue(0));
-        const anims = sortedPayments.map((_, i) =>
+        const anims = visibleUpcomingPaymentCards.map((_, i) =>
             Animated.timing(getCardAnim(i), {
                 toValue: 1,
                 duration: 350,
@@ -227,7 +458,7 @@ export default function HomeScreen() {
             })
         );
         Animated.stagger(60, anims).start();
-    }, [subscriptions]);
+    }, [visibleUpcomingPaymentCards]);
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
@@ -307,10 +538,10 @@ export default function HomeScreen() {
 
                 {/* 2. DASHBOARD CARD */}
                 <LinearGradient
-                    colors={isOverBudget ? [colors.error + 'CC', colors.error] : ['#4F46E5', '#6D28D9']}
+                    colors={budgetCardGradient}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
-                    style={[styles.dashboardCard, { shadowColor: isOverBudget ? colors.error : '#4F46E5' }]}
+                    style={[styles.dashboardCard, { shadowColor: budgetCardShadowColor }]}
                 >
                     {/* Dekoratif daire */}
                     <View style={styles.dashDecorCircle} />
@@ -318,7 +549,7 @@ export default function HomeScreen() {
                     <View style={styles.dashTopRow}>
                         <View style={{ flex: 1 }}>
                             <Text style={styles.dashLabel}>AKTİF AYLIK YÜK</Text>
-                            <Text style={styles.dashValue}>₺{totalExpense.toFixed(2)}</Text>
+                            <Text style={styles.dashValue}>{formatBudgetAmount(totalExpense)}</Text>
                             <View style={styles.dashSubRow}>
                                 <View style={styles.dashCountBadge}>
                                     <Ionicons name="apps-outline" size={11} color="rgba(255,255,255,0.9)" />
@@ -336,14 +567,14 @@ export default function HomeScreen() {
                                         <Text style={styles.dashCountText}>{portfolioMetrics.pendingCount} bekliyor</Text>
                                     </View>
                                 )}
-                                {thisWeekPayments.length > 0 && (
+                                {upcomingPaymentCards.length > 0 && (
                                     <TouchableOpacity
                                         style={[styles.dashCountBadge, { backgroundColor: 'rgba(249,115,22,0.35)' }]}
                                         onPress={() => navigation.navigate('Calendar')}
                                         activeOpacity={0.75}
                                     >
                                         <Ionicons name="alarm-outline" size={11} color="rgba(255,255,255,0.95)" />
-                                        <Text style={styles.dashCountText}>{thisWeekPayments.length} bu hafta</Text>
+                                        <Text style={styles.dashCountText}>{upcomingPaymentCards.length} yaklaşan</Text>
                                     </TouchableOpacity>
                                 )}
                                 {inactiveStats.paused > 0 && (
@@ -363,33 +594,29 @@ export default function HomeScreen() {
                         <View style={styles.budgetBox}>
                             <Text style={styles.budgetLabel}>HEDEF</Text>
                             <Text style={styles.budgetValue}>
-                                {monthlyBudget > 0 ? `₺${monthlyBudget}` : '-'}
+                                {effectiveMonthlyBudget > 0 ? formatBudgetAmount(effectiveMonthlyBudget) : '-'}
                             </Text>
-                            {monthlyBudget > 0 && (
+                            {effectiveMonthlyBudget > 0 && (
                                 <Text style={styles.budgetRemain}>
                                     {isOverBudget
-                                        ? `+₺${(totalExpense - monthlyBudget).toFixed(0)} aşım`
-                                        : `₺${(monthlyBudget - totalExpense).toFixed(0)} kaldı`}
+                                        ? `+${formatBudgetAmount(totalExpense - effectiveMonthlyBudget)} aşıldı`
+                                        : `${formatBudgetAmount(effectiveMonthlyBudget - totalExpense)} kaldı`}
                                 </Text>
                             )}
                         </View>
                     </View>
 
-                    {monthlyBudget > 0 && (
+                    {effectiveMonthlyBudget > 0 && (
                         <View style={styles.progressSection}>
                             <View style={styles.progressBarBg}>
                                 <Animated.View style={[
                                     styles.progressBarFill,
-                                    { width: animatedWidth, backgroundColor: getBudgetBarColor() }
+                                    { width: animatedWidth, backgroundColor: budgetBarColor }
                                 ]} />
                             </View>
                             <View style={styles.progressFooter}>
-                                <View style={[styles.progressDot, { backgroundColor: getBudgetBarColor() }]} />
-                                <Text style={styles.progressText}>
-                                    {isOverBudget
-                                        ? '⚠ Bütçe aşıldı!'
-                                        : `%${budgetPercentage.toFixed(0)} kullanıldı`}
-                                </Text>
+                                <View style={[styles.progressDot, { backgroundColor: budgetBarColor }]} />
+                                <Text style={styles.progressText}>{budgetProgressText}</Text>
                             </View>
                         </View>
                     )}
@@ -397,25 +624,25 @@ export default function HomeScreen() {
                     <View style={styles.billingSplitRow}>
                         <View style={styles.billingSplitCard}>
                             <Text style={styles.billingSplitLabel}>AYLIK</Text>
-                            <Text style={styles.billingSplitValue}>₺{portfolioMetrics.monthlyStartedTotalTRY.toFixed(2)}</Text>
+                            <Text style={styles.billingSplitValue}>{formatBudgetAmount(fromTry(portfolioMetrics.monthlyStartedTotalTRY))}</Text>
                             <Text style={styles.billingSplitMeta}>
                                 {portfolioMetrics.monthlyStartedCount} başlamış
                                 {portfolioMetrics.pendingMonthlyCount > 0
-                                    ? ` · ${portfolioMetrics.pendingMonthlyCount} bekleyen (₺${portfolioMetrics.pendingMonthlyTotalTRY.toFixed(2)})`
+                                    ? ` · ${portfolioMetrics.pendingMonthlyCount} bekleyen (${formatBudgetAmount(fromTry(portfolioMetrics.pendingMonthlyTotalTRY))})`
                                     : ''}
                             </Text>
                         </View>
                         <View style={styles.billingSplitCard}>
                             <Text style={styles.billingSplitLabel}>YILLIK</Text>
-                            <Text style={styles.billingSplitValue}>₺{portfolioMetrics.yearlyStartedTotalTRY.toFixed(2)}</Text>
+                            <Text style={styles.billingSplitValue}>{formatBudgetAmount(fromTry(portfolioMetrics.yearlyStartedTotalTRY))}</Text>
                             <Text style={styles.billingSplitMeta}>
                                 {portfolioMetrics.yearlyStartedCount} başlamış
                                 {portfolioMetrics.pendingYearlyCount > 0
-                                    ? ` · ${portfolioMetrics.pendingYearlyCount} bekleyen (₺${portfolioMetrics.pendingYearlyTotalTRY.toFixed(2)})`
+                                    ? ` · ${portfolioMetrics.pendingYearlyCount} bekleyen (${formatBudgetAmount(fromTry(portfolioMetrics.pendingYearlyTotalTRY))})`
                                     : ''}
                             </Text>
                             <Text style={styles.billingSplitMeta}>
-                                ≈ ₺{(portfolioMetrics.yearlyStartedTotalTRY / 12).toFixed(2)}/ay eşdeğeri
+                                ≈ {formatBudgetAmount(fromTry(portfolioMetrics.yearlyStartedTotalTRY / 12))}/ay eşdeğeri
                             </Text>
                         </View>
                     </View>
@@ -427,7 +654,7 @@ export default function HomeScreen() {
                                 {portfolioMetrics.pendingCount} abonelik henüz başlamadı
                                 {` · ${portfolioMetrics.pendingMonthlyCount} aylık`}
                                 {` · ${portfolioMetrics.pendingYearlyCount} yıllık`}
-                                {` · ≈ ₺${portfolioMetrics.pendingMonthlyEquivalentTRY.toFixed(2)}/ay bekliyor`}
+                                {` · ≈ ${formatBudgetAmount(fromTry(portfolioMetrics.pendingMonthlyEquivalentTRY))}/ay bekliyor`}
                             </Text>
                         </View>
                     )}
@@ -465,9 +692,9 @@ export default function HomeScreen() {
                         {/* Bu Ay Gerçek Toplamı */}
                         <View style={[styles.monthSummaryRow, { backgroundColor: colors.accent + '10', borderColor: colors.accent + '25' }]}>
                             <Ionicons name="wallet-outline" size={13} color={colors.accent} />
-                            <Text style={[styles.monthSummaryLabel, { color: colors.textSec }]}>Bu ay toplam harcama</Text>
+                            <Text style={[styles.monthSummaryLabel, { color: colors.textSec }]}>{upcomingWindowLabel} toplamı</Text>
                             <Text style={[styles.monthSummaryValue, { color: colors.accent }]}>
-                                ₺{thisMonthAllTotal.toFixed(2)}
+                                {formatBudgetAmount(thisMonthAllTotal)}
                             </Text>
                         </View>
 
@@ -476,14 +703,14 @@ export default function HomeScreen() {
                             <>
                                 <View style={styles.upGroupHeader}>
                                     <View style={[styles.upGroupDot, { backgroundColor: colors.error }]} />
-                                    <Text style={[styles.upGroupTitle, { color: colors.textSec }]}>Bu Hafta</Text>
+                                    <Text style={[styles.upGroupTitle, { color: colors.textSec }]}>{primaryUpcomingGroupTitle}</Text>
                                     <View style={{ flex: 1 }} />
                                     <Text style={[styles.upGroupTotal, { color: colors.textMain }]}>
-                                        ₺{thisWeekTotal.toFixed(2)}
+                                        {formatBudgetAmount(thisWeekTotal)}
                                     </Text>
                                 </View>
                                 {thisWeekPayments.slice(0, 4).map((item, idx) => {
-                                    const daysLeft = getDaysLeftForSub(item.billingDay, item.billingPeriod, item.billingMonth, item.createdDate, item.firstPaymentDate, item.contractStartDate);
+                                    const daysLeft = item._daysLeft;
                                     const urgencyColor = daysLeft <= 2 ? colors.error : colors.orange;
                                     const urgencyBg   = daysLeft <= 2 ? (colors.error + '20') : (colors.orange + '20');
                                     const urgencyLabel = daysLeft === 0 ? 'Bugün!' : daysLeft === 1 ? 'Yarın!' : `${daysLeft} gün`;
@@ -496,8 +723,12 @@ export default function HomeScreen() {
                                         ? Math.ceil((new Date(item.contractEndDate).getTime() - Date.now()) / 86400000)
                                         : null;
                                     return (
-                                        <Animated.View
+                                        <TouchableOpacity
                                             key={item.id}
+                                            activeOpacity={0.86}
+                                            onPress={() => setDetailSub(item)}
+                                        >
+                                        <Animated.View
                                             style={[styles.upRow, {
                                                 backgroundColor: colors.cardBg,
                                                 borderColor: daysLeft <= 2 ? (colors.error + '60') : (colors.orange + '60'),
@@ -541,16 +772,22 @@ export default function HomeScreen() {
                                             </View>
                                             <View style={{ alignItems: 'flex-end' }}>
                                                 <Text style={[styles.upRowPrice, { color: colors.textMain }]}>
-                                                    {CurrencyService.format(item.price, item.currency)}
+                                                    {formatCurrencyAmount(item.price, item.currency, {
+                                                        minimumFractionDigits: item.currency === 'TRY' ? 0 : 2,
+                                                        maximumFractionDigits: item.currency === 'TRY' ? 0 : 2,
+                                                    })}
                                                 </Text>
                                                 {myShare !== null && (
                                                     <Text style={[styles.upRowCycle, { color: colors.textSec, fontSize: 11 }]}>
-                                                        Payınız: {CurrencyService.format(myShare, item.currency)}
+                                                        Payınız: {formatCurrencyAmount(myShare, item.currency, {
+                                                            minimumFractionDigits: item.currency === 'TRY' ? 0 : 2,
+                                                            maximumFractionDigits: item.currency === 'TRY' ? 0 : 2,
+                                                        })}
                                                     </Text>
                                                 )}
-                                                {item.currency !== 'TRY' && exchangeRates[item.currency] && (
+                                                {item.currency !== budgetCurrency && exchangeRates[item.currency] && (
                                                     <Text style={[styles.upRowCycle, { color: colors.textSec, fontSize: 11 }]}>
-                                                        ≈ {(item.price * exchangeRates[item.currency]).toFixed(0)} ₺
+                                                        ≈ {formatBudgetAmount(toBudgetCurrency(item.price, item.currency))}
                                                     </Text>
                                                 )}
                                                 <View style={[styles.upRowBadge, { backgroundColor: urgencyBg }]}>
@@ -558,6 +795,7 @@ export default function HomeScreen() {
                                                 </View>
                                             </View>
                                         </Animated.View>
+                                        </TouchableOpacity>
                                     );
                                 })}
                                 {thisWeekPayments.length > 4 && (
@@ -578,14 +816,14 @@ export default function HomeScreen() {
                             <>
                                 <View style={[styles.upGroupHeader, { marginTop: thisWeekPayments.length > 0 ? 14 : 0 }]}>
                                     <View style={[styles.upGroupDot, { backgroundColor: colors.accent }]} />
-                                    <Text style={[styles.upGroupTitle, { color: colors.textSec }]}>Kalan Ay</Text>
+                                    <Text style={[styles.upGroupTitle, { color: colors.textSec }]}>{secondaryUpcomingGroupTitle}</Text>
                                     <View style={{ flex: 1 }} />
                                     <Text style={[styles.upGroupTotal, { color: colors.textMain }]}>
-                                        ₺{thisMonthTotal.toFixed(2)}
+                                        {formatBudgetAmount(thisMonthTotal)}
                                     </Text>
                                 </View>
                                 {thisMonthPayments.slice(0, 4).map((item, idx) => {
-                                    const daysLeft = getDaysLeftForSub(item.billingDay, item.billingPeriod, item.billingMonth, item.createdDate, item.firstPaymentDate, item.contractStartDate);
+                                    const daysLeft = item._daysLeft;
                                     const animIdx = thisWeekPayments.length + idx;
                                     const anim = getCardAnim(animIdx);
                                     const itemColor = item.colorCode || colors.primary;
@@ -596,8 +834,12 @@ export default function HomeScreen() {
                                         ? Math.ceil((new Date(item.contractEndDate).getTime() - Date.now()) / 86400000)
                                         : null;
                                     return (
-                                        <Animated.View
+                                        <TouchableOpacity
                                             key={item.id}
+                                            activeOpacity={0.86}
+                                            onPress={() => setDetailSub(item)}
+                                        >
+                                        <Animated.View
                                             style={[styles.upRow, {
                                                 backgroundColor: colors.cardBg,
                                                 borderColor: colors.border,
@@ -640,16 +882,22 @@ export default function HomeScreen() {
                                             </View>
                                             <View style={{ alignItems: 'flex-end' }}>
                                                 <Text style={[styles.upRowPrice, { color: colors.textMain }]}>
-                                                    {CurrencyService.format(item.price, item.currency)}
+                                                    {formatCurrencyAmount(item.price, item.currency, {
+                                                        minimumFractionDigits: item.currency === 'TRY' ? 0 : 2,
+                                                        maximumFractionDigits: item.currency === 'TRY' ? 0 : 2,
+                                                    })}
                                                 </Text>
                                                 {myShare !== null && (
                                                     <Text style={[styles.upRowCycle, { color: colors.textSec, fontSize: 11 }]}>
-                                                        Payınız: {CurrencyService.format(myShare, item.currency)}
+                                                        Payınız: {formatCurrencyAmount(myShare, item.currency, {
+                                                            minimumFractionDigits: item.currency === 'TRY' ? 0 : 2,
+                                                            maximumFractionDigits: item.currency === 'TRY' ? 0 : 2,
+                                                        })}
                                                     </Text>
                                                 )}
-                                                {item.currency !== 'TRY' && exchangeRates[item.currency] && (
+                                                {item.currency !== budgetCurrency && exchangeRates[item.currency] && (
                                                     <Text style={[styles.upRowCycle, { color: colors.textSec, fontSize: 11 }]}>
-                                                        ≈ {(item.price * exchangeRates[item.currency]).toFixed(0)} ₺
+                                                        ≈ {formatBudgetAmount(toBudgetCurrency(item.price, item.currency))}
                                                     </Text>
                                                 )}
                                                 <View style={[styles.upRowBadge, { backgroundColor: colors.inputBg }]}>
@@ -657,6 +905,7 @@ export default function HomeScreen() {
                                                 </View>
                                             </View>
                                         </Animated.View>
+                                        </TouchableOpacity>
                                     );
                                 })}
                                 {thisMonthPayments.length > 4 && (
@@ -759,6 +1008,22 @@ export default function HomeScreen() {
                 }}
                 selectedCatalogItem={selectedCatalogItem}
                 // subscriptionToEdit prop'u boş, çünkü yeni ekleme yapıyoruz
+            />
+
+            <AddSubscriptionModal
+                visible={!!editingSub}
+                onClose={() => {
+                    setEditingSub(null);
+                }}
+                selectedCatalogItem={null}
+                subscriptionToEdit={editingSub}
+            />
+
+            <SubscriptionDetailModal
+                visible={!!detailSub}
+                subscription={detailSub}
+                onClose={() => setDetailSub(null)}
+                onEdit={handleEditFromDetail}
             />
 
             <UsageSurveyModal

@@ -26,6 +26,19 @@ namespace SubGuard.Core.Constants
             public const decimal FallbackUsd = 34.50m;
             public const decimal FallbackEur = 37.20m;
             public const decimal FallbackGbp = 43.10m;
+            public const string DefaultCode = "TRY";
+
+            public static readonly string[] SupportedCodes = new[] { "TRY", "USD", "EUR", "GBP" };
+
+            public static bool IsSupported(string? code) =>
+                !string.IsNullOrWhiteSpace(code)
+                && SupportedCodes.Contains(code.Trim().ToUpperInvariant());
+
+            public static string NormalizeOrDefault(string? code)
+            {
+                var normalized = code?.Trim().ToUpperInvariant();
+                return IsSupported(normalized) ? normalized! : DefaultCode;
+            }
         }
 
         public static class TimeZones

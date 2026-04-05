@@ -225,7 +225,7 @@ export default function App() {
             <Stack.Screen
               name="Notifications"
               component={NotificationsScreen}
-              options={{ headerShown: false, presentation: 'modal' }}
+              options={{ headerShown: false, presentation: 'modal', gestureEnabled: false }}
             />
             <Stack.Screen
               name="Calendar"

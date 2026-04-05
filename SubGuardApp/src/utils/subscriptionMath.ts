@@ -1,5 +1,6 @@
 import { UserSubscription } from '../types';
 import { isSubscriptionActiveNow } from './dateUtils';
+import { normalizeCurrencyCode } from './CurrencyService';
 
 type SharedSubscriptionFields = Pick<
   UserSubscription,
@@ -36,8 +37,9 @@ export function getCurrencyRateToTry(
   exchangeRates: Record<string, number>,
   options?: { unknownRateAsZero?: boolean },
 ): number {
-  if (currency === 'TRY') return 1;
-  return exchangeRates[currency] ?? (options?.unknownRateAsZero ? 0 : 1);
+  const normalizedCurrency = normalizeCurrencyCode(currency);
+  if (normalizedCurrency === 'TRY') return 1;
+  return exchangeRates[normalizedCurrency] ?? 0;
 }
 
 export function convertAmountBetweenCurrencies(
@@ -47,10 +49,13 @@ export function convertAmountBetweenCurrencies(
   exchangeRates: Record<string, number>,
   options?: { unknownRateAsZero?: boolean },
 ): number {
-  if (fromCurrency === toCurrency) return amount;
+  const normalizedFromCurrency = normalizeCurrencyCode(fromCurrency);
+  const normalizedToCurrency = normalizeCurrencyCode(toCurrency);
 
-  const fromRate = getCurrencyRateToTry(fromCurrency, exchangeRates, options);
-  const toRate = getCurrencyRateToTry(toCurrency, exchangeRates, options);
+  if (normalizedFromCurrency === normalizedToCurrency) return amount;
+
+  const fromRate = getCurrencyRateToTry(normalizedFromCurrency, exchangeRates, options);
+  const toRate = getCurrencyRateToTry(normalizedToCurrency, exchangeRates, options);
 
   if (fromRate === 0 || toRate === 0) return 0;
 

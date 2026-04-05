@@ -1,14 +1,14 @@
 ﻿import { create } from 'zustand';
-import { UserSubscription, UsageStatus, UsageLog, ApiUsageLog, AddSubscriptionPayload, RawSubscriptionApiItem } from '../types';
+import { UserSubscription, UsageStatus, UsageLog, ApiUsageLog, AddSubscriptionPayload, RawSubscriptionApiItem, SubscriptionUpdatePayload } from '../types';
 import { getDaysLeftForSub, isSubscriptionActiveNow, serializeCalendarDate } from '../utils/dateUtils';
 import agent from '../api/agent';
-import { convertToTRY } from '../utils/CurrencyService';
+import { normalizeCurrencyCode } from '../utils/CurrencyService';
 import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { scheduleSubscriptionNotification, cancelNotification, syncLocalNotifications, syncSubscriptionsToCalendar } from '../utils/NotificationManager';
 import { saveCache, loadCache } from '../utils/offlineCache';
 import { useSettingsStore } from './useSettingsStore';
-import { getSubscriptionMonthlyShareInTry } from '../utils/subscriptionMath';
+import { convertAmountBetweenCurrencies, getSubscriptionMonthlyShareInTry } from '../utils/subscriptionMath';
 
 // Survey verisinin AsyncStorage anahtar ÅŸemasÄ±
 const surveyKey = (id: string) => `@survey_${id}`;
@@ -37,7 +37,7 @@ interface UserSubscriptionState {
   loadMoreSharedWithMe: () => Promise<void>;
   addSubscription: (sub: AddSubscriptionPayload) => Promise<void>;
   removeSubscription: (id: string) => Promise<void>;
-  updateSubscription: (id: string, updatedData: Partial<UserSubscription>) => Promise<void>;
+  updateSubscription: (id: string, updatedData: SubscriptionUpdatePayload) => Promise<void>;
 
   logUsage: (id: string, status: UsageStatus) => Promise<void>;
   fetchUsageLogs: (id: string) => Promise<boolean>;
@@ -385,39 +385,15 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
         ? serializeCalendarDate(new Date(newSub.contractEndDate))
         : null,
       notes: newSub.notes ?? null,
-      // B-11: PaylaÅŸÄ±m e-postalarÄ± backend'e iletilir (AddUserSubscriptionDto.SharedUserEmails).
-      // AddSubscriptionPayload.sharedWith form katmanÄ±nda string[] (sadece email) olarak gelir.
       sharedUserEmails: newSub.sharedWith ?? null,
+      sharedGuestNames: newSub.sharedGuests ?? null,
     };
 
     const response = await agent.UserSubscriptions.create(payload);
 
       if (response && response.data) {
-        const createdSub = formatItems([response.data])[0];
-        const emails: string[] = payload.sharedUserEmails ?? [];
-        const guests: string[] = newSub.sharedGuests ?? [];
-        const hasShareTargets = emails.length > 0 || guests.length > 0;
-
-        if (!hasShareTargets) {
-          set((state) => ({
-            subscriptions: [...state.subscriptions, createdSub],
-            totalCount: state.totalCount + 1,
-          }));
-          await saveCache('subscriptions', { items: get().subscriptions, totalCount: get().totalCount });
-        } else {
-          const guestResults = await Promise.allSettled(
-            guests.map((name) => agent.UserSubscriptions.shareGuest(Number(createdSub.id), name)),
-          );
-          const failedGuests = guestResults
-            .filter((r): r is PromiseRejectedResult => r.status === 'rejected')
-            .map((r) => r.reason?.response?.data?.errors?.[0] ?? 'Bir misafir paylasim islemi basarisiz oldu.');
-
-          await get().fetchAllUserSubscriptions();
-
-          if (failedGuests.length > 0) {
-            Alert.alert('Paylasim Uyarisi', failedGuests[0]);
-          }
-        }
+        await get().fetchAllUserSubscriptions();
+        await saveCache('subscriptions', { items: get().subscriptions, totalCount: get().totalCount });
 
         if (useSettingsStore.getState().calendarSyncEnabled) {
           await syncSubscriptionsToCalendar(get().subscriptions);
@@ -464,7 +440,24 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
     if (!oldSub) return;
 
     // Optimistic Update (ArayÃ¼zde hemen gÃ¼ncelle)
-    const newSub = { ...oldSub, ...updatedData };
+    const optimisticSharedWith = updatedData.sharedUserEmails !== undefined
+      ? updatedData.sharedUserEmails.map((email) => {
+          const existing = (oldSub.sharedWith ?? []).find((share) => share.email === email);
+          return { email, userId: existing?.userId ?? '' };
+        })
+      : oldSub.sharedWith;
+    const optimisticSharedGuests = updatedData.sharedGuestNames !== undefined
+      ? updatedData.sharedGuestNames.map((displayName) => {
+          const existing = (oldSub.sharedGuests ?? []).find((guest) => guest.displayName === displayName);
+          return { id: existing?.id ?? 0, displayName };
+        })
+      : oldSub.sharedGuests;
+    const newSub: UserSubscription = {
+      ...oldSub,
+      ...updatedData,
+      sharedWith: optimisticSharedWith,
+      sharedGuests: optimisticSharedGuests,
+    };
     set((state) => ({
       subscriptions: state.subscriptions.map((s) =>
         s.id === id ? newSub : s
@@ -473,9 +466,9 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
 
     // B-18: catch scope iÃ§in try dÄ±ÅŸÄ±na alÄ±ndÄ±
     const STATUS_FIELDS: (keyof UserSubscription)[] = ['isActive', 'cancelledAt', 'cancelledDate', 'status', 'pausedDate', 'accessUntilDate'];
-    const changedKeys = Object.keys(updatedData) as (keyof UserSubscription)[];
+    const changedKeys = Object.keys(updatedData).filter((key) => key !== 'sharedUserEmails' && key !== 'sharedGuestNames') as (keyof UserSubscription)[];
     const isStatusOnlyChange = changedKeys.length > 0 && changedKeys.every(k => STATUS_FIELDS.includes(k));
-    const shouldRefreshShareData = updatedData.sharedWith !== undefined || updatedData.sharedGuests !== undefined;
+    const shouldRefreshShareData = updatedData.sharedUserEmails !== undefined || updatedData.sharedGuestNames !== undefined;
     const apiStatus = isStatusOnlyChange
       ? (newSub.isActive
           ? 'Active'
@@ -512,64 +505,11 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
             ? serializeCalendarDate(new Date(newSub.contractEndDate))
             : null,
           notes: newSub.notes ?? null,
-          // B-6: sharedWithJson kaldÄ±rÄ±ldÄ± â€” paylaÅŸÄ±m deÄŸiÅŸikliÄŸi ayrÄ± share/removeShare Ã§aÄŸrÄ±larÄ±yla yapÄ±lÄ±yor
+          sharedUserEmails: updatedData.sharedUserEmails ?? null,
+          sharedGuestNames: updatedData.sharedGuestNames ?? null,
         };
 
         await agent.UserSubscriptions.update(id, payload);
-
-        // PaylaÅŸÄ±m deÄŸiÅŸikliklerini share/removeShare endpoint'leriyle senkronize et.
-        // Update'ten sonra, baÄŸÄ±msÄ±z olarak Ã§alÄ±ÅŸÄ±r â€” sharing hatasÄ± update'i engellemez.
-        if (updatedData.sharedWith !== undefined) {
-          const currentShared = (oldSub.sharedWith ?? []) as { email: string; userId: string }[];
-          const incomingRaw = (updatedData.sharedWith ?? []) as (string | { email: string; userId?: string })[];
-          const newEmails = new Set(incomingRaw.map((p) => (typeof p === 'string' ? p : p.email)));
-          const currentEmails = new Set(currentShared.map((p) => p.email));
-
-          const addedEmails = [...newEmails].filter((e) => !currentEmails.has(e));
-          const removedUsers = currentShared.filter((p) => !newEmails.has(p.email));
-
-          const shareResults = await Promise.allSettled([
-            ...addedEmails.map((email) => agent.UserSubscriptions.share(Number(id), email)),
-            ...removedUsers
-              .filter((p) => p.userId)
-              .map((p) => agent.UserSubscriptions.removeShare(Number(id), p.userId)),
-          ]);
-
-          const failedShares = shareResults
-            .filter((r): r is PromiseRejectedResult => r.status === 'rejected')
-            .map((r) => r.reason?.response?.data?.errors?.[0] ?? 'Bir paylaÅŸÄ±m iÅŸlemi baÅŸarÄ±sÄ±z oldu.');
-
-          if (failedShares.length > 0) {
-            Alert.alert('PaylaÅŸÄ±m UyarÄ±sÄ±', failedShares[0]);
-          }
-        }
-
-        // Ãœyesiz paylaÅŸÄ±m (guest) deÄŸiÅŸikliklerini senkronize et
-        if (updatedData.sharedGuests !== undefined) {
-          const currentGuests = oldSub.sharedGuests ?? [];
-          const newGuests = updatedData.sharedGuests ?? [];
-          const newGuestNames = new Set(newGuests.map((g) => g.displayName));
-          const currentGuestNames = new Set(currentGuests.map((g) => g.displayName));
-
-          const addedGuests = newGuests
-            .filter((g) => !currentGuestNames.has(g.displayName))
-            .map((g) => g.displayName);
-          const removedGuests = currentGuests.filter((g) => !newGuestNames.has(g.displayName));
-
-          const guestResults = await Promise.allSettled([
-            ...addedGuests.map((name) => agent.UserSubscriptions.shareGuest(Number(id), name)),
-            ...removedGuests.map((g) => agent.UserSubscriptions.removeGuestShare(Number(id), g.id)),
-          ]);
-
-          const failedGuests = guestResults
-            .filter((r): r is PromiseRejectedResult => r.status === 'rejected')
-            .map((r) => r.reason?.response?.data?.errors?.[0] ?? 'Bir misafir paylaÅŸÄ±m iÅŸlemi baÅŸarÄ±sÄ±z oldu.');
-          if (failedGuests.length > 0) {
-            Alert.alert('PaylaÅŸÄ±m UyarÄ±sÄ±', failedGuests[0]);
-          }
-
-
-        }
       }
       if (shouldRefreshShareData) {
         await get().fetchAllUserSubscriptions();
@@ -692,11 +632,18 @@ export const useUserSubscriptionStore = create<UserSubscriptionState>((set, get)
 
   getTotalExpense: () => {
     const { subscriptions, exchangeRates } = get();
+    const budgetCurrency = normalizeCurrencyCode(useSettingsStore.getState().monthlyBudgetCurrency);
     return subscriptions
       .filter(sub => isSubscriptionActiveNow(sub.isActive, sub.firstPaymentDate, sub.contractStartDate, new Date(), sub.createdDate))
       .reduce((total, sub) => {
-        // Gelecekte baÅŸlayacak abonelikler bugÃ¼nkÃ¼ aylÄ±k yÃ¼ke dahil edilmez.
-        return total + getSubscriptionMonthlyShareInTry(sub, exchangeRates);
+        const monthlyTry = getSubscriptionMonthlyShareInTry(sub, exchangeRates);
+        return total + convertAmountBetweenCurrencies(
+          monthlyTry,
+          'TRY',
+          budgetCurrency,
+          exchangeRates,
+          { unknownRateAsZero: true },
+        );
       }, 0);
   },
 

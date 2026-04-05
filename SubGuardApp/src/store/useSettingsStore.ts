@@ -17,8 +17,6 @@ interface SettingsState {
   notifyHour: number; // 0-23
 
   // 20 — Para Birimi (#49: GBP eklendi)
-  defaultCurrency: 'TRY' | 'USD' | 'EUR' | 'GBP';
-  autoConvert: boolean;
 
   // 22 — Uygulama Kilidi
   appLockEnabled: boolean;
@@ -45,8 +43,6 @@ interface SettingsState {
   setNotifyHour: (v: number) => void;
 
   // Actions — 20
-  setDefaultCurrency: (v: 'TRY' | 'USD' | 'EUR' | 'GBP') => void;
-  setAutoConvert: (v: boolean) => void;
 
   // Actions — 22
   setAppLockEnabled: (v: boolean) => void;
@@ -54,6 +50,8 @@ interface SettingsState {
   // Budget sync
   monthlyBudget: number;
   setMonthlyBudget: (v: number) => void;
+  monthlyBudgetCurrency: 'TRY' | 'USD' | 'EUR' | 'GBP';
+  setMonthlyBudgetCurrency: (v: 'TRY' | 'USD' | 'EUR' | 'GBP') => void;
 
   // Admin — profil yüklenince set edilir, persist edilmez (session bilgisi)
   isAdmin: boolean;
@@ -83,8 +81,6 @@ export const useSettingsStore = create<SettingsState>()(
       notifyHour: 9,
 
       // 20 defaults
-      defaultCurrency: 'TRY',
-      autoConvert: true,
 
       // 22 defaults
       appLockEnabled: false,
@@ -107,8 +103,6 @@ export const useSettingsStore = create<SettingsState>()(
       setEmailEnabled: (v) => set({ emailEnabled: v }), // F-9
       setNotifyHour: (v) => set({ notifyHour: v }),
 
-      setDefaultCurrency: (v) => set({ defaultCurrency: v }),
-      setAutoConvert: (v) => set({ autoConvert: v }),
 
       setAppLockEnabled: (v) => set({ appLockEnabled: v }),
       setCalendarSyncEnabled: (v) => set({ calendarSyncEnabled: v }),
@@ -116,6 +110,8 @@ export const useSettingsStore = create<SettingsState>()(
 
       monthlyBudget: 0,
       setMonthlyBudget: (v) => set({ monthlyBudget: v }),
+      monthlyBudgetCurrency: 'TRY',
+      setMonthlyBudgetCurrency: (v) => set({ monthlyBudgetCurrency: v }),
 
       isAdmin: false,
       setIsAdmin: (v) => set({ isAdmin: v }),
@@ -129,11 +125,10 @@ export const useSettingsStore = create<SettingsState>()(
         sharedAlertEnabled: true,
         emailEnabled: true,
         notifyHour: 9,
-        defaultCurrency: 'TRY',
-        autoConvert: true,
         calendarSyncEnabled: false,
         dashboardUpcomingDays: 30,
         monthlyBudget: 0,
+        monthlyBudgetCurrency: 'TRY',
         isAdmin: false,
         // Cihaz düzeyinde — korunur: isDarkMode, onboardingCompleted, appLockEnabled
       }),

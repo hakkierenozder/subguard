@@ -66,17 +66,128 @@ namespace SubGuard.Service.Services
             return AppConstants.Subscription.DefaultColorCode;
         }
 
+        private static List<string> NormalizeShareEmails(IEnumerable<string>? emails) =>
+            emails?
+                .Select(email => email?.Trim())
+                .Where(email => !string.IsNullOrWhiteSpace(email))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Cast<string>()
+                .ToList()
+            ?? new List<string>();
+
+        private static List<string> NormalizeGuestNames(IEnumerable<string>? names) =>
+            names?
+                .Select(name => name?.Trim())
+                .Where(name => !string.IsNullOrWhiteSpace(name))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Cast<string>()
+                .ToList()
+            ?? new List<string>();
+
+        private async Task<CustomResponseDto<bool>?> SyncSubscriptionSharesAsync(
+            int subscriptionId,
+            string ownerId,
+            IEnumerable<string>? memberEmails,
+            IEnumerable<string>? guestNames)
+        {
+            var normalizedEmails = NormalizeShareEmails(memberEmails);
+            var normalizedGuests = NormalizeGuestNames(guestNames);
+            var existingShares = await _db.SubscriptionShares
+                .Where(s => s.SubscriptionId == subscriptionId)
+                .ToListAsync();
+
+            var targetUsers = new List<AppUser>();
+            foreach (var email in normalizedEmails)
+            {
+                var targetUser = await _userManager.FindByEmailAsync(email);
+                if (targetUser == null)
+                    return CustomResponseDto<bool>.Fail(404, $"'{email}' adresiyle kayıtlı kullanıcı bulunamadı.");
+
+                if (targetUser.Id == ownerId)
+                    return CustomResponseDto<bool>.Fail(400, "Aboneliği kendinizle paylaşamazsınız.");
+
+                targetUsers.Add(targetUser);
+            }
+
+            var targetUserIds = targetUsers
+                .Select(user => user.Id)
+                .ToHashSet(StringComparer.Ordinal);
+            var targetGuestNames = normalizedGuests
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var share in existingShares.Where(s =>
+                         !s.IsDeleted &&
+                         s.SharedUserId != null &&
+                         !targetUserIds.Contains(s.SharedUserId)))
+            {
+                share.IsDeleted = true;
+                share.UpdatedDate = DateTime.UtcNow;
+            }
+
+            foreach (var share in existingShares.Where(s =>
+                         !s.IsDeleted &&
+                         s.SharedUserId == null &&
+                         !targetGuestNames.Contains(s.DisplayName ?? string.Empty)))
+            {
+                share.IsDeleted = true;
+                share.UpdatedDate = DateTime.UtcNow;
+            }
+
+            foreach (var targetUser in targetUsers)
+            {
+                var existingShare = existingShares.FirstOrDefault(s => s.SharedUserId == targetUser.Id);
+                if (existingShare != null)
+                {
+                    existingShare.IsDeleted = false;
+                    existingShare.SharedUserEmail = targetUser.Email ?? existingShare.SharedUserEmail;
+                    existingShare.DisplayName = null;
+                    existingShare.SharedAt = existingShare.SharedAt == default ? DateTime.UtcNow : existingShare.SharedAt;
+                    existingShare.UpdatedDate = DateTime.UtcNow;
+                    continue;
+                }
+
+                await _db.SubscriptionShares.AddAsync(new SubscriptionShare
+                {
+                    SubscriptionId = subscriptionId,
+                    SharedUserId = targetUser.Id,
+                    SharedUserEmail = targetUser.Email,
+                    SharedAt = DateTime.UtcNow,
+                    CreatedDate = DateTime.UtcNow
+                });
+            }
+
+            foreach (var guestName in normalizedGuests)
+            {
+                var existingGuest = existingShares.FirstOrDefault(s =>
+                    s.SharedUserId == null &&
+                    string.Equals(s.DisplayName, guestName, StringComparison.OrdinalIgnoreCase));
+
+                if (existingGuest != null)
+                {
+                    existingGuest.IsDeleted = false;
+                    existingGuest.DisplayName = guestName;
+                    existingGuest.SharedAt = existingGuest.SharedAt == default ? DateTime.UtcNow : existingGuest.SharedAt;
+                    existingGuest.UpdatedDate = DateTime.UtcNow;
+                    continue;
+                }
+
+                await _db.SubscriptionShares.AddAsync(new SubscriptionShare
+                {
+                    SubscriptionId = subscriptionId,
+                    SharedUserId = null,
+                    DisplayName = guestName,
+                    SharedAt = DateTime.UtcNow,
+                    CreatedDate = DateTime.UtcNow
+                });
+            }
+
+            return null;
+        }
+
         // --- CRUD ---
 
         public async Task<CustomResponseDto<UserSubscriptionDto>> AddSubscriptionAsync(AddUserSubscriptionDto dto, string userId)
         {
-            var duplicate = await _repo.Where(x => x.UserId == userId && x.Name == dto.Name).AnyAsync();
-            if (duplicate)
-            {
-                _logger.LogWarning("MÃ¼kerrer abonelik ekleme denemesi. UserId: {UserId}, Name: {Name}", userId, dto.Name);
-                return CustomResponseDto<UserSubscriptionDto>.Fail(409, $"'{dto.Name}' adÄ±nda bir aboneliÄŸiniz zaten mevcut.");
-            }
-
             await _unitOfWork.BeginTransactionAsync();
             try
             {
@@ -104,26 +215,21 @@ namespace SubGuard.Service.Services
                 await _repo.AddAsync(entity);
                 await _unitOfWork.CommitAsync();
 
-                // PaylaÅŸÄ±m e-postalarÄ± varsa her biri iÃ§in SubscriptionShare kaydÄ± oluÅŸtur
-                if (dto.SharedUserEmails != null && dto.SharedUserEmails.Any())
-                {
-                    foreach (var email in dto.SharedUserEmails)
-                    {
-                        var targetUser = await _userManager.FindByEmailAsync(email);
-                        if (targetUser == null) continue;
+                var shareSyncError = await SyncSubscriptionSharesAsync(
+                    entity.Id,
+                    userId,
+                    dto.SharedUserEmails,
+                    dto.SharedGuestNames);
 
-                        var share = new SubscriptionShare
-                        {
-                            SubscriptionId = entity.Id,
-                            SharedUserId = targetUser.Id,
-                            SharedUserEmail = targetUser.Email ?? email,
-                            CreatedDate = DateTime.UtcNow
-                        };
-                        await _db.SubscriptionShares.AddAsync(share);
-                    }
-                    await _unitOfWork.CommitAsync();
+                if (shareSyncError != null)
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    return CustomResponseDto<UserSubscriptionDto>.Fail(
+                        shareSyncError.StatusCode,
+                        shareSyncError.Errors ?? new List<string> { "PaylaÅŸÄ±m bilgileri kaydedilemedi." });
                 }
 
+                await _unitOfWork.CommitAsync();
                 await _unitOfWork.CommitTransactionAsync();
                 _logger.LogInformation("Abonelik eklendi. UserId: {UserId}, Name: {Name}", userId, entity.Name);
                 return CustomResponseDto<UserSubscriptionDto>.Success(201, _mapper.Map<UserSubscriptionDto>(entity));
@@ -273,7 +379,7 @@ namespace SubGuard.Service.Services
 
             try
             {
-                var entity = await _repo.GetByIdAsync(id);
+                var entity = await _repo.Where(x => x.Id == id).FirstOrDefaultAsync();
                 if (entity == null)
                 {
                     await _unitOfWork.RollbackTransactionAsync();
@@ -285,14 +391,6 @@ namespace SubGuard.Service.Services
                     _logger.LogWarning("Yetkisiz abonelik gÃ¼ncelleme denemesi. UserId: {UserId}, SubscriptionId: {Id}", userId, id);
                     await _unitOfWork.RollbackTransactionAsync();
                     return CustomResponseDto<bool>.Fail(403, "Bu aboneliÄŸi gÃ¼ncelleme yetkiniz yok.");
-                }
-
-                var duplicate = await _repo.Where(x => x.UserId == userId && x.Name == dto.Name && x.Id != id).AnyAsync();
-                if (duplicate)
-                {
-                    _logger.LogWarning("MÃ¼kerrer abonelik gÃ¼ncelleme denemesi. UserId: {UserId}, Name: {Name}", userId, dto.Name);
-                    await _unitOfWork.RollbackTransactionAsync();
-                    return CustomResponseDto<bool>.Fail(409, $"'{dto.Name}' adÄ±nda bir aboneliÄŸiniz zaten mevcut.");
                 }
 
                 var oldColor = entity.ColorCode;
@@ -328,6 +426,23 @@ namespace SubGuard.Service.Services
                         ChangedAt = DateTime.UtcNow
                     };
                     await _db.PriceHistories.AddAsync(priceHistory);
+                }
+
+                if (dto.SharedUserEmails != null || dto.SharedGuestNames != null)
+                {
+                    var shareSyncError = await SyncSubscriptionSharesAsync(
+                        entity.Id,
+                        userId,
+                        dto.SharedUserEmails,
+                        dto.SharedGuestNames);
+
+                    if (shareSyncError != null)
+                    {
+                        await _unitOfWork.RollbackTransactionAsync();
+                        return CustomResponseDto<bool>.Fail(
+                            shareSyncError.StatusCode,
+                            shareSyncError.Errors ?? new List<string> { "PaylaÅŸÄ±m bilgileri kaydedilemedi." });
+                    }
                 }
 
                 _repo.Update(entity);

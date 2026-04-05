@@ -22,7 +22,8 @@ namespace SubGuard.Core.DTOs
         public bool HasContract { get; set; }
         public DateTime? ContractStartDate { get; set; }
         public DateTime? ContractEndDate { get; set; }
-        public string? SharedWithJson { get; set; }
+        public List<string>? SharedUserEmails { get; set; }
+        public List<string>? SharedGuestNames { get; set; }
         public string? Notes { get; set; }
     }
 }

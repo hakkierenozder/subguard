@@ -24,14 +24,15 @@ import AddSubscriptionModal from '../components/AddSubscriptionModal';
 import { SubscriptionSkeletonList } from '../components/SkeletonLoader'; // #42
 import { CatalogItem } from '../types';
 import agent from '../api/agent';
+import { formatCurrencyAmount } from '../utils/CurrencyService';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Discover'>;
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_SIZE = (SCREEN_WIDTH - 48) / 2; // 2 sütun, 16px padding + 16px gap
 
-// En ucuz planı günlük birim maliyete göre bulur.
-// #46: billingCycleDays de döndürülerek kart "/ay" vs "/yıl" doğru gösterebilsin.
+// En avantajlı planı günlük birim maliyete göre bulur.
+// billingCycleDays de döndürülerek kart "/ay" vs "/yıl" doğru gösterebilsin.
 function getCheapestPrice(item: CatalogItem): {
   price: number;
   currency: string;
@@ -136,15 +137,19 @@ function CatalogCard({ item, isSubscribed, isRecommended, colors, onAdd }: CardP
         {item.category}
       </Text>
       {priceInfo && (
-        <Text style={[styles.cardPrice, { color: colors.accent }]}>
-          {priceInfo.currency === 'TRY' ? '₺' : `${priceInfo.currency} `}
-          {priceInfo.price.toFixed(2)}
-          {'  '}
-          {/* #46: billingCycleDays >= 365 ise yıllık plan — "/ay" yerine "/yıl" göster */}
-          <Text style={[styles.cardPricePer, { color: colors.textSec }]}>
-            {priceInfo.billingCycleDays >= 365 ? '/yıl' : '/ay'}
+        <View style={styles.cardPriceWrap}>
+          <Text style={[styles.cardPriceLabel, { color: colors.textSec }]}>En avantajlı plan</Text>
+          <Text style={[styles.cardPrice, { color: colors.accent }]}>
+            {formatCurrencyAmount(priceInfo.price, priceInfo.currency, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+            {' '}
+            <Text style={[styles.cardPricePer, { color: colors.textSec }]}>
+              {priceInfo.billingCycleDays >= 365 ? '/yıl' : '/ay'}
+            </Text>
           </Text>
-        </Text>
+        </View>
       )}
       {isSubscribed ? (
         <View style={[styles.subscribedBadge, { backgroundColor: colors.success + '20' }]}>
@@ -248,9 +253,9 @@ export default function DiscoverScreen({ navigation }: Props) {
     );
     const subscribed = filteredItems.filter((i) => subscribedCatalogIds.has(i.id));
     const result = [];
-    if (recommended.length > 0) result.push({ title: 'Sana Özel Öneriler', items: recommended });
+    if (recommended.length > 0) result.push({ title: 'İlgili Kategoriler', items: recommended });
     if (others.length > 0) result.push({ title: 'Popüler Servisler', items: others });
-    if (subscribed.length > 0) result.push({ title: 'Zaten Abone Olduklarım', items: subscribed });
+    if (subscribed.length > 0) result.push({ title: 'Zaten Eklediklerin', items: subscribed });
     return result;
   }, [filteredItems, debouncedQuery, selectedCategory, userCategories, subscribedCatalogIds]);
 
@@ -384,7 +389,7 @@ export default function DiscoverScreen({ navigation }: Props) {
       {/* TREND OLAN SERVİSLER */}
       {trendingItems.length > 0 && !debouncedQuery && !selectedCategory && (
         <View style={styles.trendingSection}>
-          <Text style={[styles.trendingTitle, { color: colors.textMain }]}>🔥 Trend</Text>
+          <Text style={[styles.trendingTitle, { color: colors.textMain }]}>Trend Servisler</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.trendingList}>
             {trendingItems.map((item) => (
               <TrendingCard
@@ -533,6 +538,8 @@ const styles = StyleSheet.create({
   cardInitial: { fontSize: 22, fontWeight: '800' },
   cardName: { fontSize: 13, fontWeight: '700', textAlign: 'center', marginTop: 6 },
   cardCategory: { fontSize: 11, textAlign: 'center', marginTop: 2 },
+  cardPriceWrap: { marginTop: 6, alignItems: 'center' },
+  cardPriceLabel: { fontSize: 10, fontWeight: '700', textAlign: 'center' },
   cardPrice: { fontSize: 14, fontWeight: '800', textAlign: 'center', marginTop: 4 },
   cardPricePer: { fontSize: 10, fontWeight: '500' },
   subscribedBadge: {

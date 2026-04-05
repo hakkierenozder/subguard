@@ -13,7 +13,7 @@ namespace SubGuard.Core.Services
         Task<CustomResponseDto<bool>> UpdateProfileAsync(string userId, UpdateProfileDto dto);
         Task<CustomResponseDto<bool>> ChangePasswordAsync(string userId, ChangePasswordDto dto);
 
-        Task<CustomResponseDto<bool>> UpdateBudgetAsync(string userId, BudgetSettingsDto dto);
+        Task<CustomResponseDto<BudgetSettingsDto>> UpdateBudgetAsync(string userId, BudgetSettingsDto dto);
 
         /// <summary>GDPR: kullanıcının tüm verilerini kalıcı olarak siler.</summary>
         Task<CustomResponseDto<bool>> DeleteAccountAsync(string userId);

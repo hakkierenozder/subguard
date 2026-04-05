@@ -1,4 +1,5 @@
 using FluentValidation;
+using SubGuard.Core.Constants;
 using SubGuard.Core.DTOs;
 
 namespace SubGuard.Service.Validations
@@ -19,7 +20,9 @@ namespace SubGuard.Service.Validations
 
             RuleFor(x => x.Currency)
                 .NotEmpty().WithMessage("Para birimi seçilmelidir.")
-                .Length(3).WithMessage("Para birimi kodu 3 karakter olmalıdır (ör: USD, TRY, EUR).");
+                .Length(3).WithMessage("Para birimi kodu 3 karakter olmalıdır (ör: USD, TRY, EUR).")
+                .Must(AppConstants.Currency.IsSupported)
+                .WithMessage($"Desteklenen para birimleri: {string.Join(", ", AppConstants.Currency.SupportedCodes)}.");
         }
     }
 }

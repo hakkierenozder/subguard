@@ -5,6 +5,6 @@ namespace SubGuard.Core.Entities
         public string UserId { get; set; }
         public string Category { get; set; }
         public decimal MonthlyLimit { get; set; }
-        // Para birimi kullanıcının global MonthlyBudgetCurrency'sinden alınır — burada saklanmaz
+        public string Currency { get; set; } = Constants.AppConstants.Currency.DefaultCode;
     }
 }

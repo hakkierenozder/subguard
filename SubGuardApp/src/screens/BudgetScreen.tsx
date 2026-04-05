@@ -21,8 +21,13 @@ import { useThemeColors, getCategoryColor } from '../constants/theme';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
 import { isSubscriptionActiveNow } from '../utils/dateUtils';
-import { getSubscriptionMonthlyShareInCurrency } from '../utils/subscriptionMath';
-import { getCurrencySymbol, SUPPORTED_CURRENCIES } from '../utils/CurrencyService';
+import { convertAmountBetweenCurrencies, getSubscriptionMonthlyShareInCurrency } from '../utils/subscriptionMath';
+import {
+  formatCurrencyAmount,
+  getCurrencySymbol,
+  normalizeCurrencyCode,
+  SUPPORTED_CURRENCIES,
+} from '../utils/CurrencyService';
 import agent from '../api/agent';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -33,7 +38,14 @@ const ALERT_THRESHOLDS = [60, 70, 80, 90, 100];
 export default function BudgetScreen({ embedded = false }: { embedded?: boolean }) {
   const colors = useThemeColors();
   const isDarkMode = useSettingsStore((s) => s.isDarkMode);
-  const { budgetAlertThreshold, setBudgetAlertThreshold, monthlyBudget, setMonthlyBudget } = useSettingsStore();
+  const {
+    budgetAlertThreshold,
+    setBudgetAlertThreshold,
+    monthlyBudget,
+    setMonthlyBudget,
+    monthlyBudgetCurrency,
+    setMonthlyBudgetCurrency,
+  } = useSettingsStore();
 
   // Eşik backend'e senkronize edilir (Fix 21)
   const handleThresholdChange = async (t: number) => {
@@ -50,10 +62,11 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
     fetchAllUserSubscriptions,
     fetchExchangeRates,
   } = useUserSubscriptionStore();
-  const [budgetCurrency, setBudgetCurrency] = useState('TRY');
+  const persistedBudgetCurrency = normalizeCurrencyCode(monthlyBudgetCurrency);
+  const [draftBudgetCurrency, setDraftBudgetCurrency] = useState(persistedBudgetCurrency);
   const [budgetInput, setBudgetInput] = useState('');
 
-  const currencySymbol = getCurrencySymbol(budgetCurrency);
+  const currencySymbol = getCurrencySymbol(draftBudgetCurrency);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false); // [39] hata durumu
@@ -66,14 +79,19 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
   const [savingCat, setSavingCat] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
 
-  const formatCurrencyAmount = (
+  const formatBudgetAmount = (
     amount: number,
-    options?: { minimumFractionDigits?: number; maximumFractionDigits?: number },
-  ) =>
-    `${currencySymbol}${amount.toLocaleString('tr-TR', {
-      minimumFractionDigits: options?.minimumFractionDigits ?? 2,
-      maximumFractionDigits: options?.maximumFractionDigits ?? 2,
-    })}`;
+    currencyOrOptions?: string | { minimumFractionDigits?: number; maximumFractionDigits?: number },
+    maybeOptions?: { minimumFractionDigits?: number; maximumFractionDigits?: number },
+  ) => {
+    const currency = typeof currencyOrOptions === 'string' ? currencyOrOptions : persistedBudgetCurrency;
+    const options = typeof currencyOrOptions === 'string' ? maybeOptions : currencyOrOptions;
+
+    return formatCurrencyAmount(amount, currency, {
+    minimumFractionDigits: options?.minimumFractionDigits ?? 2,
+    maximumFractionDigits: options?.maximumFractionDigits ?? 2,
+    });
+  };
 
   const loadBudgetData = async () => {
     setError(false);
@@ -97,7 +115,9 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
           setBudgetInput('');
         }
 
-        setBudgetCurrency(data.monthlyBudgetCurrency ?? 'TRY');
+        const normalizedBudgetCurrency = normalizeCurrencyCode(data.monthlyBudgetCurrency ?? monthlyBudgetCurrency);
+        setDraftBudgetCurrency(normalizedBudgetCurrency);
+        setMonthlyBudgetCurrency(normalizedBudgetCurrency);
 
         if (data.budgetAlertThreshold > 0) {
           setBudgetAlertThreshold(data.budgetAlertThreshold);
@@ -120,6 +140,12 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
     loadBudgetData();
   }, []);
 
+  useEffect(() => {
+    if (!editMode) {
+      setDraftBudgetCurrency(persistedBudgetCurrency);
+    }
+  }, [editMode, persistedBudgetCurrency]);
+
   const activeSubs = useMemo(
     () => subscriptions.filter((s) => isSubscriptionActiveNow(s.isActive, s.firstPaymentDate, s.contractStartDate, new Date(), s.createdDate)),
     [subscriptions],
@@ -131,11 +157,11 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
       return total + getSubscriptionMonthlyShareInCurrency(
         sub,
         exchangeRates,
-        budgetCurrency,
+        persistedBudgetCurrency,
         { unknownRateAsZero: true },
       );
     }, 0);
-  }, [activeSubs, budgetCurrency, exchangeRates]);
+  }, [activeSubs, exchangeRates, persistedBudgetCurrency]);
 
   // Kategori bazlı harcama
   const categoryBreakdown = useMemo(() => {
@@ -144,7 +170,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
       const myShare = getSubscriptionMonthlyShareInCurrency(
         sub,
         exchangeRates,
-        budgetCurrency,
+        persistedBudgetCurrency,
         { unknownRateAsZero: true },
       );
       map[sub.category] = (map[sub.category] ?? 0) + myShare;
@@ -152,7 +178,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
     return Object.entries(map)
       .map(([category, amount]) => ({ category, amount }))
       .sort((a, b) => b.amount - a.amount);
-  }, [activeSubs, budgetCurrency, exchangeRates]);
+  }, [activeSubs, exchangeRates, persistedBudgetCurrency]);
 
   const budgetUsageRatio = monthlyBudget > 0 ? totalExpense / monthlyBudget : 0;
   const budgetPercentage = monthlyBudget > 0 ? Math.min(budgetUsageRatio, 1) : 0;
@@ -163,6 +189,31 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
   const ringColor =
     isOverBudget ? colors.error : isNearLimit ? colors.warning : colors.accent;
 
+  const handleDraftCurrencyChange = (nextCurrency: string) => {
+    const normalizedNextCurrency = normalizeCurrencyCode(nextCurrency);
+    if (normalizedNextCurrency === draftBudgetCurrency) return;
+
+    const trimmedBudgetInput = budgetInput.trim();
+    if (trimmedBudgetInput) {
+      const parsedBudgetInput = parseFloat(trimmedBudgetInput.replace(',', '.'));
+      if (!Number.isNaN(parsedBudgetInput)) {
+        const convertedBudgetInput = convertAmountBetweenCurrencies(
+          parsedBudgetInput,
+          draftBudgetCurrency,
+          normalizedNextCurrency,
+          exchangeRates,
+        );
+
+        if (convertedBudgetInput > 0) {
+          const fractionDigits = normalizedNextCurrency === 'TRY' ? 0 : 2;
+          setBudgetInput(convertedBudgetInput.toFixed(fractionDigits));
+        }
+      }
+    }
+
+    setDraftBudgetCurrency(normalizedNextCurrency);
+  };
+
   const handleSaveBudget = async () => {
     const parsed = parseFloat(budgetInput.replace(',', '.'));
     if (isNaN(parsed) || parsed < 0) {
@@ -170,10 +221,27 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
       return;
     }
     // Mevcut kategori limitlerinden büyük olanlar varsa uyar
-    const exceedingCats = categoryBudgets.filter(b => parsed > 0 && b.monthlyLimit > parsed);
+    const exceedingCats = categoryBudgets
+      .map((budgetItem) => ({
+        ...budgetItem,
+        convertedLimit: convertAmountBetweenCurrencies(
+          budgetItem.monthlyLimit,
+          budgetItem.currency,
+          draftBudgetCurrency,
+          exchangeRates,
+        ),
+      }))
+      .filter((budgetItem) => parsed > 0 && budgetItem.convertedLimit > parsed);
     if (exceedingCats.length > 0) {
       const names = exceedingCats
-        .map(b => `• ${b.category} (${formatCurrencyAmount(b.monthlyLimit, { minimumFractionDigits: 0, maximumFractionDigits: 0 })})`)
+        .map((budgetItem) => `- ${budgetItem.category} (${formatBudgetAmount(
+          budgetItem.convertedLimit,
+          draftBudgetCurrency,
+          {
+            minimumFractionDigits: draftBudgetCurrency === 'TRY' ? 0 : 2,
+            maximumFractionDigits: draftBudgetCurrency === 'TRY' ? 0 : 2,
+          },
+        )})`)
         .join('\n');
       Alert.alert(
         'Kategori Limitleri Uyarısı',
@@ -191,8 +259,13 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
   const saveBudget = async (parsed: number) => {
     setSaving(true);
     try {
-      await agent.Budget.updateSettings({ monthlyBudget: parsed, monthlyBudgetCurrency: budgetCurrency });
-      setMonthlyBudget(parsed); // updates store → HomeScreen sees new value immediately
+      const response = await agent.Budget.updateSettings({ monthlyBudget: parsed, monthlyBudgetCurrency: draftBudgetCurrency });
+      const updatedBudget = response?.data?.monthlyBudget ?? parsed;
+      const updatedCurrency = normalizeCurrencyCode(response?.data?.monthlyBudgetCurrency ?? draftBudgetCurrency);
+      setMonthlyBudget(updatedBudget);
+      setMonthlyBudgetCurrency(updatedCurrency);
+      setDraftBudgetCurrency(updatedCurrency);
+      setBudgetInput(updatedBudget > 0 ? String(updatedBudget) : '');
       setEditMode(false);
     } catch {
       // Hata toast'ı agent.ts interceptor tarafından gösterilir
@@ -219,7 +292,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
     if (monthlyBudget > 0 && parsed > monthlyBudget) {
       Alert.alert(
         'Limit Aşıldı',
-        `Kategori limiti, aylık bütçe hedefini (${formatCurrencyAmount(monthlyBudget, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}) aşamaz.`,
+        `Kategori limiti, aylık bütçe hedefini (${formatBudgetAmount(monthlyBudget, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}) aşamaz.`,
       );
       return;
     }
@@ -355,7 +428,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
             <View style={styles.statBox}>
               <Text style={[styles.statLabel, { color: colors.textSec }]}>Aktif Aylık Yük</Text>
               <Text style={[styles.statValue, { color: colors.textMain }]}>
-                {formatCurrencyAmount(totalExpense)}
+                {formatBudgetAmount(totalExpense)}
               </Text>
             </View>
             <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
@@ -363,7 +436,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
               <Text style={[styles.statLabel, { color: colors.textSec }]}>Bütçe Hedefi</Text>
               <Text style={[styles.statValue, { color: colors.textMain }]}>
                 {monthlyBudget > 0
-                  ? formatCurrencyAmount(monthlyBudget, { minimumFractionDigits: 0, maximumFractionDigits: 0 })
+                    ? formatBudgetAmount(monthlyBudget, { minimumFractionDigits: 0, maximumFractionDigits: 0 })
                   : '—'}
               </Text>
             </View>
@@ -379,7 +452,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
                 ]}
               >
                 {monthlyBudget > 0
-                  ? formatCurrencyAmount(Math.abs(monthlyBudget - totalExpense))
+                  ? formatBudgetAmount(Math.abs(monthlyBudget - totalExpense))
                   : '—'}
               </Text>
             </View>
@@ -405,7 +478,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
               />
               <Text style={[styles.warningText, { color: isOverBudget ? colors.error : colors.warning }]}>
                 {isOverBudget
-                  ? `Bütçen ${formatCurrencyAmount(totalExpense - monthlyBudget)} aşıldı.`
+                  ? `Bütçen ${formatBudgetAmount(totalExpense - monthlyBudget)} aşıldı.`
                   : `Bütçenin %${percentDisplay}'ini kullandın.`}
               </Text>
             </View>
@@ -421,6 +494,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
               <TouchableOpacity
                 onPress={() => {
                   setBudgetInput(monthlyBudget > 0 ? monthlyBudget.toString() : '');
+                  setDraftBudgetCurrency(persistedBudgetCurrency);
                   setEditMode(true);
                 }}
                 style={[styles.editBtn, { backgroundColor: colors.inputBg }]}
@@ -458,7 +532,11 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.cancelBtn, { borderColor: colors.border }]}
-                  onPress={() => setEditMode(false)}
+                  onPress={() => {
+                    setBudgetInput(monthlyBudget > 0 ? monthlyBudget.toString() : '');
+                    setDraftBudgetCurrency(persistedBudgetCurrency);
+                    setEditMode(false);
+                  }}
                 >
                   <Text style={[styles.cancelBtnText, { color: colors.textSec }]}>İptal</Text>
                 </TouchableOpacity>
@@ -466,7 +544,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
 
               <View style={styles.currencyChipRow}>
                 {SUPPORTED_CURRENCIES.map((currency) => {
-                  const selected = budgetCurrency === currency;
+                  const selected = draftBudgetCurrency === currency;
 
                   return (
                     <TouchableOpacity
@@ -478,7 +556,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
                           borderColor: selected ? colors.accent : colors.border,
                         },
                       ]}
-                      onPress={() => setBudgetCurrency(currency)}
+                      onPress={() => handleDraftCurrencyChange(currency)}
                     >
                       <Text
                         style={[
@@ -496,7 +574,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
           ) : (
             <Text style={[styles.currentBudgetText, { color: monthlyBudget > 0 ? colors.accent : colors.textSec }]}>
               {monthlyBudget > 0
-                ? `${formatCurrencyAmount(monthlyBudget, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} / ay`
+                ? `${formatBudgetAmount(monthlyBudget, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} / ay`
                 : 'Henüz belirlenmedi'}
             </Text>
           )}
@@ -544,7 +622,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                       <Text style={{ fontSize: 16, fontWeight: '800', color: isCurrentMatch ? colors.accent : colors.textMain }}>
-                        {formatCurrencyAmount(suggested, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                    {formatBudgetAmount(suggested, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                       </Text>
                       {!isCurrentMatch && (
                         <Ionicons name="chevron-forward" size={14} color={colors.textSec} />
@@ -643,7 +721,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
                     {catBudget ? (
                       <>
                         <Text style={[styles.catAmount, { color: barColor, flex: 1, textAlign: 'right' }]}>
-                          {formatCurrencyAmount(amount, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} / {formatCurrencyAmount(catBudget.monthlyLimit, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                          {formatBudgetAmount(amount, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} / {formatBudgetAmount(catBudget.monthlyLimit, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                         </Text>
                         <TouchableOpacity
                           onPress={() => isEditing
@@ -666,7 +744,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
                           %{(pct * 100).toFixed(0)}
                         </Text>
                         <Text style={[styles.catAmount, { color: dotColor }]}>
-                          {formatCurrencyAmount(amount)}
+                          {formatBudgetAmount(amount)}
                         </Text>
                         <TouchableOpacity
                           onPress={() => isEditing
@@ -735,7 +813,7 @@ export default function BudgetScreen({ embedded = false }: { embedded?: boolean 
                           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6 }}>
                             <Ionicons name="alert-circle-outline" size={13} color={colors.error} />
                             <Text style={{ fontSize: 11, color: colors.error, fontWeight: '600' }}>
-                              Ana bütçeyi ({formatCurrencyAmount(monthlyBudget, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}) aşamazsın
+                              Ana bütçeyi ({formatBudgetAmount(monthlyBudget, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}) aşamazsın
                             </Text>
                           </View>
                         )}

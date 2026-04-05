@@ -98,12 +98,6 @@ public class AppDbContext : IdentityDbContext<AppUser>
             .HasIndex(x => x.Expiration)
             .HasDatabaseName("IX_RefreshTokens_Expiration");
 
-        // UserSubscription: aynı kullanıcı aynı isme sahip aktif (silinmemiş) abonelik ekleyemez
-        modelBuilder.Entity<UserSubscription>()
-            .HasIndex(s => new { s.UserId, s.Name })
-            .HasFilter("\"IsDeleted\" = false")
-            .HasDatabaseName("IX_UserSubscriptions_UserId_Name_Active");
-
         // SubscriptionShare: (SubscriptionId, SharedUserId) çifti benzersiz olmalı
         modelBuilder.Entity<SubscriptionShare>()
             .HasIndex(s => new { s.SubscriptionId, s.SharedUserId })

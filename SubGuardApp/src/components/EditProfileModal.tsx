@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View, Text, Modal, StyleSheet, TouchableOpacity, TextInput,
   Alert, KeyboardAvoidingView, Platform, ScrollView,
@@ -6,8 +6,10 @@ import {
 import { useForm, Controller } from 'react-hook-form';
 import { useThemeColors } from '../constants/theme';
 import agent from '../api/agent';
-
-const CURRENCIES = ['TRY', 'USD', 'EUR', 'GBP'];
+import { normalizeCurrencyCode, SUPPORTED_CURRENCIES } from '../utils/CurrencyService';
+import { convertAmountBetweenCurrencies } from '../utils/subscriptionMath';
+import { useUserSubscriptionStore } from '../store/useUserSubscriptionStore';
+const CURRENCIES = [...SUPPORTED_CURRENCIES];
 
 interface Props {
   visible: boolean;
@@ -18,24 +20,64 @@ interface Props {
 
 export default function EditProfileModal({ visible, onClose, currentUser, onUpdateSuccess }: Props) {
   const colors = useThemeColors();
+  const exchangeRates = useUserSubscriptionStore((state) => state.exchangeRates);
+  const previousCurrencyRef = useRef<string>('TRY');
   const {
     control,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues: { fullName: '', monthlyBudget: '', monthlyBudgetCurrency: 'TRY' },
   });
+  const watchedBudget = watch('monthlyBudget');
+  const watchedBudgetCurrency = normalizeCurrencyCode(watch('monthlyBudgetCurrency'));
 
   useEffect(() => {
     if (currentUser) {
+      const normalizedCurrency = normalizeCurrencyCode(currentUser.monthlyBudgetCurrency);
+      previousCurrencyRef.current = normalizedCurrency;
       reset({
         fullName: currentUser.fullName || '',
         monthlyBudget: currentUser.monthlyBudget ? currentUser.monthlyBudget.toString() : '',
-        monthlyBudgetCurrency: currentUser.monthlyBudgetCurrency || 'TRY',
+        monthlyBudgetCurrency: normalizedCurrency,
       });
     }
   }, [currentUser, visible, reset]);
+
+  useEffect(() => {
+    if (!visible) return;
+
+    const previousCurrency = previousCurrencyRef.current;
+    const nextCurrency = watchedBudgetCurrency;
+
+    if (previousCurrency === nextCurrency) return;
+
+    const rawBudgetValue = typeof watchedBudget === 'string' ? watchedBudget.trim() : '';
+    if (rawBudgetValue !== '') {
+      const parsedBudget = parseFloat(rawBudgetValue.replace(',', '.'));
+      if (!Number.isNaN(parsedBudget) && parsedBudget >= 0) {
+        const convertedBudget = convertAmountBetweenCurrencies(
+          parsedBudget,
+          previousCurrency,
+          nextCurrency,
+          exchangeRates,
+        );
+
+        if (parsedBudget === 0 || convertedBudget > 0) {
+          const fractionDigits = nextCurrency === 'TRY' ? 0 : 2;
+          setValue('monthlyBudget', convertedBudget.toFixed(fractionDigits), {
+            shouldDirty: true,
+            shouldValidate: true,
+          });
+        }
+      }
+    }
+
+    previousCurrencyRef.current = nextCurrency;
+  }, [exchangeRates, setValue, visible, watchedBudget, watchedBudgetCurrency]);
 
   const onSubmit = async (data: any) => {
     try {

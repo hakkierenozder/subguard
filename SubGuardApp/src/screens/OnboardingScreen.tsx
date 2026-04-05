@@ -16,12 +16,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import * as Notifications from 'expo-notifications';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../App';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useThemeColors } from '../constants/theme';
 import agent from '../api/agent';
+import { registerForPushNotificationsAsync } from '../utils/NotificationManager';
+import { getCurrencySymbol } from '../utils/CurrencyService';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -79,7 +80,8 @@ const PAGES: OnboardingPage[] = [
 
 export default function OnboardingScreen({ navigation }: Props) {
   const colors = useThemeColors();
-  const { setOnboardingCompleted } = useSettingsStore();
+  const setOnboardingCompleted = useSettingsStore((state) => state.setOnboardingCompleted);
+  const monthlyBudgetCurrency = useSettingsStore((state) => state.monthlyBudgetCurrency);
   const flatListRef = useRef<FlatList>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const dotAnims = useRef(PAGES.map((_, i) => new Animated.Value(i === 0 ? 24 : 8))).current;
@@ -126,8 +128,8 @@ export default function OnboardingScreen({ navigation }: Props) {
 
   const requestNotifications = async () => {
     try {
-      const { status } = await Notifications.requestPermissionsAsync();
-      setNotifGranted(status === 'granted');
+      const granted = await registerForPushNotificationsAsync();
+      setNotifGranted(granted);
     } catch {
       setNotifGranted(false);
     }
@@ -153,7 +155,7 @@ export default function OnboardingScreen({ navigation }: Props) {
               <Ionicons name="wallet-outline" size={15} /> Aylık Bütçe Hedefi
             </Text>
             <View style={styles.budgetInputRow}>
-              <Text style={styles.currencyPrefix}>₺</Text>
+              <Text style={styles.currencyPrefix}>{getCurrencySymbol(monthlyBudgetCurrency)}</Text>
               <TextInput
                 style={styles.budgetInput}
                 value={budgetInput}

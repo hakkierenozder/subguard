@@ -1,20 +1,50 @@
-import * as Notifications from 'expo-notifications';
 import * as Calendar from 'expo-calendar';
 import { Alert, Platform } from 'react-native';
+import { isRunningInExpoGo } from 'expo';
 import { UserSubscription } from '../types';
 import { getNextBillingDateForSub } from './dateUtils';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+type NotificationsModule = typeof import('expo-notifications');
+
+const isExpoGoAndroid = Platform.OS === 'android' && isRunningInExpoGo();
+let notificationsModuleCache: NotificationsModule | null | undefined;
+let notificationHandlerConfigured = false;
+
+const getNotificationsModule = (): NotificationsModule | null => {
+  if (isExpoGoAndroid) return null;
+
+  if (notificationsModuleCache === undefined) {
+    notificationsModuleCache = require('expo-notifications') as NotificationsModule;
+  }
+
+  if (notificationsModuleCache && !notificationHandlerConfigured) {
+    notificationsModuleCache.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+        shouldShowBanner: true,
+        shouldShowList: true,
+      }),
+    });
+    notificationHandlerConfigured = true;
+  }
+
+  return notificationsModuleCache;
+};
+
+export const isRemotePushSupported = () => !isExpoGoAndroid;
 
 export async function registerForPushNotificationsAsync(): Promise<boolean> {
+  const Notifications = getNotificationsModule();
+  if (!Notifications) {
+    Alert.alert(
+      'Development Build Gerekli',
+      'Android Expo Go, SDK 53 sonrası push bildirim kaydını desteklemiyor. Bildirimleri test etmek için development build kullanın.',
+    );
+    return false;
+  }
+
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('default', {
       name: 'default',
@@ -41,6 +71,9 @@ export async function registerForPushNotificationsAsync(): Promise<boolean> {
 }
 
 export async function getExpoPushToken(): Promise<string | null> {
+  const Notifications = getNotificationsModule();
+  if (!Notifications) return null;
+
   try {
     const tokenData = await Notifications.getExpoPushTokenAsync();
     return tokenData.data;
@@ -54,6 +87,9 @@ export async function scheduleSubscriptionNotification(
   body: string,
   triggerDate: Date,
 ) {
+  const Notifications = getNotificationsModule();
+  if (!Notifications) return null;
+
   try {
     const id = await Notifications.scheduleNotificationAsync({
       content: { title, body, sound: 'default' },
@@ -70,10 +106,14 @@ export async function scheduleSubscriptionNotification(
 }
 
 export async function cancelNotification(notificationId: string) {
+  const Notifications = getNotificationsModule();
+  if (!Notifications) return;
   await Notifications.cancelScheduledNotificationAsync(notificationId);
 }
 
 export async function cancelAllNotifications() {
+  const Notifications = getNotificationsModule();
+  if (!Notifications) return;
   await Notifications.cancelAllScheduledNotificationsAsync();
 }
 

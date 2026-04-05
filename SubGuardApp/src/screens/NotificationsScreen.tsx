@@ -217,6 +217,33 @@ function EmptyState({ colors }: { colors: ReturnType<typeof useThemeColors> }) {
   );
 }
 
+function ErrorState({
+  colors,
+  message,
+  onRetry,
+}: {
+  colors: ReturnType<typeof useThemeColors>;
+  message: string;
+  onRetry: () => void;
+}) {
+  return (
+    <View style={styles.emptyWrap}>
+      <View style={[styles.emptyIconCircle, { backgroundColor: colors.inputBg }]}>
+        <Ionicons name="warning-outline" size={40} color={colors.error} />
+      </View>
+      <Text style={[styles.emptyTitle, { color: colors.textMain }]}>Bildirimler yuklenemedi</Text>
+      <Text style={[styles.emptyDesc, { color: colors.textSec }]}>{message}</Text>
+      <TouchableOpacity
+        onPress={onRetry}
+        activeOpacity={0.82}
+        style={[styles.retryButton, { backgroundColor: colors.accent }]}
+      >
+        <Text style={styles.retryButtonText}>Tekrar dene</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
 // --- Ana Ekran ---
 export default function NotificationsScreen() {
   const colors = useThemeColors();
@@ -228,6 +255,7 @@ export default function NotificationsScreen() {
     unreadCount,
     loading,
     hasMore,
+    error,
     fetchNotifications,
     markAsRead,
     markAllAsRead,
@@ -372,53 +400,69 @@ export default function NotificationsScreen() {
               </Text>
             )}
           </View>
-
-          {unreadCount > 0 && (
+          <View style={styles.headerActions}>
+            {unreadCount > 0 && (
+              <TouchableOpacity
+                style={styles.markAllBtn}
+                onPress={handleMarkAllRead}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="checkmark-done-outline" size={16} color="#FFF" />
+                <Text style={styles.markAllText}>Tümünü oku</Text>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity
-              style={styles.markAllBtn}
-              onPress={handleMarkAllRead}
+              style={styles.closeBtn}
+              onPress={() => navigation.goBack()}
               activeOpacity={0.8}
             >
-              <Ionicons name="checkmark-done-outline" size={16} color="#FFF" />
-              <Text style={styles.markAllText}>Tümünü oku</Text>
+              <Ionicons name="close" size={20} color="#FFF" />
             </TouchableOpacity>
-          )}
+          </View>
         </View>
       </LinearGradient>
 
       {/* U-3: FİLTRE CHIPS */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10, gap: 8 }}
-        style={{ flexGrow: 0 }}
-      >
-        {FILTER_TABS.map(tab => {
-          const isActive = activeFilter === tab.key;
-          return (
-            <TouchableOpacity
-              key={tab.key}
-              onPress={() => setActiveFilter(tab.key)}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 5,
-                paddingHorizontal: 14,
-                paddingVertical: 7,
-                borderRadius: 20,
-                borderWidth: 1,
-                borderColor: isActive ? colors.accent : colors.border,
-                backgroundColor: isActive ? colors.accent : colors.cardBg,
-              }}
-            >
-              <Ionicons name={tab.icon as any} size={13} color={isActive ? '#FFF' : colors.textSec} />
-              <Text style={{ fontSize: 12, fontWeight: '700', color: isActive ? '#FFF' : colors.textSec }}>
-                {tab.label}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
+      <View style={styles.filterBar}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filterScrollContent}
+          style={styles.filterScroll}
+        >
+          {FILTER_TABS.map(tab => {
+            const isActive = activeFilter === tab.key;
+            return (
+              <TouchableOpacity
+                key={tab.key}
+                onPress={() => setActiveFilter(tab.key)}
+                style={[
+                  styles.filterChip,
+                  {
+                    borderColor: isActive ? colors.accent : colors.border,
+                    backgroundColor: isActive ? colors.accent : colors.cardBg,
+                  },
+                ]}
+                activeOpacity={0.82}
+              >
+                <Ionicons
+                  name={tab.icon as any}
+                  size={15}
+                  color={isActive ? '#FFF' : colors.textSec}
+                />
+                <Text
+                  style={[
+                    styles.filterChipText,
+                    { color: isActive ? '#FFF' : colors.textSec },
+                  ]}
+                >
+                  {tab.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </View>
 
       {/* SKELETON LOADING */}
       {loading && notifications.length === 0 && (
@@ -445,7 +489,11 @@ export default function NotificationsScreen() {
           styles.listContent,
           notifications.length === 0 && styles.listEmpty,
         ]}
-        ListEmptyComponent={!loading ? <EmptyState colors={colors} /> : null}
+        ListEmptyComponent={!loading ? (
+          error
+            ? <ErrorState colors={colors} message={error} onRetry={() => void fetchNotifications(true)} />
+            : <EmptyState colors={colors} />
+        ) : null}
         ListFooterComponent={renderFooter}
         refreshControl={
           <RefreshControl
@@ -490,6 +538,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
   headerTitle: {
     fontSize: 26,
     fontWeight: '800',
@@ -513,6 +566,45 @@ const styles = StyleSheet.create({
   markAllText: {
     color: '#FFF',
     fontSize: 13,
+    fontWeight: '700',
+  },
+  closeBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.15)',
+  },
+
+  filterBar: {
+    paddingTop: 10,
+    paddingBottom: 4,
+  },
+  filterScroll: {
+    flexGrow: 0,
+    minHeight: 56,
+    overflow: 'visible',
+  },
+  filterScrollContent: {
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    gap: 8,
+    alignItems: 'center',
+  },
+  filterChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    minHeight: 42,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 22,
+    borderWidth: 1,
+  },
+  filterChipText: {
+    fontSize: 13,
+    lineHeight: 18,
     fontWeight: '700',
   },
 
@@ -610,6 +702,17 @@ const styles = StyleSheet.create({
   snackBtnText: { fontSize: 14, fontWeight: '700' },
 
   // Boş durum
+  retryButton: {
+    marginTop: 18,
+    paddingHorizontal: 18,
+    paddingVertical: 11,
+    borderRadius: 12,
+  },
+  retryButtonText: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: '700',
+  },
   emptyWrap: {
     alignItems: 'center',
     paddingHorizontal: 40,
